@@ -1,7 +1,7 @@
 import { type FC } from 'react';
-import { useResume } from './Resume.provider.tsx';
+import { useResume } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
-import type { Resume } from '../types.ts';
+import type { Resume } from '../../types.ts';
 
 interface ProjectsSectionProps {}
 

@@ -1,0 +1,12 @@
+.workspace {
+	display: flex;
+
+	.workspace-left {}
+	.workspace-right {}
+}
+
+@media print {
+	.workspace-left {
+		display: none !important;
+	}
+}

@@ -1,0 +1,12 @@
+.layout.column {
+	.page-content {
+		display: grid;
+		grid-template-areas: "left right";
+		grid-template-rows: 100%;
+		grid-template-columns: 3fr 7fr;
+	}
+
+	.column:first-child {
+
+	}
+}

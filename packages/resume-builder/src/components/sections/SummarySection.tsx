@@ -1,6 +1,6 @@
 import { type FC, type PropsWithChildren } from 'react';
 import { Section } from './Section.tsx';
-import { useResume } from './Resume.provider.tsx';
+import { useResume } from '../Resume.provider.tsx';
 
 interface SummaryProps extends PropsWithChildren {}
 

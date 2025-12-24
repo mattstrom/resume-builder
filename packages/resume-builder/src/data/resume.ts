@@ -4,6 +4,7 @@ import type { Resume } from '../types.ts';
 export const resume: Resume = {
 	contactInformation: {
 		name: 'Alex Johnson',
+		title: 'Principal Software Engineer',
 		location: 'Anytown, USA',
 		phoneNumber: '(646) 657-8766',
 		email: 'alex.johnson@example.com',
@@ -117,7 +118,14 @@ export const resume: Resume = {
 	projects: [
 		{
 			name: 'Task Management App',
-			technologies: ['Electron', 'React', 'TypeScript', 'Mobx', 'Webpack', 'Vite'],
+			technologies: [
+				'Electron',
+				'React',
+				'TypeScript',
+				'Mobx',
+				'Webpack',
+				'Vite',
+			],
 			items: [
 				'Led development of desktop app for website management and feature flag management',
 				'Integrated AI chatbot for AI-powered content suggestions',
@@ -127,7 +135,15 @@ export const resume: Resume = {
 		},
 		{
 			name: 'E-commerce Platform',
-			technologies: ['React', 'Node.js', 'GraphQL', 'Mobx', 'RxJS', 'NestJS', 'PostgreSQL'],
+			technologies: [
+				'React',
+				'Node.js',
+				'GraphQL',
+				'Mobx',
+				'RxJS',
+				'NestJS',
+				'PostgreSQL',
+			],
 			items: [
 				'Architected and built full-stack web application for managing website marketing campaigns',
 				'Developed complex state management with Mobx and RxJS for responsive UI',
@@ -140,7 +156,14 @@ export const resume: Resume = {
 		},
 		{
 			name: 'Real-time Chat System',
-			technologies: ['CRDT', 'WebSockets', 'Redis', 'Node.js', 'YJS', 'Mobx'],
+			technologies: [
+				'CRDT',
+				'WebSockets',
+				'Redis',
+				'Node.js',
+				'YJS',
+				'Mobx',
+			],
 			items: [
 				'Architected multi-user collaborative editing system using Conflict-free Replicated Data Types (CRDTs)',
 				'Developed custom synchronization layer between state management and CRDT engine',

@@ -1,5 +1,5 @@
 import { type FC, type PropsWithChildren } from 'react';
-import type { Job } from '../types.ts';
+import type { Job } from '../../types.ts';
 
 interface JobProps extends PropsWithChildren {
 	job: Job;

@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { useResume } from './Resume.provider.tsx';
+import { useResume } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
 
 interface EducationSectionProps {}
