@@ -15,7 +15,6 @@ export const Section: FC<SectionProps> = ({ children, heading, className }) => {
 			<header>
 				<h2>{heading}</h2>
 			</header>
-			<hr />
 			<div>{children}</div>
 		</section>
 	);

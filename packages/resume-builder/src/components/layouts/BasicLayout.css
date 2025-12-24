@@ -65,6 +65,8 @@
 
 		> header {
 			font-variant: small-caps;
+			border-bottom: 1px solid black;
+			margin-bottom: 0.5rem;
 		}
 
 		h2 {
