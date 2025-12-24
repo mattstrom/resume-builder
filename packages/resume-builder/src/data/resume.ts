@@ -2,9 +2,9 @@ import { outdent } from 'outdent';
 import type { Resume } from '../types.ts';
 
 export const resume: Resume = {
+	name: 'Alex Johnson',
+	title: 'Principal Software Engineer',
 	contactInformation: {
-		name: 'Alex Johnson',
-		title: 'Principal Software Engineer',
 		location: 'Anytown, USA',
 		phoneNumber: '(646) 657-8766',
 		email: 'alex.johnson@example.com',
@@ -48,7 +48,7 @@ export const resume: Resume = {
 		},
 		{
 			company: 'Gamma Studios',
-			position: 'Frontend Software Engineer',
+			position: 'Software Engineer, Frontend',
 			location: 'Anytown, USA',
 			startDate: 'July 2014',
 			endDate: 'July 2016',
@@ -60,7 +60,8 @@ export const resume: Resume = {
 	],
 	education: [
 		{
-			degree: 'Bachelor of Science, Computer Science',
+			degree: 'Bachelor of Science',
+			field: 'Computer Science',
 			institution: 'State University',
 			graduated: 'May 2010',
 		},
@@ -109,10 +110,6 @@ export const resume: Resume = {
 		{
 			name: 'Tools',
 			items: ['Git', 'Docker', 'Kubernetes', 'Ansible', 'etc.'],
-		},
-		{
-			name: 'AI',
-			items: ['Claude', 'Cursor'],
 		},
 	],
 	projects: [

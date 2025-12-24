@@ -5,13 +5,13 @@ import { ContactInformationSection } from './ContactInformationSection.tsx';
 interface MastheadProps {}
 
 export const Masthead: FC<MastheadProps> = () => {
-	const { contactInformation } = useResume();
+	const { name } = useResume();
 
 	return (
 		<section className="masthead">
 			<section className="left">
 				<header className="name">
-					<h1>{contactInformation.name}</h1>
+					<h1>{name}</h1>
 				</header>
 			</section>
 			<ContactInformationSection />

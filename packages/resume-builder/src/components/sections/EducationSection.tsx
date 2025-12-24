@@ -12,6 +12,7 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 			{education.map((item, index) => (
 				<section key={index}>
 					<header className="degree">{item.degree}</header>
+					<div className="field">{item.field}</div>
 					<div>
 						<span className="institution">{item.institution}</span>
 						{' | Graduated '}

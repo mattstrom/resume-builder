@@ -1,6 +1,4 @@
 export interface ContactInformation {
-	name: string;
-	title: string;
 	location: string;
 	phoneNumber: string;
 	email: string;
@@ -19,6 +17,7 @@ export interface Job {
 
 export interface Education {
 	degree: string;
+	field: string;
 	institution: string;
 	graduated: string;
 }
@@ -35,6 +34,8 @@ export interface Project {
 }
 
 export interface Resume {
+	name: string;
+	title: string;
 	contactInformation: ContactInformation;
 	summary: string;
 	workExperience: Job[];
