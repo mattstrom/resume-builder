@@ -1,16 +1,19 @@
 {
-  "name": "personal",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "typescript": "^5.2.2",
-    "prettier": "^3.3.1",
-    "vite": "^5.2.0"
-  }
+	"name": "personal",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview"
+	},
+	"workspaces": [
+		"packages/resume-builder"
+	],
+	"devDependencies": {
+		"prettier": "3.7.4",
+		"typescript": "^5.2.2",
+		"vite": "^5.2.0"
+	}
 }
