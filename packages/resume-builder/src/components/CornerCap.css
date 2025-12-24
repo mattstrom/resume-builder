@@ -1,0 +1,12 @@
+:root {
+	--corner-cap-color: var(--accent-color, black);
+}
+
+.corner-cap {
+	background-color: var(--corner-cap-color);
+	color: contrast-color(var(--corner-cap-color));
+	margin-left: calc(-1 * var(--page-margin));
+	padding-left: var(--page-margin);
+	margin-top: calc(-1 * var(--page-margin));
+	padding-top: var(--page-margin);
+}

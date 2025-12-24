@@ -16,6 +16,9 @@
 	--font-size: 10pt;
 	--font-size-print: 12pt;
 	--link-color: blue;
+
+	--font-color: black;
+	--accent-color: black;
 }
 
 .resume {
