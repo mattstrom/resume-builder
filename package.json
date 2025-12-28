@@ -9,8 +9,7 @@
 		"preview": "vite preview"
 	},
 	"workspaces": [
-		"packages/resume-builder",
-		"packages/web"
+		"packages/resume-builder"
 	],
 	"devDependencies": {
 		"prettier": "3.7.4",
