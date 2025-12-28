@@ -2,6 +2,7 @@ import { type FC } from 'react';
 import { useSettings } from './Settings.provider.tsx';
 import { BasicLayout, ColumnLayout } from './layouts';
 import { Controls } from './Controls.tsx';
+import { GridLayout } from './layouts/GridLayout.tsx';
 
 import './Workspace.css';
 
@@ -12,6 +13,8 @@ export const Workspace: FC = () => {
 		switch (template) {
 			case 'column':
 				return <ColumnLayout />;
+			case 'grid':
+				return <GridLayout />;
 			default:
 				return <BasicLayout />;
 		}

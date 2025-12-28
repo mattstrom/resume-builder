@@ -9,7 +9,7 @@ export const WorkExperience: FC<WorkExperienceProps> = () => {
 	const { workExperience } = useResume();
 
 	return (
-		<Section heading="Work Experience" className="work-experience">
+		<Section heading="Work History" className="work-experience">
 			{workExperience.map((item, index) => (
 				<JobSection key={index} job={item} />
 			))}

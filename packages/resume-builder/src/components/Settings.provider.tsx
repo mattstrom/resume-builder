@@ -5,8 +5,8 @@ import {
 	type PropsWithChildren,
 	type SetStateAction,
 	useContext,
-	useState,
 } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 interface Settings {
 	template: string;
@@ -18,8 +18,11 @@ interface Settings {
 export const SettingsContext = createContext<Settings | null>(null);
 
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
-	const [template, setTemplate] = useState('column');
-	const [showMarginPattern, setShowMarginPattern] = useState(true);
+	const [template, setTemplate] = useLocalStorage('resume:template', 'grid');
+	const [showMarginPattern, setShowMarginPattern] = useLocalStorage(
+		'resume:showMarginPattern',
+		true,
+	);
 
 	const settings = {
 		template,

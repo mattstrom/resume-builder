@@ -6,15 +6,13 @@ export const resume: Resume = {
 	title: 'Principal Software Engineer',
 	contactInformation: {
 		location: 'Anytown, USA',
-		phoneNumber: '(646) 657-8766',
+		phoneNumber: '(555) 123-4567',
 		email: 'alex.johnson@example.com',
 		linkedInProfile: 'https://linkedin.com/in/alexjohnson',
 		githubProfile: 'https://github.com/alexjohnson',
 	},
 	summary: outdent`
-		Principal Software Engineer with 15+ years of experience building web and desktop applications. Expertise in full-stack
-		development with React, Node.js, and TypeScript, desktop applications, real-time collaboration systems, DevOps, and
-		AWS infrastructure. Proven track record leading greenfield projects from concept through to deployment.
+		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and cross-platform desktop applications. Built real-time collaboration systems using CRDTs, AI-integrated visual editors, and complex React/TypeScript UIs. Track record owning greenfield products end-to-end—architecture, Node.js services, AWS infrastructure, and CI/CD.
 	`,
 	workExperience: [
 		{
@@ -69,47 +67,31 @@ export const resume: Resume = {
 	skills: [
 		{
 			name: 'Languages',
-			items: [
-				'Fluent in TypeScript',
-				'JavaScript',
-				'Conversational in Python',
-				'Java',
-				'C#',
-			],
+			items: ['TypeScript', 'JavaScript', 'Python', 'Java', 'C#'],
 		},
 		{
-			name: 'Frameworks',
-			items: [
-				'React',
-				'Node.js',
-				'Electron',
-				'NestJS',
-				'GraphQL',
-				'RxJS',
-				'Serverless',
-				'Deno',
-				'etc.',
-			],
+			name: 'Frontend',
+			items: ['React', 'Electron', 'RxJS', 'Mobx', 'D3.js'],
+		},
+		{
+			name: 'Backend',
+			items: ['Node.js', 'NestJS', 'GraphQL', 'BullMQ', 'Deno'],
 		},
 		{
 			name: 'Databases',
-			items: ['PostgreSQL', 'MongoDB', 'Redis', 'DynamoDB', 'etc.'],
+			items: ['PostgreSQL', 'MongoDB', 'Redis', 'DynamoDB'],
 		},
 		{
-			name: 'DevOps',
+			name: 'Infrastructure',
 			items: [
 				'AWS',
 				'GitHub Actions',
 				'CI/CD',
+				'Docker',
 				'Serverless',
-				'Terraform',
-				'networking',
-				'etc.',
+				'Kubernetes',
+				'Ansible',
 			],
-		},
-		{
-			name: 'Tools',
-			items: ['Git', 'Docker', 'Kubernetes', 'Ansible', 'etc.'],
 		},
 	],
 	projects: [

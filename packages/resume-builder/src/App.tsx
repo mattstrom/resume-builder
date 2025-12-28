@@ -6,13 +6,17 @@ import { Workspace } from './components/Workspace.tsx';
 import { SettingsProvider } from './components/Settings.provider.tsx';
 
 import './App.css';
+import { ThemeProvider } from '@mui/material';
+import { darkTheme } from './theme.ts';
 
 export const App: FC = () => {
 	return (
-		<SettingsProvider>
-			<ResumeProvider data={resume}>
-				<Workspace />
-			</ResumeProvider>
-		</SettingsProvider>
+		<ThemeProvider theme={darkTheme}>
+			<SettingsProvider>
+				<ResumeProvider data={resume}>
+					<Workspace />
+				</ResumeProvider>
+			</SettingsProvider>
+		</ThemeProvider>
 	);
 };

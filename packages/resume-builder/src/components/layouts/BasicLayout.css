@@ -32,11 +32,22 @@
 			display: grid;
 			align-content: center;
 			grid-template-areas:
-			"phone-number linkedin-profile"
-			"email github-profile";
-			grid-template-rows: min-content min-content;
+			"location linkedin-profile"
+			"email github-profile"
+			"phone-number empty";
+			grid-template-rows: min-content min-content min-content;
 			grid-template-columns: min-content min-content;
 			grid-column-gap: 1rem;
+
+			.contact-information-item {
+				display: grid;
+				grid-template-columns: 24px 1fr;
+				grid-template-rows: min-content;
+
+				& > svg {
+					align-self: center;
+				}
+			}
 		}
 
 		.name {
@@ -57,6 +68,11 @@
 
 		.linkedin-profile {
 			grid-area: linkedin-profile;
+		}
+
+		.location {
+			grid-area: location;
+			white-space: nowrap;
 		}
 	}
 
@@ -89,9 +105,18 @@
 	}
 
 	.education {
+		.field {
+			display: inline;
+
+			&::before {
+				content: ', ';
+			}
+		}
+
 		.degree {
 			font-weight: bold;
 			font-variant: unset;
+			display: inline;
 		}
 	}
 

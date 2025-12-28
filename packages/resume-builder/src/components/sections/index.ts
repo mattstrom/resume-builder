@@ -1,5 +1,7 @@
 export * from './Section.tsx';
 
+export * from './CandidateName.tsx';
+export * from './ContactInformationSection.tsx';
 export * from './EducationSection.tsx';
 export * from './JobSection.tsx';
 export * from './Masthead.tsx';

@@ -8,7 +8,7 @@ export const SummarySection: FC<SummaryProps> = () => {
 	const { summary } = useResume();
 
 	return (
-		<Section heading="Summary" className="summary">
+		<Section heading="Professional Summary" className="summary">
 			{summary}
 		</Section>
 	);

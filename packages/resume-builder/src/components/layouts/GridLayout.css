@@ -1,0 +1,108 @@
+.layout.grid {
+	--font-family: 'Trebuchet MS';
+	--font-color: rgb(53, 59, 49);
+	--font-size: 10pt;
+
+	color: var(--font-color);
+	font-family: var(--font-family);
+
+	.page-content {
+		display: grid;
+		grid-template-areas:
+			"top-left top-right"
+			"bottom-left bottom-right";
+		grid-template-rows: minmax(30px, min-content) 1fr;
+		grid-template-columns: 3fr 7fr;
+	}
+
+	.top-left {
+		background-color: rgb(190, 190, 190);
+
+		margin-left: calc(-1 * var(--page-margin));
+		margin-top: calc(-1 * var(--page-margin));
+		padding-left: var(--page-margin);
+		padding-top: var(--page-margin);
+		padding-bottom: 1rem;
+		padding-right: 1rem;
+	}
+
+	.top-right {
+		background-color: rgb(242, 242, 242);
+
+		margin-right: calc(-1 * var(--page-margin));
+		margin-top: calc(-1 * var(--page-margin));
+		padding-right: var(--page-margin);
+		padding-top: var(--page-margin);
+		padding-bottom: 1rem;
+		padding-left: 1rem;
+	}
+
+	.bottom-left {
+		background-color: rgb(229, 229, 229);
+
+		margin-left: calc(-1 * var(--page-margin));
+		margin-bottom: calc(-1 * var(--page-margin));
+		padding-left: var(--page-margin);
+		padding-bottom: var(--page-margin);
+		padding-top: 1rem;
+		padding-right: 1rem;
+	}
+
+	.bottom-right {
+		margin-right: calc(-1 * var(--page-margin));
+		margin-bottom: calc(-1 * var(--page-margin));
+		padding-right: var(--page-margin);
+		padding-bottom: var(--page-margin);
+		padding-top: 1rem;
+		padding-left: 1rem;
+	}
+
+	h1, h2, h3 {
+		margin: 0;
+	}
+
+	section.major {
+		margin-bottom: 1rem;
+
+		> header {
+			/*font-family: var(--h2-header-font-family), serif;*/
+			text-transform: uppercase;
+		}
+	}
+
+	.candidate-name {
+		font-size: 28pt;
+		line-height: 1;
+
+		text-transform: uppercase;
+		padding-bottom: 1rem;
+	}
+
+	.contact-information {
+		font-style: normal;
+
+		.email a,
+		.phone-number a {
+			color: var(--color);
+			text-decoration: none;
+		}
+	}
+
+	.skills {
+		dfn {
+			font-style: normal;
+		}
+
+		dt {
+			font-weight: bold;
+
+			+ dd + dt {
+				margin-top: 4px;
+			}
+		}
+
+		dd {
+			margin: 0;
+		}
+	}
+}

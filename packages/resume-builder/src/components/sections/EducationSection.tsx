@@ -15,8 +15,8 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 					<div className="field">{item.field}</div>
 					<div>
 						<span className="institution">{item.institution}</span>
-						{' | Graduated '}
-						<span className="graduated">{item.graduated}</span>
+						{/*{' | Graduated '}*/}
+						{/*<span className="graduated">{item.graduated}</span>*/}
 					</div>
 				</section>
 			))}
