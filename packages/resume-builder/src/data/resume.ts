@@ -12,7 +12,10 @@ export const resume: Resume = {
 		githubProfile: 'https://github.com/alexjohnson',
 	},
 	summary: outdent`
-		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and cross-platform desktop applications. Built real-time collaboration systems using CRDTs, AI-integrated visual editors, and complex React/TypeScript UIs. Track record owning greenfield products end-to-end—architecture, Node.js services, AWS infrastructure, and CI/CD.
+		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and 
+		cross-platform desktop applications. Built real-time collaboration systems using CRDTs, AI-integrated visual 
+		editors, and complex React/TypeScript UIs. Capable generalist adept in greenfield projects, end-to-end architecture, 
+		Node.js services, AWS infrastructure, and CI/CD automation.
 	`,
 	workExperience: [
 		{
@@ -22,7 +25,7 @@ export const resume: Resume = {
 			startDate: 'March 2019',
 			endDate: 'December 2025',
 			responsibilities: [
-				'Led development of greenfield desktop application for building web applications with modern experimentation',
+				'Led development of greenfield desktop application for building web applications with modern/n experimentation',
 				'Built full-stack web application with React, TypeScript, Node.js, GraphQL, and PostgreSQL',
 				'Integrated AI chatbot for AI-powered content suggestions',
 				'Architected real-time collaboration system using CRDTs over WebSockets',
@@ -39,8 +42,8 @@ export const resume: Resume = {
 			endDate: 'March 2019',
 			responsibilities: [
 				'Built and maintained AI-enabled embedded web application and SDK for online retail',
-				'Led adoption of containerized development environments and production deployed stack',
-				'Led migration of legacy codebase from AngularJS to Angular and TypeScript',
+				'Spearheaded adoption of containerized development environments and production deployed stack',
+				'Migrated legacy codebase from AngularJS to Angular and TypeScript',
 				'Lead full stack engineer on two proof-of-concept teams. Built products fully from concept to deliverable',
 			],
 		},
@@ -53,6 +56,7 @@ export const resume: Resume = {
 			responsibilities: [
 				'Architected and developed sophisticated web application for content management',
 				'Refactored large portions of original codebase into testable, modularized code to reduce technical debt',
+				'Contributed to Xamarin-based macOS application',
 			],
 		},
 	],
@@ -71,15 +75,37 @@ export const resume: Resume = {
 		},
 		{
 			name: 'Frontend',
-			items: ['React', 'Electron', 'RxJS', 'Mobx', 'D3.js'],
+			items: [
+				'React',
+				'Electron',
+				'RxJS',
+				'Mobx',
+				'D3.js',
+				'Webpack',
+				'Vite',
+			],
 		},
 		{
 			name: 'Backend',
-			items: ['Node.js', 'NestJS', 'GraphQL', 'BullMQ', 'Deno'],
+			items: [
+				'Node.js',
+				'NestJS',
+				'GraphQL',
+				'WebSockets',
+				'BullMQ',
+				'Deno',
+			],
 		},
 		{
 			name: 'Databases',
-			items: ['PostgreSQL', 'MongoDB', 'Redis', 'DynamoDB'],
+			items: [
+				'PostgreSQL',
+				'MongoDB',
+				'Redis',
+				'DynamoDB',
+				'MySQL',
+				'SQL Server',
+			],
 		},
 		{
 			name: 'Infrastructure',
@@ -91,6 +117,7 @@ export const resume: Resume = {
 				'Serverless',
 				'Kubernetes',
 				'Ansible',
+				'Helm',
 			],
 		},
 	],
