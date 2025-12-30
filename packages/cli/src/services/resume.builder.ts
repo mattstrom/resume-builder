@@ -156,7 +156,8 @@ export class ResumeBuilder {
 		const skillRelations = this.getRelation(props['Skills']);
 		if (!skillRelations?.length) return [];
 
-		const skills: SKillGroup[] = [];
+		// Fetch all skills and extract name + category
+		const skillsData: { name: string; category: string }[] = [];
 
 		for (const ref of skillRelations) {
 			const skillPage = (await this.client.pages.retrieve({
@@ -164,18 +165,29 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const skillProps = skillPage.properties;
 
-			const items = this.getMultiSelect(skillProps['Items']);
-			const itemsText = this.getRichText(skillProps['Items']);
+			const name = this.getTitle(skillProps['Name']);
+			const category = this.getSelect(skillProps['Category']);
 
-			skills.push({
-				name: this.getTitle(skillProps['Name']),
-				items: items.length
-					? items
-					: (itemsText?.split(',').map((s) => s.trim()) ?? []),
-			});
+			if (name && category) {
+				skillsData.push({ name, category });
+			}
 		}
 
-		return skills;
+		// Group skills by category
+		const groupedByCategory = new Map<string, string[]>();
+		for (const skill of skillsData) {
+			const items = groupedByCategory.get(skill.category) ?? [];
+			items.push(skill.name);
+			groupedByCategory.set(skill.category, items);
+		}
+
+		// Convert to SKillGroup array
+		const skillGroups: SKillGroup[] = [];
+		for (const [category, items] of groupedByCategory) {
+			skillGroups.push({ name: category, items });
+		}
+
+		return skillGroups;
 	}
 
 	private async resolveProjects(props: PageProperties): Promise<Project[]> {
@@ -271,6 +283,12 @@ export class ResumeBuilder {
 		const relation = (prop as any).relation;
 		if (!Array.isArray(relation)) return [];
 		return relation.map((r: any) => ({ id: r.id }));
+	}
+
+	private getSelect(prop: PageProperty | undefined): string {
+		if (!prop || prop.type !== 'select') return '';
+		const select = (prop as any).select;
+		return select?.name ?? '';
 	}
 
 	private getMultiSelect(prop: PageProperty | undefined): string[] {
