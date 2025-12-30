@@ -205,16 +205,40 @@ export class ResumeBuilder {
 			const technologies = await this.resolveProjectTechnologies(
 				projProps,
 			);
-			const itemsText = this.getRichText(projProps['Items']);
+			const items = await this.resolveProjectItems(ref.id);
 
 			projects.push({
 				name: this.getTitle(projProps['Name']),
 				technologies,
-				items: itemsText?.split('\n').filter(Boolean) ?? [],
+				items,
 			});
 		}
 
 		return projects;
+	}
+
+	private async resolveProjectItems(pageId: string): Promise<string[]> {
+		const response = await this.client.blocks.children.list({
+			block_id: pageId,
+		});
+
+		const items: string[] = [];
+
+		for (const block of response.results) {
+			if (!('type' in block)) continue;
+
+			if (block.type === 'bulleted_list_item') {
+				const richText = (block as any).bulleted_list_item.rich_text;
+				const text = richText
+					?.map((t: any) => t.plain_text)
+					.join('');
+				if (text) {
+					items.push(text);
+				}
+			}
+		}
+
+		return items;
 	}
 
 	private async resolveProjectTechnologies(
