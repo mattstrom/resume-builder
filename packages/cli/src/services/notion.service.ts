@@ -5,9 +5,10 @@ import {
 	isFullDatabase,
 	iteratePaginatedAPI,
 } from '@notionhq/client';
-import type { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints.js';
+import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints.js';
 
 import { NotionClient } from '../tokens.ts';
+import { LookupService } from './lookup.service.ts';
 
 type PropertyFilter = Parameters<Client['databases']['query']>[0]['filter'];
 
@@ -15,6 +16,7 @@ type PropertyFilter = Parameters<Client['databases']['query']>[0]['filter'];
 export class NotionService {
 	constructor(
 		private readonly configService: ConfigService,
+		private readonly lookup: LookupService,
 		@Inject(NotionClient) private readonly client: Client,
 	) {}
 
@@ -69,5 +71,44 @@ export class NotionService {
 			database_id: databaseId,
 			filter,
 		});
+	}
+
+	async findResumeByName(name: string): Promise<PageObjectResponse> {
+		const databaseId = this.lookup.getId('Resumes');
+		const results = await this.client.databases.query({
+			database_id: databaseId,
+			filter: {
+				property: 'Name',
+				title: { equals: name },
+			},
+		});
+
+		if (results.results.length === 0) {
+			throw new Error(`Resume "${name}" not found`);
+		}
+
+		return results.results[0] as PageObjectResponse;
+	}
+
+	async findResumeById(id: string): Promise<PageObjectResponse> {
+		// Normalize ID - add "RES-" prefix if not present
+		const normalizedId = id.startsWith('RES-') ? id : `RES-${id}`;
+
+		const databaseId = this.lookup.getId('Resumes');
+		const results = await this.client.databases.query({
+			database_id: databaseId,
+			filter: {
+				property: 'ID',
+				unique_id: {
+					equals: parseInt(normalizedId.replace('RES-', ''), 10),
+				},
+			},
+		});
+
+		if (results.results.length === 0) {
+			throw new Error(`Resume with ID "${normalizedId}" not found`);
+		}
+
+		return results.results[0] as PageObjectResponse;
 	}
 }

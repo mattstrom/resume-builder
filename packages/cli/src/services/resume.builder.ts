@@ -3,7 +3,7 @@ import { Client } from '@notionhq/client';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
 import { NotionClient } from '../tokens.ts';
-import { LookupService } from './lookup.service.ts';
+import { NotionService } from './notion.service.ts';
 import type {
 	ContactInformation,
 	Education,
@@ -23,7 +23,7 @@ export class ResumeBuilder {
 	private id: string | null = null;
 
 	constructor(
-		private readonly lookup: LookupService,
+		private readonly notion: NotionService,
 		@Inject(NotionClient) private readonly client: Client,
 	) {}
 
@@ -47,8 +47,8 @@ export class ResumeBuilder {
 		}
 
 		const resumePage = this.id
-			? await this.findResumeById(this.id)
-			: await this.findResumeByName(this.name!);
+			? await this.notion.findResumeById(this.id)
+			: await this.notion.findResumeByName(this.name!);
 		const props = resumePage.properties;
 
 		return {
@@ -63,57 +63,18 @@ export class ResumeBuilder {
 		};
 	}
 
-	private async findResumeByName(name: string): Promise<PageObjectResponse> {
-		const databaseId = this.lookup.getId('Resumes');
-		const results = await this.client.databases.query({
-			database_id: databaseId,
-			filter: {
-				property: 'Name',
-				title: { equals: name },
-			},
-		});
-
-		if (results.results.length === 0) {
-			throw new Error(`Resume "${name}" not found`);
-		}
-
-		return results.results[0] as PageObjectResponse;
-	}
-
-	private async findResumeById(id: string): Promise<PageObjectResponse> {
-		// Normalize ID - add "RES-" prefix if not present
-		const normalizedId = id.startsWith('RES-') ? id : `RES-${id}`;
-
-		const databaseId = this.lookup.getId('Resumes');
-		const results = await this.client.databases.query({
-			database_id: databaseId,
-			filter: {
-				property: 'ID',
-				unique_id: {
-					equals: parseInt(normalizedId.replace('RES-', ''), 10),
-				},
-			},
-		});
-
-		if (results.results.length === 0) {
-			throw new Error(`Resume with ID "${normalizedId}" not found`);
-		}
-
-		return results.results[0] as PageObjectResponse;
-	}
-
 	private extractContactInfo(props: PageProperties): ContactInformation {
 		return {
 			location: this.getRichText(props['Location']) ?? '',
 			phoneNumber: this.getPhoneNumber(props['Phone']) ?? '',
 			email: this.getEmail(props['Email']) ?? '',
-			linkedInProfile: this.getUrl(props['LinkedIn']) ?? '',
-			githubProfile: this.getUrl(props['GitHub']) ?? '',
+			linkedInProfile: this.getUrl(props['LinkedIn Profile']) ?? '',
+			githubProfile: this.getUrl(props['GitHub Profile']) ?? '',
 		};
 	}
 
 	private async resolveJobs(props: PageProperties): Promise<Job[]> {
-		const jobRelations = this.getRelation(props['Jobs']);
+		const jobRelations = this.getRelation(props['Work History']);
 		if (!jobRelations?.length) return [];
 
 		const jobs: Job[] = [];
@@ -127,14 +88,15 @@ export class ResumeBuilder {
 			const responsibilities = await this.resolveResponsibilities(
 				jobProps,
 			);
-			const dateRange = this.getDate(jobProps['Dates']);
+			const startDate = this.getDate(jobProps['Start Date']);
+			const endDate = this.getDate(jobProps['End Date']);
 
 			jobs.push({
-				company: this.getTitle(jobProps['Company']),
-				position: this.getRichText(jobProps['Position']),
+				company: this.getRichText(jobProps['Company']),
+				position: this.getTitle(jobProps['Position']),
 				location: this.getRichText(jobProps['Location']),
-				startDate: dateRange?.start ?? '',
-				endDate: dateRange?.end ?? undefined,
+				startDate: startDate?.start ?? '',
+				endDate: endDate?.start ?? undefined,
 				responsibilities,
 			});
 		}
@@ -156,8 +118,7 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const respProps = respPage.properties;
 
-			const description = this.getTitle(respProps['Name']) ||
-				this.getRichText(respProps['Description']);
+			const description = this.getTitle(respProps['Description']);
 			if (description) {
 				responsibilities.push(description);
 			}

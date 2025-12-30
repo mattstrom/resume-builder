@@ -8,15 +8,24 @@
     "jsr:@cliffy/keycode@1.0.0-rc.8": "1.0.0-rc.8",
     "jsr:@cliffy/prompt@1.0.0-rc.8": "1.0.0-rc.8",
     "jsr:@cliffy/table@1.0.0-rc.8": "1.0.0-rc.8",
+    "jsr:@std/assert@1": "1.0.16",
     "jsr:@std/assert@^1.0.14": "1.0.16",
     "jsr:@std/assert@^1.0.15": "1.0.16",
+    "jsr:@std/assert@^1.0.7": "1.0.16",
     "jsr:@std/assert@~1.0.6": "1.0.16",
+    "jsr:@std/cli@^1.0.6": "1.0.25",
+    "jsr:@std/data-structures@^1.0.9": "1.0.9",
     "jsr:@std/encoding@~1.0.5": "1.0.10",
     "jsr:@std/expect@^1.0.16": "1.0.17",
     "jsr:@std/fmt@~1.0.2": "1.0.8",
+    "jsr:@std/fs@^1.0.19": "1.0.21",
+    "jsr:@std/fs@^1.0.6": "1.0.21",
     "jsr:@std/internal@^1.0.10": "1.0.12",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/io@~0.224.9": "0.224.9",
+    "jsr:@std/path@^1.0.8": "1.0.9",
+    "jsr:@std/path@^1.1.2": "1.1.4",
+    "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/path@~1.0.6": "1.0.9",
     "jsr:@std/testing@^1.0.16": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
@@ -31,6 +40,7 @@
     "npm:@nestjs/common@^11.0.15": "11.1.11_reflect-metadata@0.2.2_rxjs@7.8.2",
     "npm:@nestjs/config@^4.0.2": "4.0.2_@nestjs+common@11.1.11__reflect-metadata@0.2.2__rxjs@7.8.2_rxjs@7.8.2_reflect-metadata@0.2.2",
     "npm:@nestjs/core@^11.0.15": "11.1.11_@nestjs+common@11.1.11__reflect-metadata@0.2.2__rxjs@7.8.2_reflect-metadata@0.2.2_rxjs@7.8.2",
+    "npm:@nestjs/testing@^11.0.15": "11.1.9_@nestjs+common@11.1.11__reflect-metadata@0.2.2__rxjs@7.8.2_@nestjs+core@11.1.11__@nestjs+common@11.1.11___reflect-metadata@0.2.2___rxjs@7.8.2__reflect-metadata@0.2.2__rxjs@7.8.2_reflect-metadata@0.2.2",
     "npm:@notionhq/client@3.1.2": "3.1.2",
     "npm:@types/node@^24.10.1": "24.10.4",
     "npm:@types/react-dom@^19.2.3": "19.2.3_@types+react@19.2.7",
@@ -96,7 +106,7 @@
         "jsr:@std/assert@~1.0.6",
         "jsr:@std/fmt",
         "jsr:@std/io",
-        "jsr:@std/path",
+        "jsr:@std/path@~1.0.6",
         "jsr:@std/text"
       ]
     },
@@ -112,6 +122,15 @@
         "jsr:@std/internal@^1.0.12"
       ]
     },
+    "@std/cli@1.0.25": {
+      "integrity": "1f85051b370c97a7a9dfc6ba626e7ed57a91bea8c081597276d1e78d929d8c91",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
+    "@std/data-structures@1.0.9": {
+      "integrity": "033d6e17e64bf1f84a614e647c1b015fa2576ae3312305821e1a4cb20674bb4d"
+    },
     "@std/encoding@1.0.10": {
       "integrity": "8783c6384a2d13abd5e9e87a7ae0520a30e9f56aeeaa3bdf910a3eaaf5c811a1"
     },
@@ -125,6 +144,13 @@
     "@std/fmt@1.0.8": {
       "integrity": "71e1fc498787e4434d213647a6e43e794af4fd393ef8f52062246e06f7e372b7"
     },
+    "@std/fs@1.0.21": {
+      "integrity": "d720fe1056d78d43065a4d6e0eeb2b19f34adb8a0bc7caf3a4dbf1d4178252cd",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12",
+        "jsr:@std/path@^1.1.4"
+      ]
+    },
     "@std/internal@1.0.12": {
       "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
@@ -134,11 +160,20 @@
     "@std/path@1.0.9": {
       "integrity": "260a49f11edd3db93dd38350bf9cd1b4d1366afa98e81b86167b4e3dd750129e"
     },
+    "@std/path@1.1.4": {
+      "integrity": "1d2d43f39efb1b42f0b1882a25486647cb851481862dc7313390b2bb044314b5",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
     "@std/testing@1.0.16": {
       "integrity": "a917ffdeb5924c9be436dc78bc32e511760e14d3a96e49c607fc5ecca86d0092",
       "dependencies": [
         "jsr:@std/assert@^1.0.15",
-        "jsr:@std/internal@^1.0.12"
+        "jsr:@std/data-structures",
+        "jsr:@std/fs@^1.0.19",
+        "jsr:@std/internal@^1.0.12",
+        "jsr:@std/path@^1.1.2"
       ]
     },
     "@std/text@1.0.16": {
@@ -974,6 +1009,14 @@
         "uid"
       ],
       "scripts": true
+    },
+    "@nestjs/testing@11.1.9_@nestjs+common@11.1.11__reflect-metadata@0.2.2__rxjs@7.8.2_@nestjs+core@11.1.11__@nestjs+common@11.1.11___reflect-metadata@0.2.2___rxjs@7.8.2__reflect-metadata@0.2.2__rxjs@7.8.2_reflect-metadata@0.2.2": {
+      "integrity": "sha512-UFxerBDdb0RUNxQNj25pvkvNE7/vxKhXYWBt3QuwBFnYISzRIzhVlyIqLfoV5YI3zV0m0Nn4QAn1KM0zzwfEng==",
+      "dependencies": [
+        "@nestjs/common",
+        "@nestjs/core",
+        "tslib"
+      ]
     },
     "@notionhq/client@3.1.2": {
       "integrity": "sha512-EqJhtx5ekKW3wieENnDHPl5ZSgDxGyRP5r2664rPH39toW899sL000TSE7WHxenHb+kSIckVQ5OsT9tzPqbENg=="
@@ -3014,6 +3057,7 @@
           "npm:@nestjs/common@^11.0.15",
           "npm:@nestjs/config@^4.0.2",
           "npm:@nestjs/core@^11.0.15",
+          "npm:@nestjs/testing@^11.0.15",
           "npm:@notionhq/client@3.1.2",
           "npm:commander@^12.1.0",
           "npm:inquirer@^12.0.1",
