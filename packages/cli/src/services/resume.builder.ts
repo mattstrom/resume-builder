@@ -52,7 +52,7 @@ export class ResumeBuilder {
 		const props = resumePage.properties;
 
 		return {
-			name: this.getTitle(props['Name']),
+			name: this.getRichText(props['Candidate Name']),
 			title: this.getRichText(props['Title']),
 			summary: this.getRichText(props['Summary']),
 			contactInformation: this.extractContactInfo(props),
