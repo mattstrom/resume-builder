@@ -10,6 +10,8 @@ import { CommandToken, NotionClient } from './tokens.ts';
 import configuration from './config/configuration.ts';
 import { LookupService } from './services/lookup.service.ts';
 import { BuildService } from './services/build.service.ts';
+import { ResumeBuilder } from './services/resume.builder.ts';
+import { SchemaService } from './services/schema.service.ts';
 
 interface CommandConfig {
 	command: Command;
@@ -25,6 +27,8 @@ interface CommandConfig {
 		BuildService,
 		LookupService,
 		NotionService,
+		ResumeBuilder,
+		SchemaService,
 		{
 			provide: NotionClient,
 			inject: [ConfigService],

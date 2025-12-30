@@ -9,6 +9,7 @@ export * from './multi-select.adapter.ts';
 export * from './number.adapter.ts';
 export * from './people.adapter.ts';
 export * from './phone-number.adapter.ts';
+export * from './relation.adapter.ts';
 export * from './rich-text.adapter.ts';
 export * from './select.adapter.ts';
 export * from './status.adapter.ts';

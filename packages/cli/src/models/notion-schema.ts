@@ -10,15 +10,13 @@ import {
 	NumberAdapter,
 	PeopleAdapter,
 	PhoneNumberAdapter,
+	RelationAdapter,
 	RichTextAdapter,
 	SelectAdapter,
 	StatusAdapter,
 	TitleAdapter,
 	UrlAdapter,
 } from './adapters/mod.ts';
-
-type DatabasePropertyConfigResponse =
-	DatabaseObjectResponse['properties'][string];
 
 export class NotionSchema {
 	[key: string]: unknown;
@@ -84,6 +82,10 @@ export class NotionSchema {
 					this.properties.set(name, new StatusAdapter(property));
 					break;
 				}
+				case 'relation': {
+					this.properties.set(name, new RelationAdapter(property));
+					break;
+				}
 				default: {
 					this.properties.set(name, new GenericAdapter(property));
 					break;
@@ -94,17 +96,5 @@ export class NotionSchema {
 				value: this.properties.get(name)!.get(),
 			});
 		}
-
-		// return new Proxy(this, {
-		// 	get: (target, prop) => {
-		// 		if (target.properties.has(prop as string)) {
-		// 			return target.properties.get(prop as string);
-		// 		}
-		//
-		// 		return (target as any)[prop];
-		// 	},
-		// });
 	}
-
-	static from(obj: DatabaseObjectResponse) {}
 }
