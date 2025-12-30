@@ -190,7 +190,9 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const projProps = projPage.properties;
 
-			const technologies = this.getMultiSelect(projProps['Technologies']);
+			const technologies = await this.resolveProjectTechnologies(
+				projProps,
+			);
 			const itemsText = this.getRichText(projProps['Items']);
 
 			projects.push({
@@ -201,6 +203,29 @@ export class ResumeBuilder {
 		}
 
 		return projects;
+	}
+
+	private async resolveProjectTechnologies(
+		projProps: PageProperties,
+	): Promise<string[]> {
+		const skillRelations = this.getRelation(projProps['Skills']);
+		if (!skillRelations?.length) return [];
+
+		const technologies: string[] = [];
+
+		for (const ref of skillRelations) {
+			const skillPage = (await this.client.pages.retrieve({
+				page_id: ref.id,
+			})) as PageObjectResponse;
+			const skillProps = skillPage.properties;
+
+			const name = this.getTitle(skillProps['Name']);
+			if (name) {
+				technologies.push(name);
+			}
+		}
+
+		return technologies;
 	}
 
 	// Property extraction helpers
