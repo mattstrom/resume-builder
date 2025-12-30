@@ -21,11 +21,11 @@ export const Workspace: FC = () => {
 	})();
 
 	return (
-		<div className="workspace">
-			<div className="workspace-left">
+		<div className='workspace'>
+			<div className='workspace-left'>
 				<Controls />
 			</div>
-			<div className="workspace-right">{templateComponent}</div>
+			<div className='workspace-right'>{templateComponent}</div>
 		</div>
 	);
 };

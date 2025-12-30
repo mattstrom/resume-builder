@@ -8,11 +8,11 @@ export const SkillsSection: FC<SkillsSectionProps> = () => {
 	const { skills } = useResume();
 
 	return (
-		<Section heading="Skills" className="skills">
+		<Section heading='Skills' className='skills'>
 			<dfn>
 				{skills.map((group, index) => (
 					<Fragment key={index}>
-						<dt>{group.name}: </dt>
+						<dt>{group.name}:</dt>
 						<dd>{group.items.join(', ')}</dd>
 					</Fragment>
 				))}

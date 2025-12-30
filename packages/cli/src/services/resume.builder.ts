@@ -89,7 +89,9 @@ export class ResumeBuilder {
 			database_id: databaseId,
 			filter: {
 				property: 'ID',
-				unique_id: { equals: parseInt(normalizedId.replace('RES-', ''), 10) },
+				unique_id: {
+					equals: parseInt(normalizedId.replace('RES-', ''), 10),
+				},
 			},
 		});
 
@@ -122,8 +124,9 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const jobProps = jobPage.properties;
 
-			const responsibilities =
-				await this.resolveResponsibilities(jobProps);
+			const responsibilities = await this.resolveResponsibilities(
+				jobProps,
+			);
 			const dateRange = this.getDate(jobProps['Dates']);
 
 			jobs.push({
@@ -153,8 +156,7 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const respProps = respPage.properties;
 
-			const description =
-				this.getTitle(respProps['Name']) ||
+			const description = this.getTitle(respProps['Name']) ||
 				this.getRichText(respProps['Description']);
 			if (description) {
 				responsibilities.push(description);

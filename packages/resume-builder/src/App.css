@@ -1,8 +1,8 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 2rem;
+	text-align: center;
 }
 
 :root {
@@ -58,20 +58,20 @@ a {
 
 	.page.margin-indicator {
 		background:
-				repeating-linear-gradient(
-						45deg,
-						transparent,
-						transparent 10px,
-						#ddd 10px,
-						#ddd 11px
-				),
-				repeating-linear-gradient(
-						-45deg,
-						white,
-						white 10px,
-						#ddd 10px,
-						#ddd 11px
-				);
+			repeating-linear-gradient(
+				45deg,
+				transparent,
+				transparent 10px,
+				#ddd 10px,
+				#ddd 11px
+			),
+			repeating-linear-gradient(
+			-45deg,
+			white,
+			white 10px,
+			#ddd 10px,
+			#ddd 11px
+		);
 	}
 }
 

@@ -55,32 +55,32 @@ export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 			css={classes.address}
 			className={clsx('contact-information', className)}
 		>
-			<div className="contact-information-item location">
-				<div className="icon">
+			<div className='contact-information-item location'>
+				<div className='icon'>
 					<LocationOn />
 				</div>
 				<span>{contactInformation.location}</span>
 			</div>
-			<div className="contact-information-item phone-number">
-				<div className="icon">
-					<Phone fontSize="small" />
+			<div className='contact-information-item phone-number'>
+				<div className='icon'>
+					<Phone fontSize='small' />
 				</div>
 				<a href={phoneNumberHref}>{contactInformation.phoneNumber}</a>
 			</div>
-			<div className="contact-information-item email">
-				<div className="icon">
+			<div className='contact-information-item email'>
+				<div className='icon'>
 					<Email />
 				</div>
 				<a href={emailHref}>{contactInformation.email}</a>
 			</div>
-			<div className="contact-information-item linkedin-profile">
-				<div className="icon">
+			<div className='contact-information-item linkedin-profile'>
+				<div className='icon'>
 					<LinkedIn />
 				</div>
 				<Url href={contactInformation.linkedInProfile} />
 			</div>
-			<div className="contact-information-item github-profile">
-				<div className="icon">
+			<div className='contact-information-item github-profile'>
+				<div className='icon'>
 					<GitHub />
 				</div>
 				<Url href={contactInformation.githubProfile} />

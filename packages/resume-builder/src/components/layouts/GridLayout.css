@@ -9,8 +9,8 @@
 	.page-content {
 		display: grid;
 		grid-template-areas:
-			"top-left top-right"
-			"bottom-left bottom-right";
+			'top-left top-right'
+			'bottom-left bottom-right';
 		grid-template-rows: minmax(30px, min-content) 1fr;
 		grid-template-columns: 3fr 7fr;
 	}

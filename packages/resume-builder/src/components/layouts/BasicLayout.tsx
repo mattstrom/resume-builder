@@ -15,7 +15,7 @@ import './BasicLayout.css';
 
 export const BasicLayout: FC = () => {
 	return (
-		<Layout name="basic">
+		<Layout name='basic'>
 			<Page>
 				<Masthead />
 				<SummarySection />

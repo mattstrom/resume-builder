@@ -7,23 +7,23 @@ interface JobProps extends PropsWithChildren {
 
 export const JobSection: FC<JobProps> = ({ job }) => {
 	return (
-		<section className="job">
+		<section className='job'>
 			<header>
 				<h3>{job.position}</h3>
 			</header>
 			<div>
-				<span className="company">{job.company}</span>
-				<span> | </span>
-				<span className="location">{job.location}</span>
-				<span> | </span>
+				<span className='company'>{job.company}</span>
+				<span>|</span>
+				<span className='location'>{job.location}</span>
+				<span>|</span>
 				<time>
-					<span className="start-date">{job.startDate}</span>
+					<span className='start-date'>{job.startDate}</span>
 					{'–'}
-					<span className="end-date">{job.endDate}</span>
+					<span className='end-date'>{job.endDate}</span>
 				</time>
 			</div>
 			{job.responsibilities && (
-				<ul className="responsibilities">
+				<ul className='responsibilities'>
 					{job.responsibilities.map((item, index) => (
 						<li key={index}>{item}</li>
 					))}

@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Project Overview
 
@@ -15,6 +16,7 @@ This is a personal portfolio/playground site built with Vite and TypeScript.
 ## Code Style
 
 Prettier is configured with:
+
 - Single quotes
 - 80 character print width
 - 2 space indentation

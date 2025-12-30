@@ -22,9 +22,9 @@ export const ColumnLayout: FC<ColumnLayoutProps> = () => {
 	const { title } = useResume();
 
 	return (
-		<Layout name="column">
+		<Layout name='column'>
 			<Page>
-				<Column className="left">
+				<Column className='left'>
 					<CornerCap>
 						<section>
 							<header>
@@ -37,7 +37,7 @@ export const ColumnLayout: FC<ColumnLayoutProps> = () => {
 					<EducationSection />
 					<SkillsSection />
 				</Column>
-				<Column className="right">
+				<Column className='right'>
 					<SummarySection />
 					<WorkExperience />
 				</Column>

@@ -8,7 +8,7 @@ interface LayoutProps {
 export const Layout: FC<PropsWithChildren<LayoutProps>> = (props) => {
 	return (
 		<div className={clsx('layout', props.name)}>
-			<article className="resume">{props.children}</article>
+			<article className='resume'>{props.children}</article>
 		</div>
 	);
 };

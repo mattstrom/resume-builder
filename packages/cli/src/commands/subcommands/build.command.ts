@@ -14,9 +14,13 @@ export class BuildCommand extends Command {
 			.option('-n, --name <name>', 'The name of the resume to build.', {
 				required: false,
 			})
-			.option('-i, --id <id>', 'The ID of the resume (e.g., "RES-4" or "4").', {
-				required: false,
-			})
+			.option(
+				'-i, --id <id>',
+				'The ID of the resume (e.g., "RES-4" or "4").',
+				{
+					required: false,
+				},
+			)
 			.action(async (opts) => {
 				const app = await NestFactory.createApplicationContext(
 					AppModule.register({
@@ -28,7 +32,9 @@ export class BuildCommand extends Command {
 				const builder = app.get(ResumeBuilder);
 
 				if (!opts.name && !opts.id) {
-					const resumes = await Array.fromAsync(service.listResumes());
+					const resumes = await Array.fromAsync(
+						service.listResumes(),
+					);
 
 					const selection = await Input.prompt({
 						message: 'Which resume?',

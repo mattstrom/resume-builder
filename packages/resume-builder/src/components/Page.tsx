@@ -11,7 +11,7 @@ export const Page: FC<PageProps> = ({ children }) => {
 		<div
 			className={clsx('page', { 'margin-indicator': showMarginPattern })}
 		>
-			<section className="page-content">{children}</section>
+			<section className='page-content'>{children}</section>
 		</div>
 	);
 };

@@ -14,7 +14,10 @@ export class SchemaCommand extends Command {
 			.option('-d, --database <database>', 'The database to inspect', {
 				required: false,
 			})
-			.option('-g, --generate', 'Generate TypeScript types for all databases')
+			.option(
+				'-g, --generate',
+				'Generate TypeScript types for all databases',
+			)
 			.action(async (opts) => {
 				const app = await NestFactory.createApplicationContext(
 					AppModule.register({
@@ -44,9 +47,11 @@ export class SchemaCommand extends Command {
 
 				if (!databases.includes(dbName as DatabaseName)) {
 					console.error(
-						`Unknown database: ${dbName}. Available: ${databases.join(
-							', ',
-						)}`,
+						`Unknown database: ${dbName}. Available: ${
+							databases.join(
+								', ',
+							)
+						}`,
 					);
 					return;
 				}

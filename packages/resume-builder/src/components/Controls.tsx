@@ -24,26 +24,26 @@ export const Controls: FC<ControlsProps> = () => {
 		<form>
 			<div>
 				<FormControl>
-					<InputLabel htmlFor="template">Template</InputLabel>
+					<InputLabel htmlFor='template'>Template</InputLabel>
 					<Select
-						id="template"
+						id='template'
 						value={template}
 						onChange={(ev) => {
 							setTemplate(ev.target.value);
 						}}
 					>
-						<MenuItem value="basic">Basic</MenuItem>
-						<MenuItem value="column">Column</MenuItem>
-						<MenuItem value="grid">Grid</MenuItem>
+						<MenuItem value='basic'>Basic</MenuItem>
+						<MenuItem value='column'>Column</MenuItem>
+						<MenuItem value='grid'>Grid</MenuItem>
 					</Select>
 				</FormControl>
 			</div>
 			<div>
 				<FormControlLabel
-					label="Show Margin Pattern"
+					label='Show Margin Pattern'
 					control={
 						<Checkbox
-							id="marginPattern"
+							id='marginPattern'
 							checked={showMarginPattern}
 							onChange={(ev) => {
 								setShowMarginPattern(ev.target.checked);

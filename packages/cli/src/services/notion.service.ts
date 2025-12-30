@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { type Client, isFullDatabase, iteratePaginatedAPI } from '@notionhq/client';
+import {
+	type Client,
+	isFullDatabase,
+	iteratePaginatedAPI,
+} from '@notionhq/client';
 import type { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints.js';
 
 import { NotionClient } from '../tokens.ts';
@@ -9,10 +13,9 @@ type PropertyFilter = Parameters<Client['databases']['query']>[0]['filter'];
 
 @Injectable()
 export class NotionService {
-
 	constructor(
 		private readonly configService: ConfigService,
-		@Inject(NotionClient) private readonly client: Client
+		@Inject(NotionClient) private readonly client: Client,
 	) {}
 
 	async listDatabases() {
@@ -40,11 +43,15 @@ export class NotionService {
 		}
 
 		if (response.results.length > 1) {
-			throw new Error(`Found multiple databases with name "${query}". Please be more specific.`);
+			throw new Error(
+				`Found multiple databases with name "${query}". Please be more specific.`,
+			);
 		}
 
 		if (!isFullDatabase(response.results[0])) {
-			throw new Error(`Found a non-database object with name "${query}". Please be more specific.`);
+			throw new Error(
+				`Found a non-database object with name "${query}". Please be more specific.`,
+			);
 		}
 
 		return response.results[0];
@@ -53,14 +60,14 @@ export class NotionService {
 	getRecords(databaseId: string, filter: PropertyFilter) {
 		return iteratePaginatedAPI(this.client.databases.query, {
 			database_id: databaseId,
-			filter
+			filter,
 		});
 	}
 
 	duplicate(databaseId: string, filter: PropertyFilter) {
 		return iteratePaginatedAPI(this.client.databases.query, {
 			database_id: databaseId,
-			filter
+			filter,
 		});
 	}
 }
