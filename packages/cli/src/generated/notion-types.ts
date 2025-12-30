@@ -43,6 +43,7 @@ export interface Resumes {
 	applications: string[];
 	id: unknown;
 	skills: string[];
+	title: string;
 	email: string | null;
 	linkedinProfile: string | null;
 	position: unknown;

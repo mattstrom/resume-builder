@@ -20,6 +20,7 @@ type PageProperty = PageProperties[string];
 @Injectable()
 export class ResumeBuilder {
 	private name: string | null = null;
+	private id: string | null = null;
 
 	constructor(
 		private readonly lookup: LookupService,
@@ -28,15 +29,26 @@ export class ResumeBuilder {
 
 	setName(name: string): this {
 		this.name = name;
+		this.id = null;
+		return this;
+	}
+
+	setId(id: string): this {
+		this.id = id;
+		this.name = null;
 		return this;
 	}
 
 	async build(): Promise<Resume> {
-		if (!this.name) {
-			throw new Error('Resume name is required. Call setName() first.');
+		if (!this.name && !this.id) {
+			throw new Error(
+				'Resume name or ID is required. Call setName() or setId() first.',
+			);
 		}
 
-		const resumePage = await this.findResumeByName(this.name);
+		const resumePage = this.id
+			? await this.findResumeById(this.id)
+			: await this.findResumeByName(this.name!);
 		const props = resumePage.properties;
 
 		return {
@@ -63,6 +75,26 @@ export class ResumeBuilder {
 
 		if (results.results.length === 0) {
 			throw new Error(`Resume "${name}" not found`);
+		}
+
+		return results.results[0] as PageObjectResponse;
+	}
+
+	private async findResumeById(id: string): Promise<PageObjectResponse> {
+		// Normalize ID - add "RES-" prefix if not present
+		const normalizedId = id.startsWith('RES-') ? id : `RES-${id}`;
+
+		const databaseId = this.lookup.getId('Resumes');
+		const results = await this.client.databases.query({
+			database_id: databaseId,
+			filter: {
+				property: 'ID',
+				unique_id: { equals: parseInt(normalizedId.replace('RES-', ''), 10) },
+			},
+		});
+
+		if (results.results.length === 0) {
+			throw new Error(`Resume with ID "${normalizedId}" not found`);
 		}
 
 		return results.results[0] as PageObjectResponse;

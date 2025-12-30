@@ -14,6 +14,9 @@ export class BuildCommand extends Command {
 			.option('-n, --name <name>', 'The name of the resume to build.', {
 				required: false,
 			})
+			.option('-i, --id <id>', 'The ID of the resume (e.g., "RES-4" or "4").', {
+				required: false,
+			})
 			.action(async (opts) => {
 				const app = await NestFactory.createApplicationContext(
 					AppModule.register({
@@ -24,20 +27,35 @@ export class BuildCommand extends Command {
 				const service = app.get(BuildService);
 				const builder = app.get(ResumeBuilder);
 
-				if (!opts.name) {
+				if (!opts.name && !opts.id) {
 					const resumes = await Array.fromAsync(service.listResumes());
 
-					opts.name = await Input.prompt({
+					const selection = await Input.prompt({
 						message: 'Which resume?',
 						suggestions: resumes.map((page: any) => {
 							const prop = page.properties['Name'];
 							return prop.title[0].plain_text as string;
 						}),
 					});
+
+					// Check if selection matches a page ID
+					const matchById = resumes.find(
+						(page: any) => page.id === selection,
+					);
+					if (matchById) {
+						opts.id = selection;
+					} else {
+						opts.name = selection;
+					}
 				}
 
 				try {
-					const resume = await builder.setName(opts.name).build();
+					if (opts.id) {
+						builder.setId(opts.id);
+					} else if (opts.name) {
+						builder.setName(opts.name);
+					}
+					const resume = await builder.build();
 					console.log(JSON.stringify(resume, null, 2));
 				} catch (error) {
 					console.error(
