@@ -1,6 +1,11 @@
 import { type FC, type PropsWithChildren } from 'react';
 import type { Job } from '../../types.ts';
 
+function formatDate(dateString: string): string {
+	const date = new Date(dateString);
+	return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
 interface JobProps extends PropsWithChildren {
 	job: Job;
 }
@@ -13,13 +18,17 @@ export const JobSection: FC<JobProps> = ({ job }) => {
 			</header>
 			<div>
 				<span className='company'>{job.company}</span>
-				<span>|</span>
+				<span>{' | '}</span>
 				<span className='location'>{job.location}</span>
-				<span>|</span>
+				<span>{' | '}</span>
 				<time>
-					<span className='start-date'>{job.startDate}</span>
+					<span className='start-date'>
+						{formatDate(job.startDate)}
+					</span>
 					{'–'}
-					<span className='end-date'>{job.endDate}</span>
+					<span className='end-date'>
+						{job.endDate ? formatDate(job.endDate) : 'Present'}
+					</span>
 				</time>
 			</div>
 			{job.responsibilities && (
