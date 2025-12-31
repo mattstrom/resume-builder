@@ -11,7 +11,7 @@ import type {
 	Project,
 	Resume,
 	SKillGroup,
-} from '../types.ts';
+} from '@mattstrom/resume-builder/types';
 import { RelationReference } from '../models/adapters/relation.adapter.ts';
 
 type PageProperties = PageObjectResponse['properties'];

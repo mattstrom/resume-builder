@@ -1,0 +1,17 @@
+{
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"declaration": true,
+		"declarationMap": true,
+		"outDir": "./dist",
+		"rootDir": "./src"
+	},
+	"include": [
+		"src/lib/**/*",
+		"src/types.ts",
+		"src/components/**/*",
+		"src/hooks/**/*"
+	],
+	"exclude": ["src/main.tsx", "src/App.tsx", "src/data/**/*"]
+}
