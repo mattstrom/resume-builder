@@ -7,12 +7,20 @@
 	},
 	"compilerOptions": {
 		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react"
 	},
 	"imports": {
 		"@mattstrom/resume-builder": "../resume-builder/src/lib/index.ts",
 		"@mattstrom/resume-builder/types": "../resume-builder/src/lib/types.ts",
 		"@mattstrom/resume-builder/components": "../resume-builder/src/lib/components.ts",
+		"@mattstrom/resume-builder/providers": "../resume-builder/src/lib/providers.ts",
+		"react": "npm:react@^19.2.0",
+		"react/jsx-runtime": "npm:react@^19.2.0/jsx-runtime",
+		"react-dom/server": "npm:react-dom@^19.2.0/server",
+		"preact/jsx-runtime": "npm:react@^19.2.0/jsx-runtime",
+		"clsx": "npm:clsx@^2.1.1",
 		"@cliffy/command": "jsr:@cliffy/command@^1.0.0-rc.8",
 		"@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
 		"@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",

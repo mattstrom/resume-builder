@@ -4,7 +4,7 @@
 		"dev": "deno run --watch main.ts"
 	},
 	"workspace": {
-		"members": ["./packages/cli"]
+		"members": ["./packages/cli", "./packages/resume-builder"]
 	},
 	"nodeModulesDir": "auto",
 	"imports": {

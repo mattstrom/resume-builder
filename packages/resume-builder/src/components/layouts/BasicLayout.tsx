@@ -8,7 +8,7 @@ import {
 	SkillsSection,
 	SummarySection,
 	WorkExperience,
-} from '../sections';
+} from '../sections/index.ts';
 import { Layout } from './Layout.tsx';
 
 import './BasicLayout.css';

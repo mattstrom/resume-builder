@@ -6,7 +6,7 @@ import {
 	type SetStateAction,
 	useContext,
 } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useLocalStorage } from '../hooks/useLocalStorage.ts';
 
 interface Settings {
 	template: string;

@@ -7,7 +7,7 @@ import {
 	SkillsSection,
 	SummarySection,
 	WorkExperience,
-} from '../sections';
+} from '../sections/index.ts';
 
 import './ColumnLayout.css';
 import { Column } from './Column.tsx';
