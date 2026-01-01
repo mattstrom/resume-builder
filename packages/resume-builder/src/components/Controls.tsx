@@ -1,6 +1,7 @@
 import {
 	Button,
 	Checkbox,
+	Divider,
 	FormControl,
 	FormControlLabel,
 	InputLabel,
@@ -9,6 +10,7 @@ import {
 } from '@mui/material';
 import { type FC } from 'react';
 import { useSettings } from './Settings.provider.tsx';
+import { FileManager } from './FileManager';
 
 interface ControlsProps {}
 
@@ -22,6 +24,10 @@ export const Controls: FC<ControlsProps> = () => {
 
 	return (
 		<form>
+			<FileManager />
+
+			<Divider sx={{ my: 2 }} />
+
 			<div>
 				<FormControl>
 					<InputLabel htmlFor='template'>Template</InputLabel>
