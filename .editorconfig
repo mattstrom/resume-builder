@@ -17,6 +17,14 @@ ij_smart_tabs = false
 ij_visual_guides = 
 ij_wrap_on_typing = false
 
+[{*.json,*.jsonc,*.jsonl}]
+indent_style = tab
+indent_size = 2
+
+[{*.yml,*.yaml}]
+indent_style = tab
+indent_size = 2
+
 [{*.ats,*.cts,*.mts,*.ts}]
 indent_style = tab
 ij_continuation_indent_size = 4

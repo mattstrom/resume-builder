@@ -8,7 +8,6 @@
 
 		/* Bundler mode */
 		"moduleResolution": "bundler",
-		"allowImportingTsExtensions": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
@@ -20,5 +19,8 @@
 		"noFallthroughCasesInSwitch": true
 	},
 	"include": ["src"],
-	"references": [{ "path": "./packages/**/*.ts" }]
+	"references": [
+		{ "path": "./packages/**/*.ts" },
+		{ "path": "./packages/**/tsconfig.json" }
+	]
 }

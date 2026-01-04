@@ -1,0 +1,15 @@
+{
+	//	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"noEmit": false,
+		"outDir": "dist",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"declaration": true,
+		"baseUrl": "./src"
+	},
+	"include": ["./src/**/*.ts"]
+}

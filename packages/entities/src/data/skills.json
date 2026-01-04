@@ -1,0 +1,32 @@
+[
+	{ "name": "TypeScript", "category": "Languages" },
+	{ "name": "JavaScript", "category": "Languages" },
+	{ "name": "Python", "category": "Languages" },
+	{ "name": "Java", "category": "Languages" },
+	{ "name": "C#", "category": "Languages" },
+
+	{ "name": "React", "category": "Frontend" },
+	{ "name": "Electron", "category": "Frontend" },
+	{ "name": "RxJS", "category": "Frontend" },
+
+	{ "name": "Node.js", "category": "Backend" },
+	{ "name": "NestJS", "category": "Backend" },
+	{ "name": "GraphQL", "category": "Backend" },
+	{ "name": "WebSockets", "category": "Backend" },
+	{ "name": "BullMQ", "category": "Backend" },
+	{ "name": "Deno", "category": "Backend" },
+
+	{ "name": "PostgreSQL", "category": "Databases" },
+	{ "name": "MongoDB", "category": "Databases" },
+	{ "name": "Redis", "category": "Databases" },
+	{ "name": "DynamoDB", "category": "Databases" },
+	{ "name": "MySQL", "category": "Databases" },
+	{ "name": "SQL Server", "category": "Databases" },
+
+	{ "name": "AWS", "category": "Infrastructure" },
+	{ "name": "GitHub Actions", "category": "Infrastructure" },
+	{ "name": "CI/CD", "category": "Infrastructure" },
+	{ "name": "Docker", "category": "Infrastructure" },
+	{ "name": "Serverless", "category": "Infrastructure" },
+	{ "name": "Kubernetes", "category": "Infrastructure" }
+]

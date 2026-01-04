@@ -1,7 +1,7 @@
 {
-	"name": "personal",
+	"name": "resume-builder",
 	"private": true,
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -9,12 +9,18 @@
 		"preview": "vite preview"
 	},
 	"workspaces": [
+		"packages/entities",
+		"packages/mcp",
+		"packages/nextjs",
 		"packages/resume-builder"
 	],
 	"devDependencies": {
 		"@nestjs/cli": "^11.0.14",
+		"commander": "^14.0.2",
+		"del-cli": "^7.0.0",
 		"prettier": "3.7.4",
 		"typescript": "^5.2.2",
-		"vite": "^5.2.0"
+		"vite": "^5.2.0",
+		"vitest": "^4.0.16"
 	}
 }

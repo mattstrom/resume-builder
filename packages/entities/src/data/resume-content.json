@@ -1,0 +1,30 @@
+[
+	{
+		"name": "Alex Johnson",
+		"title": "Principal Software Engineer",
+		"summary": "Principal Software Engineer with 15+ years of full-stack experience and deep specialization in full-stack applications. Built complex React/TypeScript UIs, performant and secure Node.js backend servers, real-time collaboration systems using CRDTs, and AI-integrated visual editors. Capable generalist adept in greenfield projects, end-to-end architecture, Node.js services, AWS infrastructure, and CI/CD automation.",
+		"contactInformation": {
+			"location": "Anytown, USA",
+			"phoneNumber": "(555) 123-4567",
+			"email": "alex.johnson@example.com",
+			"linkedInProfile": "https://linkedin.com/in/alexjohnson",
+			"githubProfile": "https://github.com/alexjohnson"
+		},
+		"workExperience": [
+			{ "$ref": "ObjectID('695a24a201332fc32708ee84')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708ee86')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708ee88')" }
+		],
+		"education": [{ "$ref": "ObjectID('695a24a201332fc32708ee82')" }],
+		"skills": [],
+		"projects": [
+			{ "$ref": "ObjectID('695a24a201332fc32708eebe')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eec0')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eec2')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eec4')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eec6')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eec8')" },
+			{ "$ref": "ObjectID('695a24a201332fc32708eeca')" }
+		]
+	}
+]
