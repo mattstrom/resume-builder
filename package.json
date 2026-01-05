@@ -9,6 +9,7 @@
 		"preview": "vite preview"
 	},
 	"workspaces": [
+		"packages/backend",
 		"packages/entities",
 		"packages/mcp",
 		"packages/nextjs",
