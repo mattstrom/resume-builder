@@ -1,0 +1,236 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "resume.schema.json",
+	"title": "Resume",
+	"type": "object",
+	"properties": {
+		"_id": {
+			"description": "MongoDB ObjectId"
+		},
+		"id": {
+			"type": "string",
+			"default": ""
+		},
+		"name": {
+			"type": "string",
+			"default": ""
+		},
+		"data": {
+			"$ref": "#/$defs/ResumeContent"
+		}
+	},
+	"required": ["id", "name", "data"],
+	"$defs": {
+		"ContactInformation": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"location": {
+					"type": "string",
+					"default": ""
+				},
+				"phoneNumber": {
+					"type": "string",
+					"default": ""
+				},
+				"email": {
+					"type": "string",
+					"format": "email",
+					"default": ""
+				},
+				"linkedInProfile": {
+					"type": "string",
+					"default": ""
+				},
+				"githubProfile": {
+					"type": "string",
+					"default": ""
+				}
+			},
+			"required": [
+				"location",
+				"phoneNumber",
+				"email",
+				"linkedInProfile",
+				"githubProfile"
+			]
+		},
+		"Education": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"degree": {
+					"type": "string",
+					"default": ""
+				},
+				"field": {
+					"type": "string",
+					"default": ""
+				},
+				"institution": {
+					"type": "string",
+					"default": ""
+				},
+				"graduated": {
+					"type": "string",
+					"default": ""
+				}
+			},
+			"required": ["degree", "field", "institution", "graduated"]
+		},
+		"Job": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"__v": {
+					"type": "number",
+					"description": "MongoDB version key"
+				},
+				"company": {
+					"type": "string",
+					"default": ""
+				},
+				"position": {
+					"type": "string",
+					"default": ""
+				},
+				"location": {
+					"type": "string",
+					"default": ""
+				},
+				"startDate": {
+					"type": "string",
+					"default": ""
+				},
+				"endDate": {
+					"type": "string"
+				},
+				"responsibilities": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": []
+				}
+			},
+			"required": [
+				"company",
+				"position",
+				"location",
+				"startDate",
+				"responsibilities"
+			]
+		},
+		"Project": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"name": {
+					"type": "string",
+					"default": ""
+				},
+				"technologies": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": []
+				},
+				"items": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": []
+				}
+			},
+			"required": ["name", "technologies", "items"]
+		},
+		"Skill": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"name": {
+					"type": "string",
+					"default": ""
+				},
+				"category": {
+					"type": "string",
+					"default": ""
+				}
+			},
+			"required": ["name", "category"]
+		},
+		"ResumeContent": {
+			"type": "object",
+			"properties": {
+				"_id": {
+					"description": "MongoDB ObjectId"
+				},
+				"name": {
+					"type": "string",
+					"default": ""
+				},
+				"title": {
+					"type": "string",
+					"default": ""
+				},
+				"contactInformation": {
+					"$ref": "#/$defs/ContactInformation"
+				},
+				"summary": {
+					"type": "string",
+					"default": ""
+				},
+				"workExperience": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Job"
+					},
+					"default": []
+				},
+				"education": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Education"
+					},
+					"default": []
+				},
+				"skills": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Skill"
+					},
+					"default": []
+				},
+				"projects": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/Project"
+					},
+					"default": []
+				}
+			},
+			"required": [
+				"name",
+				"title",
+				"contactInformation",
+				"summary",
+				"workExperience",
+				"education",
+				"skills",
+				"projects"
+			]
+		}
+	}
+}
