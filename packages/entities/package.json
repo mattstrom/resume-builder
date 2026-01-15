@@ -1,26 +1,26 @@
 {
-	"name": "@resume-builder/entities",
-	"version": "1.0.0",
-	"description": "",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"scripts": {
-		"clean": "del-cli dist",
-		"prebuild": "npm run clean",
-		"build": "tsc",
-		"watch": "tsc --watch",
-		"dev": "node dist/test.js",
-		"test": "vitest",
-		"load": "node dist/data/loader.js"
-	},
-	"private": true,
-	"dependencies": {
-		"@nestjs/mongoose": "^11.0.4",
-		"@typegoose/typegoose": "^13.0.0",
-		"reflect-metadata": "^0.1.13",
-		"zod": "^4.3.4"
-	},
-	"devDependencies": {
-		"vite-plugin-emit-metadata": "^0.2.0"
-	}
+  "name": "@resume-builder/entities",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "del-cli dist",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "dev": "node dist/test.js",
+    "test": "nx vite:test",
+    "load": "node dist/data/loader.js"
+  },
+  "private": true,
+  "dependencies": {
+    "@nestjs/mongoose": "^11.0.4",
+    "@typegoose/typegoose": "^13.0.0",
+    "reflect-metadata": "^0.1.13",
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "vite-plugin-emit-metadata": "^0.2.0"
+  }
 }
