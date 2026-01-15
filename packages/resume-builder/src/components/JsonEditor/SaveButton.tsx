@@ -21,6 +21,8 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 			return;
 		}
 
+		console.log('💾 Saving resume data:', resumeData);
+
 		setSaveState('saving');
 		setErrorMessage('');
 
@@ -30,12 +32,16 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 
 			let savedResume;
 			if (hasMongoId) {
+				console.log('📝 Updating existing resume with _id:', resumeData._id);
 				// Update existing resume
 				savedResume = await updateResume(resumeData._id as string, resumeData);
 			} else {
+				console.log('➕ Creating new resume');
 				// Create new resume
 				savedResume = await createResume(resumeData);
 			}
+
+			console.log('✓ Save successful:', savedResume);
 
 			// Update FileManager with saved resume (includes _id for new resumes)
 			updateResumeData(savedResume);
@@ -45,6 +51,7 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 				setSaveState('idle');
 			}, 2000);
 		} catch (error) {
+			console.error('✗ Save failed:', error);
 			setSaveState('error');
 			if (error instanceof Error) {
 				setErrorMessage(error.message);

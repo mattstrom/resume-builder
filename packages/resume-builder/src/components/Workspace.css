@@ -1,25 +1,58 @@
 .workspace {
 	display: flex;
-	gap: 16px;
+	height: 100%;
+}
 
-	.workspace-left {
-		flex: 1;
-		min-width: 200px;
-	}
+.workspace-left {
+	min-width: 200px;
+	display: flex;
+	flex-direction: column;
+}
 
-	.workspace-middle {
-		flex: 4;
-		min-width: 400px;
-		overflow: hidden;
-		display: flex;
-		flex-direction: column;
-	}
+.workspace-middle {
+	min-width: 400px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
 
-	.workspace-right {
-		flex: 4;
-		min-width: 400px;
-		overflow: auto;
-	}
+.workspace-right {
+	min-width: 400px;
+	overflow: auto;
+}
+
+/* Resize handle styling */
+.resize-handle {
+	width: 8px;
+	background-color: transparent;
+	cursor: col-resize;
+	position: relative;
+	transition: background-color 0.2s;
+}
+
+.resize-handle:hover {
+	background-color: rgba(66, 165, 245, 0.3);
+}
+
+.resize-handle:active {
+	background-color: rgba(66, 165, 245, 0.6);
+}
+
+/* Visual indicator line in the middle of the handle */
+.resize-handle::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 1px;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.resize-handle:hover::after {
+	background-color: rgba(66, 165, 245, 0.8);
+	width: 2px;
 }
 
 @media print {

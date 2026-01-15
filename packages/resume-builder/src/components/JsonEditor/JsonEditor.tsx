@@ -1,4 +1,11 @@
-import { type FC, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	type FC,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { useFileManager } from '../FileManager';
 import { validateResume } from '../../utils/resumeValidation';
@@ -21,12 +28,21 @@ export const JsonEditor: FC = () => {
 	const { resumeData, updateResumeData } = useFileManager();
 	const [jsonString, setJsonString] = useState<string>('');
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
+	const isInternalUpdate = useRef(false);
+	const lastResumeData = useRef<Resume | null>(null);
 
-	// Sync resumeData to jsonString when it changes externally
+	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
-		if (resumeData) {
-			setJsonString(JSON.stringify(resumeData, null, 2));
+		// Only update if this is an external change (not from our editor)
+		if (resumeData && !isInternalUpdate.current) {
+			// Check if resumeData actually changed by comparing with last known value
+			if (resumeData !== lastResumeData.current) {
+				const newJsonString = JSON.stringify(resumeData, null, 2);
+				setJsonString(newJsonString);
+				lastResumeData.current = resumeData;
+			}
 		}
+		isInternalUpdate.current = false;
 	}, [resumeData]);
 
 	// Configure Monaco JSON validation with schema
@@ -52,14 +68,22 @@ export const JsonEditor: FC = () => {
 					const validation = validateResume(parsed);
 
 					if (validation.valid) {
+						console.log(
+							'✓ Validation passed, updating resume data',
+						);
+						isInternalUpdate.current = true;
 						updateResumeData(parsed as Resume);
 						setValidationErrors([]);
 					} else {
+						console.warn('✗ Validation failed:', validation.errors);
 						setValidationErrors(validation.errors);
 					}
 				} catch (error) {
 					if (error instanceof Error) {
-						setValidationErrors([`JSON Parse Error: ${error.message}`]);
+						console.error('✗ JSON Parse Error:', error.message);
+						setValidationErrors([
+							`JSON Parse Error: ${error.message}`,
+						]);
 					} else {
 						setValidationErrors(['Failed to parse JSON']);
 					}
@@ -78,7 +102,9 @@ export const JsonEditor: FC = () => {
 	);
 
 	return (
-		<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+		<div
+			style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+		>
 			<div style={{ flex: 1, overflow: 'hidden' }}>
 				<Editor
 					height="100%"
@@ -87,9 +113,9 @@ export const JsonEditor: FC = () => {
 					value={jsonString}
 					onChange={handleEditorChange}
 					options={{
-						minimap: { enabled: true },
+						minimap: { enabled: false },
 						formatOnPaste: true,
-						formatOnType: true,
+						formatOnType: false,
 						scrollBeyondLastLine: false,
 						automaticLayout: true,
 						tabSize: 2,

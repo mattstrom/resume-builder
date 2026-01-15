@@ -70,7 +70,13 @@ export function validateResume(data: unknown): ValidationResult {
 		return { valid: false, errors: ['Data must be an object'] };
 	}
 
-	const obj = data.data as Record<string, unknown>;
+	const resume = data as Record<string, unknown>;
+
+	if (!resume.data || typeof resume.data !== 'object') {
+		return { valid: false, errors: ['Missing "data" property'] };
+	}
+
+	const obj = resume.data as Record<string, unknown>;
 
 	if (typeof obj.name !== 'string') {
 		errors.push('Missing or invalid "name" field');
@@ -94,10 +100,18 @@ export function validateResume(data: unknown): ValidationResult {
 	} else if (!obj.education.every(isValidEducation)) {
 		errors.push('Invalid entry in "education"');
 	}
-	if (!Array.isArray(obj.skills)) {
-		errors.push('Missing "skills" array');
-	} else if (!obj.skills.every(isValidSkillGroup)) {
-		errors.push('Invalid entry in "skills"');
+	// skills and skillGroups are both optional
+	if (obj.skills !== undefined) {
+		if (!Array.isArray(obj.skills)) {
+			errors.push('Invalid "skills" field - must be an array');
+		}
+	}
+	if (obj.skillGroups !== undefined) {
+		if (!Array.isArray(obj.skillGroups)) {
+			errors.push('Invalid "skillGroups" field - must be an array');
+		} else if (!obj.skillGroups.every(isValidSkillGroup)) {
+			errors.push('Invalid entry in "skillGroups"');
+		}
 	}
 	if (!Array.isArray(obj.projects)) {
 		errors.push('Missing "projects" array');
