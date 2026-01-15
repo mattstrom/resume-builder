@@ -1,4 +1,4 @@
-import type { Resume } from '../types';
+import type { Resume } from '@resume-builder/entities';
 
 const API_BASE_URL = 'http://localhost:3000';
 

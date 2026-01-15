@@ -32,10 +32,10 @@ export class ResumeContent {
 	education: Education[];
 
 	@Prop({ type: [SkillSchema], default: [] })
-	skills: Skill[];
+	skills?: Skill[];
 
 	@Prop({ type: [SkillGroupSchema], default: [] })
-	skillGroups: SkillGroup[];
+	skillGroups?: SkillGroup[];
 
 	@Prop({ type: [ProjectSchema], default: [] })
 	projects: Project[];

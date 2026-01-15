@@ -1,5 +1,5 @@
 import { type FC, type PropsWithChildren } from 'react';
-import type { Job } from '../../types.ts';
+import type { Job } from '@resume-builder/entities';
 
 function formatDate(dateString: string): string {
 	const date = new Date(dateString);
@@ -12,27 +12,27 @@ interface JobProps extends PropsWithChildren {
 
 export const JobSection: FC<JobProps> = ({ job }) => {
 	return (
-		<section className='job'>
+		<section className="job">
 			<header>
 				<h3>{job.position}</h3>
 			</header>
 			<div>
-				<span className='company'>{job.company}</span>
+				<span className="company">{job.company}</span>
 				<span>{' | '}</span>
-				<span className='location'>{job.location}</span>
+				<span className="location">{job.location}</span>
 				<span>{' | '}</span>
 				<time>
-					<span className='start-date'>
+					<span className="start-date">
 						{formatDate(job.startDate)}
 					</span>
 					{'–'}
-					<span className='end-date'>
+					<span className="end-date">
 						{job.endDate ? formatDate(job.endDate) : 'Present'}
 					</span>
 				</time>
 			</div>
 			{job.responsibilities && (
-				<ul className='responsibilities'>
+				<ul className="responsibilities">
 					{job.responsibilities.map((item, index) => (
 						<li key={index}>{item}</li>
 					))}

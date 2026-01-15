@@ -4,8 +4,8 @@ import type {
 	Job,
 	Project,
 	Resume,
-	SKillGroup,
-} from '../types';
+	SkillGroup,
+} from '@resume-builder/entities';
 
 interface ValidationResult {
 	valid: boolean;
@@ -47,7 +47,7 @@ function isValidEducation(data: unknown): data is Education {
 	);
 }
 
-function isValidSkillGroup(data: unknown): data is SKillGroup {
+function isValidSkillGroup(data: unknown): data is SkillGroup {
 	if (!data || typeof data !== 'object') return false;
 	const obj = data as Record<string, unknown>;
 	return typeof obj.name === 'string' && Array.isArray(obj.items);

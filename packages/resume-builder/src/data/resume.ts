@@ -1,5 +1,5 @@
 import { outdent } from 'outdent';
-import type { Resume } from '../types.ts';
+import type { Resume } from '@resume-builder/entities';
 
 export const resume: Resume = {
 	_id: 'RES-4',
@@ -14,6 +14,7 @@ export const resume: Resume = {
 			email: 'alex.johnson@example.com',
 			linkedInProfile: 'https://linkedin.com/in/alexjohnson',
 			githubProfile: 'https://github.com/alexjohnson',
+			personalWebsite: 'https://alexjohnson.dev',
 		},
 		summary: outdent`
 		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and 
@@ -72,7 +73,7 @@ export const resume: Resume = {
 				graduated: 'May 2010',
 			},
 		],
-		skills: [
+		skillGroups: [
 			{
 				name: 'Languages',
 				items: ['TypeScript', 'JavaScript', 'Python', 'Java', 'C#'],

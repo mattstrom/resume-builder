@@ -4,5 +4,5 @@ export type {
 	Job,
 	Project,
 	Resume,
-	SKillGroup,
-} from '../types.ts';
+	SkillGroup,
+} from '@resume-builder/entities';

@@ -8,7 +8,7 @@ import {
 	useState,
 } from 'react';
 import { del, get, set } from 'idb-keyval';
-import type { Resume } from '../../types';
+import type { Resume } from '@resume-builder/entities';
 import {
 	getJsonFiles,
 	readJsonFile,
@@ -49,9 +49,8 @@ type FileManagerContextValue = FileManagerState & FileManagerActions;
 const FileManagerContext = createContext<FileManagerContextValue | null>(null);
 
 export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
-	const [directoryHandle, setDirectoryHandle] = useState<
-		FileSystemDirectoryHandle | null
-	>(null);
+	const [directoryHandle, setDirectoryHandle] =
+		useState<FileSystemDirectoryHandle | null>(null);
 	const [files, setFiles] = useState<string[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string | null>(null);
 	const [resumeData, setResumeData] = useState<Resume | null>(null);
@@ -75,9 +74,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 				if (!validation.valid) {
 					setError(
-						`Invalid resume format:\n${
-							validation.errors.join('\n')
-						}`,
+						`Invalid resume format:\n${validation.errors.join(
+							'\n',
+						)}`,
 					);
 					return;
 				}
@@ -105,9 +104,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 		const restore = async () => {
 			try {
-				const handle = await get<FileSystemDirectoryHandle>(
-					STORAGE_KEY,
-				);
+				const handle =
+					await get<FileSystemDirectoryHandle>(STORAGE_KEY);
 				if (handle) {
 					const hasPermission = await verifyPermission(handle);
 					if (hasPermission) {
@@ -116,9 +114,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 						setFiles(jsonFiles);
 
 						// Restore selected file
-						const savedFile = localStorage.getItem(
-							SELECTED_FILE_KEY,
-						);
+						const savedFile =
+							localStorage.getItem(SELECTED_FILE_KEY);
 						if (savedFile && jsonFiles.includes(savedFile)) {
 							await loadFile(handle, savedFile);
 						}
@@ -201,11 +198,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			setApiResumes(resumes);
 
 			// Try to restore previously selected API resume
-			const savedResumeId = localStorage.getItem(
-				SELECTED_API_RESUME_KEY,
-			);
+			const savedResumeId = localStorage.getItem(SELECTED_API_RESUME_KEY);
 			if (savedResumeId) {
-				const resume = resumes.find((r) => r._id === savedResumeId);
+				const resume = resumes.find((r) => r['_id'] === savedResumeId);
 				if (resume) {
 					setResumeData(resume);
 					setSelectedApiResumeId(savedResumeId);

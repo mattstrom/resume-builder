@@ -7,7 +7,7 @@ export class SkillGroup {
 	name: string;
 
 	@Prop({ type: [String], default: [] })
-	items: string;
+	items: string[];
 }
 
 export const SkillGroupSchema = SchemaFactory.createForClass(SkillGroup);
