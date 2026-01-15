@@ -46,3 +46,55 @@ export async function fetchResumeById(_id: string): Promise<Resume> {
 		throw new Error(`Failed to fetch resume with _id: ${_id}`);
 	}
 }
+
+export async function createResume(data: Resume): Promise<Resume> {
+	try {
+		const response = await fetch(`${API_BASE_URL}/resumes`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to create resume: ${response.status} ${response.statusText}`,
+			);
+		}
+
+		const result = await response.json();
+		return result;
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error('Failed to create resume');
+	}
+}
+
+export async function updateResume(_id: string, data: Resume): Promise<Resume> {
+	try {
+		const response = await fetch(`${API_BASE_URL}/resumes/${_id}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error(
+				`Failed to update resume: ${response.status} ${response.statusText}`,
+			);
+		}
+
+		const result = await response.json();
+		return result;
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error(`Failed to update resume with _id: ${_id}`);
+	}
+}

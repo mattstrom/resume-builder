@@ -1,12 +1,35 @@
 .workspace {
 	display: flex;
+	gap: 16px;
 
-	.workspace-left {}
-	.workspace-right {}
+	.workspace-left {
+		flex: 1;
+		min-width: 200px;
+	}
+
+	.workspace-middle {
+		flex: 4;
+		min-width: 400px;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.workspace-right {
+		flex: 4;
+		min-width: 400px;
+		overflow: auto;
+	}
 }
 
 @media print {
-	.workspace-left {
+	.workspace-left,
+	.workspace-middle {
 		display: none !important;
+	}
+
+	.workspace-right {
+		flex: 1;
+		min-width: unset;
 	}
 }

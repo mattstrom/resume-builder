@@ -42,6 +42,7 @@ interface FileManagerActions {
 	refreshFiles: () => Promise<void>;
 	loadApiResumes: () => Promise<void>;
 	selectApiResume: (resumeId: string) => Promise<void>;
+	updateResumeData: (resume: Resume) => void;
 }
 
 type FileManagerContextValue = FileManagerState & FileManagerActions;
@@ -247,6 +248,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		loadApiResumes();
 	}, [loadApiResumes]);
 
+	const updateResumeData = useCallback((resume: Resume) => {
+		setResumeData(resume);
+	}, []);
+
 	const value: FileManagerContextValue = {
 		directoryHandle,
 		directoryName: directoryHandle?.name ?? null,
@@ -264,6 +269,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		refreshFiles,
 		loadApiResumes,
 		selectApiResume,
+		updateResumeData,
 	};
 
 	return (

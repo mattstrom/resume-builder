@@ -3,6 +3,7 @@ import { useSettings } from './Settings.provider.tsx';
 import { BasicLayout, ColumnLayout } from './layouts';
 import { Controls } from './Controls.tsx';
 import { GridLayout } from './layouts/GridLayout.tsx';
+import { JsonEditor } from './JsonEditor';
 
 import './Workspace.css';
 
@@ -24,6 +25,9 @@ export const Workspace: FC = () => {
 		<div className='workspace'>
 			<div className='workspace-left'>
 				<Controls />
+			</div>
+			<div className='workspace-middle'>
+				<JsonEditor />
 			</div>
 			<div className='workspace-right'>{templateComponent}</div>
 		</div>

@@ -19,7 +19,9 @@
 	},
 	"main": "./dist/lib/index.js",
 	"types": "./dist/lib/index.d.ts",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
@@ -30,6 +32,7 @@
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
 		"@emotion/styled": "^11.14.1",
+		"@monaco-editor/react": "^4.7.0",
 		"@mui/icons-material": "^7.3.6",
 		"@mui/material": "^7.3.6",
 		"clsx": "^2.1.1",

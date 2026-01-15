@@ -23,4 +23,22 @@ export class ResumesService {
 
 		return result?.toObject() ?? null;
 	}
+
+	async create(resumeData: Resume): Promise<Resume> {
+		const created = new this.resumeModel(resumeData);
+		const saved = await created.save();
+		return saved.toObject();
+	}
+
+	async update(id: string, updateData: Resume): Promise<Resume> {
+		const updated = await this.resumeModel
+			.findByIdAndUpdate(id, updateData, { new: true })
+			.exec();
+
+		if (!updated) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
+
+		return updated.toObject();
+	}
 }
