@@ -52,14 +52,18 @@ export class ResumeBuilder {
 		const props = resumePage.properties;
 
 		return {
-			name: this.getRichText(props['Candidate Name']),
-			title: this.getRichText(props['Title']),
-			summary: this.getRichText(props['Summary']),
-			contactInformation: this.extractContactInfo(props),
-			workExperience: await this.resolveJobs(props),
-			education: await this.resolveEducation(props),
-			skills: await this.resolveSkills(props),
-			projects: await this.resolveProjects(props),
+			id: this.id,
+			name: this.getTitle(props['Name']),
+			data: {
+				name: this.getRichText(props['Candidate Name']),
+				title: this.getRichText(props['Title']),
+				summary: this.getRichText(props['Summary']),
+				contactInformation: this.extractContactInfo(props),
+				workExperience: await this.resolveJobs(props),
+				education: await this.resolveEducation(props),
+				skills: await this.resolveSkills(props),
+				projects: await this.resolveProjects(props),
+			},
 		};
 	}
 
@@ -229,9 +233,7 @@ export class ResumeBuilder {
 
 			if (block.type === 'bulleted_list_item') {
 				const richText = (block as any).bulleted_list_item.rich_text;
-				const text = richText
-					?.map((t: any) => t.plain_text)
-					.join('');
+				const text = richText?.map((t: any) => t.plain_text).join('');
 				if (text) {
 					items.push(text);
 				}

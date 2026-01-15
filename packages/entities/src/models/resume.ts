@@ -1,30 +1,31 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
-import { Base } from '@typegoose/typegoose/lib/defaultClasses';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 import { z } from 'zod';
-import { ResumeContent, resumeContentSchema } from './resume-content';
+import {
+	ResumeContent,
+	ResumeContentSchema,
+	resumeContentSchema,
+} from './resume-content';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
-export class Resume implements Base {
-	@prop({ type: Types.ObjectId })
-	_id: Types.ObjectId;
+export type ResumeDocument = HydratedDocument<Resume>;
 
-	@prop({ type: String })
-	id: string = '';
+@Schema({ versionKey: false })
+export class Resume {
+	@Prop({ type: String, default: '' })
+	id: string;
 
-	@prop({ type: String })
-	name: string = '';
+	@Prop({ type: String, default: '' })
+	name: string;
 
-	@prop({ type: () => ResumeContent })
-	data: ResumeContent = new ResumeContent();
+	@Prop({ type: ResumeContentSchema, default: () => ({}) })
+	data: ResumeContent;
 }
 
-export const ResumeModel = getModelForClass(Resume);
+export const ResumeSchema = SchemaFactory.createForClass(Resume);
 
 export const resumeSchema = z.object({
 	_id: z.any(),
-	__v: z.number().optional(),
 	id: z.string(),
 	name: z.string(),
 	data: resumeContentSchema,

@@ -1,25 +1,29 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class ContactInformation {
-	@prop({ type: String })
-	location: string = '';
+	@Prop({ type: String, default: '' })
+	location: string;
 
-	@prop({ type: String })
-	phoneNumber: string = '';
+	@Prop({ type: String, default: '' })
+	phoneNumber: string;
 
-	@prop({ type: String })
-	email: string = '';
+	@Prop({ type: String, default: '' })
+	email: string;
 
-	@prop({ type: String })
-	linkedInProfile: string = '';
+	@Prop({ type: String, default: '' })
+	linkedInProfile: string;
 
-	@prop({ type: String })
-	githubProfile: string = '';
+	@Prop({ type: String, default: '' })
+	githubProfile: string;
+
+	@Prop({ type: String, default: '' })
+	personalWebsite: string;
 }
 
-export const ContactInformationModel = getModelForClass(ContactInformation);
+export const ContactInformationSchema =
+	SchemaFactory.createForClass(ContactInformation);
 
 export const contactInformationSchema = z.object({
 	_id: z.any(),

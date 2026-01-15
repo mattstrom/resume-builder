@@ -1,16 +1,16 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class Skill {
-	@prop({ type: String })
-	name: string = '';
+	@Prop({ type: String, default: '' })
+	name: string;
 
-	@prop({ type: String })
-	category: string = '';
+	@Prop({ type: String, default: '' })
+	category: string;
 }
 
-export const SkillModel = getModelForClass(Skill);
+export const SkillSchema = SchemaFactory.createForClass(Skill);
 
 export const skillSchema = z.object({
 	_id: z.any(),

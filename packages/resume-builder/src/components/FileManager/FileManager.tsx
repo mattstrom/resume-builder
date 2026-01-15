@@ -21,6 +21,8 @@ export const FileManager: FC = () => {
 		directoryName,
 		files,
 		selectedFile,
+		apiResumes,
+		selectedApiResumeId,
 		isLoading,
 		error,
 		isSupported,
@@ -28,6 +30,8 @@ export const FileManager: FC = () => {
 		detachDirectory,
 		selectFile,
 		refreshFiles,
+		loadApiResumes,
+		selectApiResume,
 	} = useFileManager();
 
 	if (!isSupported) {
@@ -40,8 +44,53 @@ export const FileManager: FC = () => {
 
 	return (
 		<Box sx={{ mb: 2 }}>
+			{/* API Resumes Section */}
 			<Typography variant='subtitle2' gutterBottom>
-				Resume File
+				Backend Resumes
+			</Typography>
+
+			{apiResumes.length > 0 && (
+				<FormControl fullWidth size='small' sx={{ mb: 2 }}>
+					<InputLabel>Select Resume</InputLabel>
+					<Select
+						value={selectedApiResumeId ?? ''}
+						label='Select Resume'
+						onChange={(e) =>
+							selectApiResume(e.target.value)}
+						disabled={isLoading}
+					>
+						{apiResumes.map((resume) => (
+							<MenuItem key={resume._id} value={resume._id}>
+								{resume.name}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
+			)}
+
+			{apiResumes.length === 0 && !isLoading && (
+				<Box sx={{ mb: 2 }}>
+					<Typography
+						variant='body2'
+						color='text.secondary'
+						gutterBottom
+					>
+						No resumes available from backend
+					</Typography>
+					<Button
+						variant='text'
+						size='small'
+						onClick={loadApiResumes}
+						startIcon={<RefreshIcon />}
+					>
+						Retry
+					</Button>
+				</Box>
+			)}
+
+			{/* Local Files Section */}
+			<Typography variant='subtitle2' gutterBottom sx={{ mt: 2 }}>
+				Local Resume File
 			</Typography>
 
 			{!directoryName

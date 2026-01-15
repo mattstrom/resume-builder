@@ -22,7 +22,12 @@ export interface Education {
 	graduated: string;
 }
 
-export interface SKillGroup {
+export interface Skill {
+	name: string;
+	category: string;
+}
+
+export interface SkillGroup {
 	name: string;
 	items: string[];
 }
@@ -34,12 +39,18 @@ export interface Project {
 }
 
 export interface Resume {
+	_id: string;
+	id?: string;
 	name: string;
-	title: string;
-	contactInformation: ContactInformation;
-	summary: string;
-	workExperience: Job[];
-	education: Education[];
-	skills: SKillGroup[];
-	projects: Project[];
+	data: {
+		name: string;
+		title: string;
+		contactInformation: ContactInformation;
+		summary: string;
+		workExperience: Job[];
+		education: Education[];
+		skills: Skill[];
+		skillGroups: SkillGroup[];
+		projects: Project[];
+	};
 }

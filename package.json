@@ -1,5 +1,5 @@
 {
-	"name": "resume-builder",
+	"name": "@resume-builder/monorepo",
 	"private": true,
 	"version": "0.1.0",
 	"type": "module",
@@ -20,6 +20,7 @@
 		"commander": "^14.0.2",
 		"del-cli": "^7.0.0",
 		"prettier": "3.7.4",
+		"ts-node": "^10.9.2",
 		"typescript": "^5.2.2",
 		"vite": "^5.2.0",
 		"vitest": "^4.0.16"

@@ -1,19 +1,19 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class Project {
-	@prop({ type: String })
-	name: string = '';
+	@Prop({ type: String, default: '' })
+	name: string;
 
-	@prop({ type: [String] })
-	technologies: string[] = [];
+	@Prop({ type: [String], default: [] })
+	technologies: string[];
 
-	@prop({ type: [String] })
-	items: string[] = [];
+	@Prop({ type: [String], default: [] })
+	items: string[];
 }
 
-export const ProjectModel = getModelForClass(Project);
+export const ProjectSchema = SchemaFactory.createForClass(Project);
 
 export const projectSchema = z.object({
 	_id: z.any(),

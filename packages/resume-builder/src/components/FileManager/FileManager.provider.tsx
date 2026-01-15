@@ -16,9 +16,11 @@ import {
 	verifyPermission,
 } from '../../utils/fileSystem';
 import { validateResume } from '../../utils/resumeValidation';
+import { fetchResumeById, fetchResumes } from '../../utils/api';
 
 const STORAGE_KEY = 'resume:directoryHandle';
 const SELECTED_FILE_KEY = 'resume:selectedFile';
+const SELECTED_API_RESUME_KEY = 'resume:selectedApiResumeId';
 
 interface FileManagerState {
 	directoryHandle: FileSystemDirectoryHandle | null;
@@ -26,6 +28,8 @@ interface FileManagerState {
 	files: string[];
 	selectedFile: string | null;
 	resumeData: Resume | null;
+	apiResumes: Resume[];
+	selectedApiResumeId: string | null;
 	isLoading: boolean;
 	error: string | null;
 	isSupported: boolean;
@@ -36,6 +40,8 @@ interface FileManagerActions {
 	detachDirectory: () => Promise<void>;
 	selectFile: (fileName: string) => Promise<void>;
 	refreshFiles: () => Promise<void>;
+	loadApiResumes: () => Promise<void>;
+	selectApiResume: (resumeId: string) => Promise<void>;
 }
 
 type FileManagerContextValue = FileManagerState & FileManagerActions;
@@ -49,6 +55,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [files, setFiles] = useState<string[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string | null>(null);
 	const [resumeData, setResumeData] = useState<Resume | null>(null);
+	const [apiResumes, setApiResumes] = useState<Resume[]>([]);
+	const [selectedApiResumeId, setSelectedApiResumeId] = useState<
+		string | null
+	>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -75,6 +85,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 				setResumeData(data as Resume);
 				setSelectedFile(fileName);
 				localStorage.setItem(SELECTED_FILE_KEY, fileName);
+				// Clear API selection when loading a file
+				setSelectedApiResumeId(null);
+				localStorage.removeItem(SELECTED_API_RESUME_KEY);
 			} catch (err) {
 				setError(
 					err instanceof Error ? err.message : 'Failed to read file',
@@ -179,12 +192,74 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		}
 	}, [directoryHandle]);
 
+	const loadApiResumes = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const resumes = await fetchResumes();
+			setApiResumes(resumes);
+
+			// Try to restore previously selected API resume
+			const savedResumeId = localStorage.getItem(
+				SELECTED_API_RESUME_KEY,
+			);
+			if (savedResumeId) {
+				const resume = resumes.find((r) => r._id === savedResumeId);
+				if (resume) {
+					setResumeData(resume);
+					setSelectedApiResumeId(savedResumeId);
+					// Clear file selection when loading API resume
+					setSelectedFile(null);
+				}
+			}
+		} catch (err) {
+			setError(
+				err instanceof Error
+					? err.message
+					: 'Failed to load resumes from API',
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	const selectApiResume = useCallback(async (resumeId: string) => {
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const resume = await fetchResumeById(resumeId);
+			setResumeData(resume);
+			setSelectedApiResumeId(resumeId);
+			localStorage.setItem(SELECTED_API_RESUME_KEY, resumeId);
+			// Clear file selection when selecting API resume
+			setSelectedFile(null);
+			localStorage.removeItem(SELECTED_FILE_KEY);
+		} catch (err) {
+			setError(
+				err instanceof Error
+					? err.message
+					: 'Failed to load resume from API',
+			);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	// Load API resumes on mount
+	useEffect(() => {
+		loadApiResumes();
+	}, [loadApiResumes]);
+
 	const value: FileManagerContextValue = {
 		directoryHandle,
 		directoryName: directoryHandle?.name ?? null,
 		files,
 		selectedFile,
 		resumeData,
+		apiResumes,
+		selectedApiResumeId,
 		isLoading,
 		error,
 		isSupported,
@@ -192,6 +267,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		detachDirectory,
 		selectFile,
 		refreshFiles,
+		loadApiResumes,
+		selectApiResume,
 	};
 
 	return (

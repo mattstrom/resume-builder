@@ -1,5 +1,5 @@
 {
-	//	"extends": "../../tsconfig.json",
+	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "nodenext",
@@ -9,7 +9,10 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 		"declaration": true,
-		"baseUrl": "./src"
+		"baseUrl": "./src",
+		"skipLibCheck": true,
+		"strictPropertyInitialization": false,
+		"noUnusedLocals": false
 	},
 	"include": ["./src/**/*.ts"]
 }

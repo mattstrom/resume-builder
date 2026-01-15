@@ -18,7 +18,7 @@ ij_visual_guides =
 ij_wrap_on_typing = false
 
 [{*.json,*.jsonc,*.jsonl}]
-indent_style = tab
+indent_style = space
 indent_size = 2
 
 [{*.yml,*.yaml}]

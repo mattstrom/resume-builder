@@ -1,42 +1,47 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 import {
 	ContactInformation,
+	ContactInformationSchema,
 	contactInformationSchema,
 } from './contact-information';
-import { Education, educationSchema } from './education';
-import { Job, jobSchema } from './job';
-import { Project, projectSchema } from './project';
-import { Skill, skillSchema } from './skill';
+import { Education, EducationSchema, educationSchema } from './education';
+import { Job, JobSchema, jobSchema } from './job';
+import { Project, ProjectSchema, projectSchema } from './project';
+import { Skill, SkillSchema, skillSchema } from './skill';
+import { SkillGroup, SkillGroupSchema } from './skill-group';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class ResumeContent {
-	@prop({ type: String })
-	name: string = '';
+	@Prop({ type: String, default: '' })
+	name: string;
 
-	@prop({ type: String })
-	title: string = '';
+	@Prop({ type: String, default: '' })
+	title: string;
 
-	@prop({ type: () => ContactInformation })
-	contactInformation: ContactInformation = new ContactInformation();
+	@Prop({ type: ContactInformationSchema, default: () => ({}) })
+	contactInformation: ContactInformation;
 
-	@prop({ type: String })
-	summary: string = '';
+	@Prop({ type: String, default: '' })
+	summary: string;
 
-	@prop({ type: () => [Job] })
-	workExperience: Job[] = [];
+	@Prop({ type: [JobSchema], default: [] })
+	workExperience: Job[];
 
-	@prop({ type: () => [Education] })
-	education: Education[] = [];
+	@Prop({ type: [EducationSchema], default: [] })
+	education: Education[];
 
-	@prop({ type: () => [Skill] })
-	skills: Skill[] = [];
+	@Prop({ type: [SkillSchema], default: [] })
+	skills: Skill[];
 
-	@prop({ type: () => [Project] })
-	projects: Project[] = [];
+	@Prop({ type: [SkillGroupSchema], default: [] })
+	skillGroups: SkillGroup[];
+
+	@Prop({ type: [ProjectSchema], default: [] })
+	projects: Project[];
 }
 
-export const ResumeContentModel = getModelForClass(ResumeContent);
+export const ResumeContentSchema = SchemaFactory.createForClass(ResumeContent);
 
 export const resumeContentSchema = z.object({
 	_id: z.any(),

@@ -1,22 +1,22 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class Education {
-	@prop({ type: String })
-	degree: string = '';
+	@Prop({ type: String, default: '' })
+	degree: string;
 
-	@prop({ type: String })
-	field: string = '';
+	@Prop({ type: String, default: '' })
+	field: string;
 
-	@prop({ type: String })
-	institution: string = '';
+	@Prop({ type: String, default: '' })
+	institution: string;
 
-	@prop({ type: String })
-	graduated: string = '';
+	@Prop({ type: String, default: '' })
+	graduated: string;
 }
 
-export const EducationModel = getModelForClass(Education);
+export const EducationSchema = SchemaFactory.createForClass(Education);
 
 export const educationSchema = z.object({
 	_id: z.any(),

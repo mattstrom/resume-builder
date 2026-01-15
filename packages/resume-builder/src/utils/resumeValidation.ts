@@ -70,7 +70,7 @@ export function validateResume(data: unknown): ValidationResult {
 		return { valid: false, errors: ['Data must be an object'] };
 	}
 
-	const obj = data as Record<string, unknown>;
+	const obj = data.data as Record<string, unknown>;
 
 	if (typeof obj.name !== 'string') {
 		errors.push('Missing or invalid "name" field');

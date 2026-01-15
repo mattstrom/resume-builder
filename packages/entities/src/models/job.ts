@@ -1,28 +1,28 @@
-import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
-@modelOptions({ schemaOptions: { versionKey: false } })
+@Schema({ versionKey: false })
 export class Job {
-	@prop({ type: String })
-	company: string = '';
+	@Prop({ type: String, default: '' })
+	company: string;
 
-	@prop({ type: String })
-	position: string = '';
+	@Prop({ type: String, default: '' })
+	position: string;
 
-	@prop({ type: String })
-	location: string = '';
+	@Prop({ type: String, default: '' })
+	location: string;
 
-	@prop({ type: String })
-	startDate: string = '';
+	@Prop({ type: String, default: '' })
+	startDate: string;
 
-	@prop({ type: String })
+	@Prop({ type: String, required: false })
 	endDate?: string;
 
-	@prop({ type: [String] })
-	responsibilities: string[] = [];
+	@Prop({ type: [String], default: [] })
+	responsibilities: string[];
 }
 
-export const JobModel = getModelForClass(Job);
+export const JobSchema = SchemaFactory.createForClass(Job);
 
 export const jobSchema = z.object({
 	_id: z.any(),
