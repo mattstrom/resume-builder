@@ -1,9 +1,21 @@
 import { Module } from '@nestjs/common';
 import { MongodbModule } from '../mongodb/mongodb.module';
-import { ResumesModule } from './resumes/resumes.module';
+import { EducationsModule } from './educations/educations.module';
 import { JobsModule } from './jobs/jobs.module';
+import { ResumesModule } from './resumes/resumes.module';
+import { SkillsModule } from './skills/skills.module';
+import { ProjectsModule } from './projects/projects.module';
+import { ContactInformationModule } from './contact-information/contact-information.module';
 
 @Module({
-	imports: [MongodbModule, ResumesModule, JobsModule],
+	imports: [
+		MongodbModule,
+		ResumesModule,
+		JobsModule,
+		SkillsModule,
+		EducationsModule,
+		ProjectsModule,
+		ContactInformationModule,
+	],
 })
 export class EntitiesModule {}
