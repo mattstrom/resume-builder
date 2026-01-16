@@ -225,20 +225,24 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			setIsLoading(true);
 			setError(null);
 
+			// Set the selected ID immediately to prevent navigation loops
+			setSelectedApiResumeId(resumeId);
+			// Clear file selection when selecting API resume
+			setSelectedFile(null);
+			// Navigate to the API resume route
+			navigate({ to: '/editor/$resumeId', params: { resumeId } });
+
 			try {
 				const resume = await fetchResumeById(resumeId);
 				setResumeData(resume);
-				setSelectedApiResumeId(resumeId);
-				// Clear file selection when selecting API resume
-				setSelectedFile(null);
-				// Navigate to the API resume route
-				navigate({ to: '/editor/$resumeId', params: { resumeId } });
 			} catch (err) {
 				setError(
 					err instanceof Error
 						? err.message
 						: 'Failed to load resume from API',
 				);
+				// Reset selection on error
+				setSelectedApiResumeId(null);
 			} finally {
 				setIsLoading(false);
 			}
