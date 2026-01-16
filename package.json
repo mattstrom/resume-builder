@@ -1,28 +1,38 @@
 {
-	"name": "@resume-builder/monorepo",
-	"private": true,
-	"version": "0.1.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview"
-	},
-	"workspaces": [
-		"packages/backend",
-		"packages/entities",
-		"packages/mcp",
-		"packages/nextjs",
-		"packages/resume-builder"
-	],
-	"devDependencies": {
-		"@nestjs/cli": "^11.0.14",
-		"commander": "^14.0.2",
-		"del-cli": "^7.0.0",
-		"prettier": "3.7.4",
-		"ts-node": "^10.9.2",
-		"typescript": "^5.2.2",
-		"vite": "^5.2.0",
-		"vitest": "^4.0.16"
-	}
+  "name": "@resume-builder/monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "workspaces": [
+    "packages/backend",
+    "packages/crdt",
+    "packages/entities",
+    "packages/mcp",
+    "packages/nextjs",
+    "packages/resume-builder"
+  ],
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.14",
+    "@nx/eslint": "22.3.3",
+    "@nx/vite": "22.3.3",
+    "@nx/vitest": "22.3.3",
+    "@nx/web": "22.3.3",
+    "@vitest/ui": "^4.0.0",
+    "commander": "^14.0.2",
+    "del-cli": "^7.0.0",
+    "eslint": "~8.57.0",
+    "jiti": "2.4.2",
+    "nx": "22.3.3",
+    "prettier": "3.7.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vitest": "^4.0.17"
+  },
+  "dependencies": {}
 }
