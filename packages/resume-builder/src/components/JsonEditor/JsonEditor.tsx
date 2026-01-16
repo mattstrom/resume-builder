@@ -11,25 +11,33 @@ import { useFileManager } from '../FileManager';
 import { validateResume } from '../../utils/resumeValidation';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
 import type { Resume } from '@resume-builder/entities';
+import { createResume, updateResume } from '../../utils/api';
 
 // Debounce utility
 function debounce<T extends (...args: any[]) => any>(
 	func: T,
 	wait: number,
 ): (...args: Parameters<T>) => void {
-	let timeout: NodeJS.Timeout;
+	let timeout: ReturnType<typeof setTimeout>;
 	return (...args: Parameters<T>) => {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func(...args), wait);
 	};
 }
 
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export const JsonEditor: FC = () => {
 	const { resumeData, updateResumeData } = useFileManager();
 	const [jsonString, setJsonString] = useState<string>('');
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
+	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const isInternalUpdate = useRef(false);
 	const lastResumeData = useRef<Resume | null>(null);
+	const hasInitialized = useRef(false);
+	const autoSaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const isDirty = useRef(false); // Track if user has made unsaved changes
+	const isSaving = useRef(false); // Track if currently saving
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
@@ -43,7 +51,89 @@ export const JsonEditor: FC = () => {
 			}
 		}
 		isInternalUpdate.current = false;
+
+		// Mark as initialized after first load
+		if (!hasInitialized.current && resumeData) {
+			hasInitialized.current = true;
+		}
 	}, [resumeData]);
+
+	// Auto-save effect: saves to backend 2 seconds after valid changes
+	useEffect(() => {
+		// Don't auto-save if:
+		// - Not initialized yet
+		// - No data
+		// - Has validation errors
+		// - Not dirty (no unsaved changes)
+		// - Currently saving
+		if (
+			!hasInitialized.current ||
+			!resumeData ||
+			validationErrors.length > 0 ||
+			!isDirty.current ||
+			isSaving.current
+		) {
+			return;
+		}
+
+		// Clear any pending auto-save
+		if (autoSaveTimeout.current) {
+			clearTimeout(autoSaveTimeout.current);
+		}
+
+		// Set up auto-save after 2 seconds
+		autoSaveTimeout.current = setTimeout(async () => {
+			if (!isDirty.current || isSaving.current) {
+				return; // Double-check before saving
+			}
+
+			try {
+				isSaving.current = true;
+				setSaveStatus('saving');
+				console.log('💾 Auto-saving...');
+
+				const hasMongoId = '_id' in resumeData && resumeData._id;
+				let savedResume;
+
+				if (hasMongoId) {
+					savedResume = await updateResume(
+						resumeData._id as string,
+						resumeData,
+					);
+				} else {
+					savedResume = await createResume(resumeData);
+				}
+
+				console.log('✓ Auto-save successful');
+				isDirty.current = false; // Clear dirty flag after successful save
+				isInternalUpdate.current = true; // Mark this as internal update
+				updateResumeData(savedResume);
+				setSaveStatus('saved');
+
+				// Clear saved status after 2 seconds
+				setTimeout(() => {
+					setSaveStatus('idle');
+				}, 2000);
+			} catch (error) {
+				console.error('✗ Auto-save failed:', error);
+				setSaveStatus('error');
+
+				// Clear error status after 3 seconds
+				setTimeout(() => {
+					setSaveStatus('idle');
+				}, 3000);
+			} finally {
+				isSaving.current = false;
+			}
+		}, 2000);
+
+		// Cleanup
+		return () => {
+			if (autoSaveTimeout.current) {
+				clearTimeout(autoSaveTimeout.current);
+			}
+		};
+	}, [resumeData, validationErrors, updateResumeData]);
 
 	// Configure Monaco JSON validation with schema
 	const handleEditorWillMount = useCallback((monaco: Monaco) => {
@@ -72,6 +162,7 @@ export const JsonEditor: FC = () => {
 							'✓ Validation passed, updating resume data',
 						);
 						isInternalUpdate.current = true;
+						isDirty.current = true; // Mark as dirty when user makes valid changes
 						updateResumeData(parsed as Resume);
 						setValidationErrors([]);
 					} else {
@@ -140,6 +231,26 @@ export const JsonEditor: FC = () => {
 							<li key={idx}>{error}</li>
 						))}
 					</ul>
+				</div>
+			)}
+			{saveStatus !== 'idle' && (
+				<div
+					style={{
+						padding: '4px 8px',
+						backgroundColor:
+							saveStatus === 'saving'
+								? '#2196F3'
+								: saveStatus === 'saved'
+									? '#4CAF50'
+									: '#f44336',
+						color: 'white',
+						fontSize: '11px',
+						textAlign: 'center',
+					}}
+				>
+					{saveStatus === 'saving' && '💾 Auto-saving...'}
+					{saveStatus === 'saved' && '✓ Saved'}
+					{saveStatus === 'error' && '✗ Auto-save failed'}
 				</div>
 			)}
 		</div>

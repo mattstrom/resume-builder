@@ -1,6 +1,5 @@
 import { type FC } from 'react';
 import { JsonEditor as Editor } from './JsonEditor';
-import { SaveButton } from './SaveButton';
 
 export const JsonEditor: FC = () => {
 	return (
@@ -12,10 +11,7 @@ export const JsonEditor: FC = () => {
 				backgroundColor: '#1e1e1e',
 			}}
 		>
-			<SaveButton />
-			<div style={{ flex: 1, overflow: 'hidden' }}>
-				<Editor />
-			</div>
+			<Editor />
 		</div>
 	);
 };
