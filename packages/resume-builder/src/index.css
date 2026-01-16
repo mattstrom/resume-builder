@@ -12,21 +12,6 @@ body {
 	margin: 0;
 	min-width: 320px;
 	min-height: 100vh;
-	overflow: hidden;
-}
-
-/* Ensure router containers fill viewport for resizable panels */
-#root {
-	width: 100vw;
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-
-#root > * {
-	min-height: 0;
-	min-width: 0;
 }
 
 @media (prefers-color-scheme: light) {

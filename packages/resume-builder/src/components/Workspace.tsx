@@ -1,9 +1,7 @@
 import { type FC } from 'react';
-import { useSettings } from './Settings.provider.tsx';
-import { BasicLayout, ColumnLayout } from './layouts';
 import { Controls } from './Controls.tsx';
-import { GridLayout } from './layouts/GridLayout.tsx';
 import { JsonEditor } from './JsonEditor';
+import { PreviewFrame } from './PreviewFrame.tsx';
 import {
 	Panel,
 	Group,
@@ -14,19 +12,6 @@ import {
 import './Workspace.css';
 
 export const Workspace: FC = () => {
-	const { template } = useSettings();
-
-	const templateComponent = (() => {
-		switch (template) {
-			case 'column':
-				return <ColumnLayout />;
-			case 'grid':
-				return <GridLayout />;
-			default:
-				return <BasicLayout />;
-		}
-	})();
-
 	// Use the built-in hook for persistent layouts
 	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
 		id: 'workspace-layout',
@@ -70,7 +55,7 @@ export const Workspace: FC = () => {
 					minSize={30}
 					className="workspace-right"
 				>
-					{templateComponent}
+					<PreviewFrame />
 				</Panel>
 			</Group>
 		</div>

@@ -3,7 +3,6 @@ import { ThemeProvider } from '@mui/material';
 import { darkTheme } from '../theme.ts';
 import { SettingsProvider } from '../components/Settings.provider.tsx';
 import { FileManagerProvider } from '../components/FileManager';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import '../App.css';
 
 export const Route = createRootRoute({
@@ -16,7 +15,6 @@ function RootComponent() {
 			<SettingsProvider>
 				<FileManagerProvider>
 					<Outlet />
-					{import.meta.env.DEV && <TanStackRouterDevtools />}
 				</FileManagerProvider>
 			</SettingsProvider>
 		</ThemeProvider>

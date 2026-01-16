@@ -19,7 +19,14 @@ export const Controls: FC<ControlsProps> = () => {
 		useSettings();
 
 	const onPrint = () => {
-		window.print();
+		const iframe = document.getElementById(
+			'resume-preview-iframe',
+		) as HTMLIFrameElement;
+		if (iframe?.contentWindow) {
+			iframe.contentWindow.print();
+		} else {
+			console.error('Preview iframe not found or not ready');
+		}
 	};
 
 	return (
