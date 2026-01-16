@@ -8,6 +8,7 @@ import {
 	useState,
 } from 'react';
 import { del, get, set } from 'idb-keyval';
+import { useNavigate } from '@tanstack/react-router';
 import type { Resume } from '@resume-builder/entities';
 import {
 	getJsonFiles,
@@ -50,6 +51,7 @@ type FileManagerContextValue = FileManagerState & FileManagerActions;
 const FileManagerContext = createContext<FileManagerContextValue | null>(null);
 
 export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
+	const navigate = useNavigate();
 	const [directoryHandle, setDirectoryHandle] =
 		useState<FileSystemDirectoryHandle | null>(null);
 	const [files, setFiles] = useState<string[]>([]);
@@ -84,11 +86,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 				setResumeData(data as Resume);
 				setSelectedFile(fileName);
-				localStorage.setItem(SELECTED_FILE_KEY, fileName);
-				// Clear API selection when loading a file
+								// Clear API selection when loading a file
 				setSelectedApiResumeId(null);
-				localStorage.removeItem(SELECTED_API_RESUME_KEY);
-			} catch (err) {
+							} catch (err) {
 				setError(
 					err instanceof Error ? err.message : 'Failed to read file',
 				);
@@ -147,8 +147,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			// Clear previous selection
 			setSelectedFile(null);
 			setResumeData(null);
-			localStorage.removeItem(SELECTED_FILE_KEY);
-		} catch (err) {
+					} catch (err) {
 			if ((err as Error).name !== 'AbortError') {
 				setError(
 					err instanceof Error
@@ -161,8 +160,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const detachDirectory = useCallback(async () => {
 		await del(STORAGE_KEY);
-		localStorage.removeItem(SELECTED_FILE_KEY);
-		setDirectoryHandle(null);
+				setDirectoryHandle(null);
 		setFiles([]);
 		setSelectedFile(null);
 		setResumeData(null);
@@ -173,8 +171,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		async (fileName: string) => {
 			if (!directoryHandle) return;
 			await loadFile(directoryHandle, fileName);
+			// Navigate to the local file route
+			navigate({ to: '/editor/local/$filename', params: { filename: fileName } });
 		},
-		[directoryHandle, loadFile],
+		[directoryHandle, loadFile, navigate],
 	);
 
 	const refreshFiles = useCallback(async () => {
@@ -220,28 +220,31 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		}
 	}, []);
 
-	const selectApiResume = useCallback(async (resumeId: string) => {
-		setIsLoading(true);
-		setError(null);
+	const selectApiResume = useCallback(
+		async (resumeId: string) => {
+			setIsLoading(true);
+			setError(null);
 
-		try {
-			const resume = await fetchResumeById(resumeId);
-			setResumeData(resume);
-			setSelectedApiResumeId(resumeId);
-			localStorage.setItem(SELECTED_API_RESUME_KEY, resumeId);
-			// Clear file selection when selecting API resume
-			setSelectedFile(null);
-			localStorage.removeItem(SELECTED_FILE_KEY);
-		} catch (err) {
-			setError(
-				err instanceof Error
-					? err.message
-					: 'Failed to load resume from API',
-			);
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
+			try {
+				const resume = await fetchResumeById(resumeId);
+				setResumeData(resume);
+				setSelectedApiResumeId(resumeId);
+				// Clear file selection when selecting API resume
+				setSelectedFile(null);
+				// Navigate to the API resume route
+				navigate({ to: '/editor/$resumeId', params: { resumeId } });
+			} catch (err) {
+				setError(
+					err instanceof Error
+						? err.message
+						: 'Failed to load resume from API',
+				);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[navigate],
+	);
 
 	// Load API resumes on mount
 	useEffect(() => {
