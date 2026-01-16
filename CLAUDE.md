@@ -5,13 +5,55 @@ code in this repository.
 
 ## Project Overview
 
-This is a personal portfolio/playground site built with Vite and TypeScript.
+This is a resume builder application with real-time collaborative editing
+capabilities, organized as an Nx monorepo.
+
+### Architecture
+
+The project consists of multiple packages working together:
+
+- **@mattstrom/resume-builder** (`packages/resume-builder`) - Main React
+  frontend application with Material-UI, Monaco editor, and Yjs for real-time
+  collaborative editing
+- **@resume-builder/backend** (`packages/backend`) - NestJS backend with
+  MongoDB (Mongoose), MCP server integration, and REST API endpoints
+- **@resume-builder/crdt** (`packages/crdt`) - Hocuspocus CRDT server for
+  real-time collaborative document synchronization
+- **@resume-builder/entities** (`packages/entities`) - Shared data models and
+  type definitions using Typegoose and Zod validation
+- **CLI** (`packages/cli`) - Command-line tools (placeholder)
+
+### Key Technologies
+
+- **Frontend**: React 19, Material-UI, Monaco Editor, Yjs for CRDT
+- **Backend**: NestJS, MongoDB with Typegoose, Model Context Protocol (MCP)
+- **CRDT Server**: Hocuspocus for collaborative editing
+- **Build System**: Nx monorepo, Vite/Rolldown
+- **Validation**: Zod schemas
 
 ## Commands
 
-- `npm run dev` - Start development server
-- `npm run build` - Type-check with tsc and build for production
-- `npm run preview` - Preview production build locally
+### Workspace Commands
+
+- `nx run <project>:<target>` - Run any project target through Nx
+- `nx run-many -t <target>` - Run a target across multiple projects
+- `nx affected -t <target>` - Run a target on affected projects
+
+### Frontend (`@mattstrom/resume-builder`)
+
+- `npm run dev` or `nx serve @mattstrom/resume-builder` - Start dev server
+- `nx build @mattstrom/resume-builder` - Build the application
+- `nx build @mattstrom/resume-builder --config vite.lib.config.ts` - Build as
+  library
+
+### Backend (`@resume-builder/backend`)
+
+- `npm run start:dev` - Start backend in watch mode
+- `npm run start:prod` - Start backend in production mode
+
+### CRDT Server (`@resume-builder/crdt`)
+
+- `nx start @resume-builder/crdt` - Start Hocuspocus server on port 1234
 
 ## Code Style
 
