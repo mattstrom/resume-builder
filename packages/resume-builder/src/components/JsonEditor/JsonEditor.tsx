@@ -7,11 +7,18 @@ import {
 	useState,
 } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
+import { useMutation } from '@apollo/client/react';
 import { useFileManager } from '../FileManager';
 import { validateResume } from '../../utils/resumeValidation';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
 import type { Resume } from '@resume-builder/entities';
-import { createResume, updateResume } from '../../utils/api';
+import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
+import type {
+	CreateResumeData,
+	CreateResumeVariables,
+	UpdateResumeData,
+	UpdateResumeVariables,
+} from '../../graphql/types';
 
 // Debounce utility
 function debounce<T extends (...args: any[]) => any>(
@@ -39,6 +46,9 @@ export const JsonEditor: FC = () => {
 	const isDirty = useRef(false); // Track if user has made unsaved changes
 	const isSaving = useRef(false); // Track if currently saving
 
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(CREATE_RESUME);
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
+
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
 		// Only update if this is an external change (not from our editor)
@@ -58,82 +68,94 @@ export const JsonEditor: FC = () => {
 		}
 	}, [resumeData]);
 
-	// Auto-save effect: saves to backend 2 seconds after valid changes
-	useEffect(() => {
-		// Don't auto-save if:
-		// - Not initialized yet
-		// - No data
-		// - Has validation errors
-		// - Not dirty (no unsaved changes)
-		// - Currently saving
-		if (
-			!hasInitialized.current ||
-			!resumeData ||
-			validationErrors.length > 0 ||
-			!isDirty.current ||
-			isSaving.current
-		) {
-			return;
-		}
+	// Auto-save disabled - use SaveButton to manually save
+	// useEffect(() => {
+	// 	// Don't auto-save if:
+	// 	// - Not initialized yet
+	// 	// - No data
+	// 	// - Has validation errors
+	// 	// - Not dirty (no unsaved changes)
+	// 	// - Currently saving
+	// 	if (
+	// 		!hasInitialized.current ||
+	// 		!resumeData ||
+	// 		validationErrors.length > 0 ||
+	// 		!isDirty.current ||
+	// 		isSaving.current
+	// 	) {
+	// 		return;
+	// 	}
 
-		// Clear any pending auto-save
-		if (autoSaveTimeout.current) {
-			clearTimeout(autoSaveTimeout.current);
-		}
+	// 	// Clear any pending auto-save
+	// 	if (autoSaveTimeout.current) {
+	// 		clearTimeout(autoSaveTimeout.current);
+	// 	}
 
-		// Set up auto-save after 2 seconds
-		autoSaveTimeout.current = setTimeout(async () => {
-			if (!isDirty.current || isSaving.current) {
-				return; // Double-check before saving
-			}
+	// 	// Set up auto-save after 2 seconds
+	// 	autoSaveTimeout.current = setTimeout(async () => {
+	// 		if (!isDirty.current || isSaving.current) {
+	// 			return; // Double-check before saving
+	// 		}
 
-			try {
-				isSaving.current = true;
-				setSaveStatus('saving');
-				console.log('💾 Auto-saving...');
+	// 		try {
+	// 			isSaving.current = true;
+	// 			setSaveStatus('saving');
+	// 			console.log('💾 Auto-saving...');
 
-				const hasMongoId = '_id' in resumeData && resumeData._id;
-				let savedResume;
+	// 			const hasMongoId = '_id' in resumeData && resumeData._id;
+	// 			let savedResume;
 
-				if (hasMongoId) {
-					savedResume = await updateResume(
-						resumeData._id as string,
-						resumeData,
-					);
-				} else {
-					savedResume = await createResume(resumeData);
-				}
+	// 			if (hasMongoId) {
+	// 				const { _id, ...resumeDataWithoutId } = resumeData;
+	// 				const result = await updateResumeMutation({
+	// 					variables: {
+	// 						id: _id as string,
+	// 						resumeData: resumeDataWithoutId,
+	// 					},
+	// 				});
+	// 				savedResume = result.data?.updateResume;
+	// 			} else {
+	// 				const { _id, ...resumeDataWithoutId } = resumeData;
+	// 				const result = await createResumeMutation({
+	// 					variables: {
+	// 						resumeData: resumeDataWithoutId,
+	// 					},
+	// 				});
+	// 				savedResume = result.data?.createResume;
+	// 			}
 
-				console.log('✓ Auto-save successful');
-				isDirty.current = false; // Clear dirty flag after successful save
-				isInternalUpdate.current = true; // Mark this as internal update
-				updateResumeData(savedResume);
-				setSaveStatus('saved');
+	// 			console.log('✓ Auto-save successful');
+	// 			isDirty.current = false; // Clear dirty flag after successful save
+	// 			isInternalUpdate.current = true; // Mark this as internal update
+	// 			if (savedResume) {
+	// 				updateResumeData(savedResume);
+	// 			}
+	// 			setSaveStatus('saved');
 
-				// Clear saved status after 2 seconds
-				setTimeout(() => {
-					setSaveStatus('idle');
-				}, 2000);
-			} catch (error) {
-				console.error('✗ Auto-save failed:', error);
-				setSaveStatus('error');
+	// 			// Clear saved status after 2 seconds
+	// 			setTimeout(() => {
+	// 				setSaveStatus('idle');
+	// 			}, 2000);
+	// 		} catch (error) {
+	// 			console.error('✗ Auto-save failed:', error);
+	// 			setSaveStatus('error');
 
-				// Clear error status after 3 seconds
-				setTimeout(() => {
-					setSaveStatus('idle');
-				}, 3000);
-			} finally {
-				isSaving.current = false;
-			}
-		}, 2000);
+	// 			// Clear error status after 3 seconds
+	// 			setTimeout(() => {
+	// 				setSaveStatus('idle');
+	// 			}, 3000);
+	// 		} finally {
+	// 			isSaving.current = false;
+	// 		}
+	// 	}, 2000);
 
-		// Cleanup
-		return () => {
-			if (autoSaveTimeout.current) {
-				clearTimeout(autoSaveTimeout.current);
-			}
-		};
-	}, [resumeData, validationErrors, updateResumeData]);
+	// 	// Cleanup
+	// 	return () => {
+	// 		if (autoSaveTimeout.current) {
+	// 			clearTimeout(autoSaveTimeout.current);
+	// 		}
+	// 	};
+	// }, [resumeData, validationErrors, updateResumeData, createResumeMutation, updateResumeMutation]);
 
 	// Configure Monaco JSON validation with schema
 	const handleEditorWillMount = useCallback((monaco: Monaco) => {

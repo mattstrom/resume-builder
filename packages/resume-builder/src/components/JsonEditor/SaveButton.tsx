@@ -1,7 +1,14 @@
 import { type FC, useCallback, useState } from 'react';
 import { Button, CircularProgress } from '@mui/material';
+import { useMutation } from '@apollo/client/react';
 import { useFileManager } from '../FileManager';
-import { createResume, updateResume } from '../../utils/api';
+import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
+import type {
+	CreateResumeData,
+	CreateResumeVariables,
+	UpdateResumeData,
+	UpdateResumeVariables,
+} from '../../graphql/types';
 
 type SaveState = 'idle' | 'saving' | 'success' | 'error';
 
@@ -13,6 +20,9 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 	const { resumeData, updateResumeData } = useFileManager();
 	const [saveState, setSaveState] = useState<SaveState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string>('');
+
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(CREATE_RESUME);
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
 
 	const handleSave = useCallback(async () => {
 		if (!resumeData) {
@@ -34,17 +44,32 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 			if (hasMongoId) {
 				console.log('📝 Updating existing resume with _id:', resumeData._id);
 				// Update existing resume
-				savedResume = await updateResume(resumeData._id as string, resumeData);
+				const { _id, ...resumeDataWithoutId } = resumeData;
+				const result = await updateResumeMutation({
+					variables: {
+						id: _id as string,
+						resumeData: resumeDataWithoutId,
+					},
+				});
+				savedResume = result.data?.updateResume;
 			} else {
 				console.log('➕ Creating new resume');
 				// Create new resume
-				savedResume = await createResume(resumeData);
+				const { _id, ...resumeDataWithoutId } = resumeData;
+				const result = await createResumeMutation({
+					variables: {
+						resumeData: resumeDataWithoutId,
+					},
+				});
+				savedResume = result.data?.createResume;
 			}
 
 			console.log('✓ Save successful:', savedResume);
 
 			// Update FileManager with saved resume (includes _id for new resumes)
-			updateResumeData(savedResume);
+			if (savedResume) {
+				updateResumeData(savedResume);
+			}
 
 			setSaveState('success');
 			setTimeout(() => {
@@ -59,7 +84,7 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 				setErrorMessage('Failed to save resume');
 			}
 		}
-	}, [resumeData, updateResumeData]);
+	}, [resumeData, updateResumeData, createResumeMutation, updateResumeMutation]);
 
 	const getButtonText = () => {
 		switch (saveState) {

@@ -10,6 +10,7 @@ import {
 import { del, get, set } from 'idb-keyval';
 import { useNavigate } from '@tanstack/react-router';
 import type { Resume } from '@resume-builder/entities';
+import { useLazyQuery, useQuery } from '@apollo/client/react';
 import {
 	getJsonFiles,
 	readJsonFile,
@@ -17,7 +18,12 @@ import {
 	verifyPermission,
 } from '../../utils/fileSystem';
 import { validateResume } from '../../utils/resumeValidation';
-import { fetchResumeById, fetchResumes } from '../../utils/api';
+import { GET_RESUME, LIST_RESUMES } from '../../graphql/queries';
+import type {
+	GetResumeData,
+	GetResumeVariables,
+	ListResumesData,
+} from '../../graphql/types';
 
 const STORAGE_KEY = 'resume:directoryHandle';
 const SELECTED_FILE_KEY = 'resume:selectedFile';
@@ -66,6 +72,16 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const isSupported = 'showDirectoryPicker' in window;
 
+	// Apollo GraphQL hooks
+	const {
+		data: resumesData,
+		loading: resumesLoading,
+		error: resumesError,
+		refetch: refetchResumes,
+	} = useQuery<ListResumesData>(LIST_RESUMES);
+	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
+		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME);
+
 	const loadFile = useCallback(
 		async (handle: FileSystemDirectoryHandle, fileName: string) => {
 			setIsLoading(true);
@@ -86,9 +102,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 				setResumeData(data as Resume);
 				setSelectedFile(fileName);
-								// Clear API selection when loading a file
+				// Clear API selection when loading a file
 				setSelectedApiResumeId(null);
-							} catch (err) {
+			} catch (err) {
 				setError(
 					err instanceof Error ? err.message : 'Failed to read file',
 				);
@@ -147,7 +163,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			// Clear previous selection
 			setSelectedFile(null);
 			setResumeData(null);
-					} catch (err) {
+		} catch (err) {
 			if ((err as Error).name !== 'AbortError') {
 				setError(
 					err instanceof Error
@@ -160,7 +176,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const detachDirectory = useCallback(async () => {
 		await del(STORAGE_KEY);
-				setDirectoryHandle(null);
+		setDirectoryHandle(null);
 		setFiles([]);
 		setSelectedFile(null);
 		setResumeData(null);
@@ -172,7 +188,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			if (!directoryHandle) return;
 			await loadFile(directoryHandle, fileName);
 			// Navigate to the local file route
-			navigate({ to: '/editor/local/$filename', params: { filename: fileName } });
+			navigate({
+				to: '/editor/local/$filename',
+				params: { filename: fileName },
+			});
 		},
 		[directoryHandle, loadFile, navigate],
 	);
@@ -191,17 +210,17 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	}, [directoryHandle]);
 
 	const loadApiResumes = useCallback(async () => {
-		setIsLoading(true);
-		setError(null);
-
 		try {
-			const resumes = await fetchResumes();
+			const result = await refetchResumes();
+			const resumes = result.data?.listResumes || [];
 			setApiResumes(resumes);
 
 			// Try to restore previously selected API resume
 			const savedResumeId = localStorage.getItem(SELECTED_API_RESUME_KEY);
 			if (savedResumeId) {
-				const resume = resumes.find((r) => r['_id'] === savedResumeId);
+				const resume = resumes.find(
+					(r: Resume) => r['_id'] === savedResumeId,
+				);
 				if (resume) {
 					setResumeData(resume);
 					setSelectedApiResumeId(savedResumeId);
@@ -215,10 +234,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					? err.message
 					: 'Failed to load resumes from API',
 			);
-		} finally {
-			setIsLoading(false);
 		}
-	}, []);
+	}, [refetchResumes]);
 
 	const selectApiResume = useCallback(
 		async (resumeId: string) => {
@@ -233,8 +250,12 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			navigate({ to: '/editor/$resumeId', params: { resumeId } });
 
 			try {
-				const resume = await fetchResumeById(resumeId);
-				setResumeData(resume);
+				const result = await getResumeQuery({
+					variables: { id: resumeId },
+				});
+				if (result.data?.getResume) {
+					setResumeData(result.data.getResume);
+				}
 			} catch (err) {
 				setError(
 					err instanceof Error
@@ -247,13 +268,42 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 				setIsLoading(false);
 			}
 		},
-		[navigate],
+		[navigate, getResumeQuery],
 	);
 
-	// Load API resumes on mount
+	// Update API resumes when data changes
 	useEffect(() => {
-		loadApiResumes();
-	}, [loadApiResumes]);
+		if (resumesData?.listResumes) {
+			setApiResumes(resumesData.listResumes);
+
+			// Try to restore previously selected API resume
+			const savedResumeId = localStorage.getItem(SELECTED_API_RESUME_KEY);
+			if (savedResumeId && !selectedApiResumeId) {
+				const resume = resumesData.listResumes.find(
+					(r: Resume) => r['_id'] === savedResumeId,
+				);
+				if (resume) {
+					setResumeData(resume);
+					setSelectedApiResumeId(savedResumeId);
+					// Clear file selection when loading API resume
+					setSelectedFile(null);
+				}
+			}
+		}
+	}, [resumesData, selectedApiResumeId]);
+
+	// Update loading and error state from Apollo queries
+	useEffect(() => {
+		setIsLoading(resumesLoading || resumeLoading);
+	}, [resumesLoading, resumeLoading]);
+
+	useEffect(() => {
+		if (resumesError) {
+			setError(resumesError.message);
+		} else if (resumeError) {
+			setError(resumeError.message);
+		}
+	}, [resumesError, resumeError]);
 
 	const updateResumeData = useCallback((resume: Resume) => {
 		setResumeData(resume);
