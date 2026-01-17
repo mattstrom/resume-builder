@@ -1,0 +1,140 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Contact Information"""
+type ContactInformation {
+  _id: ID!
+  location: String!
+  phoneNumber: String!
+  email: String!
+  linkedInProfile: String!
+  githubProfile: String!
+  personalWebsite: String!
+}
+
+"""Education"""
+type Education {
+  _id: ID!
+  degree: String!
+  field: String!
+  institution: String!
+  graduated: String!
+}
+
+"""Job"""
+type Job {
+  _id: ID!
+  company: String!
+  position: String!
+  location: String!
+  startDate: String!
+  endDate: String!
+  responsibilities: [String!]!
+}
+
+"""Project"""
+type Project {
+  _id: ID!
+  name: String!
+  technologies: [String!]!
+  items: [String!]!
+}
+
+"""Skill"""
+type Skill {
+  _id: ID!
+  name: String!
+  category: String!
+}
+
+"""Skill Group"""
+type SkillGroup {
+  _id: ID!
+  name: String!
+  items: [String!]!
+}
+
+"""
+Content of the resume, as opposed to the Resume object which holds metadata.
+"""
+type ResumeContent {
+  _id: ID!
+  name: String!
+  title: String!
+  contactInformation: ContactInformation!
+  summary: String!
+  workExperience: [Job!]!
+  education: [Education!]!
+  skills: [Skill!]
+  skillGroups: [SkillGroup!]
+  projects: [Project!]!
+}
+
+"""Resume"""
+type Resume {
+  _id: ID!
+  id: String!
+  name: String!
+  data: ResumeContent!
+}
+
+type Query {
+  listResumes: [Resume!]!
+  getResume(id: String!): Resume!
+  listSkills: [Skill!]!
+}
+
+type Mutation {
+  createResume(resumeData: ResumeCreateInput!): Resume!
+  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
+}
+
+input ResumeCreateInput {
+  id: String!
+  name: String!
+  data: ResumeContentInput!
+}
+
+input ResumeContentInput {
+  _id: ID
+  name: String!
+  title: String!
+  summary: String!
+  workExperience: [JobInput!]!
+  contactInformation: ContactInformationInput!
+  education: [EducationInput!]!
+  projects: [ProjectInput!]!
+  skills: [SkillInput!]
+  skillGroups: [SkillGroupInput!]
+}
+
+input JobInput {
+  _id: ID
+}
+
+input ContactInformationInput {
+  _id: ID
+}
+
+input EducationInput {
+  _id: ID
+}
+
+input ProjectInput {
+  _id: ID
+}
+
+input SkillInput {
+  _id: ID
+}
+
+input SkillGroupInput {
+  _id: ID
+}
+
+input ResumeUpdateInput {
+  id: String
+  name: String
+  data: ResumeContentInput
+}

@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { McpModule } from './modules/mcp/mcp.module';
+import { GraphQLModule } from './modules/graphql/graphql.module';
 
 @Module({
 	imports: [
@@ -15,6 +16,7 @@ import { McpModule } from './modules/mcp/mcp.module';
 			load: [() => config],
 		}),
 		EntitiesModule,
+		GraphQLModule,
 		McpModule,
 		MongooseModule.forRoot(config.mongodb.uri),
 	],

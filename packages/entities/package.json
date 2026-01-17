@@ -15,6 +15,7 @@
   },
   "private": true,
   "dependencies": {
+    "@nestjs/graphql": "^13.2.3",
     "@nestjs/mongoose": "^11.0.4",
     "@typegoose/typegoose": "^13.0.0",
     "reflect-metadata": "^0.1.13",

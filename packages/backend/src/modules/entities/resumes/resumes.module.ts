@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Resume, ResumeSchema } from '@resume-builder/entities';
 
 import { MongodbModule } from '../../mongodb/mongodb.module';
+import { ResumeResolver } from './resume.resolver';
 import { ResumesController } from './resumes.controller';
 import { ResumesService } from './resumes.service';
 
@@ -14,7 +15,7 @@ import { ResumesService } from './resumes.service';
 		]),
 	],
 	controllers: [ResumesController],
-	providers: [ResumesService],
+	providers: [ResumeResolver, ResumesService],
 	exports: [ResumesService],
 })
 export class ResumesModule {}

@@ -1,19 +1,34 @@
+import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
 @Schema({ versionKey: false })
+@ObjectType({ description: 'Education' })
 export class Education {
+	@Field(() => ID)
+	_id: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	degree: string;
 
+	@Field()
 	@Prop({ type: String, default: '' })
 	field: string;
 
+	@Field()
 	@Prop({ type: String, default: '' })
 	institution: string;
 
+	@Field()
 	@Prop({ type: String, default: '' })
 	graduated: string;
+}
+
+@InputType()
+export class EducationInput extends OmitType(Education, ['_id'] as const) {
+	@Field(() => ID, { nullable: true })
+	_id?: string;
 }
 
 export const EducationSchema = SchemaFactory.createForClass(Education);

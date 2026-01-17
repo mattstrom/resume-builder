@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Resume } from '@resume-builder/entities';
+import {
+	Resume,
+	ResumeCreateInput,
+	ResumeUpdateInput,
+} from '@resume-builder/entities';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -24,13 +28,13 @@ export class ResumesService {
 		return result?.toObject() ?? null;
 	}
 
-	async create(resumeData: Resume): Promise<Resume> {
+	async create(resumeData: ResumeCreateInput): Promise<Resume> {
 		const created = new this.resumeModel(resumeData);
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
-	async update(id: string, updateData: Resume): Promise<Resume> {
+	async update(id: string, updateData: ResumeUpdateInput): Promise<Resume> {
 		const updated = await this.resumeModel
 			.findByIdAndUpdate(id, updateData, { new: true })
 			.exec();
