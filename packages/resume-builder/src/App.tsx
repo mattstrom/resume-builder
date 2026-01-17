@@ -1,34 +1,18 @@
-import type { FC } from 'react';
-
-import { ResumeProvider } from './components/Resume.provider.tsx';
-import { resume } from './data/resume.ts';
-import { Workspace } from './components/Workspace.tsx';
-import { SettingsProvider } from './components/Settings.provider.tsx';
-import { FileManagerProvider, useFileManager } from './components/FileManager';
-
-import './App.css';
 import { ThemeProvider } from '@mui/material';
+import { Outlet } from '@tanstack/react-router';
+import type { FC } from 'react';
+import { FileManagerProvider } from './components/FileManager';
+import { SettingsProvider } from './components/Settings.provider.tsx';
 import { darkTheme } from './theme.ts';
 
-const AppContent: FC = () => {
-	const { resumeData } = useFileManager();
-
-	// Use file-loaded resume if available, otherwise fallback to hardcoded
-	const activeResume = resumeData ?? resume;
-
-	return (
-		<ResumeProvider data={activeResume}>
-			<Workspace />
-		</ResumeProvider>
-	);
-};
+import './App.css';
 
 export const App: FC = () => {
 	return (
 		<ThemeProvider theme={darkTheme}>
 			<SettingsProvider>
 				<FileManagerProvider>
-					<AppContent />
+					<Outlet />
 				</FileManagerProvider>
 			</SettingsProvider>
 		</ThemeProvider>
