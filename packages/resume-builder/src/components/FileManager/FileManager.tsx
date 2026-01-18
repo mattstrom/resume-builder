@@ -14,9 +14,11 @@ import {
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate } from '@tanstack/react-router';
 import { useFileManager } from './FileManager.provider';
 
 export const FileManager: FC = () => {
+	const navigate = useNavigate();
 	const {
 		directoryName,
 		files,
@@ -55,8 +57,11 @@ export const FileManager: FC = () => {
 					<Select
 						value={selectedApiResumeId ?? ''}
 						label='Select Resume'
-						onChange={(e) =>
-							selectApiResume(e.target.value)}
+						onChange={(e) => {
+							const resumeId = e.target.value;
+							selectApiResume(resumeId);
+							navigate({ to: '/editor/$resumeId', params: { resumeId } });
+						}}
 						disabled={isLoading}
 					>
 						{apiResumes.map((resume) => (

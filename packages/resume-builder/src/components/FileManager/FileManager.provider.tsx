@@ -82,6 +82,15 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
 		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME);
 
+	// Persist selected API resume ID to localStorage
+	useEffect(() => {
+		if (selectedApiResumeId) {
+			localStorage.setItem(SELECTED_API_RESUME_KEY, selectedApiResumeId);
+		} else {
+			localStorage.removeItem(SELECTED_API_RESUME_KEY);
+		}
+	}, [selectedApiResumeId]);
+
 	const loadFile = useCallback(
 		async (handle: FileSystemDirectoryHandle, fileName: string) => {
 			setIsLoading(true);
@@ -246,8 +255,6 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			setSelectedApiResumeId(resumeId);
 			// Clear file selection when selecting API resume
 			setSelectedFile(null);
-			// Navigate to the API resume route
-			navigate({ to: '/editor/$resumeId', params: { resumeId } });
 
 			try {
 				const result = await getResumeQuery({
@@ -257,18 +264,24 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					setResumeData(result.data.getResume);
 				}
 			} catch (err) {
-				setError(
-					err instanceof Error
-						? err.message
-						: 'Failed to load resume from API',
-				);
-				// Reset selection on error
-				setSelectedApiResumeId(null);
+				// Filter out abort errors - these are expected during navigation
+				const isAbortError = err instanceof Error &&
+					(err.name === 'AbortError' || err.message.includes('aborted'));
+
+				if (!isAbortError) {
+					setError(
+						err instanceof Error
+							? err.message
+							: 'Failed to load resume from API',
+					);
+					// Reset selection on error
+					setSelectedApiResumeId(null);
+				}
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[navigate, getResumeQuery],
+		[getResumeQuery],
 	);
 
 	// Update API resumes when data changes
@@ -299,9 +312,15 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	useEffect(() => {
 		if (resumesError) {
-			setError(resumesError.message);
+			// Filter out abort errors from Apollo
+			if (!resumesError.message.includes('aborted')) {
+				setError(resumesError.message);
+			}
 		} else if (resumeError) {
-			setError(resumeError.message);
+			// Filter out abort errors from Apollo
+			if (!resumeError.message.includes('aborted')) {
+				setError(resumeError.message);
+			}
 		}
 	}, [resumesError, resumeError]);
 
