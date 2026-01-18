@@ -78,7 +78,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		loading: resumesLoading,
 		error: resumesError,
 		refetch: refetchResumes,
-	} = useQuery<ListResumesData>(LIST_RESUMES);
+	} = useQuery<ListResumesData>(LIST_RESUMES, {
+		fetchPolicy: 'network-only',
+	});
 	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
 		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME);
 
@@ -265,8 +267,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 				}
 			} catch (err) {
 				// Filter out abort errors - these are expected during navigation
-				const isAbortError = err instanceof Error &&
-					(err.name === 'AbortError' || err.message.includes('aborted'));
+				const isAbortError =
+					err instanceof Error &&
+					(err.name === 'AbortError' ||
+						err.message.includes('aborted'));
 
 				if (!isAbortError) {
 					setError(
