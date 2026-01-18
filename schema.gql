@@ -83,11 +83,19 @@ type Query {
   listResumes: [Resume!]!
   getResume(id: String!): Resume!
   listSkills: [Skill!]!
+  listEducations: [Education!]!
+  findEducation(id: String!): Education!
+  listProjects: [Project!]!
+  findProject(id: String!): Project!
 }
 
 type Mutation {
   createResume(resumeData: ResumeCreateInput!): Resume!
   updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
+  createEducation(education: EducationInput!): Education!
+  updateEducation(id: String!, education: EducationInput!): Education!
+  deleteEducation(id: String!): Boolean!
+  createProject(project: ProjectInput!): Project!
 }
 
 input ResumeCreateInput {
@@ -103,33 +111,48 @@ input ResumeContentInput {
   summary: String!
   workExperience: [JobInput!]!
   contactInformation: ContactInformationInput!
-  education: [EducationInput!]!
+  education: [ID!]!
   projects: [ProjectInput!]!
   skills: [SkillInput!]
   skillGroups: [SkillGroupInput!]
 }
 
 input JobInput {
+  company: String!
+  position: String!
+  location: String!
+  startDate: String!
+  endDate: String!
+  responsibilities: [String!]!
   _id: ID
 }
 
 input ContactInformationInput {
-  _id: ID
-}
-
-input EducationInput {
+  location: String!
+  phoneNumber: String!
+  email: String!
+  linkedInProfile: String!
+  githubProfile: String!
+  personalWebsite: String!
   _id: ID
 }
 
 input ProjectInput {
+  name: String!
+  technologies: [String!]!
+  items: [String!]!
   _id: ID
 }
 
 input SkillInput {
+  name: String!
+  category: String!
   _id: ID
 }
 
 input SkillGroupInput {
+  name: String!
+  items: [String!]!
   _id: ID
 }
 
@@ -137,4 +160,12 @@ input ResumeUpdateInput {
   id: String
   name: String
   data: ResumeContentInput
+}
+
+input EducationInput {
+  degree: String!
+  field: String!
+  institution: String!
+  graduated: String!
+  _id: ID
 }

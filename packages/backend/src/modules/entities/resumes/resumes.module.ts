@@ -4,7 +4,6 @@ import { Resume, ResumeSchema } from '@resume-builder/entities';
 
 import { MongodbModule } from '../../mongodb/mongodb.module';
 import { ResumeResolver } from './resume.resolver';
-import { ResumesController } from './resumes.controller';
 import { ResumesService } from './resumes.service';
 
 @Module({
@@ -14,7 +13,6 @@ import { ResumesService } from './resumes.service';
 			{ name: Resume.name, schema: ResumeSchema },
 		]),
 	],
-	controllers: [ResumesController],
 	providers: [ResumeResolver, ResumesService],
 	exports: [ResumesService],
 })
