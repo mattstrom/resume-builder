@@ -1,7 +1,8 @@
 import { type FC } from 'react';
-import { Controls } from './Controls.tsx';
+import { FormEditor } from './FormEditor';
 import { JsonEditor } from './JsonEditor';
 import { PreviewFrame } from './PreviewFrame.tsx';
+import { useSettings } from './Settings.provider.tsx';
 import {
 	Panel,
 	Group,
@@ -12,10 +13,12 @@ import {
 import './Workspace.css';
 
 export const Workspace: FC = () => {
+	const { editorMode } = useSettings();
+
 	// Use the built-in hook for persistent layouts
 	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
 		id: 'workspace-layout',
-		panelIds: ['controls', 'editor', 'resume'],
+		panelIds: ['editor', 'resume'],
 		storage: localStorage,
 	});
 
@@ -27,31 +30,19 @@ export const Workspace: FC = () => {
 				onLayoutChanged={onLayoutChanged}
 			>
 				<Panel
-					id="controls"
-					defaultSize={18}
-					minSize={15}
-					maxSize={250}
+					id="editor"
+					defaultSize={50}
+					minSize={30}
 					className="workspace-left"
 				>
-					<Controls />
-				</Panel>
-
-				<Separator className="resize-handle" />
-
-				<Panel
-					id="editor"
-					defaultSize={41}
-					minSize={20}
-					className="workspace-middle"
-				>
-					<JsonEditor />
+					{editorMode === 'json' ? <JsonEditor /> : <FormEditor />}
 				</Panel>
 
 				<Separator className="resize-handle" />
 
 				<Panel
 					id="resume"
-					defaultSize={41}
+					defaultSize={50}
 					minSize={30}
 					className="workspace-right"
 				>

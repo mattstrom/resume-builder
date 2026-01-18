@@ -4,6 +4,8 @@ import {
 	ResumeCreateInput,
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
+import GraphQLJSON from 'graphql-type-json';
+import { type UpdateOneModel } from 'mongoose';
 import { ResumesService } from './resumes.service';
 
 @Resolver(() => Resume)
@@ -31,5 +33,14 @@ export class ResumeResolver {
 		@Args('resumeData') resumeData: ResumeUpdateInput,
 	) {
 		return this.resumesService.update(id, resumeData);
+	}
+
+	@Mutation(() => Resume)
+	async patchResume(
+		@Args('id') id: string,
+		@Args('update', { type: () => GraphQLJSON })
+		update: UpdateOneModel<Resume>,
+	): Promise<void> {
+		return this.resumesService.patch(id, update);
 	}
 }

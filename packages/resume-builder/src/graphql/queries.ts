@@ -115,3 +115,29 @@ export const GET_RESUME = gql`
 
 	${resumeContentFragment}
 `;
+
+export const LIST_EDUCATIONS = gql`
+	query ListEducations {
+		listEducations {
+			_id
+			institution
+			degree
+			field
+			graduated
+		}
+	}
+`;
+
+export const LIST_JOBS = gql`
+	query ListJobs {
+		listJobs {
+			_id
+			company
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+		}
+	}
+`;

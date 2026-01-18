@@ -6,9 +6,11 @@ export const resume: Resume = {
 	id: 'RES-4',
 	name: 'Resume',
 	data: {
+		_id: 'resume-content-1',
 		name: 'Alex Johnson',
 		title: 'Principal Software Engineer',
 		contactInformation: {
+			_id: 'contact-1',
 			location: 'Anytown, USA',
 			phoneNumber: '(555) 123-4567',
 			email: 'alex.johnson@example.com',
@@ -24,6 +26,7 @@ export const resume: Resume = {
 	`,
 		workExperience: [
 			{
+				_id: 'job-1',
 				company: 'Acme Corp (formerly Beta Labs)',
 				position: 'Principal Software Engineer, Applications',
 				location: 'Anytown, USA',
@@ -40,6 +43,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'job-2',
 				company: 'Beta Labs',
 				position: 'Staff Software Engineer, Frontend',
 				location: 'Anytown, USA',
@@ -53,6 +57,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'job-3',
 				company: 'Gamma Studios',
 				position: 'Software Engineer, Frontend',
 				location: 'Anytown, USA',
@@ -67,6 +72,7 @@ export const resume: Resume = {
 		],
 		education: [
 			{
+				_id: 'edu-1',
 				degree: 'Bachelor of Science',
 				field: 'Computer Science',
 				institution: 'State University',
@@ -75,10 +81,12 @@ export const resume: Resume = {
 		],
 		skillGroups: [
 			{
+				_id: 'sg-1',
 				name: 'Languages',
 				items: ['TypeScript', 'JavaScript', 'Python', 'Java', 'C#'],
 			},
 			{
+				_id: 'sg-2',
 				name: 'Frontend',
 				items: [
 					'React',
@@ -91,6 +99,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'sg-3',
 				name: 'Backend',
 				items: [
 					'Node.js',
@@ -102,6 +111,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'sg-4',
 				name: 'Databases',
 				items: [
 					'PostgreSQL',
@@ -113,6 +123,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'sg-5',
 				name: 'Infrastructure',
 				items: [
 					'AWS',
@@ -128,6 +139,7 @@ export const resume: Resume = {
 		],
 		projects: [
 			{
+				_id: 'proj-1',
 				name: 'Task Management App',
 				technologies: [
 					'Electron',
@@ -145,6 +157,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-2',
 				name: 'E-commerce Platform',
 				technologies: [
 					'React',
@@ -166,6 +179,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-3',
 				name: 'Real-time Chat System',
 				technologies: [
 					'CRDT',
@@ -182,6 +196,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-4',
 				name: 'Job Queue Service',
 				technologies: ['Node.js', 'BullMQ', 'Redis'],
 				items: [
@@ -190,6 +205,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-5',
 				name: 'CI/CD Pipeline',
 				technologies: ['GitHub Actions', 'Probot', 'Claude Code'],
 				items: [
@@ -200,6 +216,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-6',
 				name: 'serverless-dev-tools',
 				technologies: [
 					'Serverless',
@@ -212,6 +229,7 @@ export const resume: Resume = {
 				],
 			},
 			{
+				_id: 'proj-7',
 				name: 'Component Library',
 				technologies: ['Vanilla JS', 'NextJS', 'WordPress', 'Drupal'],
 				items: [

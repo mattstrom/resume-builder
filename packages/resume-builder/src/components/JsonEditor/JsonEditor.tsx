@@ -38,15 +38,20 @@ export const JsonEditor: FC = () => {
 	const { resumeData, updateResumeData } = useFileManager();
 	const [jsonString, setJsonString] = useState<string>('');
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
+	// @ts-expect-error - Reserved for future use
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const isInternalUpdate = useRef(false);
 	const lastResumeData = useRef<Resume | null>(null);
 	const hasInitialized = useRef(false);
+	// @ts-expect-error - Reserved for future use
 	const autoSaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const isDirty = useRef(false); // Track if user has made unsaved changes
+	// @ts-expect-error - Reserved for future use
 	const isSaving = useRef(false); // Track if currently saving
 
+	// @ts-expect-error - Mutations prepared for future use
 	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(CREATE_RESUME);
+	// @ts-expect-error - Mutations prepared for future use
 	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)

@@ -13,6 +13,8 @@ interface Settings {
 	setTemplate: Dispatch<SetStateAction<string>>;
 	showMarginPattern: boolean;
 	setShowMarginPattern: Dispatch<SetStateAction<boolean>>;
+	editorMode: 'json' | 'form';
+	setEditorMode: Dispatch<SetStateAction<'json' | 'form'>>;
 }
 
 export const SettingsContext = createContext<Settings | null>(null);
@@ -23,12 +25,18 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		'resume:showMarginPattern',
 		true,
 	);
+	const [editorMode, setEditorMode] = useLocalStorage<'json' | 'form'>(
+		'resume:editorMode',
+		'json',
+	);
 
 	const settings = {
 		template,
 		setTemplate,
 		showMarginPattern,
 		setShowMarginPattern,
+		editorMode,
+		setEditorMode,
 	};
 
 	return (

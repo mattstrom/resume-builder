@@ -1,8 +1,8 @@
-import { AppBar, Toolbar, Typography } from '@mui/material';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { ResumeProvider } from '../components/Resume.provider.tsx';
 import { resume } from '../data/resume.ts';
 import { useFileManager } from '../components/FileManager';
+import { EditorToolbar } from '../components/EditorToolbar.tsx';
 
 export const Route = createFileRoute('/editor')({
 	component: EditorLayout,
@@ -16,17 +16,7 @@ function EditorLayout() {
 
 	return (
 		<ResumeProvider data={activeResume}>
-			<AppBar position="static" color="primary">
-				<Toolbar>
-					<Typography
-						variant="h6"
-						component="div"
-						sx={{ flexGrow: 1 }}
-					>
-						Resume Builder
-					</Typography>
-				</Toolbar>
-			</AppBar>
+			<EditorToolbar />
 			<Outlet />
 		</ResumeProvider>
 	);

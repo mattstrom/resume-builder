@@ -5,7 +5,7 @@ import {
 	ResumeCreateInput,
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+import { Model, UpdateOneModel } from 'mongoose';
 
 @Injectable()
 export class ResumesService {
@@ -44,5 +44,11 @@ export class ResumesService {
 		}
 
 		return updated.toObject();
+	}
+
+	async patch(id: string, update: UpdateOneModel<Resume>): Promise<void> {
+		const result = await this.resumeModel
+			.updateOne({ _id: id }, update)
+			.exec();
 	}
 }
