@@ -1,18 +1,20 @@
 {
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
-		"target": "esnext",
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
-		"noEmit": false,
-		"outDir": "dist",
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"declaration": true,
-		"baseUrl": "./src",
-		"skipLibCheck": true,
-		"strictPropertyInitialization": false,
-		"noUnusedLocals": false
-	},
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": false,
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationMap": true,
+    "baseUrl": "./src",
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": false
+  },
 	"include": ["./src/**/*.ts"]
 }

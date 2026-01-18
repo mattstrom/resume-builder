@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Project, ProjectSchema } from '@resume-builder/entities';
 import { ProjectsController } from './projects.controller';
+import { ProjectsResolver } from './projects.resolver';
 import { ProjectsService } from './projects.service';
 
 @Module({
@@ -11,6 +12,6 @@ import { ProjectsService } from './projects.service';
 		]),
 	],
 	controllers: [ProjectsController],
-	providers: [ProjectsService],
+	providers: [ProjectsResolver, ProjectsService],
 })
 export class ProjectsModule {}

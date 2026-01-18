@@ -1,24 +1,17 @@
-import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
-import { util } from 'zod/v3';
 import {
 	ContactInformation,
 	ContactInformationInput,
 	ContactInformationSchema,
 	contactInformationSchema,
 } from './contact-information';
-import {
-	Education,
-	EducationInput,
-	EducationSchema,
-	educationSchema,
-} from './education';
+import { Education, educationSchema, EducationSchema } from './education';
 import { Job, JobInput, JobSchema, jobSchema } from './job';
 import { Project, ProjectInput, ProjectSchema, projectSchema } from './project';
 import { Skill, SkillInput, SkillSchema, skillSchema } from './skill';
 import { SkillGroup, SkillGroupInput, SkillGroupSchema } from './skill-group';
-import Omit = util.Omit;
 
 @Schema({ versionKey: false })
 @ObjectType({
@@ -86,8 +79,8 @@ export class ResumeContentInput {
 	@Field(() => ContactInformationInput)
 	contactInformation: ContactInformationInput;
 
-	@Field(() => [EducationInput])
-	education: EducationInput[];
+	@Field(() => [ID])
+	education: string[];
 
 	@Field(() => [ProjectInput])
 	projects: ProjectInput[];

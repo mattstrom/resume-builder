@@ -34,7 +34,7 @@ export class Job {
 }
 
 @InputType()
-export class JobInput extends OmitType(Job, ['_id'] as const) {
+export class JobInput extends OmitType(Job, ['_id'] as const, InputType) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }

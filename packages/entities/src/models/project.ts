@@ -22,7 +22,11 @@ export class Project {
 }
 
 @InputType()
-export class ProjectInput extends OmitType(Project, ['_id'] as const) {
+export class ProjectInput extends OmitType(
+	Project,
+	['_id'] as const,
+	InputType,
+) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }

@@ -18,7 +18,7 @@ export class Skill {
 }
 
 @InputType()
-export class SkillInput extends OmitType(Skill, ['_id'] as const) {
+export class SkillInput extends OmitType(Skill, ['_id'] as const, InputType) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }

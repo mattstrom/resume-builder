@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Education, EducationSchema } from '@resume-builder/entities';
 import { EducationsController } from './educations.controller';
+import { EducationsResolver } from './educations.resolver';
 import { EducationsService } from './educations.service';
 
 @Module({
@@ -11,6 +12,6 @@ import { EducationsService } from './educations.service';
 		]),
 	],
 	controllers: [EducationsController],
-	providers: [EducationsService],
+	providers: [EducationsService, EducationsResolver],
 })
 export class EducationsModule {}

@@ -34,9 +34,11 @@ export class ContactInformation {
 }
 
 @InputType()
-export class ContactInformationInput extends OmitType(ContactInformation, [
-	'_id',
-] as const) {
+export class ContactInformationInput extends OmitType(
+	ContactInformation,
+	['_id'] as const,
+	InputType,
+) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }
