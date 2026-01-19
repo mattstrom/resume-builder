@@ -22,7 +22,9 @@ export const PreviewFrame: FC = () => {
 
 	if (!iframeSrc) {
 		return (
-			<div style={{ width: '100%', height: '100%', position: 'relative' }}>
+			<div
+				style={{ width: '100%', height: '100%', position: 'relative' }}
+			>
 				<div
 					style={{
 						position: 'absolute',
@@ -45,7 +47,7 @@ export const PreviewFrame: FC = () => {
 				id="resume-preview-iframe"
 				src={iframeSrc}
 				title="Resume Preview"
-				sandbox="allow-same-origin allow-scripts"
+				sandbox="allow-same-origin allow-scripts allow-modals"
 				style={{
 					width: '100%',
 					height: '100%',
