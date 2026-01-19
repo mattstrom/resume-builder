@@ -92,6 +92,8 @@ export const LIST_RESUMES = gql`
 			_id
 			id
 			name
+			company
+			jobPostingUrl
 			data {
 				...ResumeContent
 			}
@@ -107,6 +109,8 @@ export const GET_RESUME = gql`
 			_id
 			id
 			name
+			company
+			jobPostingUrl
 			data {
 				...ResumeContent
 			}

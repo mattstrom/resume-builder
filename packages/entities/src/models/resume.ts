@@ -73,5 +73,7 @@ export const resumeSchema = z.object({
 	_id: z.any(),
 	id: z.string(),
 	name: z.string(),
+	company: z.string(),
+	jobPostingUrl: z.string(),
 	data: resumeContentSchema,
 });

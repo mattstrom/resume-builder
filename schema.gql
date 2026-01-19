@@ -76,12 +76,15 @@ type Resume {
   _id: ID!
   id: String!
   name: String!
+  company: String!
+  jobPostingUrl: String!
   data: ResumeContent!
 }
 
 type Query {
   listResumes: [Resume!]!
   getResume(id: String!): Resume!
+  listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
   findEducation(id: String!): Education!
@@ -92,6 +95,7 @@ type Query {
 type Mutation {
   createResume(resumeData: ResumeCreateInput!): Resume!
   updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
+  patchResume(id: String!, update: JSON!): Resume!
   createEducation(education: EducationInput!): Education!
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
@@ -101,6 +105,8 @@ type Mutation {
 input ResumeCreateInput {
   id: String!
   name: String!
+  company: String!
+  jobPostingUrl: String!
   data: ResumeContentInput!
 }
 
@@ -159,8 +165,15 @@ input SkillGroupInput {
 input ResumeUpdateInput {
   id: String
   name: String
+  company: String
+  jobPostingUrl: String
   data: ResumeContentInput
 }
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 input EducationInput {
   degree: String!

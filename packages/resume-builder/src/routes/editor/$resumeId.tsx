@@ -25,8 +25,13 @@ export const Route = createFileRoute('/editor/$resumeId')({
 
 function ApiResumeEditor() {
 	const { resumeId } = Route.useParams();
-	const { selectApiResume, selectedApiResumeId, isLoading, error } =
-		useFileManager();
+	const {
+		selectApiResume,
+		selectedApiResumeId,
+		isLoading,
+		error,
+		resumeData,
+	} = useFileManager();
 
 	useEffect(() => {
 		// Only load if the URL resumeId doesn't match current selection
@@ -34,6 +39,22 @@ function ApiResumeEditor() {
 			selectApiResume(resumeId);
 		}
 	}, [resumeId, selectedApiResumeId, selectApiResume]);
+
+	useEffect(() => {
+		if (resumeData) {
+			const name = resumeData.data.name;
+			const company = resumeData.company;
+			const titleParts = ['Resume', name];
+			if (company) {
+				titleParts.push(company);
+			}
+			document.title = titleParts.join(' - ');
+		}
+
+		return () => {
+			document.title = 'Resume Builder';
+		};
+	}, [resumeData]);
 
 	if (isLoading) {
 		return <RouteLoading />;

@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Box, Typography } from '@mui/material';
+import { useEffect } from 'react';
 import { Workspace } from '../../components/Workspace.tsx';
 import { useFileManager } from '../../components/FileManager';
 
@@ -9,6 +10,24 @@ export const Route = createFileRoute('/editor/')({
 
 function EditorIndexComponent() {
 	const { resumeData } = useFileManager();
+
+	useEffect(() => {
+		if (resumeData) {
+			const name = resumeData.data.name;
+			const company = resumeData.company;
+			const titleParts = ['Resume', name];
+			if (company) {
+				titleParts.push(company);
+			}
+			document.title = titleParts.join(' - ');
+		} else {
+			document.title = 'Resume Builder';
+		}
+
+		return () => {
+			document.title = 'Resume Builder';
+		};
+	}, [resumeData]);
 
 	// Show empty state if no resume is loaded
 	if (!resumeData) {

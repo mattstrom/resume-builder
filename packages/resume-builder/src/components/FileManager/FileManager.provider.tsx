@@ -26,8 +26,6 @@ import type {
 } from '../../graphql/types';
 
 const STORAGE_KEY = 'resume:directoryHandle';
-const SELECTED_FILE_KEY = 'resume:selectedFile';
-const SELECTED_API_RESUME_KEY = 'resume:selectedApiResumeId';
 
 interface FileManagerState {
 	directoryHandle: FileSystemDirectoryHandle | null;

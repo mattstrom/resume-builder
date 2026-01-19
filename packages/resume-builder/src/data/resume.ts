@@ -5,6 +5,8 @@ export const resume: Resume = {
 	_id: 'RES-4',
 	id: 'RES-4',
 	name: 'Resume',
+	company: '',
+	jobPostingUrl: '',
 	data: {
 		_id: 'resume-content-1',
 		name: 'Alex Johnson',

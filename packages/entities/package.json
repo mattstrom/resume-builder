@@ -11,7 +11,8 @@
     "watch": "tsc --watch",
     "dev": "node dist/test.js",
     "test": "nx vite:test",
-    "load": "node dist/data/loader.js"
+    "load": "node dist/data/loader.js",
+    "migrate:add-company": "node dist/data/migrate-add-company.js"
   },
   "private": true,
   "dependencies": {
