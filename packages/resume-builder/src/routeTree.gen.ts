@@ -9,18 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as PreviewRouteImport } from './routes/preview'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
+import { Route as PreviewResumeIdRouteImport } from './routes/preview.$resumeId'
 import { Route as EditorResumeIdRouteImport } from './routes/editor/$resumeId'
 import { Route as EditorLocalFilenameRouteImport } from './routes/editor/local/$filename'
 
-const PreviewRoute = PreviewRouteImport.update({
-  id: '/preview',
-  path: '/preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EditorRoute = EditorRouteImport.update({
   id: '/editor',
   path: '/editor',
@@ -36,6 +31,11 @@ const EditorIndexRoute = EditorIndexRouteImport.update({
   path: '/',
   getParentRoute: () => EditorRoute,
 } as any)
+const PreviewResumeIdRoute = PreviewResumeIdRouteImport.update({
+  id: '/preview/$resumeId',
+  path: '/preview/$resumeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorResumeIdRoute = EditorResumeIdRouteImport.update({
   id: '/$resumeId',
   path: '/$resumeId',
@@ -50,15 +50,15 @@ const EditorLocalFilenameRoute = EditorLocalFilenameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
-  '/preview': typeof PreviewRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/preview': typeof PreviewRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
 }
@@ -66,8 +66,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
-  '/preview': typeof PreviewRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
 }
@@ -76,23 +76,23 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/editor'
-    | '/preview'
     | '/editor/$resumeId'
+    | '/preview/$resumeId'
     | '/editor/'
     | '/editor/local/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/preview'
     | '/editor/$resumeId'
+    | '/preview/$resumeId'
     | '/editor'
     | '/editor/local/$filename'
   id:
     | '__root__'
     | '/'
     | '/editor'
-    | '/preview'
     | '/editor/$resumeId'
+    | '/preview/$resumeId'
     | '/editor/'
     | '/editor/local/$filename'
   fileRoutesById: FileRoutesById
@@ -100,18 +100,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditorRoute: typeof EditorRouteWithChildren
-  PreviewRoute: typeof PreviewRoute
+  PreviewResumeIdRoute: typeof PreviewResumeIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/preview': {
-      id: '/preview'
-      path: '/preview'
-      fullPath: '/preview'
-      preLoaderRoute: typeof PreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/editor': {
       id: '/editor'
       path: '/editor'
@@ -132,6 +125,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/editor/'
       preLoaderRoute: typeof EditorIndexRouteImport
       parentRoute: typeof EditorRoute
+    }
+    '/preview/$resumeId': {
+      id: '/preview/$resumeId'
+      path: '/preview/$resumeId'
+      fullPath: '/preview/$resumeId'
+      preLoaderRoute: typeof PreviewResumeIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/editor/$resumeId': {
       id: '/editor/$resumeId'
@@ -168,7 +168,7 @@ const EditorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditorRoute: EditorRouteWithChildren,
-  PreviewRoute: PreviewRoute,
+  PreviewResumeIdRoute: PreviewResumeIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
