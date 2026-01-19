@@ -33,6 +33,14 @@ export class Resume {
 	@Prop({ type: String, default: '' })
 	name: string;
 
+	@Field()
+	@Prop({ type: String, default: '' })
+	company: string;
+
+	@Field()
+	@Prop({ type: String, default: '' })
+	jobPostingUrl: string;
+
 	@Field(() => ResumeContent)
 	@Prop({ type: ResumeContentSchema, default: () => ({}) })
 	data: ResumeContent;
@@ -45,6 +53,12 @@ export class ResumeCreateInput {
 
 	@Field()
 	name: string;
+
+	@Field()
+	company: string;
+
+	@Field()
+	jobPostingUrl: string;
 
 	@Field(() => ResumeContentInput)
 	data: ResumeContentInput;
