@@ -13,6 +13,7 @@ import { validateResume } from '../../utils/resumeValidation';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
 import type { Resume } from '@resume-builder/entities';
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
+import { LIST_RESUMES } from '../../graphql/queries';
 import type {
 	CreateResumeData,
 	CreateResumeVariables,
@@ -50,9 +51,19 @@ export const JsonEditor: FC = () => {
 	const isSaving = useRef(false); // Track if currently saving
 
 	// @ts-expect-error - Mutations prepared for future use
-	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(CREATE_RESUME);
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
+		CREATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 	// @ts-expect-error - Mutations prepared for future use
-	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
+		UPDATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {

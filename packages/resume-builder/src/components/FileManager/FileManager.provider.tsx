@@ -82,16 +82,10 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		fetchPolicy: 'network-only',
 	});
 	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
-		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME);
+		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME, {
+			fetchPolicy: 'network-only',
+		});
 
-	// Persist selected API resume ID to localStorage
-	useEffect(() => {
-		if (selectedApiResumeId) {
-			localStorage.setItem(SELECTED_API_RESUME_KEY, selectedApiResumeId);
-		} else {
-			localStorage.removeItem(SELECTED_API_RESUME_KEY);
-		}
-	}, [selectedApiResumeId]);
 
 	const loadFile = useCallback(
 		async (handle: FileSystemDirectoryHandle, fileName: string) => {
@@ -140,13 +134,6 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 						setDirectoryHandle(handle);
 						const jsonFiles = await getJsonFiles(handle);
 						setFiles(jsonFiles);
-
-						// Restore selected file
-						const savedFile =
-							localStorage.getItem(SELECTED_FILE_KEY);
-						if (savedFile && jsonFiles.includes(savedFile)) {
-							await loadFile(handle, savedFile);
-						}
 					} else {
 						await del(STORAGE_KEY);
 					}
@@ -225,20 +212,6 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			const result = await refetchResumes();
 			const resumes = result.data?.listResumes || [];
 			setApiResumes(resumes);
-
-			// Try to restore previously selected API resume
-			const savedResumeId = localStorage.getItem(SELECTED_API_RESUME_KEY);
-			if (savedResumeId) {
-				const resume = resumes.find(
-					(r: Resume) => r['_id'] === savedResumeId,
-				);
-				if (resume) {
-					setResumeData(resume);
-					setSelectedApiResumeId(savedResumeId);
-					// Clear file selection when loading API resume
-					setSelectedFile(null);
-				}
-			}
 		} catch (err) {
 			setError(
 				err instanceof Error
@@ -292,22 +265,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	useEffect(() => {
 		if (resumesData?.listResumes) {
 			setApiResumes(resumesData.listResumes);
-
-			// Try to restore previously selected API resume
-			const savedResumeId = localStorage.getItem(SELECTED_API_RESUME_KEY);
-			if (savedResumeId && !selectedApiResumeId) {
-				const resume = resumesData.listResumes.find(
-					(r: Resume) => r['_id'] === savedResumeId,
-				);
-				if (resume) {
-					setResumeData(resume);
-					setSelectedApiResumeId(savedResumeId);
-					// Clear file selection when loading API resume
-					setSelectedFile(null);
-				}
-			}
 		}
-	}, [resumesData, selectedApiResumeId]);
+	}, [resumesData]);
 
 	// Update loading and error state from Apollo queries
 	useEffect(() => {

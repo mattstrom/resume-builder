@@ -3,6 +3,7 @@ import { Button, CircularProgress } from '@mui/material';
 import { useMutation } from '@apollo/client/react';
 import { useFileManager } from '../FileManager';
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
+import { LIST_RESUMES } from '../../graphql/queries';
 import type {
 	CreateResumeData,
 	CreateResumeVariables,
@@ -21,8 +22,18 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 	const [saveState, setSaveState] = useState<SaveState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string>('');
 
-	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(CREATE_RESUME);
-	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
+		CREATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
+		UPDATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 
 	const handleSave = useCallback(async () => {
 		if (!resumeData) {

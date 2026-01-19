@@ -1,7 +1,12 @@
-import { createRootRoute } from '@tanstack/react-router';
+import { createRootRouteWithContext } from '@tanstack/react-router';
 import { App } from '../App.tsx';
+import type { RootStore } from '../stores/root.store.ts';
 
-export const Route = createRootRoute({
+interface RouterContext {
+	store: RootStore;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
 	component: RootComponent,
 });
 

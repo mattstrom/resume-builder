@@ -33,6 +33,9 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 }) => {
 	const { data, loading, error } = useQuery<{ listEducations: Education[] }>(
 		LIST_EDUCATIONS,
+		{
+			fetchPolicy: 'network-only',
+		},
 	);
 	const [checked, setChecked] = useState<string[]>([]);
 
