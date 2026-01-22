@@ -1,14 +1,15 @@
+import { type ChangeEvent, type FC, useState } from 'react';
+import { Plus } from 'lucide-react';
 import {
 	Accordion,
-	AccordionDetails,
-	AccordionSummary,
-	Button,
-	TextField,
-	Typography,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { type ChangeEvent, type FC, useState } from 'react';
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { ExpandableCard } from '../components/ExpandableCard';
 
 interface Job {
@@ -54,7 +55,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 	};
 
 	const handleChange = (index: number, field: keyof Job) => (
-		e: ChangeEvent<HTMLInputElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => {
 		const newJobs = [...jobs];
 		if (field === 'responsibilities') {
@@ -77,105 +78,84 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 	};
 
 	return (
-		<Accordion
-			sx={{
-				backgroundColor: 'rgba(255, 255, 255, 0.05)',
-				color: 'white',
-				'&:before': { display: 'none' },
-			}}
-		>
-			<AccordionSummary
-				expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
-				sx={{
-					borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-				}}
-			>
-				<Typography variant="subtitle2">Work Experience</Typography>
-			</AccordionSummary>
-			<AccordionDetails sx={{ pt: 2 }}>
-				{jobs.map((job, index) => (
-					<ExpandableCard
-						key={index}
-						title={formatJobTitle(job)}
-						expanded={expandedIndex === index}
-						onExpandChange={() =>
-							setExpandedIndex(expandedIndex === index ? null : index)
-						}
-						onDelete={() => handleDelete(index)}
+		<Accordion type="single" collapsible>
+			<AccordionItem value="work-experience" className="bg-card/5 border-white/10 px-4">
+				<AccordionTrigger className="text-sm hover:no-underline">
+					Work Experience
+				</AccordionTrigger>
+				<AccordionContent className="pt-4 space-y-4">
+					{jobs.map((job, index) => (
+						<ExpandableCard
+							key={index}
+							title={formatJobTitle(job)}
+							expanded={expandedIndex === index}
+							onExpandChange={() =>
+								setExpandedIndex(expandedIndex === index ? null : index)
+							}
+							onDelete={() => handleDelete(index)}
+						>
+							<div className="space-y-2">
+								<Label htmlFor={`company-${index}`}>Company</Label>
+								<Input
+									id={`company-${index}`}
+									value={job.company}
+									onChange={handleChange(index, 'company')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`position-${index}`}>Position</Label>
+								<Input
+									id={`position-${index}`}
+									value={job.position}
+									onChange={handleChange(index, 'position')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`location-${index}`}>Location</Label>
+								<Input
+									id={`location-${index}`}
+									value={job.location}
+									onChange={handleChange(index, 'location')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`startDate-${index}`}>Start Date</Label>
+								<Input
+									id={`startDate-${index}`}
+									value={job.startDate}
+									onChange={handleChange(index, 'startDate')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`endDate-${index}`}>End Date</Label>
+								<Input
+									id={`endDate-${index}`}
+									value={job.endDate || ''}
+									onChange={handleChange(index, 'endDate')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`responsibilities-${index}`}>Responsibilities (one per line)</Label>
+								<Textarea
+									id={`responsibilities-${index}`}
+									value={job.responsibilities.join('\n')}
+									onChange={handleChange(index, 'responsibilities')}
+									rows={5}
+								/>
+							</div>
+						</ExpandableCard>
+					))}
+					<Button
+						onClick={handleAdd}
+						variant="outline"
+						size="sm"
+						className="mt-4"
 					>
-						<TextField
-							fullWidth
-							label="Company"
-							value={job.company}
-							onChange={handleChange(index, 'company')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Position"
-							value={job.position}
-							onChange={handleChange(index, 'position')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Location"
-							value={job.location}
-							onChange={handleChange(index, 'location')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Start Date"
-							value={job.startDate}
-							onChange={handleChange(index, 'startDate')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="End Date"
-							value={job.endDate || ''}
-							onChange={handleChange(index, 'endDate')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Responsibilities (one per line)"
-							value={job.responsibilities.join('\n')}
-							onChange={handleChange(index, 'responsibilities')}
-							multiline
-							rows={5}
-							size="small"
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-					</ExpandableCard>
-				))}
-				<Button
-					startIcon={<AddIcon />}
-					onClick={handleAdd}
-					variant="outlined"
-					size="small"
-					sx={{ mt: 2 }}
-				>
-					Add Job
-				</Button>
-			</AccordionDetails>
+						<Plus className="w-4 h-4 mr-2" />
+						Add Job
+					</Button>
+				</AccordionContent>
+			</AccordionItem>
 		</Accordion>
 	);
 };

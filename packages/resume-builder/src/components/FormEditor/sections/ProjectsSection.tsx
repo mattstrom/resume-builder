@@ -1,14 +1,15 @@
+import { type ChangeEvent, type FC, useState } from 'react';
+import { Plus } from 'lucide-react';
 import {
 	Accordion,
-	AccordionDetails,
-	AccordionSummary,
-	Button,
-	TextField,
-	Typography,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { type ChangeEvent, type FC, useState } from 'react';
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { ExpandableCard } from '../components/ExpandableCard';
 
 interface Project {
@@ -41,7 +42,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 	};
 
 	const handleChange = (index: number, field: keyof Project) => (
-		e: ChangeEvent<HTMLInputElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => {
 		const newProjects = [...projects];
 		if (field === 'technologies') {
@@ -63,75 +64,60 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 		project.name || 'New Project';
 
 	return (
-		<Accordion
-			sx={{
-				backgroundColor: 'rgba(255, 255, 255, 0.05)',
-				color: 'white',
-				'&:before': { display: 'none' },
-			}}
-		>
-			<AccordionSummary
-				expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
-				sx={{
-					borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-				}}
-			>
-				<Typography variant="subtitle2">Projects</Typography>
-			</AccordionSummary>
-			<AccordionDetails sx={{ pt: 2 }}>
-				{projects.map((project, index) => (
-					<ExpandableCard
-						key={index}
-						title={formatProjectTitle(project)}
-						expanded={expandedIndex === index}
-						onExpandChange={() =>
-							setExpandedIndex(expandedIndex === index ? null : index)
-						}
-						onDelete={() => handleDelete(index)}
+		<Accordion type="single" collapsible>
+			<AccordionItem value="projects" className="bg-card/5 border-white/10 px-4">
+				<AccordionTrigger className="text-sm hover:no-underline">
+					Projects
+				</AccordionTrigger>
+				<AccordionContent className="pt-4 space-y-4">
+					{projects.map((project, index) => (
+						<ExpandableCard
+							key={index}
+							title={formatProjectTitle(project)}
+							expanded={expandedIndex === index}
+							onExpandChange={() =>
+								setExpandedIndex(expandedIndex === index ? null : index)
+							}
+							onDelete={() => handleDelete(index)}
+						>
+							<div className="space-y-2">
+								<Label htmlFor={`name-${index}`}>Name</Label>
+								<Input
+									id={`name-${index}`}
+									value={project.name}
+									onChange={handleChange(index, 'name')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`technologies-${index}`}>Technologies (comma-separated)</Label>
+								<Input
+									id={`technologies-${index}`}
+									value={project.technologies.join(', ')}
+									onChange={handleChange(index, 'technologies')}
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor={`items-${index}`}>Items (one per line)</Label>
+								<Textarea
+									id={`items-${index}`}
+									value={project.items.join('\n')}
+									onChange={handleChange(index, 'items')}
+									rows={5}
+								/>
+							</div>
+						</ExpandableCard>
+					))}
+					<Button
+						onClick={handleAdd}
+						variant="outline"
+						size="sm"
+						className="mt-4"
 					>
-						<TextField
-							fullWidth
-							label="Name"
-							value={project.name}
-							onChange={handleChange(index, 'name')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Technologies (comma-separated)"
-							value={project.technologies.join(', ')}
-							onChange={handleChange(index, 'technologies')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Items (one per line)"
-							value={project.items.join('\n')}
-							onChange={handleChange(index, 'items')}
-							multiline
-							rows={5}
-							size="small"
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-					</ExpandableCard>
-				))}
-				<Button
-					startIcon={<AddIcon />}
-					onClick={handleAdd}
-					variant="outlined"
-					size="small"
-					sx={{ mt: 2 }}
-				>
-					Add Project
-				</Button>
-			</AccordionDetails>
+						<Plus className="w-4 h-4 mr-2" />
+						Add Project
+					</Button>
+				</AccordionContent>
+			</AccordionItem>
 		</Accordion>
 	);
 };

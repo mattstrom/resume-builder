@@ -1,5 +1,5 @@
 import { type FC, useCallback, useState } from 'react';
-import { Button, CircularProgress } from '@mui/material';
+import { Loader2 } from 'lucide-react';
 import { useMutation } from '@apollo/client/react';
 import { useFileManager } from '../FileManager';
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
@@ -10,6 +10,7 @@ import type {
 	UpdateResumeData,
 	UpdateResumeVariables,
 } from '../../graphql/types';
+import { Button } from '@/components/ui/button';
 
 type SaveState = 'idle' | 'saving' | 'success' | 'error';
 
@@ -110,46 +111,32 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 		}
 	};
 
-	const getButtonColor = () => {
+	const getButtonVariant = () => {
 		switch (saveState) {
-			case 'success':
-				return 'success';
 			case 'error':
-				return 'error';
+				return 'destructive' as const;
 			default:
-				return 'primary';
+				return 'default' as const;
 		}
 	};
 
 	const isDisabled = disabled || saveState === 'saving' || !resumeData;
 
 	return (
-		<div style={{ padding: '8px' }}>
+		<div className="p-2">
 			<Button
-				variant="contained"
-				color={getButtonColor()}
+				variant={getButtonVariant()}
 				onClick={handleSave}
 				disabled={isDisabled}
-				startIcon={
-					saveState === 'saving' ? (
-						<CircularProgress size={16} color="inherit" />
-					) : null
-				}
-				fullWidth
+				className={`w-full ${saveState === 'success' ? 'bg-green-600 hover:bg-green-700' : ''}`}
 			>
+				{saveState === 'saving' && (
+					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+				)}
 				{getButtonText()}
 			</Button>
 			{saveState === 'error' && errorMessage && (
-				<div
-					style={{
-						marginTop: '8px',
-						padding: '8px',
-						backgroundColor: '#ffebee',
-						color: '#c62828',
-						fontSize: '12px',
-						borderRadius: '4px',
-					}}
-				>
+				<div className="mt-2 p-2 bg-red-50 text-red-800 text-xs rounded">
 					{errorMessage}
 				</div>
 			)}

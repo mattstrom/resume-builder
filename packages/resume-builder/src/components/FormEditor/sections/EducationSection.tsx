@@ -1,11 +1,10 @@
+import { type FC } from 'react';
 import {
 	Accordion,
-	AccordionDetails,
-	AccordionSummary,
-	Typography,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { type FC } from 'react';
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion';
 import { EducationTransferList } from '../components/EducationTransferList';
 
 interface EducationSectionProps {
@@ -18,24 +17,15 @@ export const EducationSection: FC<EducationSectionProps> = ({
 	onChange,
 }) => {
 	return (
-		<Accordion
-			sx={{
-				backgroundColor: 'rgba(255, 255, 255, 0.05)',
-				color: 'white',
-				'&:before': { display: 'none' },
-			}}
-		>
-			<AccordionSummary
-				expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
-				sx={{
-					borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-				}}
-			>
-				<Typography variant="subtitle2">Education</Typography>
-			</AccordionSummary>
-			<AccordionDetails sx={{ pt: 2 }}>
-				<EducationTransferList selectedIds={selectedIds} onChange={onChange} />
-			</AccordionDetails>
+		<Accordion type="single" collapsible>
+			<AccordionItem value="education" className="bg-card/5 border-white/10 px-4">
+				<AccordionTrigger className="text-sm hover:no-underline">
+					Education
+				</AccordionTrigger>
+				<AccordionContent className="pt-4 space-y-4">
+					<EducationTransferList selectedIds={selectedIds} onChange={onChange} />
+				</AccordionContent>
+			</AccordionItem>
 		</Accordion>
 	);
 };

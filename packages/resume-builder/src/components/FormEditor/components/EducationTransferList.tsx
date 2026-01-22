@@ -1,16 +1,6 @@
 import { useQuery } from '@apollo/client/react';
-import {
-	Box,
-	Button,
-	Checkbox,
-	List,
-	ListItemButton,
-	ListItemIcon,
-	ListItemText,
-	Paper,
-	Stack,
-	Typography,
-} from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { type FC, useState } from 'react';
 import { LIST_EDUCATIONS } from '../../../graphql/queries';
 
@@ -40,14 +30,14 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 	const [checked, setChecked] = useState<string[]>([]);
 
 	if (loading) {
-		return <Typography sx={{ color: 'white' }}>Loading...</Typography>;
+		return <p className="text-foreground">Loading...</p>;
 	}
 
 	if (error) {
 		return (
-			<Typography sx={{ color: 'red' }}>
+			<p className="text-destructive">
 				Error loading educations: {error.message}
-			</Typography>
+			</p>
 		);
 	}
 
@@ -98,77 +88,54 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 	};
 
 	const customList = (title: string, items: Education[]) => (
-		<Paper
-			sx={{
-				width: '100%',
-				height: 300,
-				overflow: 'auto',
-				backgroundColor: 'rgba(0, 0, 0, 0.2)',
-				border: '1px solid rgba(255, 255, 255, 0.1)',
-			}}
-		>
-			<Typography
-				variant="subtitle2"
-				sx={{ p: 1, color: 'white', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}
-			>
+		<div className="w-full h-[300px] overflow-auto bg-black/20 border border-white/10 rounded-md">
+			<div className="p-2 text-sm font-medium text-foreground border-b border-white/10">
 				{title}
-			</Typography>
-			<List dense component="div" role="list">
+			</div>
+			<div role="list" className="divide-y divide-white/5">
 				{items.map((edu) => {
 					const labelId = `transfer-list-item-${edu._id}-label`;
+					const isChecked = checked.indexOf(edu._id) !== -1;
 					return (
-						<ListItemButton
+						<div
 							key={edu._id}
 							role="listitem"
+							className="flex items-center px-3 py-2 hover:bg-white/5 cursor-pointer transition-colors"
 							onClick={() => handleToggle(edu._id)}
 						>
-							<ListItemIcon>
-								<Checkbox
-									checked={checked.indexOf(edu._id) !== -1}
-									tabIndex={-1}
-									disableRipple
-									inputProps={{
-										'aria-labelledby': labelId,
-									}}
-									sx={{
-										color: 'rgba(255, 255, 255, 0.7)',
-										'&.Mui-checked': {
-											color: 'white',
-										},
-									}}
-								/>
-							</ListItemIcon>
-							<ListItemText
-								id={labelId}
-								primary={formatEducation(edu)}
-								sx={{ color: 'white' }}
+							<Checkbox
+								checked={isChecked}
+								onCheckedChange={() => handleToggle(edu._id)}
+								aria-labelledby={labelId}
+								className="mr-3"
 							/>
-						</ListItemButton>
+							<span id={labelId} className="text-sm text-foreground flex-1">
+								{formatEducation(edu)}
+							</span>
+						</div>
 					);
 				})}
-			</List>
-		</Paper>
+			</div>
+		</div>
 	);
 
 	return (
-		<Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 1 }}>
-			<Box sx={{ flex: 1 }}>
+		<div className="flex gap-4 items-center mt-2">
+			<div className="flex-1">
 				{customList('Available', available)}
-			</Box>
-			<Stack sx={{ alignItems: 'center', minWidth: 80 }}>
+			</div>
+			<div className="flex flex-col items-center min-w-[80px] gap-1">
 				<Button
-					sx={{ my: 0.5 }}
-					variant="outlined"
-					size="small"
+					variant="outline"
+					size="sm"
 					onClick={handleAllRight}
 					disabled={available.length === 0}
 				>
 					≫
 				</Button>
 				<Button
-					sx={{ my: 0.5 }}
-					variant="outlined"
-					size="small"
+					variant="outline"
+					size="sm"
 					onClick={handleCheckedRight}
 					disabled={
 						checked.filter((id) => available.some((edu: Education) => edu._id === id))
@@ -178,9 +145,8 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 					&gt;
 				</Button>
 				<Button
-					sx={{ my: 0.5 }}
-					variant="outlined"
-					size="small"
+					variant="outline"
+					size="sm"
 					onClick={handleCheckedLeft}
 					disabled={
 						checked.filter((id) => selected.some((edu: Education) => edu._id === id))
@@ -190,18 +156,17 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 					&lt;
 				</Button>
 				<Button
-					sx={{ my: 0.5 }}
-					variant="outlined"
-					size="small"
+					variant="outline"
+					size="sm"
 					onClick={handleAllLeft}
 					disabled={selected.length === 0}
 				>
 					≪
 				</Button>
-			</Stack>
-			<Box sx={{ flex: 1 }}>
+			</div>
+			<div className="flex-1">
 				{customList('Selected', selected)}
-			</Box>
-		</Box>
+			</div>
+		</div>
 	);
 };

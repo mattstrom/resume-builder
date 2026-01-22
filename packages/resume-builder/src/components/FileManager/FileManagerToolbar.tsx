@@ -1,19 +1,21 @@
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
-import {
-	Box,
-	Button,
-	FormControl,
-	IconButton,
-	InputLabel,
-	MenuItem,
-	Select,
-	Tooltip,
-} from '@mui/material';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from '@tanstack/react-router';
+import { Button } from '@/components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { FolderOpen, RotateCw, X } from 'lucide-react';
 import { useStore } from '../../stores/store.provider.tsx';
 import { useFileManager } from './FileManager.provider';
 
@@ -41,159 +43,125 @@ export const FileManagerToolbar: FC = observer(() => {
 	const resumes = resumeStore.data;
 
 	return (
-		<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+		<TooltipProvider>
+			<div className="flex gap-2 items-center">
 			{/* API Resumes Dropdown */}
 			{resumes.length > 0 && (
-				<Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-					<FormControl size="small" sx={{ minWidth: 180 }}>
-						<InputLabel sx={{ color: 'white' }}>
-							Backend Resume
-						</InputLabel>
-						<Select
-							value={selectedApiResumeId ?? ''}
-							label="Backend Resume"
-							onChange={(e) => {
-								const resumeId = e.target.value;
-								selectApiResume(resumeId);
-								navigate({
-									to: '/editor/$resumeId',
-									params: { resumeId },
-								});
-							}}
-							disabled={isLoading}
-							sx={{
-								color: 'white',
-								'.MuiOutlinedInput-notchedOutline': {
-									borderColor: 'rgba(255, 255, 255, 0.3)',
-								},
-								'&:hover .MuiOutlinedInput-notchedOutline': {
-									borderColor: 'rgba(255, 255, 255, 0.5)',
-								},
-								'&.Mui-focused .MuiOutlinedInput-notchedOutline':
-									{
-										borderColor: 'white',
-									},
-								'.MuiSvgIcon-root': {
-									color: 'white',
-								},
-							}}
-						>
+				<div className="flex gap-1 items-center">
+					<Select
+						value={selectedApiResumeId ?? ''}
+						onValueChange={(resumeId: string) => {
+							selectApiResume(resumeId);
+							navigate({
+								to: '/editor/$resumeId',
+								params: { resumeId },
+							});
+						}}
+						disabled={isLoading}
+					>
+						<SelectTrigger className="w-[180px] text-white border-white/30 hover:border-white/50 focus:border-white [&_svg]:text-white">
+							<SelectValue placeholder="Backend Resume" />
+						</SelectTrigger>
+						<SelectContent>
 							{resumes.map((resume) => (
-								<MenuItem key={resume._id} value={resume._id}>
+								<SelectItem key={resume._id} value={resume._id}>
 									{resume.name}
-								</MenuItem>
+								</SelectItem>
 							))}
-						</Select>
-					</FormControl>
+						</SelectContent>
+					</Select>
 
-					<Tooltip title="Refresh resumes">
-						<IconButton
-							size="small"
-							onClick={() => resumeStore.refetch()}
-							sx={{
-								color: 'white',
-								'&:hover': {
-									backgroundColor: 'rgba(255, 255, 255, 0.1)',
-								},
-							}}
-						>
-							<RefreshIcon fontSize="small" />
-						</IconButton>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={() => resumeStore.refetch()}
+								className="text-white hover:bg-white/10"
+							>
+								<RotateCw className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Refresh resumes</p>
+						</TooltipContent>
 					</Tooltip>
-				</Box>
+				</div>
 			)}
 
 			{/* Local Files Section */}
 			{!directoryName ? (
-				<Tooltip title="Attach a local directory to load resume files">
-					<Button
-						variant="outlined"
-						startIcon={<FolderOpenIcon />}
-						onClick={attachDirectory}
-						size="small"
-						sx={{
-							color: 'white',
-							borderColor: 'rgba(255, 255, 255, 0.5)',
-							'&:hover': {
-								borderColor: 'white',
-								backgroundColor: 'rgba(255, 255, 255, 0.1)',
-							},
-						}}
-					>
-						Local Files
-					</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant="outline"
+							onClick={attachDirectory}
+							size="sm"
+							className="text-white border-white/50 hover:border-white hover:bg-white/10"
+						>
+							<FolderOpen className="mr-2 h-4 w-4" />
+							Local Files
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Attach a local directory to load resume files</p>
+					</TooltipContent>
 				</Tooltip>
 			) : (
-				<Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+				<div className="flex gap-1 items-center">
 					{files.length > 0 && (
-						<FormControl size="small" sx={{ minWidth: 150 }}>
-							<InputLabel sx={{ color: 'white' }}>
-								Local File
-							</InputLabel>
-							<Select
-								value={selectedFile ?? ''}
-								label="Local File"
-								onChange={(e) => selectFile(e.target.value)}
-								disabled={isLoading}
-								sx={{
-									color: 'white',
-									'.MuiOutlinedInput-notchedOutline': {
-										borderColor: 'rgba(255, 255, 255, 0.3)',
-									},
-									'&:hover .MuiOutlinedInput-notchedOutline':
-										{
-											borderColor:
-												'rgba(255, 255, 255, 0.5)',
-										},
-									'&.Mui-focused .MuiOutlinedInput-notchedOutline':
-										{
-											borderColor: 'white',
-										},
-									'.MuiSvgIcon-root': {
-										color: 'white',
-									},
-								}}
-							>
+						<Select
+							value={selectedFile ?? ''}
+							onValueChange={selectFile}
+							disabled={isLoading}
+						>
+							<SelectTrigger className="w-[150px] text-white border-white/30 hover:border-white/50 focus:border-white [&_svg]:text-white">
+								<SelectValue placeholder="Local File" />
+							</SelectTrigger>
+							<SelectContent>
 								{files.map((file) => (
-									<MenuItem key={file} value={file}>
+									<SelectItem key={file} value={file}>
 										{file}
-									</MenuItem>
+									</SelectItem>
 								))}
-							</Select>
-						</FormControl>
+							</SelectContent>
+						</Select>
 					)}
 
-					<Tooltip title="Refresh files">
-						<IconButton
-							size="small"
-							onClick={refreshFiles}
-							sx={{
-								color: 'white',
-								'&:hover': {
-									backgroundColor: 'rgba(255, 255, 255, 0.1)',
-								},
-							}}
-						>
-							<RefreshIcon fontSize="small" />
-						</IconButton>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={refreshFiles}
+								className="text-white hover:bg-white/10"
+							>
+								<RotateCw className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Refresh files</p>
+						</TooltipContent>
 					</Tooltip>
 
-					<Tooltip title="Detach directory">
-						<IconButton
-							size="small"
-							onClick={detachDirectory}
-							sx={{
-								color: 'white',
-								'&:hover': {
-									backgroundColor: 'rgba(255, 255, 255, 0.1)',
-								},
-							}}
-						>
-							<CloseIcon fontSize="small" />
-						</IconButton>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={detachDirectory}
+								className="text-white hover:bg-white/10"
+							>
+								<X className="h-4 w-4" />
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Detach directory</p>
+						</TooltipContent>
 					</Tooltip>
-				</Box>
+				</div>
 			)}
-		</Box>
+			</div>
+		</TooltipProvider>
 	);
 });

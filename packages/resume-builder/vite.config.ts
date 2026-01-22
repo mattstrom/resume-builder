@@ -15,4 +15,9 @@ export default defineConfig({
 			generatedRouteTree: path.resolve(__dirname, './src/routeTree.gen.ts'),
 		}),
 	],
+	resolve: {
+		alias: {
+			'@': path.resolve(__dirname, './src'),
+		},
+	},
 });

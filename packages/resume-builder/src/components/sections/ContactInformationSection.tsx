@@ -3,46 +3,17 @@ import { type FC } from 'react';
 import { Url } from '../Url.tsx';
 import { useResume } from '../Resume.provider.tsx';
 import {
-	Email,
-	GitHub,
-	Language,
-	LinkedIn,
-	LocationOn,
+	Mail,
+	Github,
+	Globe,
+	Linkedin,
+	MapPin,
 	Phone,
-} from '@mui/icons-material';
-import { css } from '@emotion/react';
+} from 'lucide-react';
 
 interface ContactInformationSectionProps {
 	className?: string;
 }
-
-const classes = {
-	address: css({
-		display: 'flex',
-		flexDirection: 'column',
-		gap: '0.1rem',
-		'& > div': {
-			display: 'flex',
-			alignItems: 'center',
-			alignContent: 'center',
-			gap: 5,
-		},
-		'& > .contact-information-item': {
-			display: 'flex',
-			gridTemplateColumns: '24px 1fr',
-			gridTemplateRows: 'min-content',
-			alignItems: 'center',
-			'& > svg': {
-				alignSelf: 'center',
-			},
-		},
-		'& .icon': {
-			display: 'flex',
-			alignItems: 'center',
-			margin: 'auto',
-		},
-	}),
-};
 
 export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 	className,
@@ -53,43 +24,45 @@ export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 
 	return (
 		<address
-			css={classes.address}
-			className={clsx('contact-information', className)}
+			className={clsx('contact-information flex flex-col gap-[0.1rem]', className)}
+			style={{
+				fontStyle: 'normal',
+			}}
 		>
-			<div className="contact-information-item location">
-				<div className="icon">
-					<LocationOn />
+			<div className="contact-information-item location flex items-center gap-[5px]">
+				<div className="icon flex items-center m-auto">
+					<MapPin size={20} />
 				</div>
 				<span>{contactInformation.location}</span>
 			</div>
-			<div className="contact-information-item phone-number">
-				<div className="icon">
-					<Phone fontSize="small" />
+			<div className="contact-information-item phone-number flex items-center gap-[5px]">
+				<div className="icon flex items-center m-auto">
+					<Phone size={16} />
 				</div>
 				<a href={phoneNumberHref}>{contactInformation.phoneNumber}</a>
 			</div>
-			<div className="contact-information-item email">
-				<div className="icon">
-					<Email />
+			<div className="contact-information-item email flex items-center gap-[5px]">
+				<div className="icon flex items-center m-auto">
+					<Mail size={20} />
 				</div>
 				<a href={emailHref}>{contactInformation.email}</a>
 			</div>
-			<div className="contact-information-item linkedin-profile">
-				<div className="icon">
-					<LinkedIn />
+			<div className="contact-information-item linkedin-profile flex items-center gap-[5px]">
+				<div className="icon flex items-center m-auto">
+					<Linkedin size={20} />
 				</div>
 				<Url href={contactInformation.linkedInProfile} />
 			</div>
-			<div className="contact-information-item github-profile">
-				<div className="icon">
-					<GitHub />
+			<div className="contact-information-item github-profile flex items-center gap-[5px]">
+				<div className="icon flex items-center m-auto">
+					<Github size={20} />
 				</div>
 				<Url href={contactInformation.githubProfile} />
 			</div>
 			{contactInformation.personalWebsite && (
-				<div className="contact-information-item personal-website">
-					<div className="icon">
-						<Language />
+				<div className="contact-information-item personal-website flex items-center gap-[5px]">
+					<div className="icon flex items-center m-auto">
+						<Globe size={20} />
 					</div>
 					<Url href={contactInformation.personalWebsite} />
 				</div>

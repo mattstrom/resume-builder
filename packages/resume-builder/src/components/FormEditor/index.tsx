@@ -1,5 +1,4 @@
-import { Box, Button, Stack } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
+import { Save } from 'lucide-react';
 import { type FC, useEffect, useRef, useState } from 'react';
 import { useFileManager } from '../FileManager';
 import { BasicInfoSection } from './sections/BasicInfoSection';
@@ -8,6 +7,7 @@ import { EducationSection } from './sections/EducationSection';
 import { WorkExperienceSection } from './sections/WorkExperienceSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { ProjectsSection } from './sections/ProjectsSection';
+import { Button } from '@/components/ui/button';
 import './FormEditor.css';
 
 interface ContactInfo {
@@ -131,27 +131,18 @@ export const FormEditor: FC = () => {
 	};
 
 	return (
-		<Box
-			className="form-editor"
-			sx={{
-				height: '100%',
-				backgroundColor: '#1e1e1e',
-				overflow: 'auto',
-				p: 2,
-			}}
-		>
-			<Stack spacing={2}>
-				<Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+		<div className="form-editor h-full bg-[#1e1e1e] overflow-auto p-4">
+			<div className="space-y-4">
+				<div className="flex justify-end mb-4">
 					<Button
-						startIcon={<SaveIcon />}
 						onClick={handleSave}
-						variant="contained"
-						size="small"
+						size="sm"
 						disabled={saveStatus === 'saving'}
 					>
+						<Save className="mr-2 h-4 w-4" />
 						{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : 'Save'}
 					</Button>
-				</Box>
+				</div>
 
 				<BasicInfoSection
 					data={formData.basicInfo}
@@ -182,7 +173,7 @@ export const FormEditor: FC = () => {
 					projects={formData.projects}
 					onChange={(projects) => setFormData({ ...formData, projects })}
 				/>
-			</Stack>
-		</Box>
+			</div>
+		</div>
 	);
 };

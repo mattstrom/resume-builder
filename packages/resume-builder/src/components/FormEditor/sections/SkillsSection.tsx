@@ -1,13 +1,13 @@
 import {
 	Accordion,
-	AccordionDetails,
-	AccordionSummary,
-	Button,
-	TextField,
-	Typography,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Plus } from 'lucide-react';
 import { type ChangeEvent, type FC, useState } from 'react';
 import { ExpandableCard } from '../components/ExpandableCard';
 
@@ -48,63 +48,48 @@ export const SkillsSection: FC<SkillsSectionProps> = ({ skills, onChange }) => {
 		`${skill.name || 'New Skill'} ${skill.category ? `(${skill.category})` : ''}`;
 
 	return (
-		<Accordion
-			sx={{
-				backgroundColor: 'rgba(255, 255, 255, 0.05)',
-				color: 'white',
-				'&:before': { display: 'none' },
-			}}
-		>
-			<AccordionSummary
-				expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
-				sx={{
-					borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-				}}
-			>
-				<Typography variant="subtitle2">Skills</Typography>
-			</AccordionSummary>
-			<AccordionDetails sx={{ pt: 2 }}>
-				{skills.map((skill, index) => (
-					<ExpandableCard
-						key={index}
-						title={formatSkillTitle(skill)}
-						expanded={expandedIndex === index}
-						onExpandChange={() =>
-							setExpandedIndex(expandedIndex === index ? null : index)
-						}
-						onDelete={() => handleDelete(index)}
-					>
-						<TextField
-							fullWidth
-							label="Name"
-							value={skill.name}
-							onChange={handleChange(index, 'name')}
-							size="small"
-							sx={{ mb: 2 }}
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-						<TextField
-							fullWidth
-							label="Category"
-							value={skill.category}
-							onChange={handleChange(index, 'category')}
-							size="small"
-							InputLabelProps={{ sx: { color: 'rgba(255, 255, 255, 0.7)' } }}
-							InputProps={{ sx: { color: 'white' } }}
-						/>
-					</ExpandableCard>
-				))}
-				<Button
-					startIcon={<AddIcon />}
-					onClick={handleAdd}
-					variant="outlined"
-					size="small"
-					sx={{ mt: 2 }}
-				>
-					Add Skill
-				</Button>
-			</AccordionDetails>
+		<Accordion type="single" collapsible>
+			<AccordionItem value="skills" className="bg-card/5 border-white/10 px-4">
+				<AccordionTrigger className="text-sm hover:no-underline">
+					Skills
+				</AccordionTrigger>
+				<AccordionContent className="pt-4 space-y-4">
+					{skills.map((skill, index) => (
+						<ExpandableCard
+							key={index}
+							title={formatSkillTitle(skill)}
+							expanded={expandedIndex === index}
+							onExpandChange={() =>
+								setExpandedIndex(expandedIndex === index ? null : index)
+							}
+							onDelete={() => handleDelete(index)}
+						>
+							<div className="space-y-4">
+								<div className="space-y-2">
+									<Label htmlFor={`skill-name-${index}`}>Name</Label>
+									<Input
+										id={`skill-name-${index}`}
+										value={skill.name}
+										onChange={handleChange(index, 'name')}
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor={`skill-category-${index}`}>Category</Label>
+									<Input
+										id={`skill-category-${index}`}
+										value={skill.category}
+										onChange={handleChange(index, 'category')}
+									/>
+								</div>
+							</div>
+						</ExpandableCard>
+					))}
+					<Button onClick={handleAdd} variant="outline" size="sm" className="mt-4">
+						<Plus className="h-4 w-4 mr-2" />
+						Add Skill
+					</Button>
+				</AccordionContent>
+			</AccordionItem>
 		</Accordion>
 	);
 };

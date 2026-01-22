@@ -1,25 +1,52 @@
-import {
-	AppBar,
-	Button,
-	Checkbox,
-	CircularProgress,
-	Divider,
-	FormControl,
-	FormControlLabel,
-	InputLabel,
-	MenuItem,
-	Select,
-	ToggleButton,
-	ToggleButtonGroup,
-	Toolbar,
-	Typography,
-} from '@mui/material';
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { useSettings } from './Settings.provider.tsx';
 import { FileManagerToolbar, useFileManager } from './FileManager';
 import { generatePDF } from '../utils/pdfExport';
 import { useSnackbar } from './SnackbarProvider';
+
+// Custom ToggleGroup component (no direct ShadCN equivalent)
+interface ToggleGroupProps {
+	value: string;
+	onChange: (value: string) => void;
+	options: Array<{ value: string; label: string }>;
+}
+
+const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
+	<div className="inline-flex rounded-md border border-white/30">
+		{options.map((opt, idx) => (
+			<Button
+				key={opt.value}
+				variant={value === opt.value ? 'default' : 'ghost'}
+				size="sm"
+				className={cn(
+					'rounded-none text-white/70 border-white/30 hover:bg-white/10 hover:text-white',
+					idx === 0 && 'rounded-l-md',
+					idx === options.length - 1 && 'rounded-r-md',
+					idx > 0 && 'border-l',
+					value === opt.value &&
+						'bg-white/20 text-white border-white/50 hover:bg-white/25',
+				)}
+				onClick={() => onChange(opt.value)}
+			>
+				{opt.label}
+			</Button>
+		))}
+	</div>
+);
 
 export const EditorToolbar: FC = () => {
 	const {
@@ -73,131 +100,78 @@ export const EditorToolbar: FC = () => {
 	};
 
 	return (
-		<AppBar position="static" color="primary">
-			<Toolbar sx={{ gap: 2, flexWrap: 'wrap', py: 1 }}>
-				<Typography variant="h6" component="div">
-					Resume Builder
-				</Typography>
+		<header className="bg-slate-900 text-white border-b border-slate-800">
+			<div className="flex items-center gap-4 flex-wrap p-4">
+				<h1 className="text-xl font-semibold">Resume Builder</h1>
 
-				<Divider
+				<Separator
 					orientation="vertical"
-					flexItem
-					sx={{ mx: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}
+					className="h-6 bg-white/30"
 				/>
 
 				<FileManagerToolbar />
 
-				<Divider
+				<Separator
 					orientation="vertical"
-					flexItem
-					sx={{ mx: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}
+					className="h-6 bg-white/30"
 				/>
 
-				<ToggleButtonGroup
+				<ToggleGroup
 					value={editorMode}
-					exclusive
-					onChange={(_, newMode) => {
-						if (newMode !== null) {
-							setEditorMode(newMode);
-						}
+					onChange={(newMode) => {
+						setEditorMode(newMode as 'json' | 'form' | 'review');
 					}}
-					size="small"
-					sx={{
-						'& .MuiToggleButton-root': {
-							color: 'rgba(255, 255, 255, 0.7)',
-							borderColor: 'rgba(255, 255, 255, 0.3)',
-							'&:hover': {
-								backgroundColor: 'rgba(255, 255, 255, 0.1)',
-								borderColor: 'rgba(255, 255, 255, 0.5)',
-							},
-							'&.Mui-selected': {
-								color: 'white',
-								backgroundColor: 'rgba(255, 255, 255, 0.2)',
-								borderColor: 'rgba(255, 255, 255, 0.5)',
-								'&:hover': {
-									backgroundColor:
-										'rgba(255, 255, 255, 0.25)',
-								},
-							},
-						},
-					}}
-				>
-					<ToggleButton value="json">JSON</ToggleButton>
-					<ToggleButton value="form">Form</ToggleButton>
-					<ToggleButton value="review">Review</ToggleButton>
-				</ToggleButtonGroup>
+					options={[
+						{ value: 'json', label: 'JSON' },
+						{ value: 'form', label: 'Form' },
+						{ value: 'review', label: 'Review' },
+					]}
+				/>
 
-				<Divider
+				<Separator
 					orientation="vertical"
-					flexItem
-					sx={{ mx: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }}
+					className="h-6 bg-white/30"
 				/>
 
-				<FormControl size="small" sx={{ minWidth: 120 }}>
-					<InputLabel htmlFor="template" sx={{ color: 'white' }}>
+				<div className="flex items-center gap-2">
+					<Label htmlFor="template" className="text-white text-sm">
 						Template
-					</InputLabel>
-					<Select
-						id="template"
-						value={template}
-						onChange={(ev) => {
-							setTemplate(ev.target.value);
-						}}
-						label="Template"
-						sx={{
-							color: 'white',
-							'.MuiOutlinedInput-notchedOutline': {
-								borderColor: 'rgba(255, 255, 255, 0.3)',
-							},
-							'&:hover .MuiOutlinedInput-notchedOutline': {
-								borderColor: 'rgba(255, 255, 255, 0.5)',
-							},
-							'&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-								borderColor: 'white',
-							},
-							'.MuiSvgIcon-root': {
-								color: 'white',
-							},
-						}}
-					>
-						<MenuItem value="basic">Basic</MenuItem>
-						<MenuItem value="column">Column</MenuItem>
-						<MenuItem value="grid">Grid</MenuItem>
+					</Label>
+					<Select value={template} onValueChange={setTemplate}>
+						<SelectTrigger
+							id="template"
+							className="w-[120px] h-9 text-white border-white/30 hover:border-white/50 focus:border-white bg-transparent [&>svg]:text-white"
+						>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="basic">Basic</SelectItem>
+							<SelectItem value="column">Column</SelectItem>
+							<SelectItem value="grid">Grid</SelectItem>
+						</SelectContent>
 					</Select>
-				</FormControl>
+				</div>
 
-				<FormControlLabel
-					label="Show Margin Pattern"
-					control={
-						<Checkbox
-							id="marginPattern"
-							checked={showMarginPattern}
-							onChange={(ev) => {
-								setShowMarginPattern(ev.target.checked);
-							}}
-							sx={{
-								color: 'rgba(255, 255, 255, 0.7)',
-								'&.Mui-checked': {
-									color: 'white',
-								},
-							}}
-						/>
-					}
-					sx={{ color: 'white' }}
-				/>
+				<div className="flex items-center space-x-2">
+					<Checkbox
+						id="marginPattern"
+						checked={showMarginPattern}
+						onCheckedChange={setShowMarginPattern}
+						className="border-white/70 data-[state=checked]:bg-white data-[state=checked]:text-slate-900 data-[state=checked]:border-white"
+					/>
+					<Label
+						htmlFor="marginPattern"
+						className="text-white text-sm cursor-pointer"
+					>
+						Show Margin Pattern
+					</Label>
+				</div>
 
 				<Button
 					onClick={onPrint}
-					variant="outlined"
-					size="small"
-					sx={{
-						color: 'white',
-						borderColor: 'rgba(255, 255, 255, 0.5)',
-						'&:hover': {
-							borderColor: 'white',
-							backgroundColor: 'rgba(255, 255, 255, 0.1)',
-						},
-					}}
+					variant="outline"
+					size="sm"
+					className="text-white border-white/50 hover:border-white hover:bg-white/10"
 				>
 					Print
 				</Button>
@@ -205,23 +179,13 @@ export const EditorToolbar: FC = () => {
 				<Button
 					onClick={onExportPDF}
 					disabled={isExporting}
-					variant="outlined"
-					size="small"
-					sx={{
-						color: 'white',
-						borderColor: 'rgba(255, 255, 255, 0.5)',
-						'&:hover': {
-							borderColor: 'white',
-							backgroundColor: 'rgba(255, 255, 255, 0.1)',
-						},
-					}}
+					variant="outline"
+					size="sm"
+					className="text-white border-white/50 hover:border-white hover:bg-white/10"
 				>
 					{isExporting ? (
 						<>
-							<CircularProgress
-								size={16}
-								sx={{ mr: 1, color: 'white' }}
-							/>
+							<Loader2 className="h-4 w-4 animate-spin mr-2" />
 							Generating...
 						</>
 					) : (
@@ -231,16 +195,9 @@ export const EditorToolbar: FC = () => {
 
 				<Button
 					onClick={onPreview}
-					variant="outlined"
-					size="small"
-					sx={{
-						color: 'white',
-						borderColor: 'rgba(255, 255, 255, 0.5)',
-						'&:hover': {
-							borderColor: 'white',
-							backgroundColor: 'rgba(255, 255, 255, 0.1)',
-						},
-					}}
+					variant="outline"
+					size="sm"
+					className="text-white border-white/50 hover:border-white hover:bg-white/10"
 				>
 					Preview
 				</Button>
@@ -250,21 +207,14 @@ export const EditorToolbar: FC = () => {
 						onClick={() =>
 							window.open(resumeData.jobPostingUrl, '_blank')
 						}
-						variant="outlined"
-						size="small"
-						sx={{
-							color: 'white',
-							borderColor: 'rgba(255, 255, 255, 0.5)',
-							'&:hover': {
-								borderColor: 'white',
-								backgroundColor: 'rgba(255, 255, 255, 0.1)',
-							},
-						}}
+						variant="outline"
+						size="sm"
+						className="text-white border-white/50 hover:border-white hover:bg-white/10"
 					>
 						Open Job Posting
 					</Button>
 				)}
-			</Toolbar>
-		</AppBar>
+			</div>
+		</header>
 	);
 };
