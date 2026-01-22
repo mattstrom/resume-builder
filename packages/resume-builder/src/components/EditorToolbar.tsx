@@ -101,6 +101,7 @@ export const EditorToolbar: FC = () => {
 				>
 					<ToggleButton value="json">JSON</ToggleButton>
 					<ToggleButton value="form">Form</ToggleButton>
+					<ToggleButton value="review">Review</ToggleButton>
 				</ToggleButtonGroup>
 
 				<Divider
@@ -193,6 +194,24 @@ export const EditorToolbar: FC = () => {
 				>
 					Preview
 				</Button>
+
+				{resumeData?.jobPostingUrl && (
+					<Button
+						onClick={() => window.open(resumeData.jobPostingUrl, '_blank')}
+						variant="outlined"
+						size="small"
+						sx={{
+							color: 'white',
+							borderColor: 'rgba(255, 255, 255, 0.5)',
+							'&:hover': {
+								borderColor: 'white',
+								backgroundColor: 'rgba(255, 255, 255, 0.1)',
+							},
+						}}
+					>
+						Open Job Posting
+					</Button>
+				)}
 			</Toolbar>
 		</AppBar>
 	);

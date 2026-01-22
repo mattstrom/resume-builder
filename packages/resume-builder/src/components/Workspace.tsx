@@ -24,31 +24,37 @@ export const Workspace: FC = () => {
 
 	return (
 		<div className="workspace">
-			<Group
-				orientation="horizontal"
-				defaultLayout={defaultLayout}
-				onLayoutChanged={onLayoutChanged}
-			>
-				<Panel
-					id="editor"
-					defaultSize={50}
-					minSize={30}
-					className="workspace-left"
-				>
-					{editorMode === 'json' ? <JsonEditor /> : <FormEditor />}
-				</Panel>
-
-				<Separator className="resize-handle" />
-
-				<Panel
-					id="resume"
-					defaultSize={50}
-					minSize={30}
-					className="workspace-right"
-				>
+			{editorMode === 'review' ? (
+				<div className="workspace-review">
 					<PreviewFrame />
-				</Panel>
-			</Group>
+				</div>
+			) : (
+				<Group
+					orientation="horizontal"
+					defaultLayout={defaultLayout}
+					onLayoutChanged={onLayoutChanged}
+				>
+					<Panel
+						id="editor"
+						defaultSize={50}
+						minSize={30}
+						className="workspace-left"
+					>
+						{editorMode === 'json' ? <JsonEditor /> : <FormEditor />}
+					</Panel>
+
+					<Separator className="resize-handle" />
+
+					<Panel
+						id="resume"
+						defaultSize={50}
+						minSize={30}
+						className="workspace-right"
+					>
+						<PreviewFrame />
+					</Panel>
+				</Group>
+			)}
 		</div>
 	);
 };

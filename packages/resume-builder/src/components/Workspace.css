@@ -50,6 +50,23 @@
 	width: 2px;
 }
 
+/* Review mode styling */
+.workspace-review {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	width: 100%;
+	height: calc(100vh - 64px);
+	background-color: #1e1e1e;
+	padding: 2rem;
+	overflow: auto;
+}
+
+.workspace-review > * {
+	max-width: 1200px; /* Comfortable viewing width */
+	width: 100%;
+}
+
 @media print {
 	.workspace-left {
 		display: none !important;
@@ -58,5 +75,16 @@
 	.workspace-right {
 		flex: 1;
 		min-width: unset;
+	}
+
+	/* Preserve print styling for review mode */
+	.workspace-review {
+		padding: 0;
+		background-color: white;
+	}
+
+	.workspace-review > * {
+		max-width: none;
+		width: 100%;
 	}
 }

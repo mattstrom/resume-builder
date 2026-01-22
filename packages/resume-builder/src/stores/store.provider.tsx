@@ -4,7 +4,6 @@ import {
 	type PropsWithChildren,
 	useContext,
 } from 'react';
-import { client } from '../apollo-client.ts';
 import { RootStore } from './root.store.ts';
 
 const StoreContext = createContext<RootStore | null>(null);
@@ -15,7 +14,7 @@ interface StoreProviderProps extends PropsWithChildren {
 }
 
 export const StoreProvider: FC<StoreProviderProps> = ({ children, store }) => {
-	singleton ??= store ?? new RootStore(client);
+	singleton ??= store ?? RootStore.getInstance();
 
 	return (
 		<StoreContext.Provider value={singleton}>
