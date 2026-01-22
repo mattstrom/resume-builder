@@ -4,6 +4,7 @@ import { Outlet } from '@tanstack/react-router';
 import type { FC } from 'react';
 import { FileManagerProvider } from './components/FileManager';
 import { SettingsProvider } from './components/Settings.provider.tsx';
+import { SnackbarProvider } from './components/SnackbarProvider';
 import { useStore } from './stores/store.provider.tsx';
 import { darkTheme } from './theme.ts';
 
@@ -14,13 +15,15 @@ export const App: FC = () => {
 
 	return (
 		<ThemeProvider theme={darkTheme}>
-			<SettingsProvider>
-				<ApolloProvider client={client}>
-					<FileManagerProvider>
-						<Outlet />
-					</FileManagerProvider>
-				</ApolloProvider>
-			</SettingsProvider>
+			<SnackbarProvider>
+				<SettingsProvider>
+					<ApolloProvider client={client}>
+						<FileManagerProvider>
+							<Outlet />
+						</FileManagerProvider>
+					</ApolloProvider>
+				</SettingsProvider>
+			</SnackbarProvider>
 		</ThemeProvider>
 	);
 };

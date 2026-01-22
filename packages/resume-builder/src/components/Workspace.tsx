@@ -1,3 +1,4 @@
+import { useParams } from '@tanstack/react-router';
 import { type FC } from 'react';
 import { FormEditor } from './FormEditor';
 import { JsonEditor } from './JsonEditor';
@@ -14,7 +15,7 @@ import './Workspace.css';
 
 export const Workspace: FC = () => {
 	const { editorMode } = useSettings();
-
+	const { resumeId } = useParams({ strict: false });
 	// Use the built-in hook for persistent layouts
 	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
 		id: 'workspace-layout',
@@ -22,11 +23,15 @@ export const Workspace: FC = () => {
 		storage: localStorage,
 	});
 
+	if (!resumeId) {
+		return null;
+	}
+
 	return (
 		<div className="workspace">
 			{editorMode === 'review' ? (
 				<div className="workspace-review">
-					<PreviewFrame />
+					<PreviewFrame resumeId={resumeId} />
 				</div>
 			) : (
 				<Group
@@ -40,7 +45,11 @@ export const Workspace: FC = () => {
 						minSize={30}
 						className="workspace-left"
 					>
-						{editorMode === 'json' ? <JsonEditor /> : <FormEditor />}
+						{editorMode === 'json' ? (
+							<JsonEditor />
+						) : (
+							<FormEditor />
+						)}
 					</Panel>
 
 					<Separator className="resize-handle" />
@@ -51,7 +60,7 @@ export const Workspace: FC = () => {
 						minSize={30}
 						className="workspace-right"
 					>
-						<PreviewFrame />
+						<PreviewFrame resumeId={resumeId} />
 					</Panel>
 				</Group>
 			)}

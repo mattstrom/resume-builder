@@ -2,6 +2,7 @@ import {
 	AppBar,
 	Button,
 	Checkbox,
+	CircularProgress,
 	Divider,
 	FormControl,
 	FormControlLabel,
@@ -13,9 +14,12 @@ import {
 	Toolbar,
 	Typography,
 } from '@mui/material';
-import { type FC } from 'react';
+import { useParams } from '@tanstack/react-router';
+import { type FC, useState } from 'react';
 import { useSettings } from './Settings.provider.tsx';
 import { FileManagerToolbar, useFileManager } from './FileManager';
+import { generatePDF } from '../utils/pdfExport';
+import { useSnackbar } from './SnackbarProvider';
 
 export const EditorToolbar: FC = () => {
 	const {
@@ -27,7 +31,10 @@ export const EditorToolbar: FC = () => {
 		setEditorMode,
 	} = useSettings();
 
+	const { resumeId } = useParams({ strict: false });
 	const { resumeData } = useFileManager();
+	const { showSnackbar } = useSnackbar();
+	const [isExporting, setIsExporting] = useState(false);
 
 	const onPrint = () => {
 		const iframe = document.getElementById(
@@ -40,13 +47,29 @@ export const EditorToolbar: FC = () => {
 		}
 	};
 
+	const onExportPDF = async () => {
+		setIsExporting(true);
+		try {
+			await generatePDF(resumeData || {});
+			showSnackbar('PDF exported successfully!', 'success');
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: 'Failed to export PDF. Please try again.';
+			showSnackbar(message, 'error');
+		} finally {
+			setIsExporting(false);
+		}
+	};
+
 	const onPreview = () => {
 		const params = new URLSearchParams({
 			template,
 			showMarginPattern: String(showMarginPattern),
 		});
 
-		window.open(`/preview/${resumeData?._id}?${params.toString()}`);
+		window.open(`/preview/${resumeId}?${params.toString()}`);
 	};
 
 	return (
@@ -180,6 +203,33 @@ export const EditorToolbar: FC = () => {
 				</Button>
 
 				<Button
+					onClick={onExportPDF}
+					disabled={isExporting}
+					variant="outlined"
+					size="small"
+					sx={{
+						color: 'white',
+						borderColor: 'rgba(255, 255, 255, 0.5)',
+						'&:hover': {
+							borderColor: 'white',
+							backgroundColor: 'rgba(255, 255, 255, 0.1)',
+						},
+					}}
+				>
+					{isExporting ? (
+						<>
+							<CircularProgress
+								size={16}
+								sx={{ mr: 1, color: 'white' }}
+							/>
+							Generating...
+						</>
+					) : (
+						'Export PDF'
+					)}
+				</Button>
+
+				<Button
 					onClick={onPreview}
 					variant="outlined"
 					size="small"
@@ -197,7 +247,9 @@ export const EditorToolbar: FC = () => {
 
 				{resumeData?.jobPostingUrl && (
 					<Button
-						onClick={() => window.open(resumeData.jobPostingUrl, '_blank')}
+						onClick={() =>
+							window.open(resumeData.jobPostingUrl, '_blank')
+						}
 						variant="outlined"
 						size="small"
 						sx={{

@@ -44,45 +44,63 @@ export const FileManagerToolbar: FC = observer(() => {
 		<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
 			{/* API Resumes Dropdown */}
 			{resumes.length > 0 && (
-				<FormControl size="small" sx={{ minWidth: 180 }}>
-					<InputLabel sx={{ color: 'white' }}>
-						Backend Resume
-					</InputLabel>
-					<Select
-						value={selectedApiResumeId ?? ''}
-						label="Backend Resume"
-						onChange={(e) => {
-							const resumeId = e.target.value;
-							selectApiResume(resumeId);
-							navigate({
-								to: '/editor/$resumeId',
-								params: { resumeId },
-							});
-						}}
-						disabled={isLoading}
-						sx={{
-							color: 'white',
-							'.MuiOutlinedInput-notchedOutline': {
-								borderColor: 'rgba(255, 255, 255, 0.3)',
-							},
-							'&:hover .MuiOutlinedInput-notchedOutline': {
-								borderColor: 'rgba(255, 255, 255, 0.5)',
-							},
-							'&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-								borderColor: 'white',
-							},
-							'.MuiSvgIcon-root': {
+				<Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+					<FormControl size="small" sx={{ minWidth: 180 }}>
+						<InputLabel sx={{ color: 'white' }}>
+							Backend Resume
+						</InputLabel>
+						<Select
+							value={selectedApiResumeId ?? ''}
+							label="Backend Resume"
+							onChange={(e) => {
+								const resumeId = e.target.value;
+								selectApiResume(resumeId);
+								navigate({
+									to: '/editor/$resumeId',
+									params: { resumeId },
+								});
+							}}
+							disabled={isLoading}
+							sx={{
 								color: 'white',
-							},
-						}}
-					>
-						{resumes.map((resume) => (
-							<MenuItem key={resume._id} value={resume._id}>
-								{resume.name}
-							</MenuItem>
-						))}
-					</Select>
-				</FormControl>
+								'.MuiOutlinedInput-notchedOutline': {
+									borderColor: 'rgba(255, 255, 255, 0.3)',
+								},
+								'&:hover .MuiOutlinedInput-notchedOutline': {
+									borderColor: 'rgba(255, 255, 255, 0.5)',
+								},
+								'&.Mui-focused .MuiOutlinedInput-notchedOutline':
+									{
+										borderColor: 'white',
+									},
+								'.MuiSvgIcon-root': {
+									color: 'white',
+								},
+							}}
+						>
+							{resumes.map((resume) => (
+								<MenuItem key={resume._id} value={resume._id}>
+									{resume.name}
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+
+					<Tooltip title="Refresh resumes">
+						<IconButton
+							size="small"
+							onClick={() => resumeStore.refetch()}
+							sx={{
+								color: 'white',
+								'&:hover': {
+									backgroundColor: 'rgba(255, 255, 255, 0.1)',
+								},
+							}}
+						>
+							<RefreshIcon fontSize="small" />
+						</IconButton>
+					</Tooltip>
+				</Box>
 			)}
 
 			{/* Local Files Section */}

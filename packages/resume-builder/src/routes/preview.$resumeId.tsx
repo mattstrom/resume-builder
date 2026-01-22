@@ -13,7 +13,10 @@ import '../App.css';
 
 const previewSearchSchema = z
 	.object({
-		template: z.enum(['basic', 'column', 'grid']).optional().default('basic'),
+		template: z
+			.enum(['basic', 'column', 'grid'])
+			.optional()
+			.default('basic'),
 		showMarginPattern: z.coerce.boolean().optional().default(true),
 	})
 	.catch({
@@ -25,22 +28,37 @@ export const Route = createFileRoute('/preview/$resumeId')({
 	validateSearch: previewSearchSchema,
 
 	loader: async ({ context, params }) => {
+		const { resumeStore } = context.store;
 		const { resumeId } = params;
 		const {
 			store: { client },
 		} = context;
 
 		try {
-			const result = await client.query<{ getResume: Resume }>({
-				query: GET_RESUME,
-				variables: { id: resumeId },
-			});
+			const { data: result } = await resumeStore.refetch();
 
-			if (!result.data?.getResume) {
+			if (!result) {
 				throw new Error('Resume not found');
 			}
 
-			return result.data.getResume;
+			const resumes = result.listResumes;
+			const resume = resumes.find((resume) => resume._id === resumeId);
+
+			if (!resume) {
+				throw new Error('Resume not found');
+			}
+
+			return resume;
+			// const result = await client.query<{ getResume: Resume }>({
+			// 	query: GET_RESUME,
+			// 	variables: { id: resumeId },
+			// });
+			//
+			// if (!result.data?.getResume) {
+			// 	throw new Error('Resume not found');
+			// }
+			//
+			// return result.data.getResume;
 		} catch (error) {
 			// Handle GraphQL errors that indicate resume not found
 			if (

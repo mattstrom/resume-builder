@@ -42,6 +42,8 @@ The project consists of multiple packages working together:
 ### Frontend (`@mattstrom/resume-builder`)
 
 - `npm run dev` or `nx serve @mattstrom/resume-builder` - Start dev server
+  - DO NOT start the frontend yourself. I will start it myself.
+
 - `nx build @mattstrom/resume-builder` - Build the application
 - `nx build @mattstrom/resume-builder --config vite.lib.config.ts` - Build as
   library
@@ -50,6 +52,8 @@ The project consists of multiple packages working together:
 
 - `npm run start:dev` - Start backend in watch mode
 - `npm run start:prod` - Start backend in production mode
+
+DO NOT start the backend yourself. I will start it myself.
 
 ### CRDT Server (`@resume-builder/crdt`)
 

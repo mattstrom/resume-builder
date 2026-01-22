@@ -23,6 +23,10 @@ export class ResumeStore {
 		return this.query.data.listResumes;
 	}
 
+	async refetch() {
+		return this.query.refetch();
+	}
+
 	constructor(readonly rootStore: RootStore) {
 		this.query = ApolloMobxWrapper.create<{ listResumes: Resume[] }, {}>(
 			rootStore.client,

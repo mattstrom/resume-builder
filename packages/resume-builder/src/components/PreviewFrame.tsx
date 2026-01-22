@@ -1,24 +1,35 @@
-import { type FC, useMemo } from 'react';
-import { useFileManager } from './FileManager';
+import { observer } from 'mobx-react';
+import { type FC } from 'react';
 import { useSettings } from './Settings.provider.tsx';
 
-export const PreviewFrame: FC = () => {
-	const { resumeData } = useFileManager();
+interface PreviewFrameProps {
+	resumeId: string;
+}
+
+export const PreviewFrame: FC<PreviewFrameProps> = observer(({ resumeId }) => {
+	// const { resumeData } = useFileManager();
 	const { template, showMarginPattern } = useSettings();
 
-	// Construct iframe src URL from resume ID and settings
-	const iframeSrc = useMemo(() => {
-		if (!resumeData?._id) {
-			return null;
-		}
+	const params = new URLSearchParams({
+		template,
+		showMarginPattern: String(showMarginPattern),
+	});
 
-		const params = new URLSearchParams({
-			template,
-			showMarginPattern: String(showMarginPattern),
-		});
+	const iframeSrc = `/preview/${resumeId}?${params}`;
 
-		return `/preview/${resumeData._id}?${params.toString()}`;
-	}, [resumeData?._id, template, showMarginPattern]);
+	// // Construct iframe src URL from resume ID and settings
+	// const iframeSrc = useMemo(() => {
+	// 	if (!resumeData?._id) {
+	// 		return null;
+	// 	}
+	//
+	// 	const params = new URLSearchParams({
+	// 		template,
+	// 		showMarginPattern: String(showMarginPattern),
+	// 	});
+	//
+	// 	return `/preview/${resumeData._id}?${params.toString()}`;
+	// }, [resumeData?._id, template, showMarginPattern]);
 
 	if (!iframeSrc) {
 		return (
@@ -56,4 +67,4 @@ export const PreviewFrame: FC = () => {
 			/>
 		</div>
 	);
-};
+});
