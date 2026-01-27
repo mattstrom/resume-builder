@@ -1,12 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import type { Resume } from '@resume-builder/entities';
+
 import { ResumeProvider } from '../components/Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from '../components/layouts';
 import { GridLayout } from '../components/layouts/GridLayout.tsx';
 import { RouteError } from '../components/RouteError.tsx';
 import { RouteLoading } from '../components/RouteLoading.tsx';
-import { GET_RESUME } from '../graphql/queries.ts';
 
 // Import CSS for proper styling
 import '../App.css';
@@ -30,9 +29,6 @@ export const Route = createFileRoute('/preview/$resumeId')({
 	loader: async ({ context, params }) => {
 		const { resumeStore } = context.store;
 		const { resumeId } = params;
-		const {
-			store: { client },
-		} = context;
 
 		try {
 			const { data: result } = await resumeStore.refetch();
@@ -49,16 +45,6 @@ export const Route = createFileRoute('/preview/$resumeId')({
 			}
 
 			return resume;
-			// const result = await client.query<{ getResume: Resume }>({
-			// 	query: GET_RESUME,
-			// 	variables: { id: resumeId },
-			// });
-			//
-			// if (!result.data?.getResume) {
-			// 	throw new Error('Resume not found');
-			// }
-			//
-			// return result.data.getResume;
 		} catch (error) {
 			// Handle GraphQL errors that indicate resume not found
 			if (
@@ -98,8 +84,10 @@ function PreviewComponent() {
 	const className = showMarginPattern ? 'show-margin-pattern' : '';
 
 	return (
-		<ResumeProvider data={resumeData}>
-			<div className={className}>{templateComponent}</div>
-		</ResumeProvider>
+		<div className="preview-frame">
+			<ResumeProvider data={resumeData}>
+				<div className={className}>{templateComponent}</div>
+			</ResumeProvider>
+		</div>
 	);
 }

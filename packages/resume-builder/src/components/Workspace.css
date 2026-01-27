@@ -53,17 +53,14 @@
 /* Review mode styling */
 .workspace-review {
 	display: flex;
-	justify-content: center;
 	align-items: flex-start;
 	width: 100%;
 	height: calc(100vh - 64px);
 	background-color: #1e1e1e;
-	padding: 2rem;
 	overflow: auto;
 }
 
 .workspace-review > * {
-	max-width: 1200px; /* Comfortable viewing width */
 	width: 100%;
 }
 
