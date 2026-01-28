@@ -7,6 +7,7 @@ import {
 	ProjectsSection,
 	SkillsSection,
 	SummarySection,
+	VolunteeringSection,
 	WorkExperience,
 } from '../sections/index.ts';
 import { Layout } from './Layout.tsx';
@@ -15,7 +16,7 @@ import './BasicLayout.css';
 
 export const BasicLayout: FC = () => {
 	return (
-		<Layout name='basic'>
+		<Layout name="basic">
 			<Page>
 				<Masthead />
 				<SummarySection />
@@ -25,6 +26,7 @@ export const BasicLayout: FC = () => {
 			</Page>
 			<Page>
 				<ProjectsSection />
+				<VolunteeringSection />
 			</Page>
 		</Layout>
 	);

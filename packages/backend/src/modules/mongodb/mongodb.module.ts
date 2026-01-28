@@ -16,6 +16,8 @@ import {
 	ResumeSchema,
 	Skill,
 	SkillSchema,
+	Volunteering,
+	VolunteeringSchema,
 } from '@resume-builder/entities';
 
 @Module({
@@ -28,6 +30,7 @@ import {
 			{ name: Job.name, schema: JobSchema },
 			{ name: Project.name, schema: ProjectSchema },
 			{ name: Skill.name, schema: SkillSchema },
+			{ name: Volunteering.name, schema: VolunteeringSchema },
 		]),
 	],
 	exports: [MongooseModule],

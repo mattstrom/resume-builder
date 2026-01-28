@@ -6,6 +6,7 @@ export * from './models/job.js';
 export * from './models/project.js';
 export * from './models/skill.js';
 export * from './models/skill-group.js';
+export * from './models/volunteering.js';
 
 export * from './models/resume-content.js';
 export * from './models/resume.js';

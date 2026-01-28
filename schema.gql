@@ -55,6 +55,17 @@ type SkillGroup {
   items: [String!]!
 }
 
+"""Volunteering"""
+type Volunteering {
+  _id: ID!
+  organization: String
+  position: String!
+  location: String
+  startDate: String!
+  endDate: String
+  responsibilities: [String!]!
+}
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -69,6 +80,7 @@ type ResumeContent {
   skills: [Skill!]
   skillGroups: [SkillGroup!]
   projects: [Project!]!
+  volunteering: [Volunteering!]!
 }
 
 """Resume"""
@@ -90,6 +102,7 @@ type Query {
   findEducation(id: String!): Education!
   listProjects: [Project!]!
   findProject(id: String!): Project!
+  listVolunteering: [Volunteering!]!
 }
 
 type Mutation {
@@ -100,6 +113,7 @@ type Mutation {
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
   createProject(project: ProjectInput!): Project!
+  createVolunteering(volunteering: VolunteeringInput!): Volunteering!
 }
 
 input ResumeCreateInput {
@@ -121,6 +135,7 @@ input ResumeContentInput {
   projects: [ProjectInput!]!
   skills: [SkillInput!]
   skillGroups: [SkillGroupInput!]
+  volunteering: [VolunteeringInput!]
 }
 
 input JobInput {
@@ -159,6 +174,16 @@ input SkillInput {
 input SkillGroupInput {
   name: String!
   items: [String!]!
+  _id: ID
+}
+
+input VolunteeringInput {
+  organization: String
+  position: String!
+  location: String
+  startDate: String!
+  endDate: String
+  responsibilities: [String!]!
   _id: ID
 }
 

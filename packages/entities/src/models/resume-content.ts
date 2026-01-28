@@ -6,12 +6,27 @@ import {
 	ContactInformationInput,
 	ContactInformationSchema,
 	contactInformationSchema,
-} from './contact-information';
-import { Education, educationSchema, EducationSchema } from './education';
-import { Job, JobInput, JobSchema, jobSchema } from './job';
-import { Project, ProjectInput, ProjectSchema, projectSchema } from './project';
-import { Skill, SkillInput, SkillSchema, skillSchema } from './skill';
-import { SkillGroup, SkillGroupInput, SkillGroupSchema } from './skill-group';
+} from './contact-information.js';
+import { Education, educationSchema, EducationSchema } from './education.js';
+import { Job, JobInput, JobSchema, jobSchema } from './job.js';
+import {
+	Project,
+	ProjectInput,
+	ProjectSchema,
+	projectSchema,
+} from './project.js';
+import { Skill, SkillInput, SkillSchema, skillSchema } from './skill.js';
+import {
+	SkillGroup,
+	SkillGroupInput,
+	SkillGroupSchema,
+} from './skill-group.js';
+import {
+	Volunteering,
+	VolunteeringInput,
+	volunteeringSchema,
+	VolunteeringSchema,
+} from './volunteering.js';
 
 @Schema({ versionKey: false })
 @ObjectType({
@@ -57,6 +72,10 @@ export class ResumeContent {
 	@Field(() => [Project])
 	@Prop({ type: [ProjectSchema], default: [] })
 	projects: Project[];
+
+	@Field(() => [Volunteering])
+	@Prop({ type: [VolunteeringSchema], default: [] })
+	volunteering?: Volunteering[];
 }
 
 @InputType()
@@ -90,6 +109,9 @@ export class ResumeContentInput {
 
 	@Field(() => [SkillGroupInput], { nullable: true })
 	skillGroups?: SkillGroupInput[];
+
+	@Field(() => [VolunteeringInput], { nullable: true })
+	volunteering?: VolunteeringInput[];
 }
 
 export const ResumeContentSchema = SchemaFactory.createForClass(ResumeContent);
@@ -104,4 +126,5 @@ export const resumeContentSchema = z.object({
 	education: z.array(educationSchema),
 	skills: z.array(skillSchema),
 	projects: z.array(projectSchema),
+	volunteering: z.array(volunteeringSchema).optional(),
 });

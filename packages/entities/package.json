@@ -7,8 +7,9 @@
   "scripts": {
     "clean": "del-cli dist",
     "prebuild": "npm run clean",
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "build": "tsc --build --clean",
+    "prewatch": "npm run clean",
+    "watch": "tsc --build --watch",
     "dev": "node dist/test.js",
     "test": "nx vite:test",
     "load": "node dist/data/loader.js",

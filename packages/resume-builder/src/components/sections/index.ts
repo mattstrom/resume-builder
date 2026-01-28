@@ -8,4 +8,5 @@ export * from './Masthead.tsx';
 export * from './ProjectsSection.tsx';
 export * from './SkillsSection.tsx';
 export * from './SummarySection.tsx';
+export * from './VolunteeringSection.tsx';
 export * from './WorkExperience.tsx';

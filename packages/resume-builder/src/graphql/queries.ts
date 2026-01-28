@@ -53,6 +53,17 @@ const skillGroupFragment = gql`
 	}
 `;
 
+const volunteeringFragment = gql`
+	fragment Volunteering on Volunteering {
+		organization
+		position
+		location
+		startDate
+		endDate
+		responsibilities
+	}
+`;
+
 const resumeContentFragment = gql`
 	fragment ResumeContent on ResumeContent {
 		name
@@ -76,6 +87,9 @@ const resumeContentFragment = gql`
 		projects {
 			...Project
 		}
+		volunteering {
+			...Volunteering
+		}
 	}
 
 	${contactInformationFragment}
@@ -84,6 +98,7 @@ const resumeContentFragment = gql`
 	${projectFragment}
 	${skillFragment}
 	${skillGroupFragment}
+	${volunteeringFragment}
 `;
 
 export const LIST_RESUMES = gql`

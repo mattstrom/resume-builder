@@ -15,7 +15,7 @@ import {
 	ResumeContentInput,
 	ResumeContentSchema,
 	resumeContentSchema,
-} from './resume-content';
+} from './resume-content.js';
 
 export type ResumeDocument = HydratedDocument<Resume>;
 
