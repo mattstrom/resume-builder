@@ -5,7 +5,10 @@ import { Section } from './Section.tsx';
 
 function formatDate(dateString: string): string {
 	const date = new Date(dateString);
-	return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+	return date.toLocaleDateString('en-US', {
+		year: 'numeric',
+		timeZone: 'UTC',
+	});
 }
 
 interface VolunteeringSectionProps {}
@@ -34,7 +37,7 @@ const VolunteeringPosition: FC<VolunteeringProps> = ({ volunteering }) => {
 	return (
 		<section className="volunteering">
 			<header>
-				<strong>{volunteering.position}</strong>
+				<h3>{volunteering.position}</h3>
 				<span>{' | '}</span>
 				<time>
 					<span className="start-date">
