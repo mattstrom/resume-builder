@@ -171,6 +171,47 @@
       },
       "required": ["name", "category"]
     },
+    "Volunteering": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "description": "MongoDB ObjectId"
+        },
+        "__v": {
+          "type": "number",
+          "description": "MongoDB version key"
+        },
+        "organization": {
+          "type": "string"
+        },
+        "position": {
+          "type": "string",
+          "default": ""
+        },
+        "location": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "default": ""
+        },
+        "endDate": {
+          "type": "string"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "position",
+        "startDate",
+        "responsibilities"
+      ]
+    },
     "SkillGroup": {
       "type": "object",
       "properties": {
@@ -245,6 +286,13 @@
             "$ref": "#/$defs/Project"
           },
           "default": []
+        },
+        "volunteering": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Volunteering"
+          },
+          "default": []
         }
       },
       "required": [
@@ -255,7 +303,8 @@
         "workExperience",
         "education",
         "skills",
-        "projects"
+        "projects",
+        "volunteering"
       ]
     }
   }
