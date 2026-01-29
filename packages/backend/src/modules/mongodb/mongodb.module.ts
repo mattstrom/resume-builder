@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
 	ContactInformation,
 	ContactInformationSchema,
+	CoverLetter,
+	CoverLetterSchema,
 	Education,
 	EducationSchema,
 	Job,
@@ -31,6 +33,7 @@ import {
 			{ name: Project.name, schema: ProjectSchema },
 			{ name: Skill.name, schema: SkillSchema },
 			{ name: Volunteering.name, schema: VolunteeringSchema },
+			{ name: CoverLetter.name, schema: CoverLetterSchema },
 		]),
 	],
 	exports: [MongooseModule],

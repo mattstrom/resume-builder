@@ -66,6 +66,15 @@ type Volunteering {
   responsibilities: [String!]!
 }
 
+"""Cover Letter"""
+type CoverLetter {
+  _id: ID!
+  name: String!
+  company: String!
+  jobPostingUrl: String!
+  content: String!
+}
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -103,6 +112,8 @@ type Query {
   listProjects: [Project!]!
   findProject(id: String!): Project!
   listVolunteering: [Volunteering!]!
+  listCoverLetters: [CoverLetter!]!
+  getCoverLetter(id: String!): CoverLetter!
 }
 
 type Mutation {
@@ -114,6 +125,9 @@ type Mutation {
   deleteEducation(id: String!): Boolean!
   createProject(project: ProjectInput!): Project!
   createVolunteering(volunteering: VolunteeringInput!): Volunteering!
+  createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
+  updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
+  patchCoverLetter(id: String!, update: JSON!): CoverLetter!
 }
 
 input ResumeCreateInput {
@@ -206,4 +220,18 @@ input EducationInput {
   institution: String!
   graduated: String!
   _id: ID
+}
+
+input CoverLetterInput {
+  name: String!
+  company: String!
+  jobPostingUrl: String!
+  content: String!
+}
+
+input CoverLetterUpdateInput {
+  name: String
+  company: String
+  jobPostingUrl: String
+  content: String
 }

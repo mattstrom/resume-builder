@@ -7,6 +7,7 @@ import { SkillsModule } from './skills/skills.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ContactInformationModule } from './contact-information/contact-information.module';
 import { VolunteeringModule } from './volunteering/volunteering.module';
+import { CoverLettersModule } from './cover-letters/cover-letters.module';
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { VolunteeringModule } from './volunteering/volunteering.module';
 		ProjectsModule,
 		ContactInformationModule,
 		VolunteeringModule,
+		CoverLettersModule,
 	],
 })
 export class EntitiesModule {}

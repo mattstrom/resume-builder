@@ -212,6 +212,36 @@
         "responsibilities"
       ]
     },
+    "CoverLetter": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "description": "MongoDB ObjectId"
+        },
+        "name": {
+          "type": "string",
+          "default": ""
+        },
+        "company": {
+          "type": "string",
+          "default": ""
+        },
+        "jobPostingUrl": {
+          "type": "string",
+          "default": ""
+        },
+        "content": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "name",
+        "company",
+        "jobPostingUrl",
+        "content"
+      ]
+    },
     "SkillGroup": {
       "type": "object",
       "properties": {

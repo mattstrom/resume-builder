@@ -3,6 +3,8 @@ import { Resolver, Tool } from '@nestjs-mcp/server';
 import { InjectModel } from '@nestjs/mongoose';
 import {
 	ContactInformation,
+	CoverLetter,
+	coverLetterSchema,
 	Education,
 	Job,
 	Project,
@@ -30,6 +32,9 @@ export class ResumesResolver {
 		>,
 		@InjectModel(Education.name) private readonly educationModel: Model<
 			Education
+		>,
+		@InjectModel(CoverLetter.name) private readonly coverLetterModel: Model<
+			CoverLetter
 		>,
 	) {}
 
@@ -211,6 +216,55 @@ export class ResumesResolver {
 			],
 			structuredContent: {
 				skills,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'get_cover_letters',
+		description: 'Retrieve cover letters from the database',
+		annotations: {
+			destructureHint: false,
+			idempotentHint: true,
+		},
+	})
+	async getCoverLetters(): Promise<CallToolResult> {
+		const coverLetters = await this.coverLetterModel.find().exec();
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Found ${coverLetters.length} cover letters.`,
+				},
+			],
+			structuredContent: {
+				coverLetters,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'save_cover_letter',
+		description: 'Saves a cover letter to the database',
+		paramsSchema: { coverLetter: coverLetterSchema },
+		annotations: {
+			destructureHint: true,
+			idempotentHint: false,
+		},
+	})
+	async saveCoverLetter({ coverLetter }: { coverLetter: CoverLetter }) {
+		const savedCoverLetter = await this.coverLetterModel.create(coverLetter);
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Cover letter saved successfully. ID: ${savedCoverLetter._id}`,
+				},
+			],
+			structuredContent: {
+				coverLetter: savedCoverLetter,
 			},
 		};
 	}
