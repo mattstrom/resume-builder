@@ -13,6 +13,7 @@ import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
 import { Route as PreviewResumeIdRouteImport } from './routes/preview.$resumeId'
+import { Route as ExportResumeIdRouteImport } from './routes/export.$resumeId'
 import { Route as EditorResumeIdRouteImport } from './routes/editor/$resumeId'
 import { Route as EditorLocalFilenameRouteImport } from './routes/editor/local/$filename'
 
@@ -36,6 +37,11 @@ const PreviewResumeIdRoute = PreviewResumeIdRouteImport.update({
   path: '/preview/$resumeId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExportResumeIdRoute = ExportResumeIdRouteImport.update({
+  id: '/export/$resumeId',
+  path: '/export/$resumeId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorResumeIdRoute = EditorResumeIdRouteImport.update({
   id: '/$resumeId',
   path: '/$resumeId',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
   '/editor/$resumeId': typeof EditorResumeIdRoute
+  '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/local/$filename': typeof EditorLocalFilenameRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/editor'
     | '/editor/$resumeId'
+    | '/export/$resumeId'
     | '/preview/$resumeId'
     | '/editor/'
     | '/editor/local/$filename'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/editor/$resumeId'
+    | '/export/$resumeId'
     | '/preview/$resumeId'
     | '/editor'
     | '/editor/local/$filename'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
     | '/'
     | '/editor'
     | '/editor/$resumeId'
+    | '/export/$resumeId'
     | '/preview/$resumeId'
     | '/editor/'
     | '/editor/local/$filename'
@@ -100,6 +112,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditorRoute: typeof EditorRouteWithChildren
+  ExportResumeIdRoute: typeof ExportResumeIdRoute
   PreviewResumeIdRoute: typeof PreviewResumeIdRoute
 }
 
@@ -131,6 +144,13 @@ declare module '@tanstack/react-router' {
       path: '/preview/$resumeId'
       fullPath: '/preview/$resumeId'
       preLoaderRoute: typeof PreviewResumeIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export/$resumeId': {
+      id: '/export/$resumeId'
+      path: '/export/$resumeId'
+      fullPath: '/export/$resumeId'
+      preLoaderRoute: typeof ExportResumeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor/$resumeId': {
@@ -168,6 +188,7 @@ const EditorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditorRoute: EditorRouteWithChildren,
+  ExportResumeIdRoute: ExportResumeIdRoute,
   PreviewResumeIdRoute: PreviewResumeIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -5,22 +5,18 @@ interface ResumeData {
 
 /**
  * Generates a PDF via the backend Puppeteer endpoint and triggers download.
- * Captures the rendered HTML from the preview iframe and sends it to the backend.
+ * Captures the rendered HTML and sends it to the backend for PDF generation.
  * @param resumeData Resume data containing name and company for filename
+ * @param sourceDocument Document to capture HTML from. Defaults to
+ *   the preview iframe's contentDocument when omitted.
  * @throws Error if the PDF generation request fails
  */
-export async function generatePDF(resumeData: ResumeData): Promise<void> {
-	const iframe = document.getElementById(
-		'resume-preview-iframe',
-	) as HTMLIFrameElement | null;
-
-	if (!iframe?.contentDocument) {
-		throw new Error(
-			'Preview not available. Please wait for preview to load.',
-		);
-	}
-
-	const html = iframe.contentDocument.documentElement.outerHTML;
+export async function generatePDF(
+	resumeData: ResumeData,
+	sourceDocument?: Document,
+): Promise<void> {
+	const doc = sourceDocument ?? getPreviewDocument();
+	const html = doc.documentElement.outerHTML;
 
 	const response = await fetch('/api/pdf', {
 		method: 'POST',
@@ -43,6 +39,20 @@ export async function generatePDF(resumeData: ResumeData): Promise<void> {
 	a.click();
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
+}
+
+function getPreviewDocument(): Document {
+	const iframe = document.getElementById(
+		'resume-preview-iframe',
+	) as HTMLIFrameElement | null;
+
+	if (!iframe?.contentDocument) {
+		throw new Error(
+			'Preview not available. Please wait for preview to load.',
+		);
+	}
+
+	return iframe.contentDocument;
 }
 
 /**
