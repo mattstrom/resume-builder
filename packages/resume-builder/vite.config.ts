@@ -15,6 +15,15 @@ export default defineConfig({
 			generatedRouteTree: path.resolve(__dirname, './src/routeTree.gen.ts'),
 		}),
 	],
+	server: {
+		proxy: {
+			'/api': {
+				target: 'http://localhost:3000',
+				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, ''),
+			},
+		},
+	},
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),

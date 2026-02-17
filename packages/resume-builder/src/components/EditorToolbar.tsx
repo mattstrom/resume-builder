@@ -85,7 +85,7 @@ export const EditorToolbar: FC = () => {
 	const onExportPDF = async () => {
 		setIsExporting(true);
 		try {
-			await generatePDF(resumeId!, resumeData || {});
+			await generatePDF(resumeData || {});
 			showSnackbar('PDF exported successfully!', 'success');
 		} catch (error) {
 			const message =

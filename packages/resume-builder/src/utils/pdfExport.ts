@@ -4,16 +4,29 @@ interface ResumeData {
 }
 
 /**
- * Generates a PDF via the backend Puppeteer endpoint and triggers download
- * @param resumeId The resume ID to export
+ * Generates a PDF via the backend Puppeteer endpoint and triggers download.
+ * Captures the rendered HTML from the preview iframe and sends it to the backend.
  * @param resumeData Resume data containing name and company for filename
  * @throws Error if the PDF generation request fails
  */
-export async function generatePDF(
-	resumeId: string,
-	resumeData: ResumeData,
-): Promise<void> {
-	const response = await fetch(`http://localhost:3000/pdf/${resumeId}`);
+export async function generatePDF(resumeData: ResumeData): Promise<void> {
+	const iframe = document.getElementById(
+		'resume-preview-iframe',
+	) as HTMLIFrameElement | null;
+
+	if (!iframe?.contentDocument) {
+		throw new Error(
+			'Preview not available. Please wait for preview to load.',
+		);
+	}
+
+	const html = iframe.contentDocument.documentElement.outerHTML;
+
+	const response = await fetch('/api/pdf', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ html }),
+	});
 
 	if (!response.ok) {
 		throw new Error('Failed to generate PDF. Please try again.');
