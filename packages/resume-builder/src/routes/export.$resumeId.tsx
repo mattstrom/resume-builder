@@ -7,7 +7,7 @@ import { BasicLayout, ColumnLayout } from '../components/layouts';
 import { GridLayout } from '../components/layouts/GridLayout.tsx';
 import { RouteError } from '../components/RouteError.tsx';
 import { RouteLoading } from '../components/RouteLoading.tsx';
-import { generatePDF } from '../utils/pdfExport';
+import { generatePDFFromHTML } from '../utils/pdfExport';
 
 import '../App.css';
 
@@ -72,14 +72,25 @@ function ExportComponent() {
     if (hasExported.current) return;
     hasExported.current = true;
 
-    generatePDF(resumeData, document)
-      .then(() => setStatus('done'))
-      .catch((err) => {
-        setErrorMessage(
-          err instanceof Error ? err.message : 'Failed to export PDF',
-        );
-        setStatus('error');
-      });
+    // Defer to next frame so the resume content renders first,
+    // then snapshot the HTML before the overlay can interfere.
+    requestAnimationFrame(() => {
+      const clone = document.documentElement.cloneNode(true) as HTMLElement;
+      // Remove the overlay from the cloned document
+      const overlay = clone.querySelector('[data-export-overlay]');
+      overlay?.remove();
+
+      const html = `<!DOCTYPE html>${clone.outerHTML}`;
+
+      generatePDFFromHTML(html, resumeData)
+        .then(() => setStatus('done'))
+        .catch((err) => {
+          setErrorMessage(
+            err instanceof Error ? err.message : 'Failed to export PDF',
+          );
+          setStatus('error');
+        });
+    });
   }, [resumeData]);
 
   const templateComponent = (() => {
@@ -101,6 +112,7 @@ function ExportComponent() {
       </ResumeProvider>
 
       <div
+        data-export-overlay
         style={{
           position: 'fixed',
           inset: 0,

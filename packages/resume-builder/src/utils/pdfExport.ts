@@ -41,6 +41,36 @@ export async function generatePDF(
 	URL.revokeObjectURL(url);
 }
 
+/**
+ * Generates a PDF from a pre-captured HTML string and triggers download.
+ */
+export async function generatePDFFromHTML(
+	html: string,
+	resumeData: ResumeData,
+): Promise<void> {
+	const response = await fetch('/api/pdf', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ html }),
+	});
+
+	if (!response.ok) {
+		throw new Error('Failed to generate PDF. Please try again.');
+	}
+
+	const blob = await response.blob();
+	const url = URL.createObjectURL(blob);
+	const filename = generateFilename(resumeData);
+
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = filename;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
+
 function getPreviewDocument(): Document {
 	const iframe = document.getElementById(
 		'resume-preview-iframe',
