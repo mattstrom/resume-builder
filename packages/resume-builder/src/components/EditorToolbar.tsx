@@ -85,7 +85,7 @@ export const EditorToolbar: FC = () => {
 	const onExportPDF = async () => {
 		setIsExporting(true);
 		try {
-			await generatePDF(resumeData || {});
+			await generatePDF(resumeId!, resumeData || {});
 			showSnackbar('PDF exported successfully!', 'success');
 		} catch (error) {
 			const message =
@@ -139,17 +139,11 @@ export const EditorToolbar: FC = () => {
 
 				<h1 className="text-xl font-semibold">Resume Builder</h1>
 
-				<Separator
-					orientation="vertical"
-					className="h-6 bg-white/30"
-				/>
+				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
 				<FileManagerToolbar />
 
-				<Separator
-					orientation="vertical"
-					className="h-6 bg-white/30"
-				/>
+				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
 				<ToggleGroup
 					value={editorMode}
@@ -163,10 +157,7 @@ export const EditorToolbar: FC = () => {
 					]}
 				/>
 
-				<Separator
-					orientation="vertical"
-					className="h-6 bg-white/30"
-				/>
+				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
 				<div className="flex items-center gap-2">
 					<Label htmlFor="template" className="text-white text-sm">
@@ -191,7 +182,7 @@ export const EditorToolbar: FC = () => {
 					<Checkbox
 						id="marginPattern"
 						checked={showMarginPattern}
-						onCheckedChange={setShowMarginPattern}
+						onCheckedChange={(checked) => setShowMarginPattern(checked === true)}
 						className="border-white/70 data-[state=checked]:bg-white data-[state=checked]:text-slate-900 data-[state=checked]:border-white"
 					/>
 					<Label

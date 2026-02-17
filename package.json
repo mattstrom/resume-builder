@@ -22,7 +22,6 @@
     "@nx/vite": "22.3.3",
     "@nx/vitest": "22.3.3",
     "@nx/web": "22.3.3",
-    "@types/html2canvas": "^0.5.35",
     "@vitest/ui": "^4.0.0",
     "commander": "^14.0.2",
     "del-cli": "^7.0.0",
@@ -36,8 +35,6 @@
     "vitest": "^4.0.17"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1",
-    "jspdf": "^4.0.0",
     "lightningcss": "^1.30.2"
   }
 }
