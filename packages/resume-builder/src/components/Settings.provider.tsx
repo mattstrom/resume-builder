@@ -15,6 +15,8 @@ interface Settings {
 	setShowMarginPattern: Dispatch<SetStateAction<boolean>>;
 	editorMode: 'json' | 'form' | 'review';
 	setEditorMode: Dispatch<SetStateAction<'json' | 'form' | 'review'>>;
+	sidebarOpen: boolean;
+	setSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const SettingsContext = createContext<Settings | null>(null);
@@ -28,6 +30,10 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [editorMode, setEditorMode] = useLocalStorage<
 		'json' | 'form' | 'review'
 	>('resume:editorMode', 'json');
+	const [sidebarOpen, setSidebarOpen] = useLocalStorage(
+		'resume:sidebarOpen',
+		true,
+	);
 
 	const settings = {
 		template,
@@ -36,6 +42,8 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		setShowMarginPattern,
 		editorMode,
 		setEditorMode,
+		sidebarOpen,
+		setSidebarOpen,
 	};
 
 	return (

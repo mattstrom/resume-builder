@@ -31,7 +31,7 @@ function EditorIndexComponent() {
 	// Show empty state if no resume is loaded
 	if (!resumeData) {
 		return (
-			<div className="flex flex-col items-center justify-center h-[calc(100vh-64px)] p-6 text-center">
+			<div className="flex flex-col items-center justify-center h-full p-6 text-center">
 				<h1 className="text-3xl font-bold mb-4 text-white">
 					No Resume Selected
 				</h1>

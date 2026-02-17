@@ -13,7 +13,7 @@ capabilities, organized as an Nx monorepo.
 The project consists of multiple packages working together:
 
 - **@mattstrom/resume-builder** (`packages/resume-builder`) - Main React
-  frontend application with Material-UI, Monaco editor, and Yjs for real-time
+  frontend application with ShadCN, Monaco editor, and Yjs for real-time
   collaborative editing
 - **@resume-builder/backend** (`packages/backend`) - NestJS backend with
   MongoDB (Mongoose), MCP server integration, and REST API endpoints
@@ -25,7 +25,7 @@ The project consists of multiple packages working together:
 
 ### Key Technologies
 
-- **Frontend**: React 19, Material-UI, Monaco Editor, Yjs for CRDT
+- **Frontend**: React 19, ShadCN, Monaco Editor, Yjs for CRDT
 - **Backend**: NestJS, MongoDB with Typegoose, Model Context Protocol (MCP)
 - **CRDT Server**: Hocuspocus for collaborative editing
 - **Build System**: Nx monorepo, Vite/Rolldown

@@ -1,6 +1,6 @@
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,12 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useSettings } from './Settings.provider.tsx';
 import { FileManagerToolbar, useFileManager } from './FileManager';
@@ -56,6 +62,8 @@ export const EditorToolbar: FC = () => {
 		setShowMarginPattern,
 		editorMode,
 		setEditorMode,
+		sidebarOpen,
+		setSidebarOpen,
 	} = useSettings();
 
 	const { resumeId } = useParams({ strict: false });
@@ -102,6 +110,33 @@ export const EditorToolbar: FC = () => {
 	return (
 		<header className="bg-slate-900 text-white border-b border-slate-800">
 			<div className="flex items-center gap-4 flex-wrap p-4">
+				<TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8"
+								onClick={() => setSidebarOpen((prev) => !prev)}
+								aria-label={
+									sidebarOpen
+										? 'Close sidebar'
+										: 'Open sidebar'
+								}
+							>
+								{sidebarOpen ? (
+									<PanelLeftClose className="h-5 w-5" />
+								) : (
+									<PanelLeftOpen className="h-5 w-5" />
+								)}
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">
+							Toggle sidebar (&#8984;B)
+						</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+
 				<h1 className="text-xl font-semibold">Resume Builder</h1>
 
 				<Separator
