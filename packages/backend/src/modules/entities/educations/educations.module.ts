@@ -13,5 +13,6 @@ import { EducationsService } from './educations.service';
 	],
 	controllers: [EducationsController],
 	providers: [EducationsService, EducationsResolver],
+	exports: [EducationsService],
 })
 export class EducationsModule {}

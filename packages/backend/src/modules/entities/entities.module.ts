@@ -9,17 +9,20 @@ import { ContactInformationModule } from './contact-information/contact-informat
 import { VolunteeringModule } from './volunteering/volunteering.module';
 import { CoverLettersModule } from './cover-letters/cover-letters.module';
 
+const imports = [
+	MongodbModule,
+	ResumesModule,
+	JobsModule,
+	SkillsModule,
+	EducationsModule,
+	ProjectsModule,
+	ContactInformationModule,
+	VolunteeringModule,
+	CoverLettersModule,
+];
+
 @Module({
-	imports: [
-		MongodbModule,
-		ResumesModule,
-		JobsModule,
-		SkillsModule,
-		EducationsModule,
-		ProjectsModule,
-		ContactInformationModule,
-		VolunteeringModule,
-		CoverLettersModule,
-	],
+	imports: [...imports],
+	exports: imports,
 })
 export class EntitiesModule {}

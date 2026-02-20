@@ -11,5 +11,6 @@ import { VolunteeringResolver } from './volunteering.resolver';
 		]),
 	],
 	providers: [VolunteeringResolver, VolunteeringService],
+	exports: [VolunteeringService],
 })
 export class VolunteeringModule {}

@@ -9,5 +9,6 @@ import { SkillsService } from './skills.service';
 		MongooseModule.forFeature([{ name: Skill.name, schema: SkillSchema }]),
 	],
 	providers: [SkillsResolver, SkillsService],
+	exports: [SkillsService],
 })
 export class SkillsModule {}
