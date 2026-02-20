@@ -17,6 +17,8 @@ interface Settings {
 	setEditorMode: Dispatch<SetStateAction<'json' | 'form' | 'review'>>;
 	sidebarOpen: boolean;
 	setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+	chatOpen: boolean;
+	setChatOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const SettingsContext = createContext<Settings | null>(null);
@@ -34,6 +36,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		'resume:sidebarOpen',
 		true,
 	);
+	const [chatOpen, setChatOpen] = useLocalStorage('resume:chatOpen', false);
 
 	const settings = {
 		template,
@@ -44,6 +47,8 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		setEditorMode,
 		sidebarOpen,
 		setSidebarOpen,
+		chatOpen,
+		setChatOpen,
 	};
 
 	return (

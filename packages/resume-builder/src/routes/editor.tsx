@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { useEffect } from 'react';
+import { ChatPanel } from '../components/ChatPanel.tsx';
 import { ResumeProvider } from '../components/Resume.provider.tsx';
 import { useFileManager } from '../components/FileManager';
 import { EditorToolbar } from '../components/EditorToolbar.tsx';
@@ -12,7 +13,7 @@ export const Route = createFileRoute('/editor')({
 
 function EditorLayout() {
 	const { resumeData } = useFileManager();
-	const { sidebarOpen, setSidebarOpen } = useSettings();
+	const { sidebarOpen, setSidebarOpen, chatOpen } = useSettings();
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
@@ -39,6 +40,7 @@ function EditorLayout() {
 						<Outlet />
 					)}
 				</div>
+				{chatOpen && <ChatPanel />}
 			</div>
 		</>
 	);

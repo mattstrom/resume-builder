@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { GraphQLModule } from './modules/graphql/graphql.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 			isGlobal: true,
 			load: [() => config],
 		}),
+		ChatModule,
 		EntitiesModule,
 		GraphQLModule,
 		McpModule,

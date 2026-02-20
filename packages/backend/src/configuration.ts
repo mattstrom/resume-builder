@@ -2,12 +2,19 @@ import config from 'config';
 import convict from 'convict';
 
 export interface Config {
+	anthropicApiKey: string;
 	mongodb: {
 		uri: string;
 	};
 }
 
 const schema = convict<Config>({
+	anthropicApiKey: {
+		doc: 'Anthropic API key for AI chat',
+		format: String,
+		default: '',
+		env: 'ANTHROPIC_API_KEY',
+	},
 	mongodb: {
 		uri: {
 			doc: 'MongoDB connection URI',

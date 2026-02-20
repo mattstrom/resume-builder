@@ -1,6 +1,11 @@
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
-import { Loader2, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import {
+	Loader2,
+	MessageCircle,
+	PanelLeftClose,
+	PanelLeftOpen,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -64,6 +69,8 @@ export const EditorToolbar: FC = () => {
 		setEditorMode,
 		sidebarOpen,
 		setSidebarOpen,
+		chatOpen,
+		setChatOpen,
 	} = useSettings();
 
 	const { resumeId } = useParams({ strict: false });
@@ -240,6 +247,37 @@ export const EditorToolbar: FC = () => {
 						Open Job Posting
 					</Button>
 				)}
+				<div className="ml-auto">
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Button
+									variant={chatOpen ? 'default' : 'ghost'}
+									size="icon"
+									className={cn(
+										'h-8 w-8',
+										chatOpen
+											? 'bg-white/20 text-white hover:bg-white/25'
+											: 'text-white/70 hover:text-white hover:bg-white/10',
+									)}
+									onClick={() =>
+										setChatOpen((prev) => !prev)
+									}
+									aria-label={
+										chatOpen
+											? 'Close chat'
+											: 'Open chat'
+									}
+								>
+									<MessageCircle className="h-5 w-5" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent side="bottom">
+								Toggle AI chat
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				</div>
 			</div>
 		</header>
 	);
