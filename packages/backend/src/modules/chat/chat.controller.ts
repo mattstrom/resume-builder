@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
-import { convertToModelMessages, streamText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
+import type { MessageParam } from '@anthropic-ai/sdk/resources/messages';
 import type { Response } from 'express';
 
 import { EducationsService } from '../entities/educations/educations.service';
@@ -8,6 +7,7 @@ import { JobsService } from '../entities/jobs/jobs.service';
 import { ProjectsService } from '../entities/projects/projects.service';
 import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
+import { streamAnthropicResponse } from './anthropic-stream-adapter';
 
 @Controller('api/chat')
 export class ChatController {
@@ -24,7 +24,7 @@ export class ChatController {
 		@Body() body: { messages: any[]; data?: { resumeId?: string } },
 		@Res() res: Response,
 	) {
-		const { messages, data } = body;
+		const { messages } = body;
 
 		const educations = await this.educationsService.findAll();
 		const skills = await this.skillsService.findAll();
@@ -32,35 +32,45 @@ export class ChatController {
 		const projects = await this.projectsService.findAll();
 		const volunteering = await this.volunteeringService.findAll();
 
-		let systemPrompt = `
+		const systemPrompt = `
 			You are the assistant to a hiring manager. The hiring manager will
 			provide you with a job description. Help the hiring manager
 			decide if the candidate is a strong fit.
-			
+
 			# Candidate Information
 			## Education
 			${JSON.stringify(educations)}
-			
+
 			## Work History
 			${JSON.stringify(jobs)}
-			
+
 			## Skills
 			${JSON.stringify(skills)}
-			
+
 			## Projects
 			${JSON.stringify(projects)}
-			
+
 			## Volunteering
 			${JSON.stringify(volunteering)}
 		`;
 
-		const result = streamText({
-			model: anthropic('claude-haiku-4-5-20251001'),
-			// model: anthropic('claude-sonnet-4-20250514'),
-			system: systemPrompt,
-			messages: await convertToModelMessages(messages),
-		});
+		// Convert useChat messages to Anthropic format
+		const anthropicMessages: MessageParam[] = messages.map((msg) => ({
+			role: msg.role as 'user' | 'assistant',
+			content:
+				typeof msg.content === 'string'
+					? msg.content
+					: (msg.parts
+							?.filter((p: any) => p.type === 'text')
+							.map((p: any) => p.text)
+							.join('') ?? ''),
+		}));
 
-		result.pipeUIMessageStreamToResponse(res);
+		await streamAnthropicResponse(res, {
+			model: 'claude-haiku-4-5-20251001',
+			// model: 'claude-sonnet-4-20250514',
+			system: systemPrompt,
+			messages: anthropicMessages,
+		});
 	}
 }

@@ -21,7 +21,7 @@
     "inspect": "npx --no-cache @modelcontextprotocol/inspector"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.46",
+    "@anthropic-ai/sdk": "^0.78.0",
     "@apollo/server": "^5.2.0",
     "@as-integrations/express5": "^1.1.2",
     "@modelcontextprotocol/sdk": "^1.25.1",
