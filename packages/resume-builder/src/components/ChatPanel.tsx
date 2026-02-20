@@ -1,7 +1,7 @@
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
-import { TextStreamChatTransport } from 'ai';
+import { DefaultChatTransport } from 'ai';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +28,7 @@ export const ChatPanel: FC = () => {
 	const [input, setInput] = useState('');
 
 	const { messages, sendMessage, status, stop } = useChat({
-		transport: new TextStreamChatTransport({
+		transport: new DefaultChatTransport({
 			api: 'http://localhost:3000/api/chat',
 			body: { data: { resumeId } },
 		}),
