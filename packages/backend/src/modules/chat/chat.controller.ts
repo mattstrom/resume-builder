@@ -2,21 +2,28 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages';
 import type { Response } from 'express';
 
+import { ContactInformationService } from '../entities/contact-information/contact-information.service';
+import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
 import { EducationsService } from '../entities/educations/educations.service';
 import { JobsService } from '../entities/jobs/jobs.service';
 import { ProjectsService } from '../entities/projects/projects.service';
+import { ResumesService } from '../entities/resumes/resumes.service';
 import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
 import { streamAnthropicResponse } from './anthropic-stream-adapter';
+import { chatTools, executeTool } from './chat-tools';
 
 @Controller('api/chat')
 export class ChatController {
 	constructor(
+		private readonly resumesService: ResumesService,
+		private readonly contactInformationService: ContactInformationService,
 		private readonly educationsService: EducationsService,
 		private readonly skillsService: SkillsService,
 		private readonly projectsService: ProjectsService,
 		private readonly jobsService: JobsService,
 		private readonly volunteeringService: VolunteeringService,
+		private readonly coverLettersService: CoverLettersService,
 	) {}
 
 	@Post()
@@ -26,32 +33,15 @@ export class ChatController {
 	) {
 		const { messages } = body;
 
-		const educations = await this.educationsService.findAll();
-		const skills = await this.skillsService.findAll();
-		const jobs = await this.jobsService.findAll();
-		const projects = await this.projectsService.findAll();
-		const volunteering = await this.volunteeringService.findAll();
-
 		const systemPrompt = `
 			You are the assistant to a hiring manager. The hiring manager will
 			provide you with a job description. Help the hiring manager
 			decide if the candidate is a strong fit.
 
-			# Candidate Information
-			## Education
-			${JSON.stringify(educations)}
-
-			## Work History
-			${JSON.stringify(jobs)}
-
-			## Skills
-			${JSON.stringify(skills)}
-
-			## Projects
-			${JSON.stringify(projects)}
-
-			## Volunteering
-			${JSON.stringify(volunteering)}
+			Use the available tools to retrieve the candidate's information
+			(education, work history, skills, projects, etc.) as needed to
+			answer the hiring manager's questions. Do not guess — always
+			fetch the data using tools before responding.
 		`;
 
 		// Convert useChat messages to Anthropic format
@@ -66,11 +56,23 @@ export class ChatController {
 							.join('') ?? ''),
 		}));
 
+		const services = {
+			resumesService: this.resumesService,
+			contactInformationService: this.contactInformationService,
+			educationsService: this.educationsService,
+			skillsService: this.skillsService,
+			projectsService: this.projectsService,
+			jobsService: this.jobsService,
+			volunteeringService: this.volunteeringService,
+			coverLettersService: this.coverLettersService,
+		};
+
 		await streamAnthropicResponse(res, {
 			model: 'claude-haiku-4-5-20251001',
-			// model: 'claude-sonnet-4-20250514',
 			system: systemPrompt,
 			messages: anthropicMessages,
+			tools: chatTools,
+			executeTool: (name, input) => executeTool(name, input, services),
 		});
 	}
 }

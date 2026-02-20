@@ -20,6 +20,13 @@ import {
 	PromptInputTextarea,
 	PromptInputSubmit,
 } from './ai-elements/prompt-input';
+import {
+	Tool,
+	ToolHeader,
+	ToolContent,
+	ToolInput,
+	ToolOutput,
+} from './ai-elements/tool';
 import { useSettings } from './Settings.provider';
 
 export const ChatPanel: FC = () => {
@@ -67,14 +74,61 @@ export const ChatPanel: FC = () => {
 											.map((p) => p.text)
 											.join('')
 									) : (
-										<MessageResponse>
-											{message.parts
-												.filter(
-													(p) => p.type === 'text',
-												)
-												.map((p) => p.text)
-												.join('')}
-										</MessageResponse>
+										<>
+											{message.parts.map((part, i) => {
+												if (part.type === 'text') {
+													return (
+														<MessageResponse
+															key={i}
+														>
+															{part.text}
+														</MessageResponse>
+													);
+												}
+												if (
+													part.type.startsWith(
+														'tool-',
+													)
+												) {
+													const toolPart =
+														part as any;
+													const toolName =
+														part.type.slice(5);
+													return (
+														<Tool key={i}>
+															<ToolHeader
+																type={
+																	part.type as any
+																}
+																state={
+																	toolPart.state
+																}
+																title={toolName}
+															/>
+															<ToolContent>
+																<ToolInput
+																	input={
+																		toolPart.input
+																	}
+																/>
+																{toolPart.output !==
+																	undefined && (
+																	<ToolOutput
+																		output={
+																			toolPart.output
+																		}
+																		errorText={
+																			toolPart.errorText
+																		}
+																	/>
+																)}
+															</ToolContent>
+														</Tool>
+													);
+												}
+												return null;
+											})}
+										</>
 									)}
 								</MessageContent>
 							</Message>

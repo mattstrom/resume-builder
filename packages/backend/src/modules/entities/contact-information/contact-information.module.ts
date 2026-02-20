@@ -15,5 +15,6 @@ import { ContactInformationService } from './contact-information.service';
 	],
 	controllers: [ContactInformationController],
 	providers: [ContactInformationService],
+	exports: [ContactInformationService],
 })
 export class ContactInformationModule {}
