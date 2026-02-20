@@ -5,10 +5,7 @@ import puppeteer from 'puppeteer';
 @Controller('pdf')
 export class PdfController {
 	@Post()
-	async generatePdf(
-		@Body('html') html: string,
-		@Res() res: Response,
-	) {
+	async generatePdf(@Body('html') html: string, @Res() res: Response) {
 		const browser = await puppeteer.launch({ headless: true });
 
 		try {

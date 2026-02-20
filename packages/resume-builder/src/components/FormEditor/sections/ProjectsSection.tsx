@@ -41,31 +41,34 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 		}
 	};
 
-	const handleChange = (index: number, field: keyof Project) => (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-	) => {
-		const newProjects = [...projects];
-		if (field === 'technologies') {
-			newProjects[index][field] = e.target.value
-				.split(',')
-				.map((t) => t.trim())
-				.filter((t) => t);
-		} else if (field === 'items') {
-			newProjects[index][field] = e.target.value
-				.split('\n')
-				.filter((line) => line.trim());
-		} else {
-			newProjects[index][field] = e.target.value as any;
-		}
-		onChange(newProjects);
-	};
+	const handleChange =
+		(index: number, field: keyof Project) =>
+		(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+			const newProjects = [...projects];
+			if (field === 'technologies') {
+				newProjects[index][field] = e.target.value
+					.split(',')
+					.map((t) => t.trim())
+					.filter((t) => t);
+			} else if (field === 'items') {
+				newProjects[index][field] = e.target.value
+					.split('\n')
+					.filter((line) => line.trim());
+			} else {
+				newProjects[index][field] = e.target.value as any;
+			}
+			onChange(newProjects);
+		};
 
 	const formatProjectTitle = (project: Project) =>
 		project.name || 'New Project';
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem value="projects" className="bg-card/5 border-white/10 px-4">
+			<AccordionItem
+				value="projects"
+				className="bg-card/5 border-white/10 px-4"
+			>
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Projects
 				</AccordionTrigger>
@@ -76,7 +79,9 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 							title={formatProjectTitle(project)}
 							expanded={expandedIndex === index}
 							onExpandChange={() =>
-								setExpandedIndex(expandedIndex === index ? null : index)
+								setExpandedIndex(
+									expandedIndex === index ? null : index,
+								)
 							}
 							onDelete={() => handleDelete(index)}
 						>
@@ -89,15 +94,22 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`technologies-${index}`}>Technologies (comma-separated)</Label>
+								<Label htmlFor={`technologies-${index}`}>
+									Technologies (comma-separated)
+								</Label>
 								<Input
 									id={`technologies-${index}`}
 									value={project.technologies.join(', ')}
-									onChange={handleChange(index, 'technologies')}
+									onChange={handleChange(
+										index,
+										'technologies',
+									)}
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`items-${index}`}>Items (one per line)</Label>
+								<Label htmlFor={`items-${index}`}>
+									Items (one per line)
+								</Label>
 								<Textarea
 									id={`items-${index}`}
 									value={project.items.join('\n')}

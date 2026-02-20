@@ -89,9 +89,8 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const jobProps = jobPage.properties;
 
-			const responsibilities = await this.resolveResponsibilities(
-				jobProps,
-			);
+			const responsibilities =
+				await this.resolveResponsibilities(jobProps);
 			const startDate = this.getDate(jobProps['Start Date']);
 			const endDate = this.getDate(jobProps['End Date']);
 
@@ -206,9 +205,8 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const projProps = projPage.properties;
 
-			const technologies = await this.resolveProjectTechnologies(
-				projProps,
-			);
+			const technologies =
+				await this.resolveProjectTechnologies(projProps);
 			const items = await this.resolveProjectItems(ref.id);
 
 			projects.push({

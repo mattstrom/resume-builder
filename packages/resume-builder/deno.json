@@ -1,10 +1,10 @@
 {
-	"compilerOptions": {
-		"jsx": "react-jsx",
-		"jsxImportSource": "react"
-	},
-	"imports": {
-		"react": "npm:react@^19.2.0",
-		"react/jsx-runtime": "npm:react@^19.2.0/jsx-runtime"
-	}
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "imports": {
+    "react": "npm:react@^19.2.0",
+    "react/jsx-runtime": "npm:react@^19.2.0/jsx-runtime"
+  }
 }

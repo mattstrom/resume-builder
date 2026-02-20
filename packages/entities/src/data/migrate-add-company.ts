@@ -3,7 +3,9 @@ import { connectMongoose } from '../utils/database';
 import { Resume } from '../models/resume';
 
 async function main() {
-	console.log('Adding company and jobPostingUrl fields to existing resume documents...');
+	console.log(
+		'Adding company and jobPostingUrl fields to existing resume documents...',
+	);
 
 	await using db = await connectMongoose({
 		url: process.env.MONGODB_URL || 'mongodb://localhost:27017',

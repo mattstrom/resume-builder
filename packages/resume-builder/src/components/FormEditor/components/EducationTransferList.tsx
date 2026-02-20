@@ -42,8 +42,12 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 	}
 
 	const allEducations = data?.listEducations || [];
-	const available = allEducations.filter((edu: Education) => !selectedIds.includes(edu._id));
-	const selected = allEducations.filter((edu: Education) => selectedIds.includes(edu._id));
+	const available = allEducations.filter(
+		(edu: Education) => !selectedIds.includes(edu._id),
+	);
+	const selected = allEducations.filter((edu: Education) =>
+		selectedIds.includes(edu._id),
+	);
 
 	const formatEducation = (edu: Education) =>
 		`${edu.degree} in ${edu.field} - ${edu.institution} (${edu.graduated})`;
@@ -109,7 +113,10 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 								aria-labelledby={labelId}
 								className="mr-3"
 							/>
-							<span id={labelId} className="text-sm text-foreground flex-1">
+							<span
+								id={labelId}
+								className="text-sm text-foreground flex-1"
+							>
 								{formatEducation(edu)}
 							</span>
 						</div>
@@ -121,9 +128,7 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 
 	return (
 		<div className="flex gap-4 items-center mt-2">
-			<div className="flex-1">
-				{customList('Available', available)}
-			</div>
+			<div className="flex-1">{customList('Available', available)}</div>
 			<div className="flex flex-col items-center min-w-[80px] gap-1">
 				<Button
 					variant="outline"
@@ -138,8 +143,9 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 					size="sm"
 					onClick={handleCheckedRight}
 					disabled={
-						checked.filter((id) => available.some((edu: Education) => edu._id === id))
-							.length === 0
+						checked.filter((id) =>
+							available.some((edu: Education) => edu._id === id),
+						).length === 0
 					}
 				>
 					&gt;
@@ -149,8 +155,9 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 					size="sm"
 					onClick={handleCheckedLeft}
 					disabled={
-						checked.filter((id) => selected.some((edu: Education) => edu._id === id))
-							.length === 0
+						checked.filter((id) =>
+							selected.some((edu: Education) => edu._id === id),
+						).length === 0
 					}
 				>
 					&lt;
@@ -164,9 +171,7 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 					≪
 				</Button>
 			</div>
-			<div className="flex-1">
-				{customList('Selected', selected)}
-			</div>
+			<div className="flex-1">{customList('Selected', selected)}</div>
 		</div>
 	);
 };

@@ -1,6 +1,4 @@
-export async function requestDirectoryAccess(): Promise<
-	FileSystemDirectoryHandle
-> {
+export async function requestDirectoryAccess(): Promise<FileSystemDirectoryHandle> {
 	return await window.showDirectoryPicker({
 		mode: 'read',
 		startIn: 'documents',

@@ -10,8 +10,7 @@
 
 :root {
 	font-family:
-		'JetBrains Sans', Inter, system-ui, Avenir, Helvetica, Arial,
-		sans-serif;
+		'JetBrains Sans', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	font-weight: 300;
 	color: rgba(255, 255, 255, 0.87);
 	background-color: #000000;
@@ -86,7 +85,7 @@ img {
 	text-align: center;
 }
 
-.counter-interaction button:nth-child(2n+1) {
+.counter-interaction button:nth-child(2n + 1) {
 	margin-right: 14px;
 }
 

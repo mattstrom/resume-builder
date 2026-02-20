@@ -6,5 +6,5 @@ interface CandidateNameProps {}
 export const CandidateName: FC<CandidateNameProps> = () => {
 	const { name } = useResume();
 
-	return <h1 className='candidate-name'>{name}</h1>;
+	return <h1 className="candidate-name">{name}</h1>;
 };

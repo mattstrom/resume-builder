@@ -84,7 +84,6 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			fetchPolicy: 'network-only',
 		});
 
-
 	const loadFile = useCallback(
 		async (handle: FileSystemDirectoryHandle, fileName: string) => {
 			setIsLoading(true);

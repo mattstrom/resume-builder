@@ -53,7 +53,10 @@ export const FileManager: FC = () => {
 						value={selectedApiResumeId ?? ''}
 						onValueChange={(resumeId: string) => {
 							selectApiResume(resumeId);
-							navigate({ to: '/editor/$resumeId', params: { resumeId } });
+							navigate({
+								to: '/editor/$resumeId',
+								params: { resumeId },
+							});
 						}}
 						disabled={isLoading}
 					>
@@ -76,11 +79,7 @@ export const FileManager: FC = () => {
 					<p className="text-sm text-muted-foreground mb-2">
 						No resumes available from backend
 					</p>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={loadApiResumes}
-					>
+					<Button variant="ghost" size="sm" onClick={loadApiResumes}>
 						<RotateCw className="mr-2 h-4 w-4" />
 						Retry
 					</Button>
@@ -88,7 +87,9 @@ export const FileManager: FC = () => {
 			)}
 
 			{/* Local Files Section */}
-			<h3 className="text-sm font-semibold mb-2 mt-4">Local Resume File</h3>
+			<h3 className="text-sm font-semibold mb-2 mt-4">
+				Local Resume File
+			</h3>
 
 			{!directoryName ? (
 				<Button

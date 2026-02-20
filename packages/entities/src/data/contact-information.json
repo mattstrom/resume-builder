@@ -1,9 +1,9 @@
 [
-	{
-		"location": "Anytown, USA",
-		"phoneNumber": "(555) 123-4567",
-		"email": "alex.johnson@example.com",
-		"linkedInProfile": "https://linkedin.com/in/alexjohnson",
-		"githubProfile": "https://github.com/alexjohnson"
-	}
+  {
+    "location": "Anytown, USA",
+    "phoneNumber": "(555) 123-4567",
+    "email": "alex.johnson@example.com",
+    "linkedInProfile": "https://linkedin.com/in/alexjohnson",
+    "githubProfile": "https://github.com/alexjohnson"
+  }
 ]

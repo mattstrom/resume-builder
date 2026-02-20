@@ -13,10 +13,7 @@ interface FileSystemDirectoryHandle {
 		name: string,
 		options?: { create?: boolean },
 	): Promise<FileSystemDirectoryHandle>;
-	removeEntry(
-		name: string,
-		options?: { recursive?: boolean },
-	): Promise<void>;
+	removeEntry(name: string, options?: { recursive?: boolean }): Promise<void>;
 	resolve(possibleDescendant: FileSystemHandle): Promise<string[] | null>;
 	keys(): AsyncIterableIterator<string>;
 	values(): AsyncIterableIterator<

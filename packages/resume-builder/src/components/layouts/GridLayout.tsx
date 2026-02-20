@@ -17,28 +17,28 @@ interface GridLayoutProps {}
 
 export const GridLayout: FC<GridLayoutProps> = () => {
 	return (
-		<Layout name='grid'>
+		<Layout name="grid">
 			<Page>
-				<div className='top-left'>
+				<div className="top-left">
 					<CandidateName />
 					<ContactInformationSection />
 				</div>
-				<div className='top-right'>
+				<div className="top-right">
 					<SummarySection />
 				</div>
-				<div className='bottom-left'>
+				<div className="bottom-left">
 					<EducationSection />
 					<SkillsSection />
 				</div>
-				<div className='bottom-right'>
+				<div className="bottom-right">
 					<WorkExperience />
 				</div>
 			</Page>
 			<Page>
-				<div className='top-left'></div>
-				<div className='top-right'></div>
-				<div className='bottom-left'></div>
-				<div className='bottom-right'>
+				<div className="top-left"></div>
+				<div className="top-right"></div>
+				<div className="bottom-left"></div>
+				<div className="bottom-right">
 					<ProjectsSection />
 				</div>
 			</Page>

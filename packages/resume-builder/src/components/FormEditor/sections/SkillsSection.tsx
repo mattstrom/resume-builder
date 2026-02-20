@@ -36,20 +36,23 @@ export const SkillsSection: FC<SkillsSectionProps> = ({ skills, onChange }) => {
 		}
 	};
 
-	const handleChange = (index: number, field: keyof Skill) => (
-		e: ChangeEvent<HTMLInputElement>,
-	) => {
-		const newSkills = [...skills];
-		newSkills[index][field] = e.target.value;
-		onChange(newSkills);
-	};
+	const handleChange =
+		(index: number, field: keyof Skill) =>
+		(e: ChangeEvent<HTMLInputElement>) => {
+			const newSkills = [...skills];
+			newSkills[index][field] = e.target.value;
+			onChange(newSkills);
+		};
 
 	const formatSkillTitle = (skill: Skill) =>
 		`${skill.name || 'New Skill'} ${skill.category ? `(${skill.category})` : ''}`;
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem value="skills" className="bg-card/5 border-white/10 px-4">
+			<AccordionItem
+				value="skills"
+				className="bg-card/5 border-white/10 px-4"
+			>
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Skills
 				</AccordionTrigger>
@@ -60,13 +63,17 @@ export const SkillsSection: FC<SkillsSectionProps> = ({ skills, onChange }) => {
 							title={formatSkillTitle(skill)}
 							expanded={expandedIndex === index}
 							onExpandChange={() =>
-								setExpandedIndex(expandedIndex === index ? null : index)
+								setExpandedIndex(
+									expandedIndex === index ? null : index,
+								)
 							}
 							onDelete={() => handleDelete(index)}
 						>
 							<div className="space-y-4">
 								<div className="space-y-2">
-									<Label htmlFor={`skill-name-${index}`}>Name</Label>
+									<Label htmlFor={`skill-name-${index}`}>
+										Name
+									</Label>
 									<Input
 										id={`skill-name-${index}`}
 										value={skill.name}
@@ -74,17 +81,27 @@ export const SkillsSection: FC<SkillsSectionProps> = ({ skills, onChange }) => {
 									/>
 								</div>
 								<div className="space-y-2">
-									<Label htmlFor={`skill-category-${index}`}>Category</Label>
+									<Label htmlFor={`skill-category-${index}`}>
+										Category
+									</Label>
 									<Input
 										id={`skill-category-${index}`}
 										value={skill.category}
-										onChange={handleChange(index, 'category')}
+										onChange={handleChange(
+											index,
+											'category',
+										)}
 									/>
 								</div>
 							</div>
 						</ExpandableCard>
 					))}
-					<Button onClick={handleAdd} variant="outline" size="sm" className="mt-4">
+					<Button
+						onClick={handleAdd}
+						variant="outline"
+						size="sm"
+						className="mt-4"
+					>
 						<Plus className="h-4 w-4 mr-2" />
 						Add Skill
 					</Button>

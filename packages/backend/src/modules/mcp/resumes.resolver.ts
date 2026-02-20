@@ -23,19 +23,16 @@ const getSkillsSchema = {
 export class ResumesResolver {
 	constructor(
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
-		@InjectModel(ContactInformation.name) private readonly contactInfoModel:
-			Model<ContactInformation>,
+		@InjectModel(ContactInformation.name)
+		private readonly contactInfoModel: Model<ContactInformation>,
 		@InjectModel(Job.name) private readonly jobModel: Model<Job>,
 		@InjectModel(Skill.name) private readonly skillModel: Model<Skill>,
-		@InjectModel(Project.name) private readonly projectModel: Model<
-			Project
-		>,
-		@InjectModel(Education.name) private readonly educationModel: Model<
-			Education
-		>,
-		@InjectModel(CoverLetter.name) private readonly coverLetterModel: Model<
-			CoverLetter
-		>,
+		@InjectModel(Project.name)
+		private readonly projectModel: Model<Project>,
+		@InjectModel(Education.name)
+		private readonly educationModel: Model<Education>,
+		@InjectModel(CoverLetter.name)
+		private readonly coverLetterModel: Model<CoverLetter>,
 	) {}
 
 	/**
@@ -199,9 +196,10 @@ export class ResumesResolver {
 	}: {
 		categories?: string[];
 	}): Promise<CallToolResult> {
-		const query = categories && categories.length > 0
-			? { category: { $in: categories } }
-			: {};
+		const query =
+			categories && categories.length > 0
+				? { category: { $in: categories } }
+				: {};
 
 		const skills = await this.skillModel.find(query).lean().exec();
 
@@ -254,7 +252,8 @@ export class ResumesResolver {
 		},
 	})
 	async saveCoverLetter({ coverLetter }: { coverLetter: CoverLetter }) {
-		const savedCoverLetter = await this.coverLetterModel.create(coverLetter);
+		const savedCoverLetter =
+			await this.coverLetterModel.create(coverLetter);
 
 		return {
 			content: [

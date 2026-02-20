@@ -2,40 +2,25 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "{projectRoot}/dist"
-      ],
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist"],
       "cache": true
     },
     "start": {
-      "dependsOn": [
-        "^start"
-      ]
+      "dependsOn": ["^start"]
     },
     "start:dev": {
-      "dependsOn": [
-        "^start:dev"
-      ]
+      "dependsOn": ["^start:dev"]
     },
     "start:debug": {
-      "dependsOn": [
-        "^start:debug"
-      ]
+      "dependsOn": ["^start:debug"]
     },
     "start:prod": {
-      "dependsOn": [
-        "^start:prod"
-      ]
+      "dependsOn": ["^start:prod"]
     },
     "@nx/vitest:test": {
       "cache": true,
-      "inputs": [
-        "default",
-        "^default"
-      ]
+      "inputs": ["default", "^default"]
     }
   },
   "plugins": [

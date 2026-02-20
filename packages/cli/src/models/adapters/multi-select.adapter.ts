@@ -20,8 +20,9 @@ export class MultiSelectAdapter extends Adapter<
 	}
 
 	get(): MultiSelectOption[] {
-		return (this.property.multi_select?.options as MultiSelectOption[]) ??
-			[];
+		return (
+			(this.property.multi_select?.options as MultiSelectOption[]) ?? []
+		);
 	}
 
 	static is(

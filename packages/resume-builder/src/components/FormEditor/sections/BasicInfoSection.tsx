@@ -24,15 +24,18 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 	data,
 	onChange,
 }) => {
-	const handleChange = (field: keyof BasicInfo) => (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-	) => {
-		onChange({ ...data, [field]: e.target.value });
-	};
+	const handleChange =
+		(field: keyof BasicInfo) =>
+		(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+			onChange({ ...data, [field]: e.target.value });
+		};
 
 	return (
 		<Accordion type="single" defaultValue="basic-info" collapsible>
-			<AccordionItem value="basic-info" className="bg-card/5 border-white/10 px-4">
+			<AccordionItem
+				value="basic-info"
+				className="bg-card/5 border-white/10 px-4"
+			>
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Basic Information
 				</AccordionTrigger>

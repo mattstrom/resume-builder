@@ -42,7 +42,7 @@ The project consists of multiple packages working together:
 ### Frontend (`@mattstrom/resume-builder`)
 
 - `npm run dev` or `nx serve @mattstrom/resume-builder` - Start dev server
-  - DO NOT start the frontend yourself. I will start it myself.
+    - DO NOT start the frontend yourself. I will start it myself.
 
 - `nx build @mattstrom/resume-builder` - Build the application
 - `nx build @mattstrom/resume-builder --config vite.lib.config.ts` - Build as

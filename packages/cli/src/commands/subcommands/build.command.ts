@@ -75,7 +75,8 @@ export class BuildCommand extends Command {
 
 					if (opts.output !== undefined) {
 						// Use the provided ID, or derive from resume name
-						const resumeId = opts.id ??
+						const resumeId =
+							opts.id ??
 							resume.name
 								.toLowerCase()
 								.replace(/[^a-z0-9]+/g, '-')

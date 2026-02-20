@@ -79,7 +79,9 @@ export const FormEditor: FC = () => {
 		skills: [],
 		projects: [],
 	});
-	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
+		'idle',
+	);
 	const isInternalUpdate = useRef(false);
 
 	// Sync resumeData to form when it changes externally
@@ -93,7 +95,8 @@ export const FormEditor: FC = () => {
 					summary: data.summary || '',
 				},
 				contactInfo: data.contactInformation || defaultContactInfo,
-				educationIds: data.education?.map((edu: any) => edu._id || edu) || [],
+				educationIds:
+					data.education?.map((edu: any) => edu._id || edu) || [],
 				workExperience: data.workExperience || [],
 				skills: data.skills || [],
 				projects: data.projects || [],
@@ -140,28 +143,40 @@ export const FormEditor: FC = () => {
 						disabled={saveStatus === 'saving'}
 					>
 						<Save className="mr-2 h-4 w-4" />
-						{saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : 'Save'}
+						{saveStatus === 'saving'
+							? 'Saving...'
+							: saveStatus === 'saved'
+								? 'Saved!'
+								: 'Save'}
 					</Button>
 				</div>
 
 				<BasicInfoSection
 					data={formData.basicInfo}
-					onChange={(data) => setFormData({ ...formData, basicInfo: data })}
+					onChange={(data) =>
+						setFormData({ ...formData, basicInfo: data })
+					}
 				/>
 
 				<ContactInfoSection
 					data={formData.contactInfo}
-					onChange={(data) => setFormData({ ...formData, contactInfo: data })}
+					onChange={(data) =>
+						setFormData({ ...formData, contactInfo: data })
+					}
 				/>
 
 				<EducationSection
 					selectedIds={formData.educationIds}
-					onChange={(ids) => setFormData({ ...formData, educationIds: ids })}
+					onChange={(ids) =>
+						setFormData({ ...formData, educationIds: ids })
+					}
 				/>
 
 				<WorkExperienceSection
 					jobs={formData.workExperience}
-					onChange={(jobs) => setFormData({ ...formData, workExperience: jobs })}
+					onChange={(jobs) =>
+						setFormData({ ...formData, workExperience: jobs })
+					}
 				/>
 
 				<SkillsSection
@@ -171,7 +186,9 @@ export const FormEditor: FC = () => {
 
 				<ProjectsSection
 					projects={formData.projects}
-					onChange={(projects) => setFormData({ ...formData, projects })}
+					onChange={(projects) =>
+						setFormData({ ...formData, projects })
+					}
 				/>
 			</div>
 		</div>

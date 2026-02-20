@@ -2,211 +2,232 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-"""Contact Information"""
+"""
+Contact Information
+"""
 type ContactInformation {
-  _id: ID!
-  location: String!
-  phoneNumber: String!
-  email: String!
-  linkedInProfile: String!
-  githubProfile: String!
-  personalWebsite: String!
+	_id: ID!
+	location: String!
+	phoneNumber: String!
+	email: String!
+	linkedInProfile: String!
+	githubProfile: String!
+	personalWebsite: String!
 }
 
-"""Education"""
+"""
+Education
+"""
 type Education {
-  _id: ID!
-  degree: String!
-  field: String!
-  institution: String!
-  graduated: String!
+	_id: ID!
+	degree: String!
+	field: String!
+	institution: String!
+	graduated: String!
 }
 
-"""Job"""
+"""
+Job
+"""
 type Job {
-  _id: ID!
-  company: String!
-  position: String!
-  location: String!
-  startDate: String!
-  endDate: String!
-  responsibilities: [String!]!
+	_id: ID!
+	company: String!
+	position: String!
+	location: String!
+	startDate: String!
+	endDate: String!
+	responsibilities: [String!]!
 }
 
-"""Project"""
+"""
+Project
+"""
 type Project {
-  _id: ID!
-  name: String!
-  technologies: [String!]!
-  items: [String!]!
+	_id: ID!
+	name: String!
+	technologies: [String!]!
+	items: [String!]!
 }
 
-"""Skill"""
+"""
+Skill
+"""
 type Skill {
-  _id: ID!
-  name: String!
-  category: String!
+	_id: ID!
+	name: String!
+	category: String!
 }
 
-"""Skill Group"""
+"""
+Skill Group
+"""
 type SkillGroup {
-  _id: ID!
-  name: String!
-  items: [String!]!
+	_id: ID!
+	name: String!
+	items: [String!]!
 }
 
-"""Volunteering"""
+"""
+Volunteering
+"""
 type Volunteering {
-  _id: ID!
-  organization: String
-  position: String!
-  location: String
-  startDate: String!
-  endDate: String
-  responsibilities: [String!]!
+	_id: ID!
+	organization: String
+	position: String!
+	location: String
+	startDate: String!
+	endDate: String
+	responsibilities: [String!]!
 }
 
-"""Cover Letter"""
+"""
+Cover Letter
+"""
 type CoverLetter {
-  _id: ID!
-  name: String!
-  company: String!
-  jobPostingUrl: String!
-  content: String!
+	_id: ID!
+	name: String!
+	company: String!
+	jobPostingUrl: String!
+	content: String!
 }
 
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
 type ResumeContent {
-  _id: ID!
-  name: String!
-  title: String!
-  contactInformation: ContactInformation!
-  summary: String!
-  workExperience: [Job!]!
-  education: [Education!]!
-  skills: [Skill!]
-  skillGroups: [SkillGroup!]
-  projects: [Project!]!
-  volunteering: [Volunteering!]!
+	_id: ID!
+	name: String!
+	title: String!
+	contactInformation: ContactInformation!
+	summary: String!
+	workExperience: [Job!]!
+	education: [Education!]!
+	skills: [Skill!]
+	skillGroups: [SkillGroup!]
+	projects: [Project!]!
+	volunteering: [Volunteering!]!
 }
 
-"""Resume"""
+"""
+Resume
+"""
 type Resume {
-  _id: ID!
-  id: String!
-  name: String!
-  company: String!
-  jobPostingUrl: String!
-  data: ResumeContent!
+	_id: ID!
+	id: String!
+	name: String!
+	company: String!
+	jobPostingUrl: String!
+	data: ResumeContent!
 }
 
 type Query {
-  listResumes: [Resume!]!
-  getResume(id: String!): Resume!
-  listJobs: [Job!]!
-  listSkills: [Skill!]!
-  listEducations: [Education!]!
-  findEducation(id: String!): Education!
-  listProjects: [Project!]!
-  findProject(id: String!): Project!
-  listVolunteering: [Volunteering!]!
-  listCoverLetters: [CoverLetter!]!
-  getCoverLetter(id: String!): CoverLetter!
+	listResumes: [Resume!]!
+	getResume(id: String!): Resume!
+	listJobs: [Job!]!
+	listSkills: [Skill!]!
+	listEducations: [Education!]!
+	findEducation(id: String!): Education!
+	listProjects: [Project!]!
+	findProject(id: String!): Project!
+	listVolunteering: [Volunteering!]!
+	listCoverLetters: [CoverLetter!]!
+	getCoverLetter(id: String!): CoverLetter!
 }
 
 type Mutation {
-  createResume(resumeData: ResumeCreateInput!): Resume!
-  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
-  patchResume(id: String!, update: JSON!): Resume!
-  createEducation(education: EducationInput!): Education!
-  updateEducation(id: String!, education: EducationInput!): Education!
-  deleteEducation(id: String!): Boolean!
-  createProject(project: ProjectInput!): Project!
-  createVolunteering(volunteering: VolunteeringInput!): Volunteering!
-  createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
-  updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
-  patchCoverLetter(id: String!, update: JSON!): CoverLetter!
+	createResume(resumeData: ResumeCreateInput!): Resume!
+	updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
+	patchResume(id: String!, update: JSON!): Resume!
+	createEducation(education: EducationInput!): Education!
+	updateEducation(id: String!, education: EducationInput!): Education!
+	deleteEducation(id: String!): Boolean!
+	createProject(project: ProjectInput!): Project!
+	createVolunteering(volunteering: VolunteeringInput!): Volunteering!
+	createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
+	updateCoverLetter(
+		id: String!
+		coverLetterData: CoverLetterUpdateInput!
+	): CoverLetter!
+	patchCoverLetter(id: String!, update: JSON!): CoverLetter!
 }
 
 input ResumeCreateInput {
-  id: String!
-  name: String!
-  company: String!
-  jobPostingUrl: String!
-  data: ResumeContentInput!
+	id: String!
+	name: String!
+	company: String!
+	jobPostingUrl: String!
+	data: ResumeContentInput!
 }
 
 input ResumeContentInput {
-  _id: ID
-  name: String!
-  title: String!
-  summary: String!
-  workExperience: [JobInput!]!
-  contactInformation: ContactInformationInput!
-  education: [ID!]!
-  projects: [ProjectInput!]!
-  skills: [SkillInput!]
-  skillGroups: [SkillGroupInput!]
-  volunteering: [VolunteeringInput!]
+	_id: ID
+	name: String!
+	title: String!
+	summary: String!
+	workExperience: [JobInput!]!
+	contactInformation: ContactInformationInput!
+	education: [ID!]!
+	projects: [ProjectInput!]!
+	skills: [SkillInput!]
+	skillGroups: [SkillGroupInput!]
+	volunteering: [VolunteeringInput!]
 }
 
 input JobInput {
-  company: String!
-  position: String!
-  location: String!
-  startDate: String!
-  endDate: String!
-  responsibilities: [String!]!
-  _id: ID
+	company: String!
+	position: String!
+	location: String!
+	startDate: String!
+	endDate: String!
+	responsibilities: [String!]!
+	_id: ID
 }
 
 input ContactInformationInput {
-  location: String!
-  phoneNumber: String!
-  email: String!
-  linkedInProfile: String!
-  githubProfile: String!
-  personalWebsite: String!
-  _id: ID
+	location: String!
+	phoneNumber: String!
+	email: String!
+	linkedInProfile: String!
+	githubProfile: String!
+	personalWebsite: String!
+	_id: ID
 }
 
 input ProjectInput {
-  name: String!
-  technologies: [String!]!
-  items: [String!]!
-  _id: ID
+	name: String!
+	technologies: [String!]!
+	items: [String!]!
+	_id: ID
 }
 
 input SkillInput {
-  name: String!
-  category: String!
-  _id: ID
+	name: String!
+	category: String!
+	_id: ID
 }
 
 input SkillGroupInput {
-  name: String!
-  items: [String!]!
-  _id: ID
+	name: String!
+	items: [String!]!
+	_id: ID
 }
 
 input VolunteeringInput {
-  organization: String
-  position: String!
-  location: String
-  startDate: String!
-  endDate: String
-  responsibilities: [String!]!
-  _id: ID
+	organization: String
+	position: String!
+	location: String
+	startDate: String!
+	endDate: String
+	responsibilities: [String!]!
+	_id: ID
 }
 
 input ResumeUpdateInput {
-  id: String
-  name: String
-  company: String
-  jobPostingUrl: String
-  data: ResumeContentInput
+	id: String
+	name: String
+	company: String
+	jobPostingUrl: String
+	data: ResumeContentInput
 }
 
 """
@@ -215,23 +236,23 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 input EducationInput {
-  degree: String!
-  field: String!
-  institution: String!
-  graduated: String!
-  _id: ID
+	degree: String!
+	field: String!
+	institution: String!
+	graduated: String!
+	_id: ID
 }
 
 input CoverLetterInput {
-  name: String!
-  company: String!
-  jobPostingUrl: String!
-  content: String!
+	name: String!
+	company: String!
+	jobPostingUrl: String!
+	content: String!
 }
 
 input CoverLetterUpdateInput {
-  name: String
-  company: String
-  jobPostingUrl: String
-  content: String
+	name: String
+	company: String
+	jobPostingUrl: String
+	content: String
 }

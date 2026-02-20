@@ -29,7 +29,10 @@ export class EducationsService {
 		return saved.toObject();
 	}
 
-	async update(id: string, educationData: EducationInput): Promise<Education> {
+	async update(
+		id: string,
+		educationData: EducationInput,
+	): Promise<Education> {
 		const updated = await this.educationModel
 			.findByIdAndUpdate(id, educationData, { new: true })
 			.exec();

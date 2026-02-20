@@ -24,7 +24,9 @@ export const ExpandableCard: FC<ExpandableCardProps> = ({
 			<Collapsible open={expanded} onOpenChange={onExpandChange}>
 				<CardHeader className="py-3">
 					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-medium text-foreground">{title}</h3>
+						<h3 className="text-sm font-medium text-foreground">
+							{title}
+						</h3>
 						<div className="flex items-center gap-1">
 							<Button
 								variant="ghost"
@@ -35,7 +37,7 @@ export const ExpandableCard: FC<ExpandableCardProps> = ({
 								<ChevronDown
 									className={cn(
 										'h-4 w-4 transition-transform duration-300',
-										expanded && 'rotate-180'
+										expanded && 'rotate-180',
 									)}
 								/>
 							</Button>

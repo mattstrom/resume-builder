@@ -8,7 +8,7 @@ interface SnackbarContextType {
 }
 
 const SnackbarContext = createContext<SnackbarContextType | undefined>(
-	undefined
+	undefined,
 );
 
 export function useSnackbar(): SnackbarContextType {
@@ -40,7 +40,7 @@ export function SnackbarProvider({ children }: { children: React.ReactNode }) {
 					break;
 			}
 		},
-		[]
+		[],
 	);
 
 	return (

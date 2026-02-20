@@ -8,9 +8,9 @@ export const Masthead: FC<MastheadProps> = () => {
 	const { name } = useResume();
 
 	return (
-		<section className='masthead'>
-			<section className='left'>
-				<header className='name'>
+		<section className="masthead">
+			<section className="left">
+				<header className="name">
 					<h1>{name}</h1>
 				</header>
 			</section>

@@ -26,15 +26,17 @@ export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
 	data,
 	onChange,
 }) => {
-	const handleChange = (field: keyof ContactInfo) => (
-		e: ChangeEvent<HTMLInputElement>,
-	) => {
-		onChange({ ...data, [field]: e.target.value });
-	};
+	const handleChange =
+		(field: keyof ContactInfo) => (e: ChangeEvent<HTMLInputElement>) => {
+			onChange({ ...data, [field]: e.target.value });
+		};
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem value="contact-info" className="bg-card/5 border-white/10 px-4">
+			<AccordionItem
+				value="contact-info"
+				className="bg-card/5 border-white/10 px-4"
+			>
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Contact Information
 				</AccordionTrigger>
@@ -65,7 +67,9 @@ export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="linkedInProfile">LinkedIn Profile</Label>
+						<Label htmlFor="linkedInProfile">
+							LinkedIn Profile
+						</Label>
 						<Input
 							id="linkedInProfile"
 							value={data.linkedInProfile}
@@ -81,7 +85,9 @@ export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="personalWebsite">Personal Website</Label>
+						<Label htmlFor="personalWebsite">
+							Personal Website
+						</Label>
 						<Input
 							id="personalWebsite"
 							value={data.personalWebsite}

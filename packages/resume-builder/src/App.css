@@ -64,12 +64,12 @@ a {
 				#ddd 11px
 			),
 			repeating-linear-gradient(
-			-45deg,
-			white,
-			white 10px,
-			#ddd 10px,
-			#ddd 11px
-		);
+				-45deg,
+				white,
+				white 10px,
+				#ddd 10px,
+				#ddd 11px
+			);
 	}
 }
 

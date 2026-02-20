@@ -189,7 +189,9 @@ export const EditorToolbar: FC = () => {
 					<Checkbox
 						id="marginPattern"
 						checked={showMarginPattern}
-						onCheckedChange={(checked) => setShowMarginPattern(checked === true)}
+						onCheckedChange={(checked) =>
+							setShowMarginPattern(checked === true)
+						}
 						className="border-white/70 data-[state=checked]:bg-white data-[state=checked]:text-slate-900 data-[state=checked]:border-white"
 					/>
 					<Label
@@ -260,13 +262,9 @@ export const EditorToolbar: FC = () => {
 											? 'bg-white/20 text-white hover:bg-white/25'
 											: 'text-white/70 hover:text-white hover:bg-white/10',
 									)}
-									onClick={() =>
-										setChatOpen((prev) => !prev)
-									}
+									onClick={() => setChatOpen((prev) => !prev)}
 									aria-label={
-										chatOpen
-											? 'Close chat'
-											: 'Open chat'
+										chatOpen ? 'Close chat' : 'Open chat'
 									}
 								>
 									<MessageCircle className="h-5 w-5" />

@@ -47,11 +47,9 @@ export class SchemaCommand extends Command {
 
 				if (!databases.includes(dbName as DatabaseName)) {
 					console.error(
-						`Unknown database: ${dbName}. Available: ${
-							databases.join(
-								', ',
-							)
-						}`,
+						`Unknown database: ${dbName}. Available: ${databases.join(
+							', ',
+						)}`,
 					);
 					return;
 				}

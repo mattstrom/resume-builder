@@ -206,11 +206,7 @@
           "default": []
         }
       },
-      "required": [
-        "position",
-        "startDate",
-        "responsibilities"
-      ]
+      "required": ["position", "startDate", "responsibilities"]
     },
     "CoverLetter": {
       "type": "object",
@@ -235,12 +231,7 @@
           "default": ""
         }
       },
-      "required": [
-        "name",
-        "company",
-        "jobPostingUrl",
-        "content"
-      ]
+      "required": ["name", "company", "jobPostingUrl", "content"]
     },
     "SkillGroup": {
       "type": "object",

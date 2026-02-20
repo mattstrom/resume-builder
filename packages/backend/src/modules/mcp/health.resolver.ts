@@ -12,8 +12,7 @@ export class HealthResolver {
 			content: [
 				{
 					type: 'text',
-					text:
-						'Server is operational. All systems running normally.',
+					text: 'Server is operational. All systems running normally.',
 				},
 			],
 		};

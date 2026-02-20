@@ -61,11 +61,7 @@ const WorkExperience: FC = () => {
 			createElement(
 				'div',
 				{ key: i, className: 'job' },
-				createElement(
-					'h3',
-					null,
-					`${job.position} at ${job.company}`,
-				),
+				createElement('h3', null, `${job.position} at ${job.company}`),
 				createElement(
 					'p',
 					{ className: 'dates' },
@@ -78,10 +74,10 @@ const WorkExperience: FC = () => {
 						'ul',
 						null,
 						...job.responsibilities.map((r, j) =>
-							createElement('li', { key: j }, r)
+							createElement('li', { key: j }, r),
 						),
 					),
-			)
+			),
 		),
 	);
 };
@@ -102,7 +98,7 @@ const EducationSection: FC = () => {
 				createElement('p', null, `${edu.field} - ${edu.institution}`),
 				edu.graduated &&
 					createElement('p', null, `Graduated: ${edu.graduated}`),
-			)
+			),
 		),
 	);
 };
@@ -121,7 +117,7 @@ const SkillsSection: FC = () => {
 				{ key: i, className: 'skill-group' },
 				createElement('h3', null, group.name),
 				createElement('p', null, group.items.join(', ')),
-			)
+			),
 		),
 	);
 };
@@ -150,10 +146,10 @@ const ProjectsSection: FC = () => {
 						'ul',
 						null,
 						...project.items.map((item, j) =>
-							createElement('li', { key: j }, item)
+							createElement('li', { key: j }, item),
 						),
 					),
-			)
+			),
 		),
 	);
 };

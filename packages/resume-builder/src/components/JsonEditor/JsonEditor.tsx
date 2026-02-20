@@ -51,19 +51,19 @@ export const JsonEditor: FC = () => {
 	const isSaving = useRef(false); // Track if currently saving
 
 	// @ts-expect-error - Mutations prepared for future use
-	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
-		CREATE_RESUME,
-		{
-			refetchQueries: [{ query: LIST_RESUMES }],
-		},
-	);
+	const [createResumeMutation] = useMutation<
+		CreateResumeData,
+		CreateResumeVariables
+	>(CREATE_RESUME, {
+		refetchQueries: [{ query: LIST_RESUMES }],
+	});
 	// @ts-expect-error - Mutations prepared for future use
-	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
-		UPDATE_RESUME,
-		{
-			refetchQueries: [{ query: LIST_RESUMES }],
-		},
-	);
+	const [updateResumeMutation] = useMutation<
+		UpdateResumeData,
+		UpdateResumeVariables
+	>(UPDATE_RESUME, {
+		refetchQueries: [{ query: LIST_RESUMES }],
+	});
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
