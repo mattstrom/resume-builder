@@ -11,5 +11,6 @@ export * from './models/cover-letter.js';
 
 export * from './models/resume-content.js';
 export * from './models/resume.js';
+export * from './models/conversation.js';
 
 export * from './utils/database.js';

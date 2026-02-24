@@ -7,6 +7,7 @@ import { SkillsModule } from './skills/skills.module';
 import { ProjectsModule } from './projects/projects.module';
 import { ContactInformationModule } from './contact-information/contact-information.module';
 import { VolunteeringModule } from './volunteering/volunteering.module';
+import { ConversationsModule } from './conversations/conversations.module';
 import { CoverLettersModule } from './cover-letters/cover-letters.module';
 
 const imports = [
@@ -19,6 +20,7 @@ const imports = [
 	ContactInformationModule,
 	VolunteeringModule,
 	CoverLettersModule,
+	ConversationsModule,
 ];
 
 @Module({

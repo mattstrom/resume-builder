@@ -1,0 +1,20 @@
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Conversation, ConversationSchema } from '@resume-builder/entities';
+
+import { MongodbModule } from '../../mongodb/mongodb.module';
+import { ConversationsController } from './conversations.controller';
+import { ConversationsService } from './conversations.service';
+
+@Module({
+	imports: [
+		MongodbModule,
+		MongooseModule.forFeature([
+			{ name: Conversation.name, schema: ConversationSchema },
+		]),
+	],
+	controllers: [ConversationsController],
+	providers: [ConversationsService],
+	exports: [ConversationsService],
+})
+export class ConversationsModule {}

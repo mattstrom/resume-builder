@@ -26,6 +26,7 @@ export interface StreamOptions {
 		name: string,
 		input: Record<string, unknown>,
 	) => Promise<string>;
+	conversationId?: string;
 }
 
 /**
@@ -36,7 +37,7 @@ export interface StreamOptions {
 export async function streamAnthropicResponse(
 	res: Response,
 	options: StreamOptions,
-): Promise<void> {
+): Promise<string> {
 	const { model, system, tools, executeTool } = options;
 	let messages = [...options.messages];
 
@@ -44,9 +45,14 @@ export async function streamAnthropicResponse(
 	res.setHeader('Cache-Control', 'no-cache');
 	res.setHeader('Connection', 'keep-alive');
 	res.setHeader('X-Vercel-AI-UI-Message-Stream', 'v1');
+	if (options.conversationId) {
+		res.setHeader('X-Conversation-Id', options.conversationId);
+		res.setHeader('Access-Control-Expose-Headers', 'X-Conversation-Id');
+	}
 	res.flushHeaders();
-
 	writeChunk(res, { type: 'start' });
+
+	let accumulatedText = '';
 
 	for (let iteration = 0; iteration < MAX_TOOL_ITERATIONS; iteration++) {
 		writeChunk(res, { type: 'start-step' });
@@ -78,6 +84,7 @@ export async function streamAnthropicResponse(
 				}
 			} else if (event.type === 'content_block_delta') {
 				if (event.delta.type === 'text_delta' && textPartId) {
+					accumulatedText += event.delta.text;
 					writeChunk(res, {
 						type: 'text-delta',
 						id: textPartId,
@@ -181,4 +188,6 @@ export async function streamAnthropicResponse(
 	writeChunk(res, { type: 'finish', finishReason: 'stop' });
 	res.write('data: [DONE]\n\n');
 	res.end();
+
+	return accumulatedText;
 }

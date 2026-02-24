@@ -3,6 +3,7 @@ import type { MessageParam } from '@anthropic-ai/sdk/resources/messages';
 import type { Response } from 'express';
 
 import { ContactInformationService } from '../entities/contact-information/contact-information.service';
+import { ConversationsService } from '../entities/conversations/conversations.service';
 import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
 import { EducationsService } from '../entities/educations/educations.service';
 import { JobsService } from '../entities/jobs/jobs.service';
@@ -24,14 +25,21 @@ export class ChatController {
 		private readonly jobsService: JobsService,
 		private readonly volunteeringService: VolunteeringService,
 		private readonly coverLettersService: CoverLettersService,
+		private readonly conversationsService: ConversationsService,
 	) {}
 
 	@Post()
 	async chat(
-		@Body() body: { messages: any[]; data?: { resumeId?: string } },
+		@Body()
+		body: {
+			messages: any[];
+			data?: { resumeId?: string; conversationId?: string };
+		},
 		@Res() res: Response,
 	) {
-		const { messages } = body;
+		const { messages, data } = body;
+		const resumeId = data?.resumeId;
+		let conversationId = data?.conversationId;
 
 		const systemPrompt = `
 			You are the assistant to a hiring manager. The hiring manager will
@@ -56,6 +64,36 @@ export class ChatController {
 							.join('') ?? ''),
 		}));
 
+		// Get the latest user message text for persistence
+		const lastUserMsg = [...messages]
+			.reverse()
+			.find((m) => m.role === 'user');
+		const userText =
+			typeof lastUserMsg?.content === 'string'
+				? lastUserMsg.content
+				: (lastUserMsg?.parts
+						?.filter((p: any) => p.type === 'text')
+						.map((p: any) => p.text)
+						.join('') ?? '');
+
+		// Create conversation on first message if needed
+		if (!conversationId && resumeId) {
+			const title = userText.slice(0, 50) || 'New Conversation';
+			const conversation = await this.conversationsService.create({
+				resumeId,
+				title,
+			});
+			conversationId = String(conversation._id);
+		}
+
+		// Persist user message
+		if (conversationId) {
+			await this.conversationsService.appendMessage(conversationId, {
+				role: 'user',
+				content: userText,
+			});
+		}
+
 		const services = {
 			resumesService: this.resumesService,
 			contactInformationService: this.contactInformationService,
@@ -67,12 +105,21 @@ export class ChatController {
 			coverLettersService: this.coverLettersService,
 		};
 
-		await streamAnthropicResponse(res, {
+		const assistantText = await streamAnthropicResponse(res, {
 			model: 'claude-haiku-4-5-20251001',
 			system: systemPrompt,
 			messages: anthropicMessages,
 			tools: chatTools,
 			executeTool: (name, input) => executeTool(name, input, services),
+			conversationId,
 		});
+
+		// Persist assistant response
+		if (conversationId && assistantText) {
+			await this.conversationsService.appendMessage(conversationId, {
+				role: 'assistant',
+				content: assistantText,
+			});
+		}
 	}
 }
