@@ -17,6 +17,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useSidebar } from '@/components/ui/sidebar';
 import {
 	Tooltip,
 	TooltipContent,
@@ -67,11 +68,10 @@ export const EditorToolbar: FC = () => {
 		setShowMarginPattern,
 		editorMode,
 		setEditorMode,
-		sidebarOpen,
-		setSidebarOpen,
 		chatOpen,
 		setChatOpen,
 	} = useSettings();
+	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
 	const { resumeId } = useParams({ strict: false });
 	const { resumeData } = useFileManager();
@@ -124,7 +124,7 @@ export const EditorToolbar: FC = () => {
 								variant="ghost"
 								size="icon"
 								className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8"
-								onClick={() => setSidebarOpen((prev) => !prev)}
+								onClick={toggleSidebar}
 								aria-label={
 									sidebarOpen
 										? 'Close sidebar'
