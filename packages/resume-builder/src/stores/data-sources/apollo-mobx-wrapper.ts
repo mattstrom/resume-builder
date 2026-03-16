@@ -4,7 +4,7 @@ import {
 	ObservableQuery,
 	type OperationVariables,
 } from '@apollo/client';
-import { observable } from 'mobx';
+import { makeObservable, observable } from 'mobx';
 import { Subscription } from 'rxjs';
 
 export class ApolloMobxWrapper<
@@ -45,6 +45,8 @@ export class ApolloMobxWrapper<
 	constructor(
 		private readonly observableQuery: ObservableQuery<TData, TVariables>,
 	) {
+		makeObservable(this);
+
 		this.subscription = this.observableQuery.subscribe((result) => {
 			this.result = result;
 		});

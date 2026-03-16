@@ -102,13 +102,16 @@ const resumeContentFragment = gql`
 `;
 
 export const LIST_RESUMES = gql`
-	query ListResumes {
-		listResumes {
+	query ListResumes($sort: ResumeSortInput) {
+		listResumes(sort: $sort) {
 			_id
 			id
 			name
 			company
+			level
 			jobPostingUrl
+			createdAt
+			updatedAt
 			data {
 				...ResumeContent
 			}
