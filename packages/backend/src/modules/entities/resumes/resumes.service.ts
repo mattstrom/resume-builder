@@ -3,9 +3,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
 	Resume,
 	ResumeCreateInput,
+	ResumeSortBy,
+	ResumeSortInput,
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
-import { Model, UpdateOneModel } from 'mongoose';
+import { Model, SortOrder, UpdateOneModel } from 'mongoose';
 
 @Injectable()
 export class ResumesService {
@@ -13,8 +15,22 @@ export class ResumesService {
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
 	) {}
 
-	async findAll(): Promise<Resume[]> {
-		const results = await this.resumeModel.find().exec();
+	async findAll(sort?: ResumeSortInput): Promise<Resume[]> {
+		const sortCriteria: Record<string, SortOrder> = {};
+
+		if (sort) {
+			const fieldMap: Record<ResumeSortBy, string> = {
+				[ResumeSortBy.COMPANY]: 'company',
+				[ResumeSortBy.LEVEL]: 'level',
+				[ResumeSortBy.DATE]: 'createdAt',
+			};
+			const direction: SortOrder = sort.ascending ? 1 : -1;
+			sortCriteria[fieldMap[sort.field]] = direction;
+		}
+
+		sortCriteria['name'] = 1;
+
+		const results = await this.resumeModel.find().sort(sortCriteria).exec();
 		return results.map((item) => item.toObject());
 	}
 

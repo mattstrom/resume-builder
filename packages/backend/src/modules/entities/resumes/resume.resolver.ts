@@ -2,6 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	Resume,
 	ResumeCreateInput,
+	ResumeSortInput,
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
@@ -13,8 +14,11 @@ export class ResumeResolver {
 	constructor(private readonly resumesService: ResumesService) {}
 
 	@Query(() => [Resume])
-	async listResumes() {
-		return this.resumesService.findAll();
+	async listResumes(
+		@Args('sort', { type: () => ResumeSortInput, nullable: true })
+		sort?: ResumeSortInput,
+	) {
+		return this.resumesService.findAll(sort);
 	}
 
 	@Query(() => Resume)
