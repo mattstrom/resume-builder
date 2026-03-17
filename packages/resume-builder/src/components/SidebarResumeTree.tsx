@@ -11,7 +11,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarMenuSub,
-	SidebarMenuSubButton,
 	SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import {
@@ -110,17 +109,20 @@ export const SidebarResumeTree: FC = observer(() => {
 						</SidebarMenuButton>
 					</CollapsibleTrigger>
 					<CollapsibleContent>
-						<SidebarMenuSub>
+						<SidebarMenuSub className="border-l-0">
 							{groupResumes.map((resume) => (
 								<SidebarMenuSubItem key={resume._id}>
-									<SidebarMenuSubButton
+									<SidebarMenuButton
+										size="sm"
 										isActive={
 											selectedApiResumeId === resume._id
 										}
 										onClick={() => handleSelect(resume._id)}
+										tooltip={resume.name}
 									>
+										<FileIcon />
 										<span>{resume.name}</span>
-									</SidebarMenuSubButton>
+									</SidebarMenuButton>
 								</SidebarMenuSubItem>
 							))}
 						</SidebarMenuSub>
