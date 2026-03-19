@@ -174,7 +174,7 @@ const data: any = {
 					name: 'file.txt',
 					type: 'file',
 					file: {
-						url: 'https://prod-files-secure.s3.us-west-2.amazonaws.com/example-workspace/example-file/file.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=REDACTED_AWS_CREDENTIAL%2F20251230%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20251230T011404Z&X-Amz-Expires=3600&X-Amz-Security-Token=REDACTED&X-Amz-Signature=REDACTED&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject',
+						url: 'https://prod-files-secure.s3.us-west-2.amazonaws.com/example-workspace/example-file/file.txt',
 						expiry_time: '2025-12-30T02:14:04.141Z',
 					},
 				},
