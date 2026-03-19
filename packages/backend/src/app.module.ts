@@ -5,10 +5,11 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EntitiesModule } from './modules/entities/entities.module';
-import { McpModule } from './modules/mcp/mcp.module';
-import { GraphQLModule } from './modules/graphql/graphql.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { EntitiesModule } from './modules/entities/entities.module';
+import { GraphQLModule } from './modules/graphql/graphql.module';
+import { LoggingModule } from './modules/logging/logging.module';
+import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 		McpModule,
 		MongooseModule.forRoot(config.mongodb.uri),
 		PdfModule,
+		LoggingModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
