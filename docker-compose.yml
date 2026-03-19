@@ -1,11 +1,41 @@
 services:
-    mongodb:
-        image: mongo:latest
-        ports:
-            - 27017:27017
-        volumes:
-            - mongodb:/data/db
-            - ./backup:/backup
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./packages/backend/src:/app/packages/backend/src
+      - ./packages/backend/dist:/app/packages/backend/dist
+      - ./packages/backend/config:/app/packages/backend/config
+      - ./packages/entities/dist:/app/packages/entities/dist
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/resume-builder
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+      - ./backup:/backup
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/resume-builder/Dockerfile
+    ports:
+      - 5173:5173
+    volumes:
+      - ./packages/resume-builder/src:/app/packages/resume-builder/src
+      - ./packages/resume-builder/dist:/app/packages/resume-builder/dist
+      - ./packages/entities/dist:/app/packages/entities/dist
+      - ./packages/entities/schemas:/app/packages/entities/schemas
+    depends_on:
+      - backend
 
 volumes:
-    mongodb:
+  mongodb:
