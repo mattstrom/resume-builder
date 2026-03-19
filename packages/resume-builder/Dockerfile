@@ -39,8 +39,12 @@ COPY packages/resume-builder/tsconfig*.json packages/resume-builder/
 COPY packages/resume-builder/tailwind.config.* packages/resume-builder/
 COPY packages/resume-builder/postcss.config.* packages/resume-builder/
 COPY packages/resume-builder/index.html packages/resume-builder/
+COPY packages/resume-builder/config packages/resume-builder/config
 
 WORKDIR /app/packages/resume-builder
+
+ENV NODE_CONFIG_DIR=/app/packages/resume-builder/config
+ENV NODE_CONFIG_ENV=production
 
 EXPOSE 5173
 

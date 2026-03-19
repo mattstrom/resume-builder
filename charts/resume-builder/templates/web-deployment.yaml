@@ -28,8 +28,8 @@ spec:
               containerPort: 5173
               protocol: TCP
           env:
-            - name: VITE_API_URL
-              value: "http://{{ include "resume-builder.backend.fullname" . }}:{{ .Values.backend.service.port }}"
+            - name: NODE_CONFIG_ENV
+              value: {{ .Values.web.nodeConfigEnv | quote }}
           livenessProbe:
             httpGet:
               path: /

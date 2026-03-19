@@ -28,6 +28,7 @@ web:
     repository: registry.mattstrom.com/resume-builder-web
     tag: latest
     pullPolicy: Always
+  nodeConfigEnv: production
   service:
     type: ClusterIP
     port: 5173

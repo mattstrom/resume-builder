@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import config from 'config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,6 +27,9 @@ export default defineConfig({
 				rewrite: (path) => path.replace(/^\/api/, ''),
 			},
 		},
+	},
+	define: {
+		__CONFIG__: JSON.stringify(config.util.toObject()),
 	},
 	resolve: {
 		alias: {
