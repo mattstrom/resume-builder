@@ -1,83 +1,63 @@
 [
   {
-    "name": "E-commerce Platform",
-    "technologies": [
-      "React",
-      "Node.js",
-      "GraphQL",
-      "Mobx",
-      "RxJS",
-      "NestJS",
-      "PostgreSQL"
-    ],
+    "name": "Task Management App",
+    "technologies": ["React", "TypeScript", "Node.js", "PostgreSQL"],
     "items": [
-      "Architected and built full-stack web application for managing website marketing campaigns",
-      "Developed complex state management with Mobx and RxJS for responsive UI",
-      "Designed GraphQL API with NestJS and PostgreSQL backend for efficient data retrieval and manipulation",
-      "Implemented user authentication with OAuth and JWT, role-based access control, and audit logging",
-      "Engineered advanced attribute-based authorization system after discovering security\nulnerabilities",
-      "Instrumented Node.js backend with AWS X-Ray and Sentry for distributed tracing and metrics",
-      "Built advanced data visualization components using D3.js"
+      "Built a full-stack task management application with real-time updates",
+      "Implemented drag-and-drop kanban board with optimistic UI updates",
+      "Designed RESTful API with role-based access control"
+    ]
+  },
+  {
+    "name": "E-commerce Platform",
+    "technologies": ["React", "Node.js", "GraphQL", "Stripe", "PostgreSQL"],
+    "items": [
+      "Architected and built a multi-tenant e-commerce platform",
+      "Integrated payment processing with Stripe",
+      "Implemented search and filtering with full-text search",
+      "Built admin dashboard with analytics and reporting"
     ]
   },
   {
     "name": "Real-time Chat System",
-    "technologies": ["CRDT", "WebSockets", "Redis", "Node.js", "Y.js", "Mobx"],
+    "technologies": ["WebSockets", "Redis", "Node.js", "React"],
     "items": [
-      "Architected multi-user collaborative editing system using Conflict-free Replicated Data Types (CRDTs)",
-      "Developed custom synchronization layer between state management and CRDT engine",
-      "Implemented conflict resolution, presence awareness, and reconnection recovery"
+      "Built real-time messaging system supporting group and direct messages",
+      "Implemented presence indicators and typing notifications",
+      "Designed message persistence and search functionality"
     ]
   },
   {
     "name": "Job Queue Service",
     "technologies": ["Node.js", "BullMQ", "Redis"],
     "items": [
-      "Architected distributed job queue for handling asynchronous tasks at scale",
-      "Instrumented distributed tracing and monitoring for observability"
-    ]
-  },
-  {
-    "name": "Task Management App",
-    "technologies": [
-      "Electron",
-      "React",
-      "TypeScript",
-      "Mobx",
-      "Webpack",
-      "Vite"
-    ],
-    "items": [
-      "Led development of desktop app for website management and feature flag management",
-      "Integrated AI chatbot for AI-powered content suggestions",
-      "Implemented cross-platform distribution and packaging",
-      "Resolved complex bundling challenges across desktop app packaging tools"
+      "Architected distributed job queue for background task processing",
+      "Added monitoring dashboard for job status and metrics"
     ]
   },
   {
     "name": "CI/CD Pipeline",
-    "technologies": ["GitHub Actions", "Probot", "Claude Code"],
+    "technologies": ["GitHub Actions", "Docker", "AWS"],
     "items": [
-      "Architected CI/CD pipelines for automated testing, building, and deployment",
-      "Implemented Probot server for automating GitHub workflows and PR management",
-      "Integrated AI agents for automated code review and remote development",
-      "Developed internal CLI tool and Slack app for release and deployment management"
+      "Set up automated testing, building, and deployment pipelines",
+      "Implemented preview environments for pull requests",
+      "Built deployment notification system integrated with Slack"
     ]
   },
   {
-    "name": "serverless-dev-tools",
-    "technologies": ["Serverless", "Node.js", "CloudFront edge computing"],
+    "name": "CLI Developer Tool",
+    "technologies": ["Node.js", "TypeScript", "Commander.js"],
     "items": [
-      "Open-source library for local development of CloudFront edge computing functions",
-      "Eliminates deploy-test cycle for edge computing development"
+      "Built CLI tool for scaffolding and managing project templates",
+      "Implemented plugin system for extensibility"
     ]
   },
   {
     "name": "Component Library",
-    "technologies": ["Vanilla JS", "NextJS", "WordPress", "Drupal"],
+    "technologies": ["React", "TypeScript", "Storybook", "Tailwind CSS"],
     "items": [
-      "Built SDK enabling customers to embed experimentation capabilities into websites and backend applications",
-      "Created framework-specific plugins and vanilla JS library for broad compatibility"
+      "Created shared component library used across multiple applications",
+      "Built interactive documentation with Storybook"
     ]
   }
 ]
