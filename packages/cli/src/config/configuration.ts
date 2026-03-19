@@ -1,5 +1,5 @@
 export default () => ({
 	notion: {
-		apiToken: 'REDACTED_NOTION_TOKEN',
+		apiToken: process.env.NOTION_API_TOKEN ?? '',
 	},
 });
