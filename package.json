@@ -1,5 +1,5 @@
 {
-  "name": "@resume-builder/monorepo",
+  "name": "@mattstrom/resume-builder",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -12,7 +12,6 @@
   },
   "workspaces": [
     "packages/backend",
-    "packages/crdt",
     "packages/entities",
     "packages/resume-builder"
   ],

@@ -1,5 +1,5 @@
 {
-  "name": "@mattstrom/resume-builder",
+  "name": "@resume-builder/cli",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

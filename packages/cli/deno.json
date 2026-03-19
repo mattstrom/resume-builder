@@ -12,10 +12,10 @@
     "jsxImportSource": "react"
   },
   "imports": {
-    "@mattstrom/resume-builder": "../resume-builder/src/lib/index.ts",
-    "@mattstrom/resume-builder/types": "../resume-builder/src/lib/types.ts",
-    "@mattstrom/resume-builder/components": "../resume-builder/src/lib/components.ts",
-    "@mattstrom/resume-builder/providers": "../resume-builder/src/lib/providers.ts",
+    "@resume-builder/web": "../resume-builder/src/lib/index.ts",
+    "@resume-builder/web/types": "../resume-builder/src/lib/types.ts",
+    "@resume-builder/web/components": "../resume-builder/src/lib/components.ts",
+    "@resume-builder/web/providers": "../resume-builder/src/lib/providers.ts",
     "react": "npm:react@^19.2.0",
     "react/jsx-runtime": "npm:react@^19.2.0/jsx-runtime",
     "react-dom/server": "npm:react-dom@^19.2.0/server",

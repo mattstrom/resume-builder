@@ -3,7 +3,7 @@
  * These re-implement the layout structure for server-side rendering.
  */
 import { createElement, type FC, type PropsWithChildren } from 'react';
-import { useResume } from '@mattstrom/resume-builder/providers';
+import { useResume } from '@resume-builder/web/providers';
 
 // Re-implement minimal versions of components for SSR
 

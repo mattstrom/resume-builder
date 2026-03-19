@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createElement } from 'react';
-import type { Resume } from '@mattstrom/resume-builder/types';
-import { ResumeProvider } from '@mattstrom/resume-builder/providers';
+import type { Resume } from '@resume-builder/web/types';
+import { ResumeProvider } from '@resume-builder/web/providers';
 import {
 	BasicLayout,
 	ColumnLayout,

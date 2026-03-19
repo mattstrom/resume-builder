@@ -12,7 +12,7 @@ capabilities, organized as an Nx monorepo.
 
 The project consists of multiple packages working together:
 
-- **@mattstrom/resume-builder** (`packages/resume-builder`) - Main React
+- **@resume-builder/web** (`packages/resume-builder`) - Main React
   frontend application with ShadCN, Monaco editor, and Yjs for real-time
   collaborative editing
 - **@resume-builder/backend** (`packages/backend`) - NestJS backend with
@@ -39,13 +39,13 @@ The project consists of multiple packages working together:
 - `nx run-many -t <target>` - Run a target across multiple projects
 - `nx affected -t <target>` - Run a target on affected projects
 
-### Frontend (`@mattstrom/resume-builder`)
+### Frontend (`@resume-builder/web`)
 
-- `npm run dev` or `nx serve @mattstrom/resume-builder` - Start dev server
+- `npm run dev` or `nx serve @resume-builder/web` - Start dev server
     - DO NOT start the frontend yourself. I will start it myself.
 
-- `nx build @mattstrom/resume-builder` - Build the application
-- `nx build @mattstrom/resume-builder --config vite.lib.config.ts` - Build as
+- `nx build @resume-builder/web` - Build the application
+- `nx build @resume-builder/web --config vite.lib.config.ts` - Build as
   library
 
 ### Backend (`@resume-builder/backend`)
