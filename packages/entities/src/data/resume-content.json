@@ -1,8 +1,8 @@
 [
   {
     "name": "Alex Johnson",
-    "title": "Principal Software Engineer",
-    "summary": "Principal Software Engineer with 15+ years of full-stack experience and deep specialization in full-stack applications. Built complex React/TypeScript UIs, performant and secure Node.js backend servers, real-time collaboration systems using CRDTs, and AI-integrated visual editors. Capable generalist adept in greenfield projects, end-to-end architecture, Node.js services, AWS infrastructure, and CI/CD automation.",
+    "title": "Senior Software Engineer",
+    "summary": "Senior Software Engineer with 10+ years of full-stack experience building web applications. Proficient in React, TypeScript, Node.js, and cloud infrastructure. Experienced with real-time systems, CI/CD pipelines, and cross-functional team leadership.",
     "contactInformation": {
       "location": "Anytown, USA",
       "phoneNumber": "(555) 123-4567",

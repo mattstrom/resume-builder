@@ -1,43 +1,42 @@
 [
   {
-    "company": "Acme Corp (formerly Beta Labs)",
-    "position": "Principal Software Engineer, Applications",
+    "company": "Acme Corp",
+    "position": "Senior Software Engineer",
     "location": "Anytown, USA",
     "startDate": "2019-03-01",
     "endDate": "2025-12-18",
     "responsibilities": [
-      "Built full-stack web application with React, TypeScript, Node.js, GraphQL, and PostgreSQL",
-      "Architected real-time collaboration system using CRDTs over WebSockets",
-      "Integrated AI chatbot for AI-powered content suggestions",
-      "Designed and managed AWS infrastructure (Lambda, ECS, RDS, DynamoDB, CloudFront, API Gateway)",
-      "Designed CI/CD pipelines on GitHub Actions with automated code review with AI agents",
-      "Led development of greenfield desktop application for building web applications with modern experimentation",
-      "Mentored junior engineers and established code review practices"
+      "Built and maintained full-stack web applications using React, TypeScript, and Node.js",
+      "Designed RESTful and GraphQL APIs with PostgreSQL and Redis backends",
+      "Managed cloud infrastructure on AWS including Lambda, ECS, and CloudFront",
+      "Set up CI/CD pipelines with GitHub Actions for automated testing and deployment",
+      "Led a small team of engineers and conducted code reviews",
+      "Developed internal tooling to improve developer productivity"
     ]
   },
   {
     "company": "Beta Labs",
-    "position": "Staff Software Engineer, Frontend",
+    "position": "Software Engineer",
     "location": "Anytown, USA",
     "startDate": "2016-07-04",
     "endDate": "2019-03-01",
     "responsibilities": [
-      "Built and maintained AI-enabled embedded web application and SDK for online retail",
-      "Spearheaded adoption of containerized development environments and production deployed stack",
-      "Migrated legacy codebase from AngularJS to Angular and TypeScript",
-      "Lead full stack engineer on two proof-of-concept teams. Built products fully from concept to deliverable"
+      "Developed customer-facing web applications and JavaScript SDKs",
+      "Migrated legacy frontend codebase to modern frameworks and TypeScript",
+      "Introduced containerized development and deployment workflows",
+      "Collaborated with product and design teams to ship features end-to-end"
     ]
   },
   {
     "company": "Gamma Studios",
-    "position": "Frontend Software Engineer",
+    "position": "Junior Software Engineer",
     "location": "Anytown, USA",
     "startDate": "2014-07-01",
     "endDate": "2016-06-01",
     "responsibilities": [
-      "Refactored large portions of original codebase into testable, modularized code to reduce technical debt",
-      "Contributed to Xamarin-based macOS application",
-      "Architected and developed sophisticated web application for content management"
+      "Built responsive web applications with modern JavaScript frameworks",
+      "Refactored legacy code to improve test coverage and reduce technical debt",
+      "Contributed to cross-platform desktop application development"
     ]
   }
 ]
