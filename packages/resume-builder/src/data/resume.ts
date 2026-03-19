@@ -21,9 +21,9 @@ export const resume: Resume = {
 			personalWebsite: 'https://alexjohnson.dev',
 		},
 		summary: outdent`
-		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and 
-		cross-platform desktop applications. Built real-time collaboration systems using CRDTs, AI-integrated visual 
-		editors, and complex React/TypeScript UIs. Capable generalist adept in greenfield projects, end-to-end architecture, 
+		Principal Software Engineer with 15+ years of full-stack experience and deep specialization in Electron and
+		cross-platform desktop applications. Built real-time collaboration systems using CRDTs, AI-integrated visual
+		editors, and complex React/TypeScript UIs. Capable generalist adept in greenfield projects, end-to-end architecture,
 		Node.js services, AWS infrastructure, and CI/CD automation.
 	`,
 		workExperience: [

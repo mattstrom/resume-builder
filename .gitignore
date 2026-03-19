@@ -28,5 +28,7 @@ dist-ssr
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 
+.env*
+
 backup
 files
