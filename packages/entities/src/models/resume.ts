@@ -79,6 +79,11 @@ export class ResumeCreateInput {
 }
 
 @InputType()
+export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, [
+	'data',
+] as const) {}
+
+@InputType()
 export class ResumeUpdateInput extends PartialType(ResumeCreateInput) {}
 
 export enum ResumeSortBy {

@@ -42,9 +42,8 @@ export class ChatController {
 		let conversationId = data?.conversationId;
 
 		const systemPrompt = `
-			You are the assistant to a hiring manager. The hiring manager will
-			provide you with a job description. Help the hiring manager
-			decide if the candidate is a strong fit.
+			You are an expert resume preparer. When asked you will help prepare a resume
+			for the given job description.
 
 			Use the available tools to retrieve the candidate's information
 			(education, work history, skills, projects, etc.) as needed to

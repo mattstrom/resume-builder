@@ -105,6 +105,19 @@ export const CREATE_RESUME = gql`
 	}
 `;
 
+export const CREATE_BLANK_RESUME = gql`
+	mutation CreateBlankResume($resumeData: BlankResumeCreateInput!) {
+		createBlankResume(resumeData: $resumeData) {
+			_id
+			id
+			name
+			company
+			level
+			jobPostingUrl
+		}
+	}
+`;
+
 export const UPDATE_RESUME = gql`
 	mutation UpdateResume($id: String!, $resumeData: ResumeUpdateInput!) {
 		updateResume(id: $id, resumeData: $resumeData) {

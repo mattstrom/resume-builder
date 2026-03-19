@@ -164,6 +164,7 @@ enum ResumeSortBy {
 
 type Mutation {
 	createResume(resumeData: ResumeCreateInput!): Resume!
+	createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
 	updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
 	patchResume(id: String!, update: JSON!): Resume!
 	createEducation(education: EducationInput!): Education!
@@ -249,6 +250,14 @@ input VolunteeringInput {
 	endDate: String
 	responsibilities: [String!]!
 	_id: ID
+}
+
+input BlankResumeCreateInput {
+	id: String!
+	name: String!
+	company: String!
+	level: String
+	jobPostingUrl: String!
 }
 
 input ResumeUpdateInput {

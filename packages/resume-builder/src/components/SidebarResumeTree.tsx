@@ -1,7 +1,13 @@
 import { observer } from 'mobx-react';
 import { type FC, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowUpDown, ChevronRight, FileIcon, RotateCw } from 'lucide-react';
+import {
+	ArrowUpDown,
+	ChevronRight,
+	FileIcon,
+	Plus,
+	RotateCw,
+} from 'lucide-react';
 import {
 	SidebarGroup,
 	SidebarGroupAction,
@@ -30,6 +36,7 @@ import {
 import type { Resume } from '@resume-builder/entities';
 import { useStore } from '../stores/store.provider';
 import { useFileManager } from './FileManager/FileManager.provider';
+import { CreateResumeDialog } from './CreateResumeDialog';
 
 const SORT_OPTIONS = [
 	{ value: 'SORT_NAME', label: 'Name' },
@@ -135,6 +142,11 @@ export const SidebarResumeTree: FC = observer(() => {
 		<SidebarGroup>
 			<SidebarGroupLabel>Resumes</SidebarGroupLabel>
 			<div className="flex items-center gap-0.5 absolute right-2 top-2">
+				<CreateResumeDialog>
+					<button title="New resume" className={actionButtonClass}>
+						<Plus />
+					</button>
+				</CreateResumeDialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button

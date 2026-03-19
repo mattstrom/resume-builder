@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+	BlankResumeCreateInput,
 	Resume,
 	ResumeCreateInput,
 	ResumeSortBy,
@@ -45,6 +46,12 @@ export class ResumesService {
 	}
 
 	async create(resumeData: ResumeCreateInput): Promise<Resume> {
+		const created = new this.resumeModel(resumeData);
+		const saved = await created.save();
+		return saved.toObject();
+	}
+
+	async createBlank(resumeData: BlankResumeCreateInput): Promise<Resume> {
 		const created = new this.resumeModel(resumeData);
 		const saved = await created.save();
 		return saved.toObject();

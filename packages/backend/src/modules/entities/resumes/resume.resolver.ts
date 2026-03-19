@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
+	BlankResumeCreateInput,
 	Resume,
 	ResumeCreateInput,
 	ResumeSortInput,
@@ -29,6 +30,13 @@ export class ResumeResolver {
 	@Mutation(() => Resume)
 	async createResume(@Args('resumeData') resumeData: ResumeCreateInput) {
 		return this.resumesService.create(resumeData);
+	}
+
+	@Mutation(() => Resume)
+	async createBlankResume(
+		@Args('resumeData') resumeData: BlankResumeCreateInput,
+	) {
+		return this.resumesService.createBlank(resumeData);
 	}
 
 	@Mutation(() => Resume)
