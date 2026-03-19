@@ -60,3 +60,42 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Backend fully qualified name
+*/}}
+{{- define "resume-builder.backend.fullname" -}}
+{{- printf "%s-backend" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Backend selector labels
+*/}}
+{{- define "resume-builder.backend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "resume-builder.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: backend
+{{- end }}
+
+{{/*
+Web fully qualified name
+*/}}
+{{- define "resume-builder.web.fullname" -}}
+{{- printf "%s-web" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Web selector labels
+*/}}
+{{- define "resume-builder.web.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "resume-builder.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: web
+{{- end }}
+
+{{/*
+MongoDB connection URI
+*/}}
+{{- define "resume-builder.mongodbUri" -}}
+{{- printf "mongodb+srv://%s:%s@%s-svc.%s.svc.cluster.local/%s?replicaSet=%s&ssl=false" .Values.mongodb.username "$(MONGODB_PASSWORD)" .Values.mongodb.name .Release.Namespace .Values.mongodb.database .Values.mongodb.name }}
+{{- end }}
