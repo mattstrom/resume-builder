@@ -97,5 +97,5 @@ app.kubernetes.io/component: web
 MongoDB connection URI
 */}}
 {{- define "resume-builder.mongodbUri" -}}
-{{- printf "mongodb+srv://%s:%s@%s-svc.%s.svc.cluster.local/%s?replicaSet=%s&ssl=false" .Values.mongodb.username "$(MONGODB_PASSWORD)" .Values.mongodb.name .Release.Namespace .Values.mongodb.database .Values.mongodb.name }}
+{{- printf "mongodb://%s:%s@%s-svc.%s.svc.cluster.local:27017/%s?replicaSet=%s&authSource=admin&ssl=false" .Values.mongodb.username "$(MONGODB_PASSWORD)" .Values.mongodb.name .Release.Namespace .Values.mongodb.database .Values.mongodb.name }}
 {{- end }}
