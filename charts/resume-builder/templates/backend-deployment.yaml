@@ -37,13 +37,13 @@ spec:
               value: {{ include "resume-builder.mongodbUri" . | quote }}
           livenessProbe:
             httpGet:
-              path: /graphql?query=%7B__typename%7D
+              path: /health
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /graphql?query=%7B__typename%7D
+              path: /health
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5

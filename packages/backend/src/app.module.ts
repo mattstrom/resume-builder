@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { ChatModule } from './modules/chat/chat.module';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { GraphQLModule } from './modules/graphql/graphql.module';
+import { HealthModule } from './modules/health/health.module';
 import { LoggingModule } from './modules/logging/logging.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
@@ -21,6 +22,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 		ChatModule,
 		EntitiesModule,
 		GraphQLModule,
+		HealthModule,
 		McpModule,
 		MongooseModule.forRoot(config.mongodb.uri),
 		PdfModule,
