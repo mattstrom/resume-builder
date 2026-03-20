@@ -45,9 +45,8 @@ ENV NODE_CONFIG_DIR=/app/packages/resume-builder/config
 ARG NODE_CONFIG_ENV=production
 ENV NODE_CONFIG_ENV=${NODE_CONFIG_ENV}
 
-# Build entities first, then web
-# Skip Nx cache to avoid SQLite errors in Docker
-RUN npx nx build @resume-builder/entities --skip-nx-cache && npx nx build @resume-builder/web --skip-nx-cache
+# Build web (Nx handles building dependencies like entities automatically)
+RUN npx nx build @resume-builder/web
 
 # Stage 4: Serve with nginx
 FROM nginx:alpine
