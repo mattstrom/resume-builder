@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile
+      target: dev
     ports:
       - 3000:3000
     volumes:
@@ -27,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: packages/resume-builder/Dockerfile
+      target: dev
     ports:
       - 5173:5173
     volumes:

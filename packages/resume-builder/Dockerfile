@@ -4,48 +4,66 @@ FROM node:24.8.0-alpine AS deps
 WORKDIR /app
 
 # Copy root workspace files
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json nx.json tsconfig.json ./
 
-# Copy package.json files for web and its local dependency (entities)
-COPY packages/resume-builder/package.json packages/resume-builder/
+# Copy all workspace package.json files (npm ci needs them all)
+COPY packages/backend/package.json packages/backend/
 COPY packages/entities/package.json packages/entities/
+COPY packages/resume-builder/package.json packages/resume-builder/
 
-# Install dependencies for both workspaces
-RUN npm ci --workspace=packages/resume-builder --workspace=packages/entities
+# Install all dependencies (including dev for build)
+# Root install needed so nx and other root devDependencies are available
+RUN npm ci
 
-# Stage 2: Runtime
-FROM node:24.8.0-alpine
+# Stage 2: Dev target (for docker-compose with volume mounts)
+FROM deps AS dev
 
 WORKDIR /app
 
-# Copy installed node_modules from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages/resume-builder/node_modules ./packages/resume-builder/node_modules
-COPY --from=deps /app/packages/entities/node_modules ./packages/entities/node_modules
-
-# Source and dist are expected to be mounted as volumes:
-#   -v ./packages/resume-builder/src:/app/packages/resume-builder/src
-#   -v ./packages/resume-builder/dist:/app/packages/resume-builder/dist
-#   -v ./packages/entities/dist:/app/packages/entities/dist
-#   -v ./packages/entities/schemas:/app/packages/entities/schemas
-
-# Copy entities package.json for module resolution
-COPY packages/entities/package.json packages/entities/
-
-# Copy config files needed at runtime
+# Copy config files needed for vite
 COPY packages/resume-builder/package.json packages/resume-builder/
-COPY packages/resume-builder/vite.config.ts packages/resume-builder/
-COPY packages/resume-builder/tsconfig*.json packages/resume-builder/
-COPY packages/resume-builder/tailwind.config.* packages/resume-builder/
-COPY packages/resume-builder/postcss.config.* packages/resume-builder/
-COPY packages/resume-builder/index.html packages/resume-builder/
-COPY packages/resume-builder/config packages/resume-builder/config
+COPY packages/entities/package.json packages/entities/
 
 WORKDIR /app/packages/resume-builder
 
+EXPOSE 5173
+
+# Expects src/, dist/ as volume mounts from host
+CMD ["npx", "vite", "--host"]
+
+# Stage 3: Build
+FROM deps AS build
+
+WORKDIR /app
+
+# Copy source for entities and web
+COPY packages/entities packages/entities
+COPY packages/resume-builder packages/resume-builder
+
+# Set config environment for build-time injection
 ENV NODE_CONFIG_DIR=/app/packages/resume-builder/config
-ENV NODE_CONFIG_ENV=production
+ARG NODE_CONFIG_ENV=production
+ENV NODE_CONFIG_ENV=${NODE_CONFIG_ENV}
+
+# Build entities first, then web
+# Skip Nx cache to avoid SQLite errors in Docker
+RUN npx nx build @resume-builder/entities --skip-nx-cache && npx nx build @resume-builder/web --skip-nx-cache
+
+# Stage 4: Serve with nginx
+FROM nginx:alpine
+
+COPY --from=build /app/packages/resume-builder/dist /usr/share/nginx/html
+
+# Support client-side routing
+RUN printf 'server {\n\
+    listen 5173;\n\
+    root /usr/share/nginx/html;\n\
+    index index.html;\n\
+    location / {\n\
+        try_files $uri $uri/ /index.html;\n\
+    }\n\
+}\n' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 5173
 
-CMD ["npx", "vite", "--host"]
+CMD ["nginx", "-g", "daemon off;"]
