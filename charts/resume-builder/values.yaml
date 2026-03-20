@@ -41,7 +41,7 @@ web:
 mongodb:
   name: resume-builder-mongodb
   version: '7.0.5'
-  members: 3
+  members: 1
   storage: 10Gi
   database: resume-builder
   username: appuser

@@ -10,7 +10,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
-		react(),
+		react({
+			babel: {
+				plugins: [
+					[
+						'@babel/plugin-proposal-decorators',
+						{ version: 'legacy' },
+					],
+					[
+						'@babel/plugin-transform-class-properties',
+						{ loose: true },
+					],
+				],
+			},
+		}),
 		TanStackRouterVite({
 			routesDirectory: path.resolve(__dirname, './src/routes'),
 			generatedRouteTree: path.resolve(
