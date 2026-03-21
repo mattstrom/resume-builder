@@ -69,6 +69,19 @@ Prettier is configured with:
 
 TypeScript is set to strict mode with no unused locals/parameters.
 
+## Commit Conventions
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/).
+Prefix commit messages with a type:
+
+- `feat:` - New features
+  - Include `BREAKING CHANGE` in the message body if the feature introduces a breaking change
+- `fix:` - Bug fixes
+- `chore:` - Maintenance tasks (deps, config, etc.)
+- `refactor:` - Code changes that neither fix a bug nor add a feature
+- `docs:` - Documentation changes
+- `test:` - Adding or updating tests
+
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
 
