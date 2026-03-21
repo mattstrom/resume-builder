@@ -6,6 +6,11 @@ export interface Config {
 	mongodb: {
 		uri: string;
 	};
+	backup: {
+		enabled: boolean;
+		dir: string;
+		retentionDays: number;
+	};
 }
 
 const schema = convict<Config>({
@@ -21,6 +26,26 @@ const schema = convict<Config>({
 			format: String,
 			default: '',
 			env: 'MONGODB_URI',
+		},
+	},
+	backup: {
+		enabled: {
+			doc: 'Enable periodic MongoDB backups',
+			format: Boolean,
+			default: true,
+			env: 'BACKUP_ENABLED',
+		},
+		dir: {
+			doc: 'Directory to store backup files',
+			format: String,
+			default: './backups',
+			env: 'BACKUP_DIR',
+		},
+		retentionDays: {
+			doc: 'Number of days to retain backup files',
+			format: Number,
+			default: 7,
+			env: 'BACKUP_RETENTION_DAYS',
 		},
 	},
 });

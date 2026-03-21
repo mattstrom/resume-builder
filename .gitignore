@@ -33,5 +33,5 @@ vitest.config.*.timestamp*
 # Helm dependencies
 charts/*/charts/
 
-backup
+/backup
 files
