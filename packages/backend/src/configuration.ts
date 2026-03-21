@@ -14,6 +14,7 @@ const schema = convict<Config>({
 		format: String,
 		default: '',
 		env: 'ANTHROPIC_API_KEY',
+		sensitive: true,
 	},
 	mongodb: {
 		uri: {
@@ -21,6 +22,7 @@ const schema = convict<Config>({
 			format: String,
 			default: '',
 			env: 'MONGODB_URI',
+			sensitive: true,
 		},
 	},
 });
