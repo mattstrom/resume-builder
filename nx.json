@@ -21,6 +21,13 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^default"]
+    },
+    "docker-build": {
+      "cache": true,
+      "inputs": ["{projectRoot}/Dockerfile", "{projectRoot}/src/**/*"]
+    },
+    "docker-push": {
+      "dependsOn": ["docker-build"]
     }
   },
   "plugins": [

@@ -14,6 +14,18 @@
         "command": "npm run build",
         "cwd": "{projectRoot}"
       }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f packages/backend/Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-backend:${TAG:-latest} ."
+      }
+    },
+    "docker-push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker push ${REGISTRY:-registry.mattstrom.com}/resume-builder-backend:${TAG:-latest}"
+      }
     }
   }
 }
