@@ -8,7 +8,7 @@ import { SidebarResumeTree } from './SidebarResumeTree';
 
 export const AppSidebar: FC<PropsWithChildren> = ({ children }) => {
 	return (
-		<ShadcnSidebar className="print:hidden">
+		<ShadcnSidebar collapsible="none" className="print:hidden h-full">
 			<SidebarHeader className="border-b border-sidebar-border px-4 py-3">
 				<span className="text-sm font-medium text-sidebar-foreground/70 uppercase tracking-wider">
 					Explorer
