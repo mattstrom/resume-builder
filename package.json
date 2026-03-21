@@ -20,7 +20,7 @@
   ],
   "devDependencies": {
     "@nestjs/cli": "^11.0.14",
-    "@nx/eslint": "22.3.3",`
+    "@nx/eslint": "22.3.3",
     "@nx/vite": "22.3.3",
     "@nx/vitest": "22.3.3",
     "@nx/web": "22.3.3",
