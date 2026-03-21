@@ -152,7 +152,7 @@ export const ChatPanel: FC = () => {
 	);
 
 	return (
-		<div className="dark flex flex-col h-full w-[400px] border-l border-slate-700 bg-slate-900 text-slate-100">
+		<div className="dark flex flex-col h-full w-full border-l border-slate-700 bg-slate-900 text-slate-100">
 			<div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
 				<div className="min-w-0 flex-1">
 					<h2 className="text-sm font-semibold text-white truncate">
