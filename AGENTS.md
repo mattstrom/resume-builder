@@ -75,7 +75,7 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/).
 Prefix commit messages with a type:
 
 - `feat:` - New features
-  - Include `BREAKING CHANGE` in the message body if the feature introduces a breaking change
+    - Include `BREAKING CHANGE` in the message body if the feature introduces a breaking change
 - `fix:` - Bug fixes
 - `chore:` - Maintenance tasks (deps, config, etc.)
 - `refactor:` - Code changes that neither fix a bug nor add a feature
