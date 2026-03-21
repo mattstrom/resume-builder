@@ -25,6 +25,10 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
+[{*.gql,*.graphql}]
+indent_style = space
+indent_size = 2
+
 [{*.ats,*.cts,*.mts,*.ts}]
 indent_style = tab
 ij_continuation_indent_size = 4
