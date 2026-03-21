@@ -41,8 +41,8 @@ export const Workspace: FC = () => {
 				>
 					<Panel
 						id="editor"
-						defaultSize={50}
-						minSize={30}
+						defaultSize="50%"
+						minSize="30%"
 						className="workspace-left"
 					>
 						{editorMode === 'json' ? (
@@ -56,8 +56,8 @@ export const Workspace: FC = () => {
 
 					<Panel
 						id="resume"
-						defaultSize={50}
-						minSize={30}
+						defaultSize="50%"
+						minSize="30%"
 						className="workspace-right"
 					>
 						<PreviewFrame resumeId={resumeId} />
