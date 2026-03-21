@@ -2,9 +2,9 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { type CSSProperties, useEffect, useRef } from 'react';
 import {
 	Panel,
-	PanelGroup,
-	PanelResizeHandle,
-	type ImperativePanelHandle,
+	Group as PanelGroup,
+	Separator as PanelResizeHandle,
+	type PanelImperativeHandle,
 } from 'react-resizable-panels';
 import { ChatPanel } from '../components/ChatPanel.tsx';
 import { ResumeProvider } from '../components/Resume.provider.tsx';
@@ -22,7 +22,7 @@ export const Route = createFileRoute('/editor')({
 function EditorLayout() {
 	const { resumeData } = useFileManager();
 	const { sidebarOpen, setSidebarOpen, chatOpen } = useSettings();
-	const sidebarPanelRef = useRef<ImperativePanelHandle>(null);
+	const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
 
 	const sidebarDefaultSize =
 		Number(localStorage.getItem('sidebar-panel-size')) || 15;
@@ -47,14 +47,14 @@ function EditorLayout() {
 			className="min-h-0 h-screen flex-col"
 		>
 			<EditorToolbar />
-			<PanelGroup direction="horizontal" className="flex-1 min-h-0">
+			<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
 				<Panel
 					ref={sidebarPanelRef}
 					id="sidebar"
 					collapsible
-					defaultSize={sidebarDefaultSize}
-					minSize={8}
-					maxSize={30}
+					defaultSize={`${sidebarDefaultSize}%`}
+					minSize="8%"
+					maxSize="30%"
 					onCollapse={() => setSidebarOpen(false)}
 					onExpand={() => setSidebarOpen(true)}
 					onResize={(size) =>
@@ -80,9 +80,9 @@ function EditorLayout() {
 						<PanelResizeHandle className="editor-resize-handle" />
 						<Panel
 							id="chat"
-							defaultSize={chatDefaultSize}
-							minSize={15}
-							maxSize={40}
+							defaultSize={`${chatDefaultSize}%`}
+							minSize="15%"
+							maxSize="40%"
 							onResize={(size) =>
 								localStorage.setItem(
 									'chat-panel-size',
