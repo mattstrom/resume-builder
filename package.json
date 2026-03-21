@@ -11,7 +11,7 @@
     "format:check": "prettier --check .",
     "docker:build": "nx run-many -t docker-build",
     "docker:push": "nx run-many -t docker-push",
-    "deploy": "helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-default} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --install --wait"
+    "deploy": "helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --install --wait"
   },
   "workspaces": [
     "packages/backend",
@@ -20,7 +20,7 @@
   ],
   "devDependencies": {
     "@nestjs/cli": "^11.0.14",
-    "@nx/eslint": "22.3.3",
+    "@nx/eslint": "22.3.3",`
     "@nx/vite": "22.3.3",
     "@nx/vitest": "22.3.3",
     "@nx/web": "22.3.3",
