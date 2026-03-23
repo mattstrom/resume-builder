@@ -9,6 +9,10 @@ export class ContactInformation {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	location: string;
 
@@ -36,7 +40,7 @@ export class ContactInformation {
 @InputType()
 export class ContactInformationInput extends OmitType(
 	ContactInformation,
-	['_id'] as const,
+	['_id', 'uid'] as const,
 	InputType,
 ) {
 	@Field(() => ID, { nullable: true })
@@ -48,6 +52,7 @@ export const ContactInformationSchema =
 
 export const contactInformationSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	location: z.string(),
 	phoneNumber: z.string(),
 	email: z.email(),

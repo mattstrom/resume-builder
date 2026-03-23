@@ -7,6 +7,7 @@ import {
 	Post,
 	Query,
 } from '@nestjs/common';
+import { CurrentUser } from '../../auth';
 import { ConversationsService } from './conversations.service';
 
 @Controller('api/conversations')
@@ -14,23 +15,29 @@ export class ConversationsController {
 	constructor(private readonly conversationsService: ConversationsService) {}
 
 	@Get()
-	async findAll(@Query('resumeId') resumeId: string) {
-		return this.conversationsService.findAllByResumeId(resumeId);
+	async findAll(
+		@CurrentUser('sub') uid: string,
+		@Query('resumeId') resumeId: string,
+	) {
+		return this.conversationsService.findAllByResumeId(uid, resumeId);
 	}
 
 	@Get(':id')
-	async findById(@Param('id') id: string) {
-		return this.conversationsService.findById(id);
+	async findById(@CurrentUser('sub') uid: string, @Param('id') id: string) {
+		return this.conversationsService.findById(uid, id);
 	}
 
 	@Post()
-	async create(@Body() body: { resumeId: string; title?: string }) {
-		return this.conversationsService.create(body);
+	async create(
+		@CurrentUser('sub') uid: string,
+		@Body() body: { resumeId: string; title?: string },
+	) {
+		return this.conversationsService.create(uid, body);
 	}
 
 	@Delete(':id')
-	async delete(@Param('id') id: string) {
-		await this.conversationsService.delete(id);
+	async delete(@CurrentUser('sub') uid: string, @Param('id') id: string) {
+		await this.conversationsService.delete(uid, id);
 		return { success: true };
 	}
 }

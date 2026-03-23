@@ -10,15 +10,15 @@ export class ProjectsService {
 		private readonly projectModel: Model<Project>,
 	) {}
 
-	async findAll() {
-		return this.projectModel.find().exec();
+	async findAll(uid: string) {
+		return this.projectModel.find({ uid }).exec();
 	}
 
-	async find(id: string): Promise<Project | null> {
-		return this.projectModel.findById(id).exec();
+	async find(uid: string, id: string): Promise<Project | null> {
+		return this.projectModel.findOne({ _id: id, uid }).exec();
 	}
 
-	async create(projectData: ProjectInput): Promise<Project> {
-		return this.projectModel.create(projectData);
+	async create(uid: string, projectData: ProjectInput): Promise<Project> {
+		return this.projectModel.create({ ...projectData, uid });
 	}
 }

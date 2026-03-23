@@ -7,7 +7,7 @@ import { Model } from 'mongoose';
 export class JobsService {
 	constructor(@InjectModel(Job.name) private readonly jobModel: Model<Job>) {}
 
-	async findAll() {
-		return this.jobModel.find().exec();
+	async findAll(uid: string) {
+		return this.jobModel.find({ uid }).exec();
 	}
 }

@@ -10,7 +10,7 @@ export class ContactInformationService {
 		private readonly contactInformationModel: Model<ContactInformation>,
 	) {}
 
-	async findAll() {
-		return this.contactInformationModel.find().exec();
+	async findAll(uid: string) {
+		return this.contactInformationModel.find({ uid }).exec();
 	}
 }
