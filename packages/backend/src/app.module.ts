@@ -3,8 +3,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './modules/auth';
 import { ChatModule } from './modules/chat/chat.module';
 import { EntitiesModule } from './modules/entities/entities.module';
@@ -30,7 +28,5 @@ import { PdfModule } from './modules/pdf/pdf.module';
 		PdfModule,
 		LoggingModule,
 	],
-	controllers: [AppController],
-	providers: [AppService],
 })
 export class AppModule {}
