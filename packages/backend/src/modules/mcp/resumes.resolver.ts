@@ -15,10 +15,13 @@ import {
 import { Model } from 'mongoose';
 import { z } from 'zod';
 
+import { Public } from '../auth';
+
 const getSkillsSchema = {
 	categories: z.array(z.string()).optional(),
 };
 
+@Public()
 @Resolver()
 export class ResumesResolver {
 	constructor(
