@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './modules/auth';
 import { ChatModule } from './modules/chat/chat.module';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { GraphQLModule } from './modules/graphql/graphql.module';
@@ -19,6 +20,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 			isGlobal: true,
 			load: [() => config],
 		}),
+		AuthModule,
 		ChatModule,
 		EntitiesModule,
 		GraphQLModule,

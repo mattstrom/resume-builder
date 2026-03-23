@@ -3,12 +3,30 @@ import convict from 'convict';
 
 export interface Config {
 	anthropicApiKey: string;
+	auth0: {
+		domain: string;
+		audience: string;
+	};
 	mongodb: {
 		uri: string;
 	};
 }
 
 const schema = convict<Config>({
+	auth0: {
+		domain: {
+			doc: 'Auth0 tenant domain (e.g., your-tenant.auth0.com)',
+			format: String,
+			default: '',
+			env: 'AUTH0_DOMAIN',
+		},
+		audience: {
+			doc: 'Auth0 API audience identifier',
+			format: String,
+			default: 'https://api.resume-builder.com',
+			env: 'AUTH0_AUDIENCE',
+		},
+	},
 	anthropicApiKey: {
 		doc: 'Anthropic API key for AI chat',
 		format: String,

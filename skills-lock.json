@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "auth0-express": {
+      "source": "auth0/agent-skills",
+      "sourceType": "github",
+      "computedHash": "784f51e2d0131e9b45814fbf0e1a88c580797e57de0b6a15875046795a421c58"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
