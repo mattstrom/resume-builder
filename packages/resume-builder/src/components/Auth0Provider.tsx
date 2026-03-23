@@ -13,6 +13,8 @@ export const Auth0Provider: FC<PropsWithChildren> = ({ children }) => {
 		<BaseAuth0Provider
 			domain={domain}
 			clientId={clientId}
+			cacheLocation="localstorage"
+			useRefreshTokens
 			authorizationParams={{
 				redirect_uri: window.location.origin,
 				audience,
