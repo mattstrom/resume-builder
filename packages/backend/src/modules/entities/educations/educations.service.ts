@@ -10,31 +10,37 @@ export class EducationsService {
 		private readonly educationModel: Model<Education>,
 	) {}
 
-	async findAll(): Promise<Education[]> {
-		const results = await this.educationModel.find().exec();
+	async findAll(uid: string): Promise<Education[]> {
+		const results = await this.educationModel.find({ uid }).exec();
 		return results.map((item) => item.toObject());
 	}
 
-	async find(id: string): Promise<Education | null> {
-		const result = await this.educationModel.findById(id).exec();
+	async find(uid: string, id: string): Promise<Education | null> {
+		const result = await this.educationModel
+			.findOne({ _id: id, uid })
+			.exec();
 		if (!result) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}
 		return result.toObject();
 	}
 
-	async create(educationData: EducationInput): Promise<Education> {
-		const created = new this.educationModel(educationData);
+	async create(
+		uid: string,
+		educationData: EducationInput,
+	): Promise<Education> {
+		const created = new this.educationModel({ ...educationData, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
 	async update(
+		uid: string,
 		id: string,
 		educationData: EducationInput,
 	): Promise<Education> {
 		const updated = await this.educationModel
-			.findByIdAndUpdate(id, educationData, { new: true })
+			.findOneAndUpdate({ _id: id, uid }, educationData, { new: true })
 			.exec();
 
 		if (!updated) {
@@ -44,8 +50,10 @@ export class EducationsService {
 		return updated.toObject();
 	}
 
-	async delete(id: string): Promise<void> {
-		const result = await this.educationModel.findByIdAndDelete(id).exec();
+	async delete(uid: string, id: string): Promise<void> {
+		const result = await this.educationModel
+			.findOneAndDelete({ _id: id, uid })
+			.exec();
 		if (!result) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}

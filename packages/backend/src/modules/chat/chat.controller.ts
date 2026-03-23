@@ -2,6 +2,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages';
 import type { Response } from 'express';
 
+import { CurrentUser } from '../auth';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service';
 import { ConversationsService } from '../entities/conversations/conversations.service';
 import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
@@ -30,6 +31,7 @@ export class ChatController {
 
 	@Post()
 	async chat(
+		@CurrentUser('sub') uid: string,
 		@Body()
 		body: {
 			messages: any[];
@@ -78,7 +80,7 @@ export class ChatController {
 		// Create conversation on first message if needed
 		if (!conversationId && resumeId) {
 			const title = userText.slice(0, 50) || 'New Conversation';
-			const conversation = await this.conversationsService.create({
+			const conversation = await this.conversationsService.create(uid, {
 				resumeId,
 				title,
 			});
@@ -87,7 +89,7 @@ export class ChatController {
 
 		// Persist user message
 		if (conversationId) {
-			await this.conversationsService.appendMessage(conversationId, {
+			await this.conversationsService.appendMessage(uid, conversationId, {
 				role: 'user',
 				content: userText,
 			});
@@ -109,13 +111,14 @@ export class ChatController {
 			system: systemPrompt,
 			messages: anthropicMessages,
 			tools: chatTools,
-			executeTool: (name, input) => executeTool(name, input, services),
+			executeTool: (name, input) =>
+				executeTool(name, input, services, uid),
 			conversationId,
 		});
 
 		// Persist assistant response
 		if (conversationId && assistantText) {
-			await this.conversationsService.appendMessage(conversationId, {
+			await this.conversationsService.appendMessage(uid, conversationId, {
 				role: 'assistant',
 				content: assistantText,
 			});

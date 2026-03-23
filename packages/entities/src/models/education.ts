@@ -9,6 +9,10 @@ export class Education {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	degree: string;
 
@@ -28,7 +32,7 @@ export class Education {
 @InputType()
 export class EducationInput extends OmitType(
 	Education,
-	['_id'] as const,
+	['_id', 'uid'] as const,
 	InputType,
 ) {
 	@Field(() => ID, { nullable: true })
@@ -39,6 +43,7 @@ export const EducationSchema = SchemaFactory.createForClass(Education);
 
 export const educationSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	degree: z.string(),
 	field: z.string(),
 	institution: z.string(),

@@ -14,13 +14,15 @@ export class CoverLettersService {
 		private readonly coverLetterModel: Model<CoverLetter>,
 	) {}
 
-	async findAll(): Promise<CoverLetter[]> {
-		const results = await this.coverLetterModel.find().exec();
+	async findAll(uid: string): Promise<CoverLetter[]> {
+		const results = await this.coverLetterModel.find({ uid }).exec();
 		return results.map((item) => item.toObject());
 	}
 
-	async find(id: string): Promise<CoverLetter | null> {
-		const result = await this.coverLetterModel.findById(id).exec();
+	async find(uid: string, id: string): Promise<CoverLetter | null> {
+		const result = await this.coverLetterModel
+			.findOne({ _id: id, uid })
+			.exec();
 
 		if (!result) {
 			throw new NotFoundException();
@@ -29,18 +31,25 @@ export class CoverLettersService {
 		return result?.toObject() ?? null;
 	}
 
-	async create(coverLetterData: CoverLetterInput): Promise<CoverLetter> {
-		const created = new this.coverLetterModel(coverLetterData);
+	async create(
+		uid: string,
+		coverLetterData: CoverLetterInput,
+	): Promise<CoverLetter> {
+		const created = new this.coverLetterModel({
+			...coverLetterData,
+			uid,
+		});
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
 	async update(
+		uid: string,
 		id: string,
 		updateData: CoverLetterUpdateInput,
 	): Promise<CoverLetter> {
 		const updated = await this.coverLetterModel
-			.findByIdAndUpdate(id, updateData, { new: true })
+			.findOneAndUpdate({ _id: id, uid }, updateData, { new: true })
 			.exec();
 
 		if (!updated) {
@@ -51,11 +60,12 @@ export class CoverLettersService {
 	}
 
 	async patch(
+		uid: string,
 		id: string,
 		update: UpdateOneModel<CoverLetter>,
 	): Promise<void> {
 		const result = await this.coverLetterModel
-			.updateOne({ _id: id }, update)
+			.updateOne({ _id: id, uid }, update)
 			.exec();
 	}
 }

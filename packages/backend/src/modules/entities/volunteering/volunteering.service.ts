@@ -10,12 +10,15 @@ export class VolunteeringService {
 		private readonly volunteeringModel: Model<Volunteering>,
 	) {}
 
-	async findAll() {
-		return this.volunteeringModel.find().exec();
+	async findAll(uid: string) {
+		return this.volunteeringModel.find({ uid }).exec();
 	}
 
-	async create(volunteering: VolunteeringInput): Promise<Volunteering> {
-		const created = new this.volunteeringModel(volunteering);
+	async create(
+		uid: string,
+		volunteering: VolunteeringInput,
+	): Promise<Volunteering> {
+		const created = new this.volunteeringModel({ ...volunteering, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}

@@ -9,6 +9,10 @@ export class Project {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	name: string;
 
@@ -24,7 +28,7 @@ export class Project {
 @InputType()
 export class ProjectInput extends OmitType(
 	Project,
-	['_id'] as const,
+	['_id', 'uid'] as const,
 	InputType,
 ) {
 	@Field(() => ID, { nullable: true })
@@ -35,6 +39,7 @@ export const ProjectSchema = SchemaFactory.createForClass(Project);
 
 export const projectSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	name: z.string(),
 	technologies: z.array(z.string()),
 	items: z.array(z.string()),

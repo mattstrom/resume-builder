@@ -16,7 +16,7 @@ export class ResumesService {
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
 	) {}
 
-	async findAll(sort?: ResumeSortInput): Promise<Resume[]> {
+	async findAll(uid: string, sort?: ResumeSortInput): Promise<Resume[]> {
 		const sortCriteria: Record<string, SortOrder> = {};
 
 		if (sort) {
@@ -31,12 +31,15 @@ export class ResumesService {
 
 		sortCriteria['name'] = 1;
 
-		const results = await this.resumeModel.find().sort(sortCriteria).exec();
+		const results = await this.resumeModel
+			.find({ uid })
+			.sort(sortCriteria)
+			.exec();
 		return results.map((item) => item.toObject());
 	}
 
-	async find(id: string): Promise<Resume | null> {
-		const result = await this.resumeModel.findById(id).exec();
+	async find(uid: string, id: string): Promise<Resume | null> {
+		const result = await this.resumeModel.findOne({ _id: id, uid }).exec();
 
 		if (!result) {
 			throw new NotFoundException();
@@ -45,21 +48,28 @@ export class ResumesService {
 		return result?.toObject() ?? null;
 	}
 
-	async create(resumeData: ResumeCreateInput): Promise<Resume> {
-		const created = new this.resumeModel(resumeData);
+	async create(uid: string, resumeData: ResumeCreateInput): Promise<Resume> {
+		const created = new this.resumeModel({ ...resumeData, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
-	async createBlank(resumeData: BlankResumeCreateInput): Promise<Resume> {
-		const created = new this.resumeModel(resumeData);
+	async createBlank(
+		uid: string,
+		resumeData: BlankResumeCreateInput,
+	): Promise<Resume> {
+		const created = new this.resumeModel({ ...resumeData, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
-	async update(id: string, updateData: ResumeUpdateInput): Promise<Resume> {
+	async update(
+		uid: string,
+		id: string,
+		updateData: ResumeUpdateInput,
+	): Promise<Resume> {
 		const updated = await this.resumeModel
-			.findByIdAndUpdate(id, updateData, { new: true })
+			.findOneAndUpdate({ _id: id, uid }, updateData, { new: true })
 			.exec();
 
 		if (!updated) {
@@ -69,9 +79,13 @@ export class ResumesService {
 		return updated.toObject();
 	}
 
-	async patch(id: string, update: UpdateOneModel<Resume>): Promise<void> {
+	async patch(
+		uid: string,
+		id: string,
+		update: UpdateOneModel<Resume>,
+	): Promise<void> {
 		const result = await this.resumeModel
-			.updateOne({ _id: id }, update)
+			.updateOne({ _id: id, uid }, update)
 			.exec();
 	}
 }

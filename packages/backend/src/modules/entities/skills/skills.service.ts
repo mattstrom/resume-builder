@@ -9,7 +9,7 @@ export class SkillsService {
 		@InjectModel(Skill.name) private readonly skillModel: Model<Skill>,
 	) {}
 
-	async findAll() {
-		return this.skillModel.find().exec();
+	async findAll(uid: string) {
+		return this.skillModel.find({ uid }).exec();
 	}
 }

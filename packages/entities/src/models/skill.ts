@@ -9,6 +9,10 @@ export class Skill {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	name: string;
 
@@ -18,7 +22,11 @@ export class Skill {
 }
 
 @InputType()
-export class SkillInput extends OmitType(Skill, ['_id'] as const, InputType) {
+export class SkillInput extends OmitType(
+	Skill,
+	['_id', 'uid'] as const,
+	InputType,
+) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }
@@ -27,6 +35,7 @@ export const SkillSchema = SchemaFactory.createForClass(Skill);
 
 export const skillSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	name: z.string(),
 	category: z.string(),
 });

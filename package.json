@@ -11,7 +11,7 @@
     "format:check": "prettier --check .",
     "docker:build": "nx run-many -t docker-build",
     "docker:push": "nx run-many -t docker-push",
-    "deploy": "helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --install --wait"
+    "deploy": "op run --env-file=.env -- helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set mongodb.password=${MONGODB_PASSWORD} --install --wait"
   },
   "workspaces": [
     "packages/backend",

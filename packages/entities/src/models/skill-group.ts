@@ -9,6 +9,10 @@ export class SkillGroup {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	name: string;
 
@@ -20,7 +24,7 @@ export class SkillGroup {
 @InputType()
 export class SkillGroupInput extends OmitType(
 	SkillGroup,
-	['_id'] as const,
+	['_id', 'uid'] as const,
 	InputType,
 ) {
 	@Field(() => ID, { nullable: true })
@@ -30,6 +34,7 @@ export const SkillGroupSchema = SchemaFactory.createForClass(SkillGroup);
 
 export const skillGroupSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	name: z.string(),
 	items: z.array(z.string()),
 });

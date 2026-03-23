@@ -101,31 +101,32 @@ export async function executeTool(
 	name: string,
 	input: Record<string, unknown>,
 	services: ChatToolServices,
+	uid: string,
 ): Promise<string> {
 	switch (name) {
 		case 'get_resumes': {
-			const resumes = await services.resumesService.findAll();
+			const resumes = await services.resumesService.findAll(uid);
 			return JSON.stringify(resumes);
 		}
 		case 'get_contact_information': {
 			const contactInfo =
-				await services.contactInformationService.findAll();
+				await services.contactInformationService.findAll(uid);
 			return JSON.stringify(contactInfo);
 		}
 		case 'get_jobs': {
-			const jobs = await services.jobsService.findAll();
+			const jobs = await services.jobsService.findAll(uid);
 			return JSON.stringify(jobs);
 		}
 		case 'get_education': {
-			const education = await services.educationsService.findAll();
+			const education = await services.educationsService.findAll(uid);
 			return JSON.stringify(education);
 		}
 		case 'get_projects': {
-			const projects = await services.projectsService.findAll();
+			const projects = await services.projectsService.findAll(uid);
 			return JSON.stringify(projects);
 		}
 		case 'get_skills': {
-			const allSkills = await services.skillsService.findAll();
+			const allSkills = await services.skillsService.findAll(uid);
 			const categories = input.categories as string[] | undefined;
 			const skills =
 				categories && categories.length > 0
@@ -136,17 +137,20 @@ export async function executeTool(
 			return JSON.stringify(skills);
 		}
 		case 'get_cover_letters': {
-			const coverLetters = await services.coverLettersService.findAll();
+			const coverLetters =
+				await services.coverLettersService.findAll(uid);
 			return JSON.stringify(coverLetters);
 		}
 		case 'save_resume': {
 			const resume = await services.resumesService.create(
+				uid,
 				input.resume as any,
 			);
 			return JSON.stringify(resume);
 		}
 		case 'save_cover_letter': {
 			const coverLetter = await services.coverLettersService.create(
+				uid,
 				input.coverLetter as any,
 			);
 			return JSON.stringify(coverLetter);

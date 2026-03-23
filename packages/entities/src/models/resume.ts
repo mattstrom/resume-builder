@@ -27,6 +27,10 @@ export class Resume {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	id: string;
 
@@ -110,6 +114,7 @@ export const ResumeSchema = SchemaFactory.createForClass(Resume);
 
 export const resumeSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	id: z.string(),
 	name: z.string(),
 	company: z.string(),

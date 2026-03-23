@@ -31,6 +31,10 @@ export class Conversation {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: Types.ObjectId, required: true })
 	resumeId: string;
 
@@ -68,6 +72,7 @@ export const conversationMessageSchema = z.object({
 
 export const conversationSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	resumeId: z.string(),
 	title: z.string(),
 	messages: z.array(conversationMessageSchema),

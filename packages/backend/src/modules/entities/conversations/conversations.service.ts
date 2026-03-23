@@ -13,35 +13,44 @@ export class ConversationsService {
 		private readonly conversationModel: Model<Conversation>,
 	) {}
 
-	async findAllByResumeId(resumeId: string): Promise<Conversation[]> {
+	async findAllByResumeId(
+		uid: string,
+		resumeId: string,
+	): Promise<Conversation[]> {
 		const results = await this.conversationModel
-			.find({ resumeId })
+			.find({ resumeId, uid })
 			.sort({ updatedAt: -1 })
 			.exec();
 		return results.map((item) => item.toObject());
 	}
 
-	async findById(id: string): Promise<Conversation> {
-		const result = await this.conversationModel.findById(id).exec();
+	async findById(uid: string, id: string): Promise<Conversation> {
+		const result = await this.conversationModel
+			.findOne({ _id: id, uid })
+			.exec();
 		if (!result) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);
 		}
 		return result.toObject();
 	}
 
-	async create(data: ConversationCreateInput): Promise<Conversation> {
-		const created = new this.conversationModel(data);
+	async create(
+		uid: string,
+		data: ConversationCreateInput,
+	): Promise<Conversation> {
+		const created = new this.conversationModel({ ...data, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
 	async appendMessage(
+		uid: string,
 		id: string,
 		message: { role: string; content: string },
 	): Promise<void> {
 		const result = await this.conversationModel
 			.updateOne(
-				{ _id: id },
+				{ _id: id, uid },
 				{ $push: { messages: { ...message, createdAt: new Date() } } },
 			)
 			.exec();
@@ -50,9 +59,9 @@ export class ConversationsService {
 		}
 	}
 
-	async delete(id: string): Promise<void> {
+	async delete(uid: string, id: string): Promise<void> {
 		const result = await this.conversationModel
-			.deleteOne({ _id: id })
+			.deleteOne({ _id: id, uid })
 			.exec();
 		if (result.deletedCount === 0) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);

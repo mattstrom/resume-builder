@@ -9,6 +9,10 @@ export class CoverLetter {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	name: string;
 
@@ -47,6 +51,7 @@ export const CoverLetterSchema = SchemaFactory.createForClass(CoverLetter);
 
 export const coverLetterSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	name: z.string(),
 	company: z.string(),
 	jobPostingUrl: z.string(),

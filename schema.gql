@@ -5,6 +5,7 @@
 """Contact Information"""
 type ContactInformation {
   _id: ID!
+  uid: String!
   location: String!
   phoneNumber: String!
   email: String!
@@ -16,6 +17,7 @@ type ContactInformation {
 """Education"""
 type Education {
   _id: ID!
+  uid: String!
   degree: String!
   field: String!
   institution: String!
@@ -25,6 +27,7 @@ type Education {
 """Job"""
 type Job {
   _id: ID!
+  uid: String!
   company: String!
   position: String!
   location: String!
@@ -36,6 +39,7 @@ type Job {
 """Project"""
 type Project {
   _id: ID!
+  uid: String!
   name: String!
   technologies: [String!]!
   items: [String!]!
@@ -44,6 +48,7 @@ type Project {
 """Skill"""
 type Skill {
   _id: ID!
+  uid: String!
   name: String!
   category: String!
 }
@@ -51,6 +56,7 @@ type Skill {
 """Skill Group"""
 type SkillGroup {
   _id: ID!
+  uid: String!
   name: String!
   items: [String!]!
 }
@@ -58,6 +64,7 @@ type SkillGroup {
 """Volunteering"""
 type Volunteering {
   _id: ID!
+  uid: String!
   organization: String
   position: String!
   location: String
@@ -69,6 +76,7 @@ type Volunteering {
 """Cover Letter"""
 type CoverLetter {
   _id: ID!
+  uid: String!
   name: String!
   company: String!
   jobPostingUrl: String!
@@ -95,6 +103,7 @@ type ResumeContent {
 """Resume"""
 type Resume {
   _id: ID!
+  uid: String!
   id: String!
   name: String!
   company: String!
