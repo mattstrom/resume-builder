@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
@@ -17,6 +19,16 @@ import { Route as ExportResumeIdRouteImport } from './routes/export.$resumeId'
 import { Route as EditorResumeIdRouteImport } from './routes/editor/$resumeId'
 import { Route as EditorLocalFilenameRouteImport } from './routes/editor/local/$filename'
 
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorRoute = EditorRouteImport.update({
   id: '/editor',
   path: '/editor',
@@ -56,6 +68,8 @@ const EditorLocalFilenameRoute = EditorLocalFilenameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
   '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
@@ -64,6 +78,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
   '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
@@ -74,6 +90,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/editor': typeof EditorRouteWithChildren
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
   '/editor/$resumeId': typeof EditorResumeIdRoute
   '/export/$resumeId': typeof ExportResumeIdRoute
   '/preview/$resumeId': typeof PreviewResumeIdRoute
@@ -85,6 +103,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/editor'
+    | '/login'
+    | '/logout'
     | '/editor/$resumeId'
     | '/export/$resumeId'
     | '/preview/$resumeId'
@@ -93,6 +113,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
+    | '/logout'
     | '/editor/$resumeId'
     | '/export/$resumeId'
     | '/preview/$resumeId'
@@ -102,6 +124,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/editor'
+    | '/login'
+    | '/logout'
     | '/editor/$resumeId'
     | '/export/$resumeId'
     | '/preview/$resumeId'
@@ -112,12 +136,28 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EditorRoute: typeof EditorRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
   ExportResumeIdRoute: typeof ExportResumeIdRoute
   PreviewResumeIdRoute: typeof PreviewResumeIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor': {
       id: '/editor'
       path: '/editor'
@@ -188,6 +228,8 @@ const EditorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EditorRoute: EditorRouteWithChildren,
+  LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
   ExportResumeIdRoute: ExportResumeIdRoute,
   PreviewResumeIdRoute: PreviewResumeIdRoute,
 }

@@ -5,6 +5,9 @@ import {
 	MongooseHealthIndicator,
 } from '@nestjs/terminus';
 
+import { Public } from '../auth';
+
+@Public()
 @Controller('health')
 export class HealthController {
 	constructor(
