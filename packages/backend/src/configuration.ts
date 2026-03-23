@@ -17,13 +17,13 @@ const schema = convict<Config>({
 		domain: {
 			doc: 'Auth0 tenant domain (e.g., your-tenant.auth0.com)',
 			format: String,
-			default: '',
+			default: 'login.mattstrom.com',
 			env: 'AUTH0_DOMAIN',
 		},
 		audience: {
 			doc: 'Auth0 API audience identifier',
 			format: String,
-			default: 'https://api.resume-builder.com',
+			default: 'https://resume-builder.mattstrom.com',
 			env: 'AUTH0_AUDIENCE',
 		},
 	},

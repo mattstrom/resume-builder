@@ -9,6 +9,10 @@ export class Job {
 	_id: string;
 
 	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
+	@Field()
 	@Prop({ type: String, default: '' })
 	company: string;
 
@@ -34,7 +38,11 @@ export class Job {
 }
 
 @InputType()
-export class JobInput extends OmitType(Job, ['_id'] as const, InputType) {
+export class JobInput extends OmitType(
+	Job,
+	['_id', 'uid'] as const,
+	InputType,
+) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }
@@ -43,6 +51,7 @@ export const JobSchema = SchemaFactory.createForClass(Job);
 
 export const jobSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	__v: z.number().optional(),
 	company: z.string(),
 	position: z.string(),

@@ -13,7 +13,8 @@
     "dev": "node dist/test.js",
     "test": "nx vite:test",
     "load": "node dist/data/loader.js",
-    "migrate:add-company": "node dist/data/migrate-add-company.js"
+    "migrate:add-company": "node dist/data/migrate-add-company.js",
+    "migrate:add-uid": "node dist/data/migrate-add-uid.js"
   },
   "private": true,
   "dependencies": {

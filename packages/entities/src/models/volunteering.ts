@@ -8,6 +8,10 @@ export class Volunteering {
 	@Field(() => ID)
 	_id: string;
 
+	@Field()
+	@Prop({ type: String, required: true, index: true })
+	uid: string;
+
 	@Field({ nullable: true })
 	@Prop({ type: String, required: false })
 	organization?: string;
@@ -36,7 +40,7 @@ export class Volunteering {
 @InputType()
 export class VolunteeringInput extends OmitType(
 	Volunteering,
-	['_id'] as const,
+	['_id', 'uid'] as const,
 	InputType,
 ) {
 	@Field(() => ID, { nullable: true })
@@ -47,6 +51,7 @@ export const VolunteeringSchema = SchemaFactory.createForClass(Volunteering);
 
 export const volunteeringSchema = z.object({
 	_id: z.any(),
+	uid: z.string(),
 	__v: z.number().optional(),
 	organization: z.string().optional(),
 	position: z.string(),
