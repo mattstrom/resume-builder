@@ -1,3 +1,8 @@
 {
-  "graphqlUrl": "/graphql"
+  "graphqlUrl": "http://localhost:3000/graphql",
+  "auth0": {
+    "domain": "dev-qvt147eqvh1z2jc7.us.auth0.com",
+    "clientId": "mBzWPqBisgD23yGGtNLJSrW5ejvQZnZH",
+    "audience": "https://resume-builder.mattstrom.com"
+  }
 }

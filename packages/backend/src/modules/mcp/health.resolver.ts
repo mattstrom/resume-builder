@@ -1,6 +1,9 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool } from '@nestjs-mcp/server';
 
+import { Public } from '../auth';
+
+@Public()
 @Resolver()
 export class HealthResolver {
 	/**

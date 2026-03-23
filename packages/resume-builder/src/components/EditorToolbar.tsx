@@ -1,7 +1,9 @@
-import { useParams } from '@tanstack/react-router';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useNavigate, useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
 import {
 	Loader2,
+	LogOut,
 	MessageCircle,
 	PanelLeftClose,
 	PanelLeftOpen,
@@ -24,6 +26,13 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useSettings } from './Settings.provider.tsx';
 import { FileManagerToolbar, useFileManager } from './FileManager';
@@ -71,6 +80,8 @@ export const EditorToolbar: FC = () => {
 		chatOpen,
 		setChatOpen,
 	} = useSettings();
+	const { user } = useAuth0();
+	const navigate = useNavigate();
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
 	const { resumeId } = useParams({ strict: false });
@@ -249,7 +260,35 @@ export const EditorToolbar: FC = () => {
 						Open Job Posting
 					</Button>
 				)}
-				<div className="ml-auto">
+				<div className="ml-auto flex items-center gap-2">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								className="h-8 w-8 rounded-full p-0 hover:bg-white/10"
+							>
+								<Avatar className="h-8 w-8">
+									<AvatarImage
+										src={user?.picture}
+										alt={user?.name}
+									/>
+									<AvatarFallback className="bg-white/20 text-white text-xs">
+										{user?.name?.charAt(0)?.toUpperCase() ??
+											'?'}
+									</AvatarFallback>
+								</Avatar>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem
+								onClick={() => navigate({ to: '/logout' })}
+							>
+								<LogOut className="mr-2 h-4 w-4" />
+								Log out
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
