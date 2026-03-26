@@ -71,8 +71,8 @@ ingress:
 # -- MongoDB Backup CronJob
 mongodbBackup:
   enabled: true
-  # Run every 2 hours
-  schedule: '0 */2 * * *'
+  # Run daily at 2:00 AM
+  schedule: '0 2 * * *'
   image:
     repository: mongo
     tag: '7.0'
