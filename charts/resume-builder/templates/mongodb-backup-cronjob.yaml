@@ -1,0 +1,95 @@
+{{- if .Values.mongodbBackup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-mongodb-backup
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb-backup
+spec:
+  schedule: {{ .Values.mongodbBackup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.mongodbBackup.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.mongodbBackup.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.mongodbBackup.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "resume-builder.labels" . | nindent 12 }}
+            app.kubernetes.io/component: mongodb-backup
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: mongodb-backup
+              image: "{{ .Values.mongodbBackup.image.repository }}:{{ .Values.mongodbBackup.image.tag }}"
+              imagePullPolicy: {{ .Values.mongodbBackup.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+
+                  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                  BACKUP_NAME="mongodb_backup_${TIMESTAMP}"
+                  BACKUP_PATH="/backup/${BACKUP_NAME}"
+
+                  echo "[INFO] Starting MongoDB backup..."
+                  echo "[INFO] Database: {{ .Values.mongodb.database }}"
+                  echo "[INFO] Backup path: ${BACKUP_PATH}"
+
+                  mongodump \
+                    --uri="${MONGODB_URI}" \
+                    --db="{{ .Values.mongodb.database }}" \
+                    --out="${BACKUP_PATH}" \
+                    --quiet
+
+                  echo "[INFO] Compressing backup..."
+                  tar -czf "${BACKUP_PATH}.tar.gz" -C /backup "${BACKUP_NAME}"
+                  rm -rf "${BACKUP_PATH}"
+
+                  BACKUP_SIZE=$(du -h "${BACKUP_PATH}.tar.gz" | cut -f1)
+                  echo "[INFO] Backup complete: ${BACKUP_PATH}.tar.gz (${BACKUP_SIZE})"
+
+                  {{- if gt (int .Values.mongodbBackup.retentionDays) 0 }}
+                  echo "[INFO] Cleaning up backups older than {{ .Values.mongodbBackup.retentionDays }} days..."
+                  find /backup -name "mongodb_backup_*.tar.gz" -type f -mtime +{{ .Values.mongodbBackup.retentionDays }} -delete
+                  echo "[INFO] Cleanup complete"
+                  {{- end }}
+              env:
+                - name: MONGODB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mongodb.name }}-password
+                      key: password
+                - name: MONGODB_URI
+                  value: {{ include "resume-builder.mongodbUri" . | quote }}
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              {{- with .Values.mongodbBackup.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: {{ include "resume-builder.fullname" . }}-mongodb-backup
+          {{- with .Values.mongodbBackup.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbBackup.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.mongodbBackup.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
