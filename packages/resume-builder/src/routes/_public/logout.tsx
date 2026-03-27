@@ -3,7 +3,7 @@ import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export const Route = createFileRoute('/logout')({
+export const Route = createFileRoute('/_public/logout')({
 	component: LogoutPage,
 });
 

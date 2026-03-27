@@ -1,14 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
 
-import { ResumeProvider } from '../components/Resume.provider.tsx';
-import { BasicLayout, ColumnLayout } from '../components/layouts';
-import { GridLayout } from '../components/layouts/GridLayout.tsx';
-import { RouteError } from '../components/RouteError.tsx';
-import { RouteLoading } from '../components/RouteLoading.tsx';
+import { ResumeProvider } from '../../components/Resume.provider.tsx';
+import { BasicLayout, ColumnLayout } from '../../components/layouts';
+import { GridLayout } from '../../components/layouts/GridLayout.tsx';
+import { RouteError } from '../../components/RouteError.tsx';
+import { RouteLoading } from '../../components/RouteLoading.tsx';
 
 // Import CSS for proper styling
-import '../App.css';
+import '../../App.css';
 
 const previewSearchSchema = z
 	.object({
@@ -23,7 +23,7 @@ const previewSearchSchema = z
 		showMarginPattern: true,
 	});
 
-export const Route = createFileRoute('/preview/$resumeId')({
+export const Route = createFileRoute('/_authenticated/preview/$resumeId')({
 	validateSearch: previewSearchSchema,
 
 	loader: async ({ context, params }) => {
