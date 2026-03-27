@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { DefaultChatTransport } from 'ai';
 import { X } from 'lucide-react';
+import { authFetch } from '../utils/auth';
 import { Button } from '@/components/ui/button';
 import {
 	Conversation,
@@ -67,14 +68,14 @@ export const ChatPanel: FC = () => {
 						};
 						init = { ...init, body: JSON.stringify(parsed) };
 					}
-					const response = await fetch(url, init);
+					const response = await authFetch(url, init);
 					const newConvId = response.headers.get('X-Conversation-Id');
 					if (newConvId && newConvId !== conversationIdRef.current) {
 						conversationIdRef.current = newConvId;
 						const key = getStorageKey(resumeId);
 						if (key) localStorage.setItem(key, newConvId);
 						// Fetch conversation info for display
-						fetch(`${API_BASE}/api/conversations/${newConvId}`)
+						authFetch(`${API_BASE}/api/conversations/${newConvId}`)
 							.then((r) => r.json())
 							.then((conv) =>
 								setConversationInfo({
@@ -97,7 +98,7 @@ export const ChatPanel: FC = () => {
 	const loadConversation = useCallback(
 		async (convId: string) => {
 			try {
-				const res = await fetch(
+				const res = await authFetch(
 					`${API_BASE}/api/conversations/${convId}`,
 				);
 				if (!res.ok) return false;

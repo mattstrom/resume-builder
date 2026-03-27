@@ -1,4 +1,5 @@
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useCallback, useEffect, useState } from 'react';
+import { authFetch } from '../utils/auth';
 import { MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,7 +36,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 	const fetchConversations = async () => {
 		if (!resumeId) return;
 		try {
-			const res = await fetch(
+			const res = await authFetch(
 				`http://localhost:3000/api/conversations?resumeId=${resumeId}`,
 			);
 			if (res.ok) {
@@ -55,7 +56,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 	const handleDelete = async (e: React.MouseEvent, id: string) => {
 		e.stopPropagation();
 		try {
-			await fetch(`http://localhost:3000/api/conversations/${id}`, {
+			await authFetch(`http://localhost:3000/api/conversations/${id}`, {
 				method: 'DELETE',
 			});
 			setConversations((prev) => prev.filter((c) => c._id !== id));
