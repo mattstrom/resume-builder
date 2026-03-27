@@ -11,6 +11,10 @@ spec:
     authentication:
       modes: ["SCRAM"]
 
+  additionalMongodConfig:
+    net:
+      bindIp: 0.0.0.0
+
   users:
     - name: {{ .Values.mongodb.username }}
       db: admin
