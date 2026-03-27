@@ -1,12 +1,12 @@
 import type { Resume } from '@resume-builder/entities';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { Workspace } from '../../components/Workspace.tsx';
-import { useFileManager } from '../../components/FileManager';
-import { RouteLoading } from '../../components/RouteLoading.tsx';
-import { GET_RESUME } from '../../graphql/queries.ts';
+import { Workspace } from '../../../components/Workspace.tsx';
+import { useFileManager } from '../../../components/FileManager';
+import { RouteLoading } from '../../../components/RouteLoading.tsx';
+import { GET_RESUME } from '../../../graphql/queries.ts';
 
-export const Route = createFileRoute('/editor/$resumeId')({
+export const Route = createFileRoute('/_authenticated/editor/$resumeId')({
 	component: ApiResumeEditor,
 	loader: async ({ context, params }) => {
 		const { resumeId } = params;

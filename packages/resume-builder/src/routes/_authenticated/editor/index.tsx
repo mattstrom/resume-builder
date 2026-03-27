@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { Workspace } from '../../components/Workspace.tsx';
-import { useFileManager } from '../../components/FileManager';
+import { Workspace } from '../../../components/Workspace.tsx';
+import { useFileManager } from '../../../components/FileManager';
 
-export const Route = createFileRoute('/editor/')({
+export const Route = createFileRoute('/_authenticated/editor/')({
 	component: EditorIndexComponent,
 });
 

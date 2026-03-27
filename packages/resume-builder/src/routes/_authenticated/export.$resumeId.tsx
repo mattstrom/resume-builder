@@ -2,14 +2,14 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
-import { ResumeProvider } from '../components/Resume.provider.tsx';
-import { BasicLayout, ColumnLayout } from '../components/layouts';
-import { GridLayout } from '../components/layouts/GridLayout.tsx';
-import { RouteError } from '../components/RouteError.tsx';
-import { RouteLoading } from '../components/RouteLoading.tsx';
-import { generatePDFFromHTML } from '../utils/pdfExport';
+import { ResumeProvider } from '../../components/Resume.provider.tsx';
+import { BasicLayout, ColumnLayout } from '../../components/layouts';
+import { GridLayout } from '../../components/layouts/GridLayout.tsx';
+import { RouteError } from '../../components/RouteError.tsx';
+import { RouteLoading } from '../../components/RouteLoading.tsx';
+import { generatePDFFromHTML } from '../../utils/pdfExport';
 
-import '../App.css';
+import '../../App.css';
 
 const exportSearchSchema = z
 	.object({
@@ -20,7 +20,7 @@ const exportSearchSchema = z
 	})
 	.catch({ template: 'basic' });
 
-export const Route = createFileRoute('/export/$resumeId')({
+export const Route = createFileRoute('/_authenticated/export/$resumeId')({
 	validateSearch: exportSearchSchema,
 
 	loader: async ({ context, params }) => {

@@ -1,10 +1,10 @@
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { Workspace } from '../../../components/Workspace.tsx';
-import { useFileManager } from '../../../components/FileManager';
-import { RouteLoading } from '../../../components/RouteLoading.tsx';
+import { Workspace } from '../../../../components/Workspace.tsx';
+import { useFileManager } from '../../../../components/FileManager';
+import { RouteLoading } from '../../../../components/RouteLoading.tsx';
 
-export const Route = createFileRoute('/editor/local/$filename')({
+export const Route = createFileRoute('/_authenticated/editor/local/$filename')({
 	component: LocalFileEditor,
 });
 

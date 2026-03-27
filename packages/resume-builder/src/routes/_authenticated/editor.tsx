@@ -6,16 +6,16 @@ import {
 	Separator as PanelResizeHandle,
 	type PanelImperativeHandle,
 } from 'react-resizable-panels';
-import { ChatPanel } from '../components/ChatPanel.tsx';
-import { ResumeProvider } from '../components/Resume.provider.tsx';
-import { useFileManager } from '../components/FileManager';
-import { EditorToolbar } from '../components/EditorToolbar.tsx';
-import { AppSidebar } from '../components/Sidebar.tsx';
-import { useSettings } from '../components/Settings.provider.tsx';
+import { ChatPanel } from '../../components/ChatPanel.tsx';
+import { ResumeProvider } from '../../components/Resume.provider.tsx';
+import { useFileManager } from '../../components/FileManager';
+import { EditorToolbar } from '../../components/EditorToolbar.tsx';
+import { AppSidebar } from '../../components/Sidebar.tsx';
+import { useSettings } from '../../components/Settings.provider.tsx';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import './editor.css';
 
-export const Route = createFileRoute('/editor')({
+export const Route = createFileRoute('/_authenticated/editor')({
 	component: EditorLayout,
 });
 
