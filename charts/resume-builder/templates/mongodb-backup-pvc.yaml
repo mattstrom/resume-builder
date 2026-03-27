@@ -1,0 +1,15 @@
+{{- if .Values.mongodbBackup.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-mongodb-backup
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.mongodbBackup.storage }}
+{{- end }}

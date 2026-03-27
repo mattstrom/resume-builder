@@ -21,3 +21,23 @@ To access the web frontend, run:
 To access the backend API, run:
   kubectl port-forward svc/{{ include "resume-builder.backend.fullname" . }} 3000:{{ .Values.backend.service.port }}
 {{- end }}
+{{- if .Values.mongodbBackup.enabled }}
+
+MongoDB Backup:
+  Backups run on schedule: {{ .Values.mongodbBackup.schedule }}
+  PVC: {{ include "resume-builder.fullname" . }}-mongodb-backup
+
+  To restore from the latest backup:
+    helm upgrade {{ .Release.Name }} ./charts/resume-builder \
+      --set mongodbRestore.enabled=true \
+      --set mongodbRestore.backupFile=latest
+
+  To restore from a specific backup:
+    helm upgrade {{ .Release.Name }} ./charts/resume-builder \
+      --set mongodbRestore.enabled=true \
+      --set mongodbRestore.backupFile=mongodb_backup_YYYYMMDD_HHMMSS.tar.gz
+
+  After restore completes, disable the restore Job:
+    helm upgrade {{ .Release.Name }} ./charts/resume-builder \
+      --set mongodbRestore.enabled=false
+{{- end }}

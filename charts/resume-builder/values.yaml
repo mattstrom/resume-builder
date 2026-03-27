@@ -68,6 +68,53 @@ ingress:
   #    hosts:
   #      - resume.mattstrom.com
 
+# -- MongoDB Backup CronJob
+mongodbBackup:
+  enabled: true
+  # Run daily at 2:00 AM
+  schedule: '0 2 * * *'
+  image:
+    repository: mongo
+    tag: '7.0'
+    pullPolicy: IfNotPresent
+  # Delete backups older than this many days (0 to disable cleanup)
+  retentionDays: 7
+  # PVC size for storing backups
+  storage: 5Gi
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  backoffLimit: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# -- MongoDB Restore Job (one-shot, opt-in)
+mongodbRestore:
+  # Set to true and run helm upgrade to trigger a restore
+  enabled: false
+  # Backup filename to restore (e.g., "mongodb_backup_20260325_140000.tar.gz")
+  # Use "latest" to automatically select the most recent backup
+  backupFile: 'latest'
+  # Increment this to create a new Job if re-running a restore
+  jobId: '1'
+  backoffLimit: 1
+  # Auto-delete the Job after this many seconds (default: 24h)
+  ttlSecondsAfterFinished: 86400
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
 serviceAccount:
   create: false
   automount: true
