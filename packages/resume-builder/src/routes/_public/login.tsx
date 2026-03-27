@@ -1,4 +1,4 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { observer } from 'mobx-react';
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 
@@ -10,15 +10,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { useStore } from '../../stores/store.provider.tsx';
 
-export const Route = createFileRoute('/_public/login')({
-	component: LoginPage,
-});
+const LoginPage = observer(() => {
+	const { authStore } = useStore();
 
-function LoginPage() {
-	const { loginWithRedirect, isAuthenticated, isLoading } = useAuth0();
-
-	if (isLoading) {
+	if (authStore.isLoading) {
 		return (
 			<div className="min-h-screen bg-slate-950 flex items-center justify-center">
 				<Loader2 className="h-8 w-8 animate-spin text-white" />
@@ -26,7 +23,7 @@ function LoginPage() {
 		);
 	}
 
-	if (isAuthenticated) {
+	if (authStore.isAuthenticated) {
 		return <Navigate to="/editor" />;
 	}
 
@@ -43,7 +40,7 @@ function LoginPage() {
 				</CardHeader>
 				<CardContent>
 					<Button
-						onClick={() => loginWithRedirect()}
+						onClick={() => authStore.login()}
 						className="w-full"
 						size="lg"
 					>
@@ -53,4 +50,8 @@ function LoginPage() {
 			</Card>
 		</div>
 	);
-}
+});
+
+export const Route = createFileRoute('/_public/login')({
+	component: LoginPage,
+});

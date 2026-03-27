@@ -1,9 +1,20 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { observer } from 'mobx-react';
 import { createFileRoute, Navigate, redirect } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 
 import { App } from '../App.tsx';
+import { useStore } from '../stores/store.provider.tsx';
 import { ensureAuthToken } from '../utils/auth.ts';
+
+const AuthenticatedLayout = observer(() => {
+	const { authStore } = useStore();
+
+	if (!authStore.isAuthenticated) {
+		return <Navigate to="/login" />;
+	}
+
+	return <App />;
+});
 
 export const Route = createFileRoute('/_authenticated')({
 	beforeLoad: async () => {
@@ -20,13 +31,3 @@ export const Route = createFileRoute('/_authenticated')({
 		</div>
 	),
 });
-
-function AuthenticatedLayout() {
-	const { isAuthenticated } = useAuth0();
-
-	if (!isAuthenticated) {
-		return <Navigate to="/login" />;
-	}
-
-	return <App />;
-}

@@ -1,4 +1,4 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { observer } from 'mobx-react';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
 import {
@@ -34,6 +34,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { useStore } from '../stores/store.provider.tsx';
 import { useSettings } from './Settings.provider.tsx';
 import { FileManagerToolbar, useFileManager } from './FileManager';
 import { generatePDF } from '../utils/pdfExport';
@@ -69,7 +70,7 @@ const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
 	</div>
 );
 
-export const EditorToolbar: FC = () => {
+export const EditorToolbar: FC = observer(() => {
 	const {
 		template,
 		setTemplate,
@@ -80,7 +81,7 @@ export const EditorToolbar: FC = () => {
 		chatOpen,
 		setChatOpen,
 	} = useSettings();
-	const { user } = useAuth0();
+	const { authStore } = useStore();
 	const navigate = useNavigate();
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
@@ -269,12 +270,11 @@ export const EditorToolbar: FC = () => {
 							>
 								<Avatar className="h-8 w-8">
 									<AvatarImage
-										src={user?.picture}
-										alt={user?.name}
+										src={authStore.user?.picture}
+										alt={authStore.user?.name}
 									/>
 									<AvatarFallback className="bg-white/20 text-white text-xs">
-										{user?.name?.charAt(0)?.toUpperCase() ??
-											'?'}
+										{authStore.userInitial}
 									</AvatarFallback>
 								</Avatar>
 							</Button>
@@ -318,4 +318,4 @@ export const EditorToolbar: FC = () => {
 			</div>
 		</header>
 	);
-};
+});
