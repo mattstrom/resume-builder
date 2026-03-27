@@ -1,24 +1,20 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { observer } from 'mobx-react';
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export const Route = createFileRoute('/_public/logout')({
-	component: LogoutPage,
-});
+import { useStore } from '../../stores/store.provider.tsx';
 
-function LogoutPage() {
-	const { logout, isAuthenticated } = useAuth0();
+const LogoutPage = observer(() => {
+	const { authStore } = useStore();
 
 	useEffect(() => {
-		if (isAuthenticated) {
-			logout({
-				logoutParams: { returnTo: window.location.origin + '/login' },
-			});
+		if (authStore.isAuthenticated) {
+			authStore.logout();
 		}
-	}, [isAuthenticated, logout]);
+	}, [authStore, authStore.isAuthenticated]);
 
-	if (!isAuthenticated) {
+	if (!authStore.isAuthenticated) {
 		return <Navigate to="/login" />;
 	}
 
@@ -27,4 +23,8 @@ function LogoutPage() {
 			<Loader2 className="h-8 w-8 animate-spin text-white" />
 		</div>
 	);
-}
+});
+
+export const Route = createFileRoute('/_public/logout')({
+	component: LogoutPage,
+});
