@@ -1,28 +1,45 @@
-type TokenGetter = () => Promise<string>;
+import { Auth0Client } from '@auth0/auth0-spa-js';
 
-let tokenGetter: TokenGetter | null = null;
+let auth0Client: Auth0Client | null = null;
 
-export function setTokenGetter(getter: TokenGetter) {
-	tokenGetter = getter;
+function getAuth0Client(): Auth0Client {
+	if (!auth0Client) {
+		const { domain, clientId, audience } = __CONFIG__.auth0;
+		auth0Client = new Auth0Client({
+			domain,
+			clientId,
+			cacheLocation: 'localstorage',
+			useRefreshTokens: true,
+			authorizationParams: {
+				audience,
+			},
+		});
+	}
+	return auth0Client;
 }
 
-export async function getAuthToken(): Promise<string | null> {
-	if (!tokenGetter) return null;
-	try {
-		return await tokenGetter();
-	} catch {
-		return null;
-	}
+/**
+ * Fetches the current access token from the Auth0 cache.
+ * Safe to call from route loaders (outside React).
+ */
+export async function ensureAuthToken(): Promise<string> {
+	return getAuth0Client().getTokenSilently({
+		authorizationParams: {
+			audience: __CONFIG__.auth0.audience,
+		},
+	});
 }
 
 export async function authFetch(
 	input: RequestInfo | URL,
 	init?: RequestInit,
 ): Promise<Response> {
-	const token = await getAuthToken();
 	const headers = new Headers(init?.headers);
-	if (token) {
+	try {
+		const token = await ensureAuthToken();
 		headers.set('Authorization', `Bearer ${token}`);
+	} catch {
+		// If token retrieval fails, proceed without auth header
 	}
 	return fetch(input, { ...init, headers });
 }
