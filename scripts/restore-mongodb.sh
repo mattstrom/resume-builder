@@ -5,6 +5,7 @@
 
 # Configuration
 MONGODB_URI=${MONGODB_URI:-"mongodb://localhost:27017"}
+#MONGODB_URI=${MONGODB_URI:-"mongodb://mongodb.mattstrom.com:27017"}
 DATABASE_NAME=${DATABASE_NAME:-"resume-builder"}
 BACKUP_DIR=${BACKUP_DIR:-"./backup"}
 
@@ -126,9 +127,11 @@ print_status "Target database: $DATABASE_NAME"
 mongorestore \
     --uri="$MONGODB_URI" \
     --db="$DATABASE_NAME" \
+	--username "$MONGODB_USER" \
+	--password "$MONGODB_PASSWORD" \
+    --authenticationDatabase="${AUTH_SOURCE:-admin}" \
     --drop \
-    --dir="$extracted_dir/$DATABASE_NAME" \
-    --quiet
+    --dir="$extracted_dir/$DATABASE_NAME"
 
 # Check if restore was successful
 if [ $? -eq 0 ]; then

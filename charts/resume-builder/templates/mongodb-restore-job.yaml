@@ -1,0 +1,125 @@
+{{- if .Values.mongodbRestore.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-mongodb-restore-{{ .Values.mongodbRestore.jobId | default "1" }}
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mongodb-restore
+spec:
+  backoffLimit: {{ .Values.mongodbRestore.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.mongodbRestore.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "resume-builder.labels" . | nindent 8 }}
+        app.kubernetes.io/component: mongodb-restore
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      containers:
+        - name: mongodb-restore
+          image: "{{ .Values.mongodbBackup.image.repository }}:{{ .Values.mongodbBackup.image.tag }}"
+          imagePullPolicy: {{ .Values.mongodbBackup.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              BACKUP_FILE="{{ .Values.mongodbRestore.backupFile }}"
+
+              # Resolve "latest" to the most recent backup
+              if [ "$BACKUP_FILE" = "latest" ]; then
+                BACKUP_FILE=$(ls -t /backup/mongodb_backup_*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || true)
+                if [ -z "$BACKUP_FILE" ]; then
+                  echo "[ERROR] No backups found in /backup/"
+                  exit 1
+                fi
+                echo "[INFO] Resolved 'latest' to: ${BACKUP_FILE}"
+              fi
+
+              BACKUP_PATH="/backup/${BACKUP_FILE}"
+
+              # Validate the backup file exists
+              if [ ! -f "$BACKUP_PATH" ]; then
+                echo "[ERROR] Backup file not found: ${BACKUP_PATH}"
+                echo "[INFO] Available backups:"
+                ls -1 /backup/mongodb_backup_*.tar.gz 2>/dev/null || echo "  (none)"
+                exit 1
+              fi
+
+              echo "[INFO] Starting MongoDB restore..."
+              echo "[INFO] Backup file: ${BACKUP_FILE}"
+              echo "[INFO] Database: {{ .Values.mongodb.database }}"
+
+              # Extract to temp directory
+              TEMP_DIR=$(mktemp -d)
+              echo "[INFO] Extracting backup..."
+              tar -xzf "$BACKUP_PATH" -C "$TEMP_DIR"
+
+              # Find the extracted directory
+              EXTRACTED_DIR=$(find "$TEMP_DIR" -name "mongodb_backup_*" -type d | head -1)
+              if [ -z "$EXTRACTED_DIR" ]; then
+                echo "[ERROR] Could not find extracted backup directory"
+                rm -rf "$TEMP_DIR"
+                exit 1
+              fi
+
+              RESTORE_DIR="${EXTRACTED_DIR}/{{ .Values.mongodb.database }}"
+              if [ ! -d "$RESTORE_DIR" ]; then
+                echo "[ERROR] Database directory not found in backup: {{ .Values.mongodb.database }}"
+                echo "[INFO] Available directories:"
+                ls -1 "$EXTRACTED_DIR"
+                rm -rf "$TEMP_DIR"
+                exit 1
+              fi
+
+              # Perform restore
+              echo "[INFO] Running mongorestore --drop..."
+              mongorestore \
+                --uri="${MONGODB_URI}" \
+                --db="{{ .Values.mongodb.database }}" \
+                --drop \
+                --dir="$RESTORE_DIR" \
+                --quiet
+
+              # Cleanup
+              rm -rf "$TEMP_DIR"
+              echo "[INFO] Restore completed successfully!"
+          env:
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mongodb.name }}-password
+                  key: password
+            - name: MONGODB_URI
+              value: {{ include "resume-builder.mongodbUri" . | quote }}
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+              readOnly: true
+          {{- with .Values.mongodbRestore.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: {{ include "resume-builder.fullname" . }}-mongodb-backup
+      {{- with .Values.mongodbBackup.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mongodbBackup.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.mongodbBackup.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
