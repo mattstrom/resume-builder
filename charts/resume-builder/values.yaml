@@ -2,6 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+domain: mattstrom.com
+
 imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
@@ -40,6 +42,7 @@ web:
 # -- MongoDB Community Operator
 mongodb:
   name: resume-builder-mongodb
+  port: 27017
   version: '7.0.5'
   members: 1
   storage: 10Gi
