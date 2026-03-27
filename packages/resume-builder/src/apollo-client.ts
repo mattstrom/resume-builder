@@ -6,28 +6,18 @@ import {
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 
-type TokenGetter = () => Promise<string>;
-
-let tokenGetter: TokenGetter | null = null;
-
-export function setTokenGetter(getter: TokenGetter) {
-	tokenGetter = getter;
-}
+import { getAuthToken } from './utils/auth';
 
 const authLink = setContext(async (_, { headers }) => {
-	if (!tokenGetter) return { headers };
+	const token = await getAuthToken();
+	if (!token) return { headers };
 
-	try {
-		const token = await tokenGetter();
-		return {
-			headers: {
-				...headers,
-				Authorization: `Bearer ${token}`,
-			},
-		};
-	} catch {
-		return { headers };
-	}
+	return {
+		headers: {
+			...headers,
+			Authorization: `Bearer ${token}`,
+		},
+	};
 });
 
 const httpLink = new HttpLink({ uri: __CONFIG__.graphqlUrl });

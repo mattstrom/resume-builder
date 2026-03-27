@@ -1,5 +1,7 @@
 import type { Resume } from '@resume-builder/entities';
 
+import { authFetch } from './auth';
+
 const API_BASE_URL = 'http://localhost:3000';
 
 export interface ApiError {
@@ -9,7 +11,7 @@ export interface ApiError {
 
 export async function fetchResumes(): Promise<Resume[]> {
 	try {
-		const response = await fetch(`${API_BASE_URL}/resumes`);
+		const response = await authFetch(`${API_BASE_URL}/resumes`);
 
 		if (!response.ok) {
 			throw new Error(
@@ -29,7 +31,7 @@ export async function fetchResumes(): Promise<Resume[]> {
 
 export async function fetchResumeById(_id: string): Promise<Resume> {
 	try {
-		const response = await fetch(`${API_BASE_URL}/resumes/${_id}`);
+		const response = await authFetch(`${API_BASE_URL}/resumes/${_id}`);
 
 		if (!response.ok) {
 			throw new Error(
@@ -49,7 +51,7 @@ export async function fetchResumeById(_id: string): Promise<Resume> {
 
 export async function createResume(data: Resume): Promise<Resume> {
 	try {
-		const response = await fetch(`${API_BASE_URL}/resumes`, {
+		const response = await authFetch(`${API_BASE_URL}/resumes`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -75,7 +77,7 @@ export async function createResume(data: Resume): Promise<Resume> {
 
 export async function updateResume(_id: string, data: Resume): Promise<Resume> {
 	try {
-		const response = await fetch(`${API_BASE_URL}/resumes/${_id}`, {
+		const response = await authFetch(`${API_BASE_URL}/resumes/${_id}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',

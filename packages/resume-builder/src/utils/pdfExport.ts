@@ -1,3 +1,5 @@
+import { authFetch } from './auth';
+
 interface ResumeData {
 	name?: string;
 	company?: string;
@@ -18,7 +20,7 @@ export async function generatePDF(
 	const doc = sourceDocument ?? getPreviewDocument();
 	const html = doc.documentElement.outerHTML;
 
-	const response = await fetch('/api/pdf', {
+	const response = await authFetch('/api/pdf', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ html }),
@@ -48,7 +50,7 @@ export async function generatePDFFromHTML(
 	html: string,
 	resumeData: ResumeData,
 ): Promise<void> {
-	const response = await fetch('/api/pdf', {
+	const response = await authFetch('/api/pdf', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ html }),
