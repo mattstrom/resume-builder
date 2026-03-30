@@ -12,9 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as PublicLogoutRouteImport } from './routes/_public/logout'
-import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated/editor'
+import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
+import { Route as publicLoginRouteImport } from './routes/(public)/login'
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
 import { Route as AuthenticatedPreviewResumeIdRouteImport } from './routes/_authenticated/preview.$resumeId'
 import { Route as AuthenticatedExportResumeIdRouteImport } from './routes/_authenticated/export.$resumeId'
@@ -34,20 +34,20 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const PublicLogoutRoute = PublicLogoutRouteImport.update({
-  id: '/logout',
-  path: '/logout',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicLoginRoute = PublicLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => PublicRoute,
-} as any)
 const AuthenticatedEditorRoute = AuthenticatedEditorRouteImport.update({
   id: '/editor',
   path: '/editor',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const publicLogoutRoute = publicLogoutRouteImport.update({
+  id: '/(public)/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const publicLoginRoute = publicLoginRouteImport.update({
+  id: '/(public)/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedEditorIndexRoute =
   AuthenticatedEditorIndexRouteImport.update({
@@ -81,9 +81,9 @@ const AuthenticatedEditorLocalFilenameRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/login': typeof publicLoginRoute
+  '/logout': typeof publicLogoutRoute
   '/editor': typeof AuthenticatedEditorRouteWithChildren
-  '/login': typeof PublicLoginRoute
-  '/logout': typeof PublicLogoutRoute
   '/': typeof AuthenticatedIndexRoute
   '/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
   '/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
@@ -92,8 +92,8 @@ export interface FileRoutesByFullPath {
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof PublicLoginRoute
-  '/logout': typeof PublicLogoutRoute
+  '/login': typeof publicLoginRoute
+  '/logout': typeof publicLogoutRoute
   '/': typeof AuthenticatedIndexRoute
   '/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
   '/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
@@ -104,10 +104,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/_public': typeof PublicRouteWithChildren
+  '/_public': typeof PublicRoute
+  '/(public)/login': typeof publicLoginRoute
+  '/(public)/logout': typeof publicLogoutRoute
   '/_authenticated/editor': typeof AuthenticatedEditorRouteWithChildren
-  '/_public/login': typeof PublicLoginRoute
-  '/_public/logout': typeof PublicLogoutRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
   '/_authenticated/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
@@ -118,9 +118,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/editor'
     | '/login'
     | '/logout'
+    | '/editor'
     | '/'
     | '/editor/$resumeId'
     | '/export/$resumeId'
@@ -141,9 +141,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/_public'
+    | '/(public)/login'
+    | '/(public)/logout'
     | '/_authenticated/editor'
-    | '/_public/login'
-    | '/_public/logout'
     | '/_authenticated/'
     | '/_authenticated/editor/$resumeId'
     | '/_authenticated/export/$resumeId'
@@ -154,7 +154,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  PublicRoute: typeof PublicRouteWithChildren
+  PublicRoute: typeof PublicRoute
+  publicLoginRoute: typeof publicLoginRoute
+  publicLogoutRoute: typeof publicLogoutRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -180,26 +182,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_public/logout': {
-      id: '/_public/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof PublicLogoutRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/login': {
-      id: '/_public/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof PublicLoginRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_authenticated/editor': {
       id: '/_authenticated/editor'
       path: '/editor'
       fullPath: '/editor'
       preLoaderRoute: typeof AuthenticatedEditorRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/(public)/logout': {
+      id: '/(public)/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof publicLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(public)/login': {
+      id: '/(public)/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof publicLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/editor/': {
       id: '/_authenticated/editor/'
@@ -272,22 +274,11 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
-interface PublicRouteChildren {
-  PublicLoginRoute: typeof PublicLoginRoute
-  PublicLogoutRoute: typeof PublicLogoutRoute
-}
-
-const PublicRouteChildren: PublicRouteChildren = {
-  PublicLoginRoute: PublicLoginRoute,
-  PublicLogoutRoute: PublicLogoutRoute,
-}
-
-const PublicRouteWithChildren =
-  PublicRoute._addFileChildren(PublicRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  PublicRoute: PublicRouteWithChildren,
+  PublicRoute: PublicRoute,
+  publicLoginRoute: publicLoginRoute,
+  publicLogoutRoute: publicLogoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -32,4 +32,11 @@ const RootComponent = observer(() => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	component: RootComponent,
+	beforeLoad: async ({ context }) => {
+		const { authStore } = context.store;
+
+		try {
+			await authStore.ensureToken();
+		} catch {}
+	},
 });

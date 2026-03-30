@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
 import {
 	Loader2,
@@ -82,7 +82,6 @@ export const EditorToolbar: FC = observer(() => {
 		setChatOpen,
 	} = useSettings();
 	const { authStore } = useStore();
-	const navigate = useNavigate();
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
 	const { resumeId } = useParams({ strict: false });
@@ -281,7 +280,7 @@ export const EditorToolbar: FC = observer(() => {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem
-								onClick={() => navigate({ to: '/logout' })}
+								onClick={() => authStore.logout()}
 							>
 								<LogOut className="mr-2 h-4 w-4" />
 								Log out
