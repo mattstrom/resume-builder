@@ -28,6 +28,7 @@ const jobFragment = gql`
 		startDate
 		endDate
 		responsibilities
+		relevance
 	}
 `;
 
@@ -36,6 +37,8 @@ const projectFragment = gql`
 		name
 		technologies
 		items
+		type
+		relevance
 	}
 `;
 
@@ -43,6 +46,7 @@ const skillFragment = gql`
 	fragment Skill on Skill {
 		name
 		category
+		relevance
 	}
 `;
 
@@ -61,6 +65,7 @@ const volunteeringFragment = gql`
 		startDate
 		endDate
 		responsibilities
+		relevance
 	}
 `;
 
@@ -160,6 +165,7 @@ export const LIST_JOBS = gql`
 			startDate
 			endDate
 			responsibilities
+			relevance
 		}
 	}
 `;

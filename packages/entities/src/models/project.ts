@@ -1,4 +1,11 @@
-import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
+import {
+	Field,
+	Float,
+	ID,
+	InputType,
+	ObjectType,
+	OmitType,
+} from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
@@ -23,6 +30,14 @@ export class Project {
 	@Field(() => [String])
 	@Prop({ type: [String], default: [] })
 	items: string[];
+
+	@Field({ nullable: true })
+	@Prop({ type: String, required: false })
+	type?: string;
+
+	@Field(() => Float, { nullable: true })
+	@Prop({ type: Number, required: false })
+	relevance?: number;
 }
 
 @InputType()
@@ -43,4 +58,6 @@ export const projectSchema = z.object({
 	name: z.string(),
 	technologies: z.array(z.string()),
 	items: z.array(z.string()),
+	type: z.enum(['professional', 'personal']).optional(),
+	relevance: z.number().min(0).max(1).optional(),
 });
