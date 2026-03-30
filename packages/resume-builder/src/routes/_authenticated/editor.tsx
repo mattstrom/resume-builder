@@ -50,11 +50,11 @@ function EditorLayout() {
 			<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
 				<Panel
 					ref={sidebarPanelRef}
-					id='sidebar'
+					id="sidebar"
 					collapsible
 					defaultSize={`${sidebarDefaultSize}%`}
-					minSize='8%'
-					maxSize='30%'
+					minSize="8%"
+					maxSize="30%"
 					onCollapse={() => setSidebarOpen(false)}
 					onExpand={() => setSidebarOpen(true)}
 					onResize={(size) =>
@@ -79,10 +79,10 @@ function EditorLayout() {
 					<>
 						<PanelResizeHandle className="editor-resize-handle" />
 						<Panel
-							id='chat'
+							id="chat"
 							defaultSize={`${chatDefaultSize}%`}
-							minSize='15%'
-							maxSize='40%'
+							minSize="15%"
+							maxSize="40%"
 							onResize={(size) =>
 								localStorage.setItem(
 									'chat-panel-size',
@@ -96,5 +96,5 @@ function EditorLayout() {
 				)}
 			</PanelGroup>
 		</SidebarProvider>
-	)
+	);
 }
