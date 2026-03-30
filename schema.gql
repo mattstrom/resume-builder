@@ -34,6 +34,7 @@ type Job {
   startDate: String!
   endDate: String!
   responsibilities: [String!]!
+  relevance: Float
 }
 
 """Project"""
@@ -43,6 +44,8 @@ type Project {
   name: String!
   technologies: [String!]!
   items: [String!]!
+  type: String
+  relevance: Float
 }
 
 """Skill"""
@@ -51,6 +54,7 @@ type Skill {
   uid: String!
   name: String!
   category: String!
+  relevance: Float
 }
 
 """Skill Group"""
@@ -71,6 +75,7 @@ type Volunteering {
   startDate: String!
   endDate: String
   responsibilities: [String!]!
+  relevance: Float
 }
 
 """Cover Letter"""
@@ -196,6 +201,7 @@ input JobInput {
   startDate: String!
   endDate: String!
   responsibilities: [String!]!
+  relevance: Float
   _id: ID
 }
 
@@ -213,12 +219,15 @@ input ProjectInput {
   name: String!
   technologies: [String!]!
   items: [String!]!
+  type: String
+  relevance: Float
   _id: ID
 }
 
 input SkillInput {
   name: String!
   category: String!
+  relevance: Float
   _id: ID
 }
 
@@ -235,6 +244,7 @@ input VolunteeringInput {
   startDate: String!
   endDate: String
   responsibilities: [String!]!
+  relevance: Float
   _id: ID
 }
 

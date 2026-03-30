@@ -11,6 +11,10 @@ interface ListResumesVariables {
 	};
 }
 
+const STORAGE_KEY_SORT_FIELD = 'resumeList.sortField';
+const STORAGE_KEY_SORT_ASCENDING = 'resumeList.sortAscending';
+const STORAGE_KEY_GROUP_BY = 'resumeList.groupBy';
+
 export class ResumeStore {
 	private query: ApolloMobxWrapper<
 		{ listResumes: Resume[] },
@@ -21,13 +25,19 @@ export class ResumeStore {
 	selectedResumeId: string | null = null;
 
 	@observable
-	sortField: string | null = null;
+	sortField: string | null =
+		localStorage.getItem(STORAGE_KEY_SORT_FIELD) ?? null;
 
 	@observable
-	sortAscending: boolean = true;
+	sortAscending: boolean =
+		localStorage.getItem(STORAGE_KEY_SORT_ASCENDING) !== 'false';
 
 	@observable
-	groupBy: 'company' | 'level' | null = null;
+	groupBy: 'company' | 'level' | null =
+		(localStorage.getItem(STORAGE_KEY_GROUP_BY) as
+			| 'company'
+			| 'level'
+			| null) ?? null;
 
 	@computed
 	get selectedResume() {
@@ -51,6 +61,13 @@ export class ResumeStore {
 		this.sortField = field;
 		this.sortAscending = ascending;
 
+		if (field) {
+			localStorage.setItem(STORAGE_KEY_SORT_FIELD, field);
+		} else {
+			localStorage.removeItem(STORAGE_KEY_SORT_FIELD);
+		}
+		localStorage.setItem(STORAGE_KEY_SORT_ASCENDING, String(ascending));
+
 		const sort = field ? { field, ascending } : undefined;
 		this.query.refetch({ sort });
 	}
@@ -58,6 +75,12 @@ export class ResumeStore {
 	@action
 	setGroupBy(groupBy: 'company' | 'level' | null) {
 		this.groupBy = groupBy;
+
+		if (groupBy) {
+			localStorage.setItem(STORAGE_KEY_GROUP_BY, groupBy);
+		} else {
+			localStorage.removeItem(STORAGE_KEY_GROUP_BY);
+		}
 	}
 
 	@computed
@@ -80,12 +103,16 @@ export class ResumeStore {
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
 
+		const sort = this.sortField
+			? { field: this.sortField, ascending: this.sortAscending }
+			: undefined;
+
 		this.query = ApolloMobxWrapper.create<
 			{ listResumes: Resume[] },
 			ListResumesVariables
 		>(rootStore.client, {
 			query: LIST_RESUMES,
-			variables: {},
+			variables: sort ? { sort } : {},
 		});
 	}
 }
