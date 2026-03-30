@@ -9,6 +9,7 @@ import {
 	Job,
 	Project,
 	Resume,
+	resumeInputSchema,
 	resumeSchema,
 	Skill,
 } from '@resume-builder/entities';
@@ -64,7 +65,7 @@ export class ResumesResolver {
 	@Tool({
 		name: 'save_resume',
 		description: 'Saves a resume to the database',
-		paramsSchema: { resume: resumeSchema },
+		paramsSchema: { resume: resumeInputSchema },
 		annotations: {
 			destructureHint: true,
 			idempotentHint: false,
