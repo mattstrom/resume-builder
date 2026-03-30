@@ -88,6 +88,91 @@ type CoverLetter {
   content: String!
 }
 
+"""Structured summary of job posting requirements"""
+type JobSummary {
+  """Skills required by the job posting"""
+  requiredSkills: [String!]!
+
+  """Skills preferred but not required by the job posting"""
+  preferredSkills: [String!]!
+
+  """Education requirements"""
+  requiredEducation: String
+
+  """Experience requirements (e.g. "5+ years in distributed systems")"""
+  requiredExperience: String
+}
+
+"""Analysis of fit between user skills/experience and job posting"""
+type Analysis {
+  """Relevance of skills to the job posting (0-1)"""
+  skillRelevance: Float!
+
+  """Relevance of work experience to the job posting (0-1)"""
+  experienceRelevance: Float!
+
+  """Aggregate fit score (0-1)"""
+  overallFit: Float!
+
+  """Strengths of the user relative to the job posting"""
+  strengths: [String!]!
+
+  """Weaknesses or skill gaps relative to the job posting"""
+  weaknesses: [String!]!
+
+  """Suggested improvements or talking points"""
+  recommendations: [String!]!
+}
+
+"""Application"""
+type Application {
+  _id: ID!
+
+  """User ID"""
+  uid: String!
+
+  """Friendly name for this application"""
+  name: String!
+
+  """Company to which this application applies"""
+  company: String!
+
+  """URL of the job posting"""
+  jobPostingUrl: String!
+
+  """
+  Raw text of the job posting, for when the URL is hard to load due to heavy JavaScript etc.
+  """
+  jobDescription: String
+
+  """Notion database record ID linking to pipeline tracking"""
+  notionId: String
+
+  """Reference to resume prepared for this application"""
+  resumeId: String
+
+  """Reference to cover letter prepared for this application"""
+  coverLetterId: String
+
+  """Key skills, education, and experience the job posting is looking for"""
+  jobSummary: JobSummary
+
+  """
+  Analysis of strengths, weaknesses, and relevance of skills and experience
+  """
+  analysis: Analysis
+
+  """Freeform notes"""
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -119,11 +204,6 @@ type Resume {
   updatedAt: DateTime!
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type ConversationMessage {
   role: String!
   content: String!
@@ -142,6 +222,8 @@ type Query {
   listVolunteering: [Volunteering!]!
   listCoverLetters: [CoverLetter!]!
   getCoverLetter(id: String!): CoverLetter!
+  listApplications: [Application!]!
+  getApplication(id: String!): Application!
 }
 
 input ResumeSortInput {
@@ -169,6 +251,10 @@ type Mutation {
   createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
   updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
   patchCoverLetter(id: String!, update: JSON!): CoverLetter!
+  createApplication(applicationData: ApplicationInput!): Application!
+  updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
+  deleteApplication(id: String!): Boolean!
+  patchApplication(id: String!, update: JSON!): Application!
 }
 
 input ResumeCreateInput {
@@ -290,4 +376,46 @@ input CoverLetterUpdateInput {
   company: String
   jobPostingUrl: String
   content: String
+}
+
+input ApplicationInput {
+  name: String!
+  company: String!
+  jobPostingUrl: String!
+  jobDescription: String
+  notionId: String
+  resumeId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
+}
+
+input JobSummaryInput {
+  requiredSkills: [String!]!
+  preferredSkills: [String!]!
+  requiredEducation: String
+  requiredExperience: String
+}
+
+input AnalysisInput {
+  skillRelevance: Float!
+  experienceRelevance: Float!
+  overallFit: Float!
+  strengths: [String!]!
+  weaknesses: [String!]!
+  recommendations: [String!]!
+}
+
+input ApplicationUpdateInput {
+  name: String
+  company: String
+  jobPostingUrl: String
+  jobDescription: String
+  notionId: String
+  resumeId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
 }

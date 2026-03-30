@@ -67,7 +67,8 @@ export class ConversationCreateInput {
 export const conversationMessageSchema = z.object({
 	role: z.string(),
 	content: z.string(),
-	createdAt: z.coerce.date(),
+	// createdAt: z.coerce.date(),
+	createdAt: z.string(),
 });
 
 export const conversationSchema = z.object({
@@ -76,6 +77,6 @@ export const conversationSchema = z.object({
 	resumeId: z.string(),
 	title: z.string(),
 	messages: z.array(conversationMessageSchema),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
 });

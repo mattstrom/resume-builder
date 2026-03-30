@@ -264,6 +264,13 @@ export const applicationSchema = z.object({
 	jobSummary: jobSummarySchema.optional(),
 	analysis: analysisSchema.optional(),
 	notes: z.string().optional(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
+});
+
+export const applicationInputSchema = applicationSchema.omit({
+	_id: true,
+	uid: true,
+	createdAt: true,
+	updatedAt: true,
 });

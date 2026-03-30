@@ -121,6 +121,11 @@ export const resumeSchema = z.object({
 	level: z.string().optional(),
 	jobPostingUrl: z.string(),
 	data: resumeContentSchema,
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
+	createdAt: z.iso.datetime(),
+	updatedAt: z.iso.datetime(),
+});
+
+export const resumeInputSchema = resumeSchema.omit({
+	_id: true,
+	uid: true,
 });

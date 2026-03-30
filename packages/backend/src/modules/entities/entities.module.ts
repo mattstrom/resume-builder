@@ -9,6 +9,7 @@ import { ContactInformationModule } from './contact-information/contact-informat
 import { VolunteeringModule } from './volunteering/volunteering.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { CoverLettersModule } from './cover-letters/cover-letters.module';
+import { ApplicationsModule } from './applications/applications.module';
 
 const imports = [
 	MongodbModule,
@@ -21,6 +22,7 @@ const imports = [
 	VolunteeringModule,
 	CoverLettersModule,
 	ConversationsModule,
+	ApplicationsModule,
 ];
 
 @Module({

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { MongodbModule } from '../mongodb/mongodb.module';
+import { ApplicationsResolver } from './applications.resolver';
 import { HealthResolver } from './health.resolver';
 import { ResumesResolver } from './resumes.resolver';
 
@@ -13,10 +14,13 @@ import { ResumesResolver } from './resumes.resolver';
 			logging: {
 				level: 'warn',
 			},
+			transports: {
+				streamable: { enabled: true },
+			},
 		}),
 		MongodbModule,
 	],
 	exports: [NestMcpModule],
-	providers: [HealthResolver, ResumesResolver],
+	providers: [ApplicationsResolver, HealthResolver, ResumesResolver],
 })
 export class McpModule {}
