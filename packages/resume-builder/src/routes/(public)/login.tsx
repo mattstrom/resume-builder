@@ -52,6 +52,6 @@ const LoginPage = observer(() => {
 	);
 });
 
-export const Route = createFileRoute('/_public/login')({
+export const Route = createFileRoute('/(public)/login')({
 	component: LoginPage,
 });

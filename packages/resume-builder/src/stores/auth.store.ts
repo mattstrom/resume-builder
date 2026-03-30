@@ -66,7 +66,7 @@ export class AuthStore {
 	async logout(returnTo?: string) {
 		const params = {
 			logoutParams: {
-				returnTo: returnTo ?? window.location.origin + '/login',
+				returnTo: returnTo ?? window.location.origin + '/logout',
 			},
 		};
 
