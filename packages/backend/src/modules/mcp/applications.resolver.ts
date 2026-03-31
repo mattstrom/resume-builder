@@ -1,16 +1,22 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { Resolver, SessionManager, Tool } from '@nestjs-mcp/server';
-import { InjectModel } from '@nestjs/mongoose';
-import { Application, applicationInputSchema } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
+import {
+	Analysis,
+	analysisSchema,
+	Application,
+	applicationInputSchema,
+} from '@resume-builder/entities';
+import { z } from 'zod';
+
+import { ApplicationsService } from '../entities/applications/applications.service';
+import { McpGuard } from './mcp.guard';
+import { type McpToolParams } from './types';
+import * as types from './types';
 
 @Resolver()
+@UseGuards(McpGuard)
 export class ApplicationsResolver {
-	constructor(
-		private readonly sessionManager: SessionManager,
-		@InjectModel(Application.name)
-		private readonly applicationModel: Model<Application>,
-	) {}
+	constructor(private readonly applicationsService: ApplicationsService) {}
 
 	@Tool({
 		name: 'get_applications',
@@ -20,8 +26,8 @@ export class ApplicationsResolver {
 			idempotentHint: true,
 		},
 	})
-	async getApplications(): Promise<CallToolResult> {
-		const applications = await this.applicationModel.find().exec();
+	async getApplications({ user }: types.McpExtra): Promise<CallToolResult> {
+		const applications = await this.applicationsService.findAll(user.sub);
 
 		return {
 			content: [
@@ -37,20 +43,89 @@ export class ApplicationsResolver {
 	}
 
 	@Tool({
-		name: 'save_application',
-		description:
-			'Saves a job application with analysis of skill fit, strengths, weaknesses, and relevance scores',
+		name: 'get_application',
+		description: 'Retrieve specific job application and its analysis',
+		paramsSchema: { applicationId: z.string() },
+		annotations: {
+			destructureHint: false,
+			idempotentHint: true,
+		},
+	})
+	async getApplication(
+		{ applicationId }: McpToolParams<{ applicationId: string }>,
+		{ user }: types.McpExtra,
+	): Promise<CallToolResult> {
+		const application = await this.applicationsService.find(
+			user.sub,
+			applicationId,
+		);
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Found application with ID ${applicationId}.`,
+				},
+			],
+			structuredContent: {
+				application,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'create_application',
+		description: 'Creates a job application',
 		paramsSchema: { application: applicationInputSchema },
 		annotations: {
 			destructureHint: true,
 			idempotentHint: false,
 		},
 	})
-	async saveApplication({ application }: { application: Application }) {
-		const savedApplication = await this.applicationModel.create({
-			...application,
-			uid: 'auth0|69c19214515fd097660fb597',
-		});
+	async createApplication(
+		{ application }: types.McpToolParams<{ application: Application }>,
+		{ user }: types.McpExtra,
+	) {
+		const savedApplication = await this.applicationsService.create(
+			user.sub,
+			application,
+		);
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Application saved successfully. ID: ${savedApplication._id}`,
+				},
+			],
+			structuredContent: {
+				application: savedApplication,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'update_analysis',
+		description:
+			'Updates the analysis of a job application with skill fit, strengths, weaknesses, and relevance scores',
+		paramsSchema: { applicationId: z.string(), analysis: analysisSchema },
+		annotations: {
+			destructureHint: true,
+			idempotentHint: false,
+		},
+	})
+	async updateAnalysis(
+		{
+			applicationId,
+			analysis,
+		}: types.McpToolParams<{ applicationId: string; analysis: Analysis }>,
+		{ user }: types.McpExtra,
+	) {
+		const savedApplication = await this.applicationsService.updateAnalysis(
+			user.sub,
+			applicationId,
+			analysis,
+		);
 
 		return {
 			content: [

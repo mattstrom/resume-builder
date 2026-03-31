@@ -32,7 +32,7 @@ type Job {
   position: String!
   location: String!
   startDate: String!
-  endDate: String!
+  endDate: String
   responsibilities: [String!]!
   relevance: Float
 }
@@ -285,7 +285,7 @@ input JobInput {
   position: String!
   location: String!
   startDate: String!
-  endDate: String!
+  endDate: String
   responsibilities: [String!]!
   relevance: Float
   _id: ID

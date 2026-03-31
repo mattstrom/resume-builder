@@ -13,4 +13,8 @@ export class ContactInformationService {
 	async findAll(uid: string) {
 		return this.contactInformationModel.find({ uid }).exec();
 	}
+
+	async findOne(uid: string) {
+		return this.contactInformationModel.findOne({ uid }).exec();
+	}
 }

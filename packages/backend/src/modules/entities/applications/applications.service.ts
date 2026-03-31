@@ -62,6 +62,22 @@ export class ApplicationsService {
 		return updated.toObject();
 	}
 
+	async updateAnalysis(
+		uid: string,
+		id: string,
+		analysis: Application['analysis'],
+	): Promise<Application> {
+		const updated = await this.applicationModel
+			.findOneAndUpdate({ _id: id, uid }, { analysis }, { new: true })
+			.exec();
+
+		if (!updated) {
+			throw new NotFoundException(`Application with id ${id} not found`);
+		}
+
+		return updated.toObject();
+	}
+
 	async delete(uid: string, id: string): Promise<void> {
 		const result = await this.applicationModel
 			.deleteOne({ _id: id, uid })
