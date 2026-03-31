@@ -6,6 +6,7 @@ import {
 	ResumeCreateInput,
 	resumeInputSchema,
 } from '@resume-builder/entities';
+import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { ContactInformationService } from '../entities/contact-information/contact-information.service';
@@ -40,6 +41,8 @@ export class ResumesResolver {
 	 */
 	@Tool({
 		name: 'get_resumes',
+		description: 'Retrieves all resumes for the current user',
+		paramsSchema: {},
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
@@ -52,11 +55,53 @@ export class ResumesResolver {
 			content: [
 				{
 					type: 'text',
-					text: `Found ${resumes.length} resumes.`,
+					text: `Found ${resumes.length} resumes.\n${JSON.stringify(resumes, null, 2)}`,
 				},
 			],
 			structuredContent: {
 				resumes,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'get_resume',
+		description: 'Retrieves a resume by ID',
+		paramsSchema: { id: z.uuid() },
+		annotations: {
+			destructureHint: false,
+			idempotentHint: true,
+		},
+	})
+	async getResume(
+		{ id }: McpToolParams<{ id: string }>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const resume = await this.resumesService.find(user.sub, id);
+
+		if (!resume) {
+			return {
+				content: [
+					{
+						type: 'text',
+						text: `Resume with ID ${id} not found.`,
+					},
+				],
+			};
+		}
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: outdent`
+						Found resume with ID ${id}:
+						${JSON.stringify(resume, null, 2)}
+					`,
+				},
+			],
+			structuredContent: {
+				resume,
 			},
 		};
 	}
@@ -130,7 +175,10 @@ export class ResumesResolver {
 			content: [
 				{
 					type: 'text',
-					text: `Found ${jobs.length} job listings.`,
+					text: outdent`
+						Found ${jobs.length} job listings.
+						${JSON.stringify(jobs, null, 2)}
+					`,
 				},
 			],
 			structuredContent: {
@@ -154,7 +202,10 @@ export class ResumesResolver {
 			content: [
 				{
 					type: 'text',
-					text: `Found ${education.length} education entries.`,
+					text: outdent`
+						Found ${education.length} education entries.
+						${JSON.stringify(education, null, 2)}
+					`,
 				},
 			],
 			structuredContent: {
@@ -178,7 +229,10 @@ export class ResumesResolver {
 			content: [
 				{
 					type: 'text',
-					text: `Found ${projects.length} projects.`,
+					text: outdent`
+						Found ${projects.length} projects.
+						${JSON.stringify(projects, null, 2)}
+					`,
 				},
 			],
 			structuredContent: {
@@ -211,7 +265,10 @@ export class ResumesResolver {
 			content: [
 				{
 					type: 'text',
-					text: `Skills: ${skillsText}`,
+					text: outdent`
+						Skills:
+						${skillsText}
+					`,
 				},
 			],
 			structuredContent: {
@@ -240,6 +297,50 @@ export class ResumesResolver {
 			],
 			structuredContent: {
 				coverLetters,
+			},
+		};
+	}
+
+	@Tool({
+		name: 'get_cover_letter',
+		description: 'Retrieve cover letter by ID',
+		paramsSchema: {
+			id: z.uuid(),
+		},
+		annotations: {
+			destructureHint: false,
+			idempotentHint: true,
+		},
+	})
+	async getCoverLetter(
+		{ id }: McpToolParams<{ id: string }>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const coverLetter = await this.coverLettersService.find(user.sub, id);
+
+		if (!coverLetter) {
+			return {
+				content: [
+					{
+						type: 'text',
+						text: `Cover letter with ID ${id} not found.`,
+					},
+				],
+			};
+		}
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: outdent`
+						Cover letter with ID ${id} found.
+						${JSON.stringify(coverLetter)}
+					`,
+				},
+			],
+			structuredContent: {
+				coverLetter,
 			},
 		};
 	}

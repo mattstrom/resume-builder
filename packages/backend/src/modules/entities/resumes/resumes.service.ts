@@ -33,8 +33,15 @@ export class ResumesService {
 
 		const results = await this.resumeModel
 			.find({ uid })
+			.select({
+				name: 1,
+				company: 1,
+				level: 1,
+				tags: 1,
+			})
 			.sort(sortCriteria)
 			.exec();
+
 		return results.map((item) => item.toObject());
 	}
 

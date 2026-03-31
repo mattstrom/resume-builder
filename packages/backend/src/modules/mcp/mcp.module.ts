@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 
 import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
-import { EntitiesModule } from '../entities/entities.module';
+import { EntitiesModule } from '../entities';
 import { ApplicationsResolver } from './applications.resolver';
 import { HealthResolver } from './health.resolver';
 import { ResumesResolver } from './resumes.resolver';
+import { SchemasResolver } from './schemas.resolver';
 
 @Module({
 	imports: [
@@ -12,7 +13,7 @@ import { ResumesResolver } from './resumes.resolver';
 			name: 'resume-builder',
 			version: '1.0.0',
 			logging: {
-				level: 'warn',
+				level: 'log',
 			},
 			transports: {
 				streamable: { enabled: true },
@@ -21,6 +22,11 @@ import { ResumesResolver } from './resumes.resolver';
 		EntitiesModule,
 	],
 	exports: [NestMcpModule],
-	providers: [ApplicationsResolver, HealthResolver, ResumesResolver],
+	providers: [
+		ApplicationsResolver,
+		HealthResolver,
+		ResumesResolver,
+		SchemasResolver,
+	],
 })
 export class McpModule {}

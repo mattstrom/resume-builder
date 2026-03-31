@@ -44,27 +44,24 @@ export class ApplicationsResolver {
 
 	@Tool({
 		name: 'get_application',
-		description: 'Retrieve specific job application and its analysis',
-		paramsSchema: { applicationId: z.string() },
+		description: 'Retrieve specific job application by ID and its analysis',
+		paramsSchema: { id: z.string() },
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
 		},
 	})
 	async getApplication(
-		{ applicationId }: McpToolParams<{ applicationId: string }>,
+		{ id }: McpToolParams<{ id: string }>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
-		const application = await this.applicationsService.find(
-			user.sub,
-			applicationId,
-		);
+		const application = await this.applicationsService.find(user.sub, id);
 
 		return {
 			content: [
 				{
 					type: 'text',
-					text: `Found application with ID ${applicationId}.`,
+					text: `Found application with ID ${id}.`,
 				},
 			],
 			structuredContent: {
