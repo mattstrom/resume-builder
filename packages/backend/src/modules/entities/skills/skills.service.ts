@@ -9,7 +9,15 @@ export class SkillsService {
 		@InjectModel(Skill.name) private readonly skillModel: Model<Skill>,
 	) {}
 
-	async findAll(uid: string) {
-		return this.skillModel.find({ uid }).exec();
+	async findAll(uid: string, categories?: string[]) {
+		const query =
+			categories && categories.length > 0
+				? { category: { $in: categories } }
+				: {};
+
+		return this.skillModel
+			.find({ ...query, uid })
+			.lean()
+			.exec();
 	}
 }

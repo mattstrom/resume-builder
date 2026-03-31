@@ -1,39 +1,38 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { Resolver, Tool } from '@nestjs-mcp/server';
-import { InjectModel } from '@nestjs/mongoose';
+import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import {
-	ContactInformation,
 	CoverLetter,
 	coverLetterSchema,
-	Education,
-	Job,
-	Project,
-	Resume,
+	ResumeCreateInput,
 	resumeInputSchema,
-	resumeSchema,
-	Skill,
 } from '@resume-builder/entities';
-import { Model } from 'mongoose';
 import { z } from 'zod';
+
+import { ContactInformationService } from '../entities/contact-information/contact-information.service';
+import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
+import { EducationsService } from '../entities/educations/educations.service';
+import { JobsService } from '../entities/jobs/jobs.service';
+import { ProjectsService } from '../entities/projects/projects.service';
+import { ResumesService } from '../entities/resumes/resumes.service';
+import { SkillsService } from '../entities/skills/skills.service';
+import { type McpExtra, type McpToolParams } from './types';
+import { McpGuard } from './mcp.guard';
 
 const getSkillsSchema = {
 	categories: z.array(z.string()).optional(),
 };
 
 @Resolver()
+@UseGuards(McpGuard)
 export class ResumesResolver {
 	constructor(
-		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
-		@InjectModel(ContactInformation.name)
-		private readonly contactInfoModel: Model<ContactInformation>,
-		@InjectModel(Job.name) private readonly jobModel: Model<Job>,
-		@InjectModel(Skill.name) private readonly skillModel: Model<Skill>,
-		@InjectModel(Project.name)
-		private readonly projectModel: Model<Project>,
-		@InjectModel(Education.name)
-		private readonly educationModel: Model<Education>,
-		@InjectModel(CoverLetter.name)
-		private readonly coverLetterModel: Model<CoverLetter>,
+		private contactInformationService: ContactInformationService,
+		private coverLettersService: CoverLettersService,
+		private educationsService: EducationsService,
+		private jobsService: JobsService,
+		private projectsService: ProjectsService,
+		private resumesService: ResumesService,
+		private skillsService: SkillsService,
 	) {}
 
 	/**
@@ -46,8 +45,8 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getResumes(): Promise<CallToolResult> {
-		const resumes = await this.resumeModel.find().exec();
+	async getResumes({ user }: McpExtra): Promise<CallToolResult> {
+		const resumes = await this.resumesService.findAll(user.sub);
 
 		return {
 			content: [
@@ -71,8 +70,11 @@ export class ResumesResolver {
 			idempotentHint: false,
 		},
 	})
-	async saveResume({ resume }: { resume: Resume }) {
-		const savedResume = await this.resumeModel.create(resume);
+	async saveResume(
+		{ resume }: McpToolParams<{ resume: ResumeCreateInput }>,
+		{ user }: McpExtra,
+	) {
+		const savedResume = await this.resumesService.create(user.sub, resume);
 
 		return {
 			content: [
@@ -95,8 +97,10 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getContactInformation(): Promise<CallToolResult> {
-		const contactInfo = await this.contactInfoModel.findOne().exec();
+	async getContactInformation({ user }: McpExtra): Promise<CallToolResult> {
+		const contactInfo = await this.contactInformationService.findOne(
+			user.sub,
+		);
 
 		return {
 			content: [
@@ -119,8 +123,8 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getJobs(): Promise<CallToolResult> {
-		const jobs = await this.jobModel.find().exec();
+	async getJobs({ user }: McpExtra): Promise<CallToolResult> {
+		const jobs = await this.jobsService.findAll(user.sub);
 
 		return {
 			content: [
@@ -143,8 +147,8 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getEducation(): Promise<CallToolResult> {
-		const education = await this.educationModel.find().exec();
+	async getEducation({ user }: McpExtra): Promise<CallToolResult> {
+		const education = await this.educationsService.findAll(user.sub);
 
 		return {
 			content: [
@@ -167,8 +171,8 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getProjects(): Promise<CallToolResult> {
-		const projects = await this.projectModel.find().exec();
+	async getProjects({ user }: McpExtra): Promise<CallToolResult> {
+		const projects = await this.projectsService.findAll(user.sub);
 
 		return {
 			content: [
@@ -185,25 +189,22 @@ export class ResumesResolver {
 
 	@Tool({
 		name: 'get_skills',
-		description: 'Retrieve skills from the database',
+		description: 'Retrieve skills, optionally filtered by category',
 		paramsSchema: getSkillsSchema,
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
 		},
 	})
-	async getSkills({
-		categories,
-	}: {
-		categories?: string[];
-	}): Promise<CallToolResult> {
-		const query =
-			categories && categories.length > 0
-				? { category: { $in: categories } }
-				: {};
-
-		const skills = await this.skillModel.find(query).lean().exec();
-
+	async getSkills(
+		{
+			categories,
+		}: McpToolParams<{
+			categories?: string[];
+		}>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const skills = await this.skillsService.findAll(user.sub, categories);
 		const skillsText = skills.map((skill) => skill.name).join(', ');
 
 		return {
@@ -227,8 +228,8 @@ export class ResumesResolver {
 			idempotentHint: true,
 		},
 	})
-	async getCoverLetters(): Promise<CallToolResult> {
-		const coverLetters = await this.coverLetterModel.find().exec();
+	async getCoverLetters({ user }: McpExtra): Promise<CallToolResult> {
+		const coverLetters = await this.coverLettersService.findAll(user.sub);
 
 		return {
 			content: [
@@ -252,9 +253,14 @@ export class ResumesResolver {
 			idempotentHint: false,
 		},
 	})
-	async saveCoverLetter({ coverLetter }: { coverLetter: CoverLetter }) {
-		const savedCoverLetter =
-			await this.coverLetterModel.create(coverLetter);
+	async saveCoverLetter(
+		{ coverLetter }: McpToolParams<{ coverLetter: CoverLetter }>,
+		{ user }: McpExtra,
+	) {
+		const savedCoverLetter = await this.coverLettersService.create(
+			user.sub,
+			coverLetter,
+		);
 
 		return {
 			content: [

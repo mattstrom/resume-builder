@@ -35,7 +35,7 @@ export class Job {
 	@Prop({ type: String, default: '' })
 	startDate: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: false })
 	endDate?: string;
 

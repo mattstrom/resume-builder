@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
-import { MongodbModule } from '../mongodb/mongodb.module';
+import { EntitiesModule } from '../entities/entities.module';
 import { ApplicationsResolver } from './applications.resolver';
 import { HealthResolver } from './health.resolver';
 import { ResumesResolver } from './resumes.resolver';
@@ -18,7 +18,7 @@ import { ResumesResolver } from './resumes.resolver';
 				streamable: { enabled: true },
 			},
 		}),
-		MongodbModule,
+		EntitiesModule,
 	],
 	exports: [NestMcpModule],
 	providers: [ApplicationsResolver, HealthResolver, ResumesResolver],
