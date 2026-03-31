@@ -30,7 +30,7 @@ export class Resume {
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	id: string;
 
@@ -46,7 +46,7 @@ export class Resume {
 	@Prop({ type: String })
 	level: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	jobPostingUrl: string;
 

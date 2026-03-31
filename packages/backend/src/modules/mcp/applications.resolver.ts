@@ -6,6 +6,7 @@ import {
 	Application,
 	applicationInputSchema,
 } from '@resume-builder/entities';
+import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { ApplicationsService } from '../entities/applications/applications.service';
@@ -57,11 +58,25 @@ export class ApplicationsResolver {
 	): Promise<CallToolResult> {
 		const application = await this.applicationsService.find(user.sub, id);
 
+		if (!application) {
+			return {
+				content: [
+					{
+						type: 'text',
+						text: `Application with ID ${id} not found.`,
+					},
+				],
+			};
+		}
+
 		return {
 			content: [
 				{
 					type: 'text',
-					text: `Found application with ID ${id}.`,
+					text: outdent`
+						Found application with ID ${id}.
+						${JSON.stringify(application)}
+					`,
 				},
 			],
 			structuredContent: {

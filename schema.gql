@@ -194,11 +194,11 @@ type ResumeContent {
 type Resume {
   _id: ID!
   uid: String!
-  id: String!
+  id: String
   name: String!
   company: String!
   level: String
-  jobPostingUrl: String!
+  jobPostingUrl: String
   data: ResumeContent!
   createdAt: DateTime!
   updatedAt: DateTime!
