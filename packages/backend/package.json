@@ -46,6 +46,7 @@
     "graphql-type-json": "^0.3.2",
     "jwks-rsa": "^4.0.1",
     "mongoose": "^9.0.2",
+    "outdent": "^0.8.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "puppeteer": "^24.37.3",
