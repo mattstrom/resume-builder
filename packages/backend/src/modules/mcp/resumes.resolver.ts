@@ -67,7 +67,7 @@ export class ResumesResolver {
 	@Tool({
 		name: 'get_resume',
 		description: 'Retrieves a resume by ID',
-		paramsSchema: { id: z.uuid() },
+		paramsSchema: { id: z.string() },
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
@@ -267,7 +267,7 @@ export class ResumesResolver {
 					type: 'text',
 					text: outdent`
 						Skills:
-						${skillsText}
+						${JSON.stringify(skills, null, 2)}
 					`,
 				},
 			],
