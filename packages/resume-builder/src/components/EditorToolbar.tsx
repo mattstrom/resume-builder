@@ -36,7 +36,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useStore } from '../stores/store.provider.tsx';
 import { useSettings } from './Settings.provider.tsx';
-import { FileManagerToolbar, useFileManager } from './FileManager';
+import { useFileManager } from './FileManager';
 import { generatePDF } from '../utils/pdfExport';
 import { useSnackbar } from './SnackbarProvider';
 
@@ -158,10 +158,6 @@ export const EditorToolbar: FC = observer(() => {
 				</TooltipProvider>
 
 				<h1 className="text-xl font-semibold">Resume Builder</h1>
-
-				<Separator orientation="vertical" className="h-6 bg-white/30" />
-
-				<FileManagerToolbar />
 
 				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
