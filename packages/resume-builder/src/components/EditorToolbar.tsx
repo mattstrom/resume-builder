@@ -167,6 +167,7 @@ export const EditorToolbar: FC = observer(() => {
 						{ value: Mode.Analysis, label: 'Analysis' },
 						{ value: Mode.Tailor, label: 'Tailor' },
 						{ value: Mode.Form, label: 'Form' },
+						{ value: Mode.Edit, label: 'Edit' },
 						{ value: Mode.Review, label: 'Review' },
 					]}
 				/>

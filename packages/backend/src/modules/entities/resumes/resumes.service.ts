@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
 	BlankResumeCreateInput,
@@ -9,6 +13,23 @@ import {
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
 import { Model, SortOrder, UpdateOneModel } from 'mongoose';
+
+const ALLOWED_PATH_PREFIXES = [
+	'data.name',
+	'data.title',
+	'data.summary',
+	'data.contactInformation',
+	'data.workExperience',
+	'data.education',
+	'data.skills',
+	'data.skillGroups',
+	'data.projects',
+	'data.volunteering',
+	'name',
+	'company',
+	'level',
+	'jobPostingUrl',
+];
 
 @Injectable()
 export class ResumesService {
@@ -94,5 +115,34 @@ export class ResumesService {
 		const result = await this.resumeModel
 			.updateOne({ _id: id, uid }, update)
 			.exec();
+	}
+
+	async setField(
+		uid: string,
+		id: string,
+		path: string,
+		value: unknown,
+	): Promise<Resume> {
+		const isAllowed = ALLOWED_PATH_PREFIXES.some(
+			(prefix) => path === prefix || path.startsWith(prefix + '.'),
+		);
+
+		if (!isAllowed) {
+			throw new BadRequestException(`Path "${path}" is not allowed`);
+		}
+
+		const updated = await this.resumeModel
+			.findOneAndUpdate(
+				{ _id: id, uid },
+				{ $set: { [path]: value } },
+				{ new: true },
+			)
+			.exec();
+
+		if (!updated) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
+
+		return updated.toObject();
 	}
 }

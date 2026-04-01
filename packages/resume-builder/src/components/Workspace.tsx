@@ -5,6 +5,7 @@ import { type FC } from 'react';
 
 import { SideBySideView } from '@/components/SideBySideView.tsx';
 import { AnalysisView } from '@/components/AnalysisView.tsx';
+import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -39,6 +40,7 @@ export const Workspace: FC = observer(() => {
 					right={<PreviewFrame resumeId={resumeId} />}
 				/>
 			)}
+			{mode === Mode.Edit && <DirectResumeView />}
 			{mode === Mode.Review && <ResumeView />}
 		</div>
 	);

@@ -28,3 +28,13 @@ export interface UpdateResumeVariables {
 	id: string;
 	resumeData: Partial<Omit<Resume, '_id'>>;
 }
+
+export interface SetResumeFieldData {
+	setResumeField: Resume;
+}
+
+export interface SetResumeFieldVariables {
+	id: string;
+	input: { path: string };
+	value: unknown;
+}

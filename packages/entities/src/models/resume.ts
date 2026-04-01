@@ -102,6 +102,12 @@ registerEnumType(ResumeSortBy, {
 });
 
 @InputType()
+export class ResumeSetFieldInput {
+	@Field()
+	path: string;
+}
+
+@InputType()
 export class ResumeSortInput {
 	@Field(() => ResumeSortBy)
 	field: ResumeSortBy;

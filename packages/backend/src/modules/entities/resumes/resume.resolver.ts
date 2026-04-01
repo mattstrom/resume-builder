@@ -3,6 +3,7 @@ import {
 	BlankResumeCreateInput,
 	Resume,
 	ResumeCreateInput,
+	ResumeSetFieldInput,
 	ResumeSortInput,
 	ResumeUpdateInput,
 } from '@resume-builder/entities';
@@ -62,5 +63,15 @@ export class ResumeResolver {
 		update: UpdateOneModel<Resume>,
 	): Promise<void> {
 		return this.resumesService.patch(uid, id, update);
+	}
+
+	@Mutation(() => Resume)
+	async setResumeField(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('input') input: ResumeSetFieldInput,
+		@Args('value', { type: () => GraphQLJSON }) value: unknown,
+	) {
+		return this.resumesService.setField(uid, id, input.path, value);
 	}
 }

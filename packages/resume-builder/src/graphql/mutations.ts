@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import { resumeContentFragment } from './queries.ts';
 
 export const CREATE_RESUME = gql`
 	mutation CreateResume($resumeData: ResumeCreateInput!) {
@@ -221,4 +222,21 @@ export const UPDATE_RESUME = gql`
 			}
 		}
 	}
+`;
+
+export const SET_RESUME_FIELD = gql`
+	mutation SetResumeField(
+		$id: String!
+		$input: ResumeSetFieldInput!
+		$value: JSON!
+	) {
+		setResumeField(id: $id, input: $input, value: $value) {
+			_id
+			data {
+				...ResumeContent
+			}
+		}
+	}
+
+	${resumeContentFragment}
 `;

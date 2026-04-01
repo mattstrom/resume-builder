@@ -7,6 +7,7 @@ export enum Mode {
 	Tailor = 'tailor',
 	Form = 'form',
 	Review = 'review',
+	Edit = 'edit',
 }
 
 export enum ViewMode {

@@ -69,7 +69,7 @@ const volunteeringFragment = gql`
 	}
 `;
 
-const resumeContentFragment = gql`
+export const resumeContentFragment = gql`
 	fragment ResumeContent on ResumeContent {
 		name
 		title
