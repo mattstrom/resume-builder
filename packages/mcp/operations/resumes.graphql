@@ -1,0 +1,9 @@
+query ListResumes($sort: ResumeSortInput) {
+  listResumes(sort: $sort) {
+    id
+    uid
+    name
+    company
+    jobPostingUrl
+  }
+}

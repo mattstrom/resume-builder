@@ -1,0 +1,31 @@
+# Configuration Docs: https://www.apollographql.com/docs/apollo-mcp-server/config-file#graphos
+endpoint: ${env.GRAPHQL_ENDPOINT:-http://host.docker.internal:3000/graphql}
+transport:
+  type: streamable_http
+  address: 127.0.0.1
+  port: 8000
+  auth:
+    servers:
+      - ${env.AUTH0_DOMAIN}
+    audiences:
+      - ${env.AUTH0_AUDIENCE}
+    resource: ${env.MCP_RESOURCE_URL:-http://127.0.0.1:8000/mcp}
+    scopes:
+      - openid
+      - profile
+      - email
+schema:
+  source: local
+  path: /schema.gql
+introspection:
+  introspect:
+    enabled: true
+operations:
+  source: local
+  paths:
+    - /operations
+health_check:
+  enabled: true
+  path: /health
+logging:
+  level: info
