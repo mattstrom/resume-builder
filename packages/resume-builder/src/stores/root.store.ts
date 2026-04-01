@@ -1,28 +1,39 @@
+import { UiStateStore } from '@/stores/ui-state.store.ts';
 import { ApolloClient } from '@apollo/client';
+import type { AnyRoute, Router } from '@tanstack/react-router';
 import { client as apolloClient } from '../apollo-client.ts';
 import { AuthStore } from './auth.store.ts';
 import { ResumeStore } from './resume.store.ts';
+import { PersistenceService } from '@/stores/services/persistence.service.ts';
 
 let singleton: RootStore;
 
-export class RootStore {
+export class RootStore<R extends AnyRoute = any> {
+	public router: Router<any> | null = null;
 	public readonly client: ApolloClient;
+	public readonly persistence = new PersistenceService();
 
 	public readonly authStore: AuthStore;
 	public readonly resumeStore: ResumeStore;
+	public readonly uiStateStore: UiStateStore = new UiStateStore(this);
 
 	constructor(client?: ApolloClient) {
 		this.client = client ?? apolloClient;
 		this.authStore = new AuthStore(this);
 		this.resumeStore = new ResumeStore(this);
+		this.uiStateStore = new UiStateStore(this);
 
 		if (import.meta.env.DEV) {
 			globalThis.rootStore = this;
 		}
 	}
 
-	static getInstance() {
-		singleton ??= new RootStore();
+	setRouter(router: Router<R>) {
+		this.router = router;
+	}
+
+	static getInstance<R extends AnyRoute = any>() {
+		singleton ??= new RootStore<R>();
 		return singleton;
 	}
 }

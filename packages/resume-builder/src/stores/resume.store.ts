@@ -41,7 +41,10 @@ export class ResumeStore {
 
 	@computed
 	get selectedResume() {
-		return this.data.find((resume) => resume._id === this.selectedResumeId);
+		return (
+			this.data.find((resume) => resume._id === this.selectedResumeId) ??
+			null
+		);
 	}
 
 	get data() {
@@ -114,5 +117,10 @@ export class ResumeStore {
 			query: LIST_RESUMES,
 			variables: sort ? { sort } : {},
 		});
+	}
+
+	@action
+	selectResume(resumeId: string) {
+		this.selectedResumeId = resumeId;
 	}
 }
