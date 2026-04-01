@@ -16,7 +16,8 @@
     "migrate:add-company": "node dist/data/migrate-add-company.js",
     "migrate:add-uid": "node dist/data/migrate-add-uid.js",
     "migrate:add-relevance-and-project-type": "node dist/data/migrate-add-relevance-and-project-type.js",
-    "migrate:create-applications": "node dist/data/migrate-create-applications.js"
+    "migrate:create-applications": "node dist/data/migrate-create-applications.js",
+    "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
   },
   "private": true,
   "dependencies": {

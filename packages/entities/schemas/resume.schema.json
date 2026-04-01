@@ -1,322 +1,288 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "resume.schema.json",
-  "title": "Resume",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
-    "_id": {
-      "description": "MongoDB ObjectId"
+    "_id": {},
+    "uid": {
+      "type": "string"
     },
     "id": {
-      "type": "string",
-      "default": ""
+      "type": "string"
     },
     "name": {
-      "type": "string",
-      "default": ""
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string"
+    },
+    "jobPostingUrl": {
+      "type": "string"
     },
     "data": {
-      "$ref": "#/$defs/ResumeContent"
-    }
-  },
-  "required": ["id", "name", "data"],
-  "$defs": {
-    "ContactInformation": {
       "type": "object",
       "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "location": {
-          "type": "string",
-          "default": ""
-        },
-        "phoneNumber": {
-          "type": "string",
-          "default": ""
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "default": ""
-        },
-        "linkedInProfile": {
-          "type": "string",
-          "default": ""
-        },
-        "githubProfile": {
-          "type": "string",
-          "default": ""
-        }
-      },
-      "required": [
-        "location",
-        "phoneNumber",
-        "email",
-        "linkedInProfile",
-        "githubProfile"
-      ]
-    },
-    "Education": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "degree": {
-          "type": "string",
-          "default": ""
-        },
-        "field": {
-          "type": "string",
-          "default": ""
-        },
-        "institution": {
-          "type": "string",
-          "default": ""
-        },
-        "graduated": {
-          "type": "string",
-          "default": ""
-        }
-      },
-      "required": ["degree", "field", "institution", "graduated"]
-    },
-    "Job": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "__v": {
-          "type": "number",
-          "description": "MongoDB version key"
-        },
-        "company": {
-          "type": "string",
-          "default": ""
-        },
-        "position": {
-          "type": "string",
-          "default": ""
-        },
-        "location": {
-          "type": "string",
-          "default": ""
-        },
-        "startDate": {
-          "type": "string",
-          "default": ""
-        },
-        "endDate": {
+        "_id": {},
+        "name": {
           "type": "string"
-        },
-        "responsibilities": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
-        }
-      },
-      "required": [
-        "company",
-        "position",
-        "location",
-        "startDate",
-        "responsibilities"
-      ]
-    },
-    "Project": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "name": {
-          "type": "string",
-          "default": ""
-        },
-        "technologies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
-        }
-      },
-      "required": ["name", "technologies", "items"]
-    },
-    "Skill": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "name": {
-          "type": "string",
-          "default": ""
-        },
-        "category": {
-          "type": "string",
-          "default": ""
-        }
-      },
-      "required": ["name", "category"]
-    },
-    "Volunteering": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "__v": {
-          "type": "number",
-          "description": "MongoDB version key"
-        },
-        "organization": {
-          "type": "string"
-        },
-        "position": {
-          "type": "string",
-          "default": ""
-        },
-        "location": {
-          "type": "string"
-        },
-        "startDate": {
-          "type": "string",
-          "default": ""
-        },
-        "endDate": {
-          "type": "string"
-        },
-        "responsibilities": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
-        }
-      },
-      "required": ["position", "startDate", "responsibilities"]
-    },
-    "CoverLetter": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "name": {
-          "type": "string",
-          "default": ""
-        },
-        "company": {
-          "type": "string",
-          "default": ""
-        },
-        "jobPostingUrl": {
-          "type": "string",
-          "default": ""
-        },
-        "content": {
-          "type": "string",
-          "default": ""
-        }
-      },
-      "required": ["name", "company", "jobPostingUrl", "content"]
-    },
-    "SkillGroup": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "name": {
-          "type": "string",
-          "default": ""
-        },
-        "items": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": ["name", "category"]
-    },
-    "ResumeContent": {
-      "type": "object",
-      "properties": {
-        "_id": {
-          "description": "MongoDB ObjectId"
-        },
-        "name": {
-          "type": "string",
-          "default": ""
         },
         "title": {
-          "type": "string",
-          "default": ""
+          "type": "string"
         },
         "contactInformation": {
-          "$ref": "#/$defs/ContactInformation"
+          "type": "object",
+          "properties": {
+            "_id": {},
+            "uid": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "phoneNumber": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            },
+            "linkedInProfile": {
+              "type": "string"
+            },
+            "githubProfile": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "_id",
+            "uid",
+            "location",
+            "phoneNumber",
+            "email",
+            "linkedInProfile",
+            "githubProfile"
+          ],
+          "additionalProperties": false
         },
         "summary": {
-          "type": "string",
-          "default": ""
+          "type": "string"
         },
         "workExperience": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Job"
-          },
-          "default": []
+            "type": "object",
+            "properties": {
+              "_id": {},
+              "uid": {
+                "type": "string"
+              },
+              "__v": {
+                "type": "number"
+              },
+              "company": {
+                "type": "string"
+              },
+              "position": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "responsibilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "relevance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "_id",
+              "uid",
+              "company",
+              "position",
+              "location",
+              "startDate",
+              "responsibilities"
+            ],
+            "additionalProperties": false
+          }
         },
         "education": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Education"
-          },
-          "default": []
+            "type": "object",
+            "properties": {
+              "_id": {},
+              "uid": {
+                "type": "string"
+              },
+              "degree": {
+                "type": "string"
+              },
+              "field": {
+                "type": "string"
+              },
+              "institution": {
+                "type": "string"
+              },
+              "graduated": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "_id",
+              "uid",
+              "degree",
+              "field",
+              "institution",
+              "graduated"
+            ],
+            "additionalProperties": false
+          }
         },
         "skills": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Skill"
-          },
-          "default": []
-        },
-        "skillGroups": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/SkillGroup"
-          },
-          "default": []
+            "type": "object",
+            "properties": {
+              "_id": {},
+              "uid": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "relevance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "_id",
+              "uid",
+              "name",
+              "category"
+            ],
+            "additionalProperties": false
+          }
         },
         "projects": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Project"
-          },
-          "default": []
+            "type": "object",
+            "properties": {
+              "_id": {},
+              "uid": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "technologies": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "professional",
+                  "personal"
+                ]
+              },
+              "relevance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "_id",
+              "uid",
+              "name",
+              "technologies",
+              "items"
+            ],
+            "additionalProperties": false
+          }
         },
         "volunteering": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/Volunteering"
-          },
-          "default": []
+            "type": "object",
+            "properties": {
+              "_id": {},
+              "uid": {
+                "type": "string"
+              },
+              "__v": {
+                "type": "number"
+              },
+              "organization": {
+                "type": "string"
+              },
+              "position": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "responsibilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "relevance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "_id",
+              "uid",
+              "position",
+              "startDate",
+              "responsibilities"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
+        "_id",
         "name",
         "title",
         "contactInformation",
@@ -324,9 +290,31 @@
         "workExperience",
         "education",
         "skills",
-        "projects",
-        "volunteering"
-      ]
+        "projects"
+      ],
+      "additionalProperties": false
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
     }
-  }
+  },
+  "required": [
+    "_id",
+    "uid",
+    "id",
+    "name",
+    "company",
+    "jobPostingUrl",
+    "data",
+    "createdAt",
+    "updatedAt"
+  ],
+  "additionalProperties": false
 }
