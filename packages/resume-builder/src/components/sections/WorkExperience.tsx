@@ -11,7 +11,7 @@ export const WorkExperience: FC<WorkExperienceProps> = () => {
 	return (
 		<Section heading="Work History" className="work-experience">
 			{workExperience.map((item, index) => (
-				<JobSection key={index} job={item} />
+				<JobSection key={index} job={item} index={index} />
 			))}
 		</Section>
 	);

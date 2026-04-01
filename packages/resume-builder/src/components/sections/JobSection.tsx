@@ -1,3 +1,5 @@
+import { ListEditor } from '@/components/ListEditor.tsx';
+import { useResumeId } from '@/components/Resume.provider.tsx';
 import { type FC, type PropsWithChildren } from 'react';
 import type { Job } from '@resume-builder/entities';
 
@@ -8,9 +10,12 @@ function formatDate(dateString: string): string {
 
 interface JobProps extends PropsWithChildren {
 	job: Job;
+	index: number;
 }
 
-export const JobSection: FC<JobProps> = ({ job }) => {
+export const JobSection: FC<JobProps> = ({ job, index }) => {
+	const resumeId = useResumeId();
+
 	return (
 		<section className="job">
 			<header>
@@ -32,11 +37,13 @@ export const JobSection: FC<JobProps> = ({ job }) => {
 				</time>
 			</div>
 			{job.responsibilities && (
-				<ul className="responsibilities">
-					{job.responsibilities.map((item, index) => (
-						<li key={index}>{item}</li>
-					))}
-				</ul>
+				<ListEditor
+					path={`data.workExperience.${index}.responsibilities`}
+					items={job.responsibilities}
+					resumeId={resumeId}
+					variant="block"
+					className="responsibilities"
+				/>
 			)}
 		</section>
 	);
