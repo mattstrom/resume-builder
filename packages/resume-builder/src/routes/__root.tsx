@@ -37,6 +37,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 		try {
 			await authStore.ensureToken();
-		} catch {}
+		} catch (error) {
+			console.error('Error during authentication:', error);
+		}
 	},
 });
