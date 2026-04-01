@@ -1,27 +1,21 @@
+import { TailorView } from '@/components/TailorView.tsx';
 import { useParams } from '@tanstack/react-router';
+import { observer } from 'mobx-react';
 import { type FC } from 'react';
-import { FormEditor } from './FormEditor';
-import { JsonEditor } from './JsonEditor';
+
+import { SideBySideView } from '@/components/SideBySideView.tsx';
+import { AnalysisView } from '@/components/AnalysisView.tsx';
+import { ResumeView } from '@/components/ResumeView.tsx';
+import { Mode } from '@/stores/ui-state.store.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 import { PreviewFrame } from './PreviewFrame.tsx';
-import { useSettings } from './Settings.provider.tsx';
-import {
-	Panel,
-	Group,
-	Separator,
-	useDefaultLayout,
-} from 'react-resizable-panels';
 
 import './Workspace.css';
 
-export const Workspace: FC = () => {
-	const { editorMode, viewMode } = useSettings();
+export const Workspace: FC = observer(() => {
+	const { uiStateStore } = useStore();
+	const { mode } = uiStateStore;
 	const { resumeId } = useParams({ strict: false });
-	// Use the built-in hook for persistent layouts
-	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
-		id: 'workspace-layout',
-		panelIds: ['editor', 'resume'],
-		storage: localStorage,
-	});
 
 	if (!resumeId) {
 		return null;
@@ -29,41 +23,23 @@ export const Workspace: FC = () => {
 
 	return (
 		<div className="workspace">
-			{editorMode === 'review' ? (
-				<div className="workspace-review">
-					<PreviewFrame resumeId={resumeId} />
-				</div>
-			) : (
-				<Group
-					orientation="horizontal"
-					defaultLayout={defaultLayout}
-					onLayoutChanged={onLayoutChanged}
-				>
-					<Panel
-						id="editor"
-						defaultSize="50%"
-						minSize="30%"
-						className="workspace-left"
-					>
-						<FormEditor />
-					</Panel>
-
-					<Separator className="resize-handle" />
-
-					<Panel
-						id="resume"
-						defaultSize="50%"
-						minSize="30%"
-						className="workspace-right"
-					>
-						{viewMode === 'data' ? (
-							<JsonEditor />
-						) : (
-							<PreviewFrame resumeId={resumeId} />
-						)}
-					</Panel>
-				</Group>
+			{mode === Mode.Analysis && (
+				<SideBySideView
+					id="workspace-layout"
+					panelIds={['editor', 'resume']}
+					left={<AnalysisView />}
+					right={<PreviewFrame resumeId={resumeId} />}
+				/>
 			)}
+			{mode === Mode.Tailor && (
+				<SideBySideView
+					id="workspace-layout"
+					panelIds={['jobDescription', 'resume']}
+					left={<TailorView />}
+					right={<PreviewFrame resumeId={resumeId} />}
+				/>
+			)}
+			{mode === Mode.Review && <ResumeView />}
 		</div>
 	);
-};
+});
