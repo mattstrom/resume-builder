@@ -14,7 +14,7 @@ import {
 import './Workspace.css';
 
 export const Workspace: FC = () => {
-	const { editorMode } = useSettings();
+	const { editorMode, viewMode } = useSettings();
 	const { resumeId } = useParams({ strict: false });
 	// Use the built-in hook for persistent layouts
 	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
@@ -45,11 +45,7 @@ export const Workspace: FC = () => {
 						minSize="30%"
 						className="workspace-left"
 					>
-						{editorMode === 'json' ? (
-							<JsonEditor />
-						) : (
-							<FormEditor />
-						)}
+						<FormEditor />
 					</Panel>
 
 					<Separator className="resize-handle" />
@@ -60,7 +56,11 @@ export const Workspace: FC = () => {
 						minSize="30%"
 						className="workspace-right"
 					>
-						<PreviewFrame resumeId={resumeId} />
+						{viewMode === 'data' ? (
+							<JsonEditor />
+						) : (
+							<PreviewFrame resumeId={resumeId} />
+						)}
 					</Panel>
 				</Group>
 			)}
