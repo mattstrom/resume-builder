@@ -69,10 +69,15 @@ export const chatTools: Anthropic.Tool[] = [
 	},
 	{
 		name: 'save_resume',
-		description: 'Save a resume to the database',
+		description:
+			'Save a resume to the database. If an id is provided, updates the existing resume; otherwise creates a new one.',
 		input_schema: {
 			type: 'object' as const,
 			properties: {
+				id: {
+					type: 'string',
+					description: 'Optional ID of an existing resume to update',
+				},
 				resume: {
 					type: 'object',
 					description: 'The resume data to save',
@@ -142,10 +147,17 @@ export async function executeTool(
 			return JSON.stringify(coverLetters);
 		}
 		case 'save_resume': {
-			const resume = await services.resumesService.create(
-				uid,
-				input.resume as any,
-			);
+			const id = input.id as string | undefined;
+			const resume = id
+				? await services.resumesService.update(
+						uid,
+						id,
+						input.resume as any,
+					)
+				: await services.resumesService.create(
+						uid,
+						input.resume as any,
+					);
 			return JSON.stringify(resume);
 		}
 		case 'save_cover_letter': {

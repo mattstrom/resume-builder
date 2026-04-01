@@ -108,18 +108,27 @@ export class ResumesResolver {
 
 	@Tool({
 		name: 'save_resume',
-		description: 'Saves a resume to the database',
-		paramsSchema: { resume: resumeInputSchema },
+		description:
+			'Saves a resume to the database. If an id is provided, updates the existing resume; otherwise creates a new one.',
+		paramsSchema: {
+			id: z.string().optional(),
+			resume: resumeInputSchema,
+		},
 		annotations: {
 			destructureHint: true,
 			idempotentHint: false,
 		},
 	})
 	async saveResume(
-		{ resume }: McpToolParams<{ resume: ResumeCreateInput }>,
+		{
+			id,
+			resume,
+		}: McpToolParams<{ id?: string; resume: ResumeCreateInput }>,
 		{ user }: McpExtra,
 	) {
-		const savedResume = await this.resumesService.create(user.sub, resume);
+		const savedResume = id
+			? await this.resumesService.update(user.sub, id, resume)
+			: await this.resumesService.create(user.sub, resume);
 
 		return {
 			content: [

@@ -30,7 +30,7 @@ services:
       - ./packages/mcp/operations:/operations
       - ./schema.gql:/schema.gql
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     depends_on:
       - mongodb
     command: /config.yaml
