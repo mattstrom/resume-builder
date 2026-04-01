@@ -18,6 +18,10 @@ services:
 
   mcp:
     image: ghcr.io/apollographql/apollo-mcp-server:latest
+    environment:
+      - GRAPHQL_ENDPOINT
+      - AUTH0_DOMAIN
+      - AUTH0_AUDIENCE
     ports:
       - 8000:8000
     volumes:

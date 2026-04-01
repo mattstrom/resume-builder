@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start:mcp": "op run --env-file=.env -- sh -c 'docker compose up -d mcp'",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
