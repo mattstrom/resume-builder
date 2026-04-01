@@ -78,6 +78,8 @@ export const EditorToolbar: FC = observer(() => {
 		setShowMarginPattern,
 		editorMode,
 		setEditorMode,
+		viewMode,
+		setViewMode,
 		chatOpen,
 		setChatOpen,
 	} = useSettings();
@@ -166,12 +168,24 @@ export const EditorToolbar: FC = observer(() => {
 				<ToggleGroup
 					value={editorMode}
 					onChange={(newMode) => {
-						setEditorMode(newMode as 'json' | 'form' | 'review');
+						setEditorMode(newMode as 'form' | 'review');
 					}}
 					options={[
-						{ value: 'json', label: 'JSON' },
 						{ value: 'form', label: 'Form' },
 						{ value: 'review', label: 'Review' },
+					]}
+				/>
+
+				<Separator orientation="vertical" className="h-6 bg-white/30" />
+
+				<ToggleGroup
+					value={viewMode}
+					onChange={(newMode) => {
+						setViewMode(newMode as 'data' | 'layout');
+					}}
+					options={[
+						{ value: 'data', label: 'Data' },
+						{ value: 'layout', label: 'Layout' },
 					]}
 				/>
 
