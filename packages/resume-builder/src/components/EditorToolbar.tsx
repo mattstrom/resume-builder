@@ -1,3 +1,4 @@
+import { Mode, ViewMode } from '@/stores/ui-state.store.ts';
 import { observer } from 'mobx-react';
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
@@ -76,14 +77,10 @@ export const EditorToolbar: FC = observer(() => {
 		setTemplate,
 		showMarginPattern,
 		setShowMarginPattern,
-		editorMode,
-		setEditorMode,
-		viewMode,
-		setViewMode,
 		chatOpen,
 		setChatOpen,
 	} = useSettings();
-	const { authStore } = useStore();
+	const { authStore, uiStateStore } = useStore();
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
 	const { resumeId } = useParams({ strict: false });
@@ -162,26 +159,28 @@ export const EditorToolbar: FC = observer(() => {
 				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
 				<ToggleGroup
-					value={editorMode}
+					value={uiStateStore.mode}
 					onChange={(newMode) => {
-						setEditorMode(newMode as 'form' | 'review');
+						uiStateStore.setMode(newMode as Mode);
 					}}
 					options={[
-						{ value: 'form', label: 'Form' },
-						{ value: 'review', label: 'Review' },
+						{ value: Mode.Analysis, label: 'Analysis' },
+						{ value: Mode.Tailor, label: 'Tailor' },
+						{ value: Mode.Form, label: 'Form' },
+						{ value: Mode.Review, label: 'Review' },
 					]}
 				/>
 
 				<Separator orientation="vertical" className="h-6 bg-white/30" />
 
 				<ToggleGroup
-					value={viewMode}
+					value={uiStateStore.viewMode}
 					onChange={(newMode) => {
-						setViewMode(newMode as 'data' | 'layout');
+						uiStateStore.setViewMode(newMode as ViewMode);
 					}}
 					options={[
-						{ value: 'data', label: 'Data' },
-						{ value: 'layout', label: 'Layout' },
+						{ value: ViewMode.Data, label: 'Data' },
+						{ value: ViewMode.Layout, label: 'Layout' },
 					]}
 				/>
 

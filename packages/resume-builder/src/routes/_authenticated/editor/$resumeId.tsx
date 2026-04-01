@@ -11,13 +11,15 @@ export const Route = createFileRoute('/_authenticated/editor/$resumeId')({
 	loader: async ({ context, params }) => {
 		const { resumeId } = params;
 		const {
-			store: { client },
+			store: { client, resumeStore },
 		} = context;
 
 		const result = await client.query<{ resume: Resume }>({
 			query: GET_RESUME,
 			variables: { id: resumeId },
 		});
+
+		resumeStore.selectResume(resumeId);
 
 		return result.data?.resume;
 	},

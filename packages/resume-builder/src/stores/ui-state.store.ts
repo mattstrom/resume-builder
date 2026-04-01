@@ -1,0 +1,67 @@
+import { action, makeObservable, observable, reaction } from 'mobx';
+import { StorageKey } from '@/stores/services/persistence.service.ts';
+import type { RootStore } from '@/stores/root.store.ts';
+
+export enum Mode {
+	Analysis = 'analysis',
+	Tailor = 'tailor',
+	Form = 'form',
+	Review = 'review',
+}
+
+export enum ViewMode {
+	Data = 'data',
+	Layout = 'layout',
+}
+
+export class UiStateStore {
+	@observable
+	mode: Mode = Mode.Review;
+
+	@observable
+	viewMode: ViewMode = ViewMode.Layout;
+
+	constructor(private readonly rootStore: RootStore) {
+		makeObservable(this);
+
+		this.watch('mode', StorageKey.Mode, Mode.Review);
+		this.watch('viewMode', StorageKey.ViewMode, ViewMode.Layout);
+	}
+
+	@action
+	setMode(mode: Mode) {
+		const { router } = this.rootStore;
+
+		router?.navigate({
+			search: { mode } as any,
+		});
+
+		this.mode = mode;
+
+		if (this.mode === Mode.Review) {
+			this.viewMode = ViewMode.Layout;
+		}
+	}
+
+	@action
+	setViewMode(viewMode: ViewMode) {
+		this.viewMode = viewMode;
+	}
+
+	watch<P extends keyof this>(
+		property: P,
+		storageKey: StorageKey,
+		defaultValue: this[P],
+	) {
+		const { persistence } = this.rootStore;
+
+		this[property] = persistence.retrieveSession(storageKey, defaultValue)!;
+
+		reaction(
+			() => this[property],
+			(value) => {
+				persistence.storeSession(storageKey, value);
+			},
+		);
+	}
+}
