@@ -16,6 +16,21 @@ services:
     depends_on:
       - mongodb
 
+  mcp:
+    image: ghcr.io/apollographql/apollo-mcp-server:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - mcp:/data
+      - ./packages/mcp/config.yaml:/config.yaml
+      - ./packages/mcp/operations:/operations
+      - ./schema.gql:/schema.gql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - mongodb
+    command: /config.yaml
+
   mongodb:
     image: mongo:latest
     ports:
@@ -41,3 +56,4 @@ services:
 
 volumes:
   mongodb:
+  mcp:
