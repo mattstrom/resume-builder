@@ -1,5 +1,7 @@
+import { InlineEditor } from '@/components/InlineEditor.tsx';
+import { ListEditor } from '@/components/ListEditor.tsx';
 import { type FC } from 'react';
-import { useResume } from '../Resume.provider.tsx';
+import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
 import type { ResumeContent } from '@resume-builder/entities';
 
@@ -7,10 +9,11 @@ interface ProjectsSectionProps {}
 
 export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 	const { projects } = useResume();
+
 	return (
 		<Section heading="Projects" className="projects">
 			{projects.map((item, index) => (
-				<Project key={index} project={item} />
+				<Project key={index} project={item} index={index} />
 			))}
 		</Section>
 	);
@@ -18,22 +21,34 @@ export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 
 interface ProjectProps {
 	project: ResumeContent['projects'][number];
+	index: number;
 }
 
-const Project: FC<ProjectProps> = ({ project }) => {
-	const technologies = project.technologies.join(', ');
+const Project: FC<ProjectProps> = ({ project, index }) => {
+	const resumeId = useResumeId();
 
 	return (
 		<section className="project">
 			<header>
-				<h3>{project.name}</h3>
+				<InlineEditor
+					as="h3"
+					path={`data.projects.${index}.name`}
+					value={project.name}
+					resumeId={resumeId}
+				/>
 			</header>
-			<div>{technologies}</div>
-			<ul>
-				{project.items.map((item, index) => (
-					<li key={index}>{item}</li>
-				))}
-			</ul>
+			<ListEditor
+				path={`data.projects.${index}.technologies`}
+				items={project.technologies}
+				resumeId={resumeId}
+				variant="inline"
+			/>
+			<ListEditor
+				path={`data.projects.${index}.items`}
+				items={project.items}
+				resumeId={resumeId}
+				variant="block"
+			/>
 		</section>
 	);
 };

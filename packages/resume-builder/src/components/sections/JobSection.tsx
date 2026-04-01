@@ -1,3 +1,4 @@
+import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { useResumeId } from '@/components/Resume.provider.tsx';
 import { type FC, type PropsWithChildren } from 'react';
@@ -19,12 +20,27 @@ export const JobSection: FC<JobProps> = ({ job, index }) => {
 	return (
 		<section className="job">
 			<header>
-				<h3>{job.position}</h3>
+				<InlineEditor
+					as="h3"
+					path={`data.workExperience.${index}.position`}
+					value={job.position}
+					resumeId={resumeId}
+				/>
 			</header>
 			<div>
-				<span className="company">{job.company}</span>
+				<InlineEditor
+					path={`data.workExperience.${index}.company`}
+					value={job.company}
+					resumeId={resumeId}
+					className="company"
+				/>
 				<span>{' | '}</span>
-				<span className="location">{job.location}</span>
+				<InlineEditor
+					path={`data.workExperience.${index}.location`}
+					value={job.location}
+					resumeId={resumeId}
+					className="location"
+				/>
 				<span>{' | '}</span>
 				<time>
 					<span className="start-date">

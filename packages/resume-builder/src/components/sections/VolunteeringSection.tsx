@@ -1,6 +1,8 @@
 import type { Volunteering } from '@resume-builder/entities';
 import { type FC, type PropsWithChildren } from 'react';
-import { useResume } from '../Resume.provider.tsx';
+import { InlineEditor } from '@/components/InlineEditor.tsx';
+import { ListEditor } from '@/components/ListEditor.tsx';
+import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
 
 function formatDate(dateString: string): string {
@@ -23,7 +25,11 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = () => {
 	return (
 		<Section heading="Volunteering" className="volunteering">
 			{volunteering.map((item, index) => (
-				<VolunteeringPosition key={index} volunteering={item} />
+				<VolunteeringPosition
+					key={index}
+					volunteering={item}
+					index={index}
+				/>
 			))}
 		</Section>
 	);
@@ -31,13 +37,24 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = () => {
 
 interface VolunteeringProps extends PropsWithChildren {
 	volunteering: Volunteering;
+	index: number;
 }
 
-const VolunteeringPosition: FC<VolunteeringProps> = ({ volunteering }) => {
+const VolunteeringPosition: FC<VolunteeringProps> = ({
+	volunteering,
+	index,
+}) => {
+	const resumeId = useResumeId();
+
 	return (
 		<section className="volunteering">
 			<header>
-				<h3>{volunteering.position}</h3>
+				<InlineEditor
+					as="h3"
+					path={`data.volunteering.${index}.position`}
+					value={volunteering.position}
+					resumeId={resumeId}
+				/>
 				<span>{' | '}</span>
 				<time>
 					<span className="start-date">
@@ -52,11 +69,13 @@ const VolunteeringPosition: FC<VolunteeringProps> = ({ volunteering }) => {
 				</time>
 			</header>
 			{volunteering.responsibilities && (
-				<ul className="responsibilities">
-					{volunteering.responsibilities.map((item, index) => (
-						<li key={index}>{item}</li>
-					))}
-				</ul>
+				<ListEditor
+					path={`data.volunteering.${index}.responsibilities`}
+					items={volunteering.responsibilities}
+					resumeId={resumeId}
+					variant="block"
+					className="responsibilities"
+				/>
 			)}
 		</section>
 	);
