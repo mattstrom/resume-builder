@@ -1,8 +1,10 @@
 export enum StorageKey {
 	Mode = 'resume:mode',
 	ViewMode = 'resume:viewMode',
-	ApplicationExplorerSortField = 'applicationList.sortField',
-	ApplicationExplorerSortAscending = 'applicationList.sortAscending',
+	ApplicationExplorerApplicationSortField = 'applicationList.applicationSortField',
+	ApplicationExplorerApplicationSortAscending = 'applicationList.applicationSortAscending',
+	ApplicationExplorerGroupSortField = 'applicationList.groupSortField',
+	ApplicationExplorerGroupSortAscending = 'applicationList.groupSortAscending',
 	ApplicationExplorerGroupBy = 'applicationList.groupBy',
 	ApplicationExplorerCollapsedGroups = 'applicationList.collapsedGroups',
 }

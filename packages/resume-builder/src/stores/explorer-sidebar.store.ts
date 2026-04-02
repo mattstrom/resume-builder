@@ -14,10 +14,16 @@ type ApplicationGroupBy = 'company' | null;
 
 export class ExplorerSidebarStore {
 	@observable
-	sortField: ApplicationSortField = 'DATE';
+	applicationSortField: ApplicationSortField = 'DATE';
 
 	@observable
-	sortAscending = true;
+	applicationSortAscending = true;
+
+	@observable
+	groupSortField: ApplicationSortField = 'DATE';
+
+	@observable
+	groupSortAscending = true;
 
 	@observable
 	groupBy: ApplicationGroupBy = 'company';
@@ -29,13 +35,23 @@ export class ExplorerSidebarStore {
 		makeObservable(this);
 
 		this.watch(
-			'sortField',
-			StorageKey.ApplicationExplorerSortField,
+			'applicationSortField',
+			StorageKey.ApplicationExplorerApplicationSortField,
 			'DATE',
 		);
 		this.watch(
-			'sortAscending',
-			StorageKey.ApplicationExplorerSortAscending,
+			'applicationSortAscending',
+			StorageKey.ApplicationExplorerApplicationSortAscending,
+			true,
+		);
+		this.watch(
+			'groupSortField',
+			StorageKey.ApplicationExplorerGroupSortField,
+			'DATE',
+		);
+		this.watch(
+			'groupSortAscending',
+			StorageKey.ApplicationExplorerGroupSortAscending,
 			true,
 		);
 		this.watch(
@@ -66,7 +82,12 @@ export class ExplorerSidebarStore {
 	get applications(): Application[] {
 		const applications = this.rootStore.applicationStore.data;
 		return [...applications].sort((left, right) =>
-			this.compareApplications(left, right),
+			this.compareApplications(
+				left,
+				right,
+				this.applicationSortField,
+				this.applicationSortAscending,
+			),
 		);
 	}
 
@@ -89,16 +110,16 @@ export class ExplorerSidebarStore {
 
 		const sortedEntries = [...groups.entries()].sort(
 			([leftGroupName, leftApplications], [rightGroupName, rightApplications]) => {
-				if (this.sortField === 'NAME') {
+				if (this.groupSortField === 'NAME') {
 					const comparison =
 						leftGroupName.localeCompare(rightGroupName);
-					return this.sortAscending ? comparison : -comparison;
+					return this.groupSortAscending ? comparison : -comparison;
 				}
 
 				const leftTimestamp = this.getGroupTimestamp(leftApplications);
 				const rightTimestamp =
 					this.getGroupTimestamp(rightApplications);
-				return this.sortAscending
+				return this.groupSortAscending
 					? leftTimestamp - rightTimestamp
 					: rightTimestamp - leftTimestamp;
 			},
@@ -130,9 +151,15 @@ export class ExplorerSidebarStore {
 	}
 
 	@action
-	setSort(field: ApplicationSortField, ascending = true) {
-		this.sortField = field;
-		this.sortAscending = ascending;
+	setApplicationSort(field: ApplicationSortField, ascending = true) {
+		this.applicationSortField = field;
+		this.applicationSortAscending = ascending;
+	}
+
+	@action
+	setGroupSort(field: ApplicationSortField, ascending = true) {
+		this.groupSortField = field;
+		this.groupSortAscending = ascending;
 	}
 
 	@action
@@ -178,15 +205,20 @@ export class ExplorerSidebarStore {
 		return !this.collapsedGroupKeys.has(this.getGroupStorageKey(groupName));
 	}
 
-	private compareApplications(left: Application, right: Application) {
-		if (this.sortField === 'NAME') {
+	private compareApplications(
+		left: Application,
+		right: Application,
+		field: ApplicationSortField,
+		ascending: boolean,
+	) {
+		if (field === 'NAME') {
 			const comparison = left.name.localeCompare(right.name);
-			return this.sortAscending ? comparison : -comparison;
+			return ascending ? comparison : -comparison;
 		}
 
 		const leftTimestamp = new Date(left.updatedAt).getTime();
 		const rightTimestamp = new Date(right.updatedAt).getTime();
-		return this.sortAscending
+		return ascending
 			? leftTimestamp - rightTimestamp
 			: rightTimestamp - leftTimestamp;
 	}
@@ -200,7 +232,7 @@ export class ExplorerSidebarStore {
 			const applicationTimestamp = new Date(
 				application.updatedAt,
 			).getTime();
-			return this.sortAscending
+			return this.groupSortAscending
 				? Math.min(timestamp, applicationTimestamp)
 				: Math.max(timestamp, applicationTimestamp);
 		}, new Date(applications[0]!.updatedAt).getTime());

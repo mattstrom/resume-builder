@@ -74,9 +74,19 @@ export const SidebarResumeTree: FC = observer(() => {
 
 	const handleSortChange = useCallback(
 		(value: string) => {
-			if (!value.startsWith('SORT_')) return;
-			explorerSidebarStore.setSort(
-				value === 'SORT_NAME' ? 'NAME' : 'DATE',
+			if (!value.startsWith('APPLICATION_SORT_')) return;
+			explorerSidebarStore.setApplicationSort(
+				value === 'APPLICATION_SORT_NAME' ? 'NAME' : 'DATE',
+			);
+		},
+		[explorerSidebarStore],
+	);
+
+	const handleGroupSortChange = useCallback(
+		(value: string) => {
+			if (!value.startsWith('GROUP_SORT_')) return;
+			explorerSidebarStore.setGroupSort(
+				value === 'GROUP_SORT_NAME' ? 'NAME' : 'DATE',
 			);
 		},
 		[explorerSidebarStore],
@@ -180,15 +190,34 @@ export const SidebarResumeTree: FC = observer(() => {
 						</button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Sort by</DropdownMenuLabel>
+						<DropdownMenuLabel>
+							Sort applications by
+						</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
-							value={`SORT_${explorerSidebarStore.sortField}`}
+							value={`APPLICATION_SORT_${explorerSidebarStore.applicationSortField}`}
 							onValueChange={handleSortChange}
 						>
 							{SORT_OPTIONS.map((option) => (
 								<DropdownMenuRadioItem
 									key={option.value}
-									value={option.value}
+									value={`APPLICATION_${option.value}`}
+								>
+									{option.label}
+								</DropdownMenuRadioItem>
+							))}
+						</DropdownMenuRadioGroup>
+						<DropdownMenuSeparator />
+						<DropdownMenuLabel>
+							Sort company groups by
+						</DropdownMenuLabel>
+						<DropdownMenuRadioGroup
+							value={`GROUP_SORT_${explorerSidebarStore.groupSortField}`}
+							onValueChange={handleGroupSortChange}
+						>
+							{SORT_OPTIONS.map((option) => (
+								<DropdownMenuRadioItem
+									key={`group-${option.value}`}
+									value={`GROUP_${option.value}`}
 								>
 									{option.label}
 								</DropdownMenuRadioItem>
