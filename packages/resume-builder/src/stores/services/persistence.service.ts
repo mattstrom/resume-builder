@@ -1,6 +1,10 @@
 export enum StorageKey {
 	Mode = 'resume:mode',
 	ViewMode = 'resume:viewMode',
+	ApplicationExplorerSortField = 'applicationList.sortField',
+	ApplicationExplorerSortAscending = 'applicationList.sortAscending',
+	ApplicationExplorerGroupBy = 'applicationList.groupBy',
+	ApplicationExplorerCollapsedGroups = 'applicationList.collapsedGroups',
 }
 
 export class PersistenceService {

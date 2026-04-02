@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react';
-import { type FC, useCallback, useMemo, useState } from 'react';
+import { type FC, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
 	ArrowUpDown,
@@ -54,21 +54,12 @@ const actionButtonClass =
 
 export const SidebarResumeTree: FC = observer(() => {
 	const navigate = useNavigate();
-	const { applicationStore } = useStore();
+	const { applicationStore, explorerSidebarStore } = useStore();
 	const { selectedApiApplicationId, selectApiApplication } = useFileManager();
 
-	const applications = applicationStore.data;
-	const groupedData = applicationStore.groupedData;
-	const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
-		() => new Set(),
-	);
-	const groupNames = useMemo(
-		() => (groupedData ? [...groupedData.keys()] : []),
-		[groupedData],
-	);
-	const allGroupsCollapsed =
-		groupNames.length > 0 &&
-		groupNames.every((groupName) => collapsedGroups.has(groupName));
+	const applications = explorerSidebarStore.applications;
+	const groupedApplications = explorerSidebarStore.groupedApplications;
+	const allGroupsCollapsed = explorerSidebarStore.allGroupsCollapsed;
 
 	const handleSelect = useCallback(
 		(applicationId: string) => {
@@ -84,9 +75,11 @@ export const SidebarResumeTree: FC = observer(() => {
 	const handleSortChange = useCallback(
 		(value: string) => {
 			if (!value.startsWith('SORT_')) return;
-			applicationStore.setSort(value === 'SORT_NAME' ? 'NAME' : 'DATE');
+			explorerSidebarStore.setSort(
+				value === 'SORT_NAME' ? 'NAME' : 'DATE',
+			);
 		},
-		[applicationStore],
+		[explorerSidebarStore],
 	);
 
 	const handleGroupChange = useCallback(
@@ -96,38 +89,21 @@ export const SidebarResumeTree: FC = observer(() => {
 				GROUP_NONE: null,
 				GROUP_COMPANY: 'company',
 			};
-			applicationStore.setGroupBy(groupMap[value] ?? null);
+			explorerSidebarStore.setGroupBy(groupMap[value] ?? null);
 		},
-		[applicationStore],
+		[explorerSidebarStore],
 	);
 
 	const handleGroupToggle = useCallback(
 		(groupName: string, open: boolean) => {
-			setCollapsedGroups((current) => {
-				const next = new Set(current);
-				if (open) {
-					next.delete(groupName);
-				} else {
-					next.add(groupName);
-				}
-				return next;
-			});
+			explorerSidebarStore.setGroupOpen(groupName, open);
 		},
-		[],
+		[explorerSidebarStore],
 	);
 
 	const toggleAllGroups = useCallback(() => {
-		setCollapsedGroups((current) => {
-			if (
-				groupNames.length > 0 &&
-				groupNames.every((groupName) => current.has(groupName))
-			) {
-				return new Set();
-			}
-
-			return new Set(groupNames);
-		});
-	}, [groupNames]);
+		explorerSidebarStore.toggleAllGroups();
+	}, [explorerSidebarStore]);
 
 	const renderApplicationItem = (application: Application) => (
 		<SidebarMenuItem key={application._id}>
@@ -146,7 +122,7 @@ export const SidebarResumeTree: FC = observer(() => {
 		Array.from(groups.entries()).map(([groupName, groupApplications]) => (
 			<SidebarMenuItem key={groupName}>
 				<Collapsible
-					open={!collapsedGroups.has(groupName)}
+					open={explorerSidebarStore.isGroupOpen(groupName)}
 					onOpenChange={(open) => handleGroupToggle(groupName, open)}
 					className="group/collapsible"
 				>
@@ -206,7 +182,7 @@ export const SidebarResumeTree: FC = observer(() => {
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Sort by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
-							value={`SORT_${applicationStore.sortField}`}
+							value={`SORT_${explorerSidebarStore.sortField}`}
 							onValueChange={handleSortChange}
 						>
 							{SORT_OPTIONS.map((option) => (
@@ -222,8 +198,8 @@ export const SidebarResumeTree: FC = observer(() => {
 						<DropdownMenuLabel>Group by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
 							value={
-								applicationStore.groupBy
-									? `GROUP_${applicationStore.groupBy.toUpperCase()}`
+								explorerSidebarStore.groupBy
+									? `GROUP_${explorerSidebarStore.groupBy.toUpperCase()}`
 									: 'GROUP_NONE'
 							}
 							onValueChange={handleGroupChange}
@@ -239,7 +215,7 @@ export const SidebarResumeTree: FC = observer(() => {
 						</DropdownMenuRadioGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
-				{groupedData && (
+				{groupedApplications && (
 					<button
 						title={
 							allGroupsCollapsed
@@ -266,8 +242,8 @@ export const SidebarResumeTree: FC = observer(() => {
 						<p className="px-2 text-xs text-sidebar-foreground/50">
 							No applications found.
 						</p>
-					) : groupedData ? (
-						renderGroupedApplications(groupedData)
+					) : groupedApplications ? (
+						renderGroupedApplications(groupedApplications)
 					) : (
 						applications.map(renderApplicationItem)
 					)}
