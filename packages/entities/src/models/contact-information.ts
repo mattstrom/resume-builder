@@ -58,4 +58,5 @@ export const contactInformationSchema = z.object({
 	email: z.email(),
 	linkedInProfile: z.string(),
 	githubProfile: z.string(),
+	personalWebsite: z.string(),
 });
