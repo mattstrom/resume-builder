@@ -96,9 +96,20 @@ export enum ResumeSortBy {
 	DATE = 'DATE',
 }
 
+export enum ResumeCollection {
+	WORK_EXPERIENCE = 'WORK_EXPERIENCE',
+	PROJECTS = 'PROJECTS',
+	VOLUNTEERING = 'VOLUNTEERING',
+}
+
 registerEnumType(ResumeSortBy, {
 	name: 'ResumeSortBy',
 	description: 'Fields available for sorting resumes',
+});
+
+registerEnumType(ResumeCollection, {
+	name: 'ResumeCollection',
+	description: 'Editable nested resume collections',
 });
 
 @InputType()
@@ -114,6 +125,21 @@ export class ResumeSortInput {
 
 	@Field({ defaultValue: true })
 	ascending: boolean;
+}
+
+@InputType()
+export class ResumeAddCollectionItemInput {
+	@Field(() => ResumeCollection)
+	collection: ResumeCollection;
+}
+
+@InputType()
+export class ResumeRemoveCollectionItemInput {
+	@Field(() => ResumeCollection)
+	collection: ResumeCollection;
+
+	@Field()
+	index: number;
 }
 
 export const ResumeSchema = SchemaFactory.createForClass(Resume);

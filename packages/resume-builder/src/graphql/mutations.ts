@@ -240,3 +240,35 @@ export const SET_RESUME_FIELD = gql`
 
 	${resumeContentFragment}
 `;
+
+export const ADD_RESUME_COLLECTION_ITEM = gql`
+	mutation AddResumeCollectionItem(
+		$id: String!
+		$input: ResumeAddCollectionItemInput!
+	) {
+		addResumeCollectionItem(id: $id, input: $input) {
+			_id
+			data {
+				...ResumeContent
+			}
+		}
+	}
+
+	${resumeContentFragment}
+`;
+
+export const REMOVE_RESUME_COLLECTION_ITEM = gql`
+	mutation RemoveResumeCollectionItem(
+		$id: String!
+		$input: ResumeRemoveCollectionItemInput!
+	) {
+		removeResumeCollectionItem(id: $id, input: $input) {
+			_id
+			data {
+				...ResumeContent
+			}
+		}
+	}
+
+	${resumeContentFragment}
+`;

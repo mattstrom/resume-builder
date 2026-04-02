@@ -244,6 +244,8 @@ type Mutation {
   updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
   patchResume(id: String!, update: JSON!): Resume!
   setResumeField(id: String!, input: ResumeSetFieldInput!, value: JSON!): Resume!
+  addResumeCollectionItem(id: String!, input: ResumeAddCollectionItemInput!): Resume!
+  removeResumeCollectionItem(id: String!, input: ResumeRemoveCollectionItemInput!): Resume!
   createEducation(education: EducationInput!): Education!
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
@@ -359,6 +361,22 @@ scalar JSON
 
 input ResumeSetFieldInput {
   path: String!
+}
+
+input ResumeAddCollectionItemInput {
+  collection: ResumeCollection!
+}
+
+"""Editable nested resume collections"""
+enum ResumeCollection {
+  WORK_EXPERIENCE
+  PROJECTS
+  VOLUNTEERING
+}
+
+input ResumeRemoveCollectionItemInput {
+  collection: ResumeCollection!
+  index: Float!
 }
 
 input EducationInput {

@@ -2,7 +2,9 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	BlankResumeCreateInput,
 	Resume,
+	ResumeAddCollectionItemInput,
 	ResumeCreateInput,
+	ResumeRemoveCollectionItemInput,
 	ResumeSetFieldInput,
 	ResumeSortInput,
 	ResumeUpdateInput,
@@ -73,5 +75,32 @@ export class ResumeResolver {
 		@Args('value', { type: () => GraphQLJSON }) value: unknown,
 	) {
 		return this.resumesService.setField(uid, id, input.path, value);
+	}
+
+	@Mutation(() => Resume)
+	async addResumeCollectionItem(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('input') input: ResumeAddCollectionItemInput,
+	) {
+		return this.resumesService.addCollectionItem(
+			uid,
+			id,
+			input.collection,
+		);
+	}
+
+	@Mutation(() => Resume)
+	async removeResumeCollectionItem(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('input') input: ResumeRemoveCollectionItemInput,
+	) {
+		return this.resumesService.removeCollectionItem(
+			uid,
+			id,
+			input.collection,
+			input.index,
+		);
 	}
 }
