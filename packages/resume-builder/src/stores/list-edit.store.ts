@@ -6,6 +6,7 @@ import {
 	runInAction,
 } from 'mobx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
+import { reorderItems } from '@/lib/reorder.ts';
 import type { RootStore } from '@/stores/root.store.ts';
 
 export class ListEditStore {
@@ -107,6 +108,40 @@ export class ListEditStore {
 		if (this.editingIndex === index) {
 			this.editingIndex = null;
 			this.editValue = '';
+		}
+	}
+
+	@action
+	moveItem(fromIndex: number, toIndex: number) {
+		const nextItems = reorderItems(this.items, fromIndex, toIndex);
+
+		if (
+			nextItems.length === this.items.length &&
+			nextItems.every((item, index) => item === this.items[index])
+		) {
+			return;
+		}
+
+		this.items = nextItems;
+
+		if (this.editingIndex === null) {
+			return;
+		}
+
+		if (this.editingIndex === fromIndex) {
+			this.editingIndex = toIndex;
+			return;
+		}
+
+		if (fromIndex < toIndex) {
+			if (this.editingIndex > fromIndex && this.editingIndex <= toIndex) {
+				this.editingIndex -= 1;
+			}
+			return;
+		}
+
+		if (this.editingIndex >= toIndex && this.editingIndex < fromIndex) {
+			this.editingIndex += 1;
 		}
 	}
 
