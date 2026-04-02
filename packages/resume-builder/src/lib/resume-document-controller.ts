@@ -29,6 +29,8 @@ export interface ResumeDocumentController {
 	setField(path: string, value: unknown): void;
 	addCollectionItem(collection: ResumeCollectionValue): void;
 	removeCollectionItem(collection: ResumeCollectionValue, index: number): void;
+	undo(): void;
+	redo(): void;
 	destroy(): Promise<void>;
 }
 
@@ -343,6 +345,9 @@ function getCollectionPath(collection: ResumeCollectionValue) {
 	}
 }
 
+const UNDOABLE_ORIGIN = Symbol('resume:undoable');
+const NON_UNDOABLE_ORIGIN = Symbol('resume:non-undoable');
+
 export class CollaborativeResumeController
 	implements ResumeDocumentController
 {
@@ -350,6 +355,9 @@ export class CollaborativeResumeController
 
 	private readonly document = new Y.Doc();
 	private readonly root = this.document.getMap('resume');
+	private readonly undoManager = new Y.UndoManager(this.root, {
+		trackedOrigins: new Set([UNDOABLE_ORIGIN]),
+	});
 	private readonly persistence: IndexedDbDocPersistence;
 	private readonly provider: HocuspocusProvider;
 	private destroyed = false;
@@ -415,7 +423,7 @@ export class CollaborativeResumeController
 	replaceResume(resume: Resume) {
 		this.document.transact(() => {
 			syncYMap(this.root, resume as unknown as Record<string, unknown>);
-		}, 'resume:replace');
+		}, NON_UNDOABLE_ORIGIN);
 	}
 
 	setField(path: string, value: unknown) {
@@ -450,7 +458,7 @@ export class CollaborativeResumeController
 			}
 
 			setChild(current, segments[segments.length - 1]!, value);
-		}, 'resume:set-field');
+		}, UNDOABLE_ORIGIN);
 	}
 
 	addCollectionItem(collection: ResumeCollectionValue) {
@@ -474,6 +482,14 @@ export class CollaborativeResumeController
 			path,
 			currentItems.filter((_, itemIndex) => itemIndex !== index),
 		);
+	}
+
+	undo() {
+		this.undoManager.undo();
+	}
+
+	redo() {
+		this.undoManager.redo();
 	}
 
 	private getValueAtPath(path: string) {
@@ -503,6 +519,7 @@ export class CollaborativeResumeController
 	async destroy() {
 		this.destroyed = true;
 		this.document.off('update', this.handleDocumentUpdate);
+		this.undoManager.destroy();
 		await this.persistence.destroy();
 		this.provider.destroy();
 		this.document.destroy();
@@ -513,6 +530,8 @@ export class LocalResumeController implements ResumeDocumentController {
 	readonly resumeId: string;
 
 	private snapshot: Resume | null;
+	private undoStack: Resume[] = [];
+	private redoStack: Resume[] = [];
 
 	constructor(private readonly options: LocalResumeControllerOptions) {
 		this.resumeId = options.resume._id;
@@ -527,8 +546,19 @@ export class LocalResumeController implements ResumeDocumentController {
 		this.options.onSnapshotChange?.(this.snapshot);
 	}
 
+	private pushUndoSnapshot() {
+		if (!this.snapshot) {
+			return;
+		}
+
+		this.undoStack.push(structuredClone(this.snapshot));
+		this.redoStack = [];
+	}
+
 	replaceResume(resume: Resume) {
 		this.snapshot = structuredClone(resume);
+		this.undoStack = [];
+		this.redoStack = [];
 		this.emitSnapshot();
 	}
 
@@ -537,6 +567,7 @@ export class LocalResumeController implements ResumeDocumentController {
 			return;
 		}
 
+		this.pushUndoSnapshot();
 		this.snapshot = cloneWithPathValue(this.snapshot, path, value);
 		this.emitSnapshot();
 	}
@@ -550,6 +581,7 @@ export class LocalResumeController implements ResumeDocumentController {
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
+		this.pushUndoSnapshot();
 		this.snapshot = cloneWithPathValue(this.snapshot, path, [
 			...currentItems,
 			createDefaultCollectionItem(collection, this.snapshot),
@@ -566,11 +598,44 @@ export class LocalResumeController implements ResumeDocumentController {
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
+		this.pushUndoSnapshot();
 		this.snapshot = cloneWithPathValue(
 			this.snapshot,
 			path,
 			currentItems.filter((_, itemIndex) => itemIndex !== index),
 		);
+		this.emitSnapshot();
+	}
+
+	undo() {
+		if (!this.snapshot) {
+			return;
+		}
+
+		const previousSnapshot = this.undoStack.pop();
+
+		if (!previousSnapshot) {
+			return;
+		}
+
+		this.redoStack.push(structuredClone(this.snapshot));
+		this.snapshot = previousSnapshot;
+		this.emitSnapshot();
+	}
+
+	redo() {
+		if (!this.snapshot) {
+			return;
+		}
+
+		const nextSnapshot = this.redoStack.pop();
+
+		if (!nextSnapshot) {
+			return;
+		}
+
+		this.undoStack.push(structuredClone(this.snapshot));
+		this.snapshot = nextSnapshot;
 		this.emitSnapshot();
 	}
 
