@@ -1,13 +1,11 @@
 import {
 	type FC,
-	type KeyboardEvent,
 	type ReactNode,
 	createElement,
-	useEffect,
-	useRef,
 } from 'react';
 import { observer } from 'mobx-react';
 import { useStore } from '@/stores/store.provider.tsx';
+import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 
 interface InlineEditorProps {
 	/** Dot-notation path, e.g. "data.workExperience.0.company" */
@@ -24,6 +22,8 @@ interface InlineEditorProps {
 	className?: string;
 	/** Custom read-mode rendering (defaults to value as text) */
 	children?: ReactNode;
+	/** Placeholder shown when the current value is empty */
+	placeholder?: string;
 }
 
 export const InlineEditor: FC<InlineEditorProps> = observer(
@@ -35,17 +35,11 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		as: Tag = 'span',
 		className,
 		children,
+		placeholder,
 	}) => {
 		const { inlineEditStore: store, uiStateStore } = useStore();
-		const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
-
-		useEffect(() => {
-			if (isEditing) {
-				inputRef.current?.focus();
-			}
-		}, [isEditing]);
 
 		const handleClick = () => {
 			if (isEditable && !isEditing) {
@@ -53,17 +47,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 			}
 		};
 
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				e.preventDefault();
-				store.discard();
-			} else if (e.key === 'Enter' && !(multiline && e.shiftKey)) {
-				e.preventDefault();
-				store.commit();
-			}
-		};
-
-		const readContent = children ?? value;
+		const readContent = children ?? (value || placeholder);
 
 		return (
 			<span className="relative inline">
@@ -81,27 +65,19 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 				)}
 
 				{isEditing &&
-					(multiline ? (
-						<textarea
-							ref={
-								inputRef as React.RefObject<HTMLTextAreaElement>
-							}
+					(
+						<TextFieldEditor
+							path={path}
+							value={value}
+							resumeId={resumeId}
+							multiline={multiline}
+							placeholder={placeholder}
+							autoFocus
+							onCommitSuccess={() => store.discard()}
+							onCancel={() => store.discard()}
 							className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
-							value={store.editValue}
-							onChange={(e) => store.updateValue(e.target.value)}
-							onKeyDown={handleKeyDown}
-							rows={3}
 						/>
-					) : (
-						<input
-							ref={inputRef as React.RefObject<HTMLInputElement>}
-							type="text"
-							className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
-							value={store.editValue}
-							onChange={(e) => store.updateValue(e.target.value)}
-							onKeyDown={handleKeyDown}
-						/>
-					))}
+					)}
 			</span>
 		);
 	},
