@@ -22,7 +22,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/config": ["./src/configuration"]
+      "@/config": ["./src/configuration"],
+      "~/config": ["./src/configuration"]
     }
   },
   "include": ["config/**/*.ts", "src/**/*.ts"]

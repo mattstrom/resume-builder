@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Document, DocumentSchema } from './document.js';
 import {
 	ContactInformation,
 	ContactInformationSchema,
@@ -28,9 +29,10 @@ import { StorageService } from './storage.service.js';
 			{ name: Job.name, schema: JobSchema },
 			{ name: Project.name, schema: ProjectSchema },
 			{ name: Skill.name, schema: SkillSchema },
+			{ name: Document.name, schema: DocumentSchema },
 		]),
 	],
 	providers: [StorageService],
-	exports: [],
+	exports: [StorageService],
 })
 export class StorageModule {}

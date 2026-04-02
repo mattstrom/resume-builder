@@ -1,3 +1,4 @@
 {
-  "graphqlUrl": "/graphql"
+  "graphqlUrl": "/graphql",
+  "crdtUrl": "/collaboration"
 }

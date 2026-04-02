@@ -1,24 +1,15 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { ResumeProvider, useResume, useResumeId } from '@/components/Resume.provider.tsx';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import {
-	ADD_RESUME_COLLECTION_ITEM,
-	REMOVE_RESUME_COLLECTION_ITEM,
-} from '@/graphql/mutations.ts';
-import { LIST_EDUCATIONS, LIST_RESUMES } from '@/graphql/queries.ts';
+import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
-import type {
-	AddResumeCollectionItemData,
-	AddResumeCollectionItemVariables,
-	RemoveResumeCollectionItemData,
-	RemoveResumeCollectionItemVariables,
-} from '@/graphql/types.ts';
 import { useFileManager } from '@/components/FileManager';
 import { useStore } from '@/stores/store.provider.tsx';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { useQuery } from '@apollo/client/react';
 import type {
 	Education,
 	Job,
@@ -121,39 +112,18 @@ const ContactField: FC<ContactFieldProps> = ({
 
 function useCollectionMutations(collection: keyof typeof ResumeCollections) {
 	const resumeId = useResumeId();
-	const [addItemMutation, { loading: isAdding }] = useMutation<
-		AddResumeCollectionItemData,
-		AddResumeCollectionItemVariables
-	>(ADD_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const [removeItemMutation, { loading: isRemoving }] = useMutation<
-		RemoveResumeCollectionItemData,
-		RemoveResumeCollectionItemVariables
-	>(REMOVE_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
+	const controller = getActiveResumeController(resumeId);
 
 	return {
-		isSaving: isAdding || isRemoving,
+		isSaving: false,
 		addItem: async () => {
-			await addItemMutation({
-				variables: {
-					id: resumeId,
-					input: { collection: ResumeCollections[collection] },
-				},
-			});
+			controller?.addCollectionItem(ResumeCollections[collection]);
 		},
 		removeItem: async (index: number) => {
-			await removeItemMutation({
-				variables: {
-					id: resumeId,
-					input: {
-						collection: ResumeCollections[collection],
-						index,
-					},
-				},
-			});
+			controller?.removeCollectionItem(
+				ResumeCollections[collection],
+				index,
+			);
 		},
 	};
 }

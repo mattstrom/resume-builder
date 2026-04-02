@@ -5,13 +5,8 @@ import {
 	observable,
 	runInAction,
 } from 'mobx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import type { RootStore } from '@/stores/root.store.ts';
-import { SET_RESUME_FIELD } from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
-import type {
-	SetResumeFieldData,
-	SetResumeFieldVariables,
-} from '@/graphql/types.ts';
 
 export class ListEditStore {
 	@observable
@@ -157,18 +152,7 @@ export class ListEditStore {
 		});
 
 		try {
-			await this.rootStore.client.mutate<
-				SetResumeFieldData,
-				SetResumeFieldVariables
-			>({
-				mutation: SET_RESUME_FIELD,
-				variables: {
-					id: resumeId,
-					input: { path },
-					value,
-				},
-				refetchQueries: [{ query: LIST_RESUMES }],
-			});
+			getActiveResumeController(resumeId)?.setField(path, value);
 		} finally {
 			runInAction(() => {
 				this.isSaving = false;

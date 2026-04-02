@@ -5,6 +5,7 @@ import {
 	useCallback,
 	useContext,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import { del, get, set } from 'idb-keyval';
@@ -30,6 +31,12 @@ import type {
 	GetResumeVariables,
 	ListApplicationsData,
 } from '../../graphql/types';
+import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
+import {
+	CollaborativeResumeController,
+	LocalResumeController,
+	type ResumeConnectionStatus,
+} from '@/lib/resume-document-controller.ts';
 
 const STORAGE_KEY = 'resume:directoryHandle';
 
@@ -42,6 +49,8 @@ interface FileManagerState {
 	apiApplications: Application[];
 	selectedApiApplicationId: string | null;
 	selectedApplication: Application | null;
+	isResumeCollaborative: boolean;
+	resumeConnectionStatus: ResumeConnectionStatus;
 	isLoading: boolean;
 	error: string | null;
 	isSupported: boolean;
@@ -63,6 +72,9 @@ const FileManagerContext = createContext<FileManagerContextValue | null>(null);
 
 export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	const navigate = useNavigate();
+	const controllerRef = useRef<
+		CollaborativeResumeController | LocalResumeController | null
+	>(null);
 	const [directoryHandle, setDirectoryHandle] =
 		useState<FileSystemDirectoryHandle | null>(null);
 	const [files, setFiles] = useState<string[]>([]);
@@ -74,6 +86,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	>(null);
 	const [selectedApplication, setSelectedApplication] =
 		useState<Application | null>(null);
+	const [isResumeCollaborative, setIsResumeCollaborative] = useState(false);
+	const [resumeConnectionStatus, setResumeConnectionStatus] =
+		useState<ResumeConnectionStatus>('idle');
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -104,6 +119,11 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const loadFile = useCallback(
 		async (handle: FileSystemDirectoryHandle, fileName: string) => {
+			await controllerRef.current?.destroy();
+			controllerRef.current = null;
+			setActiveResumeController(null);
+			setIsResumeCollaborative(false);
+			setResumeConnectionStatus('idle');
 			setIsLoading(true);
 			setError(null);
 
@@ -120,7 +140,18 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					return;
 				}
 
-				setResumeData(data as Resume);
+				const resume = data as Resume;
+
+				setResumeData(resume);
+				const controller = new LocalResumeController({
+					resume,
+					onSnapshotChange: (nextResume) => {
+						setResumeData(nextResume);
+					},
+				});
+
+				controllerRef.current = controller;
+				setActiveResumeController(controller);
 				setSelectedFile(fileName);
 				// Clear API selection when loading a file
 				setSelectedApiApplicationId(null);
@@ -166,6 +197,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		if (!isSupported) return;
 
 		try {
+			await controllerRef.current?.destroy();
+			controllerRef.current = null;
+			setActiveResumeController(null);
 			setError(null);
 			const handle = await requestDirectoryAccess();
 			setDirectoryHandle(handle);
@@ -179,6 +213,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			setResumeData(null);
 			setSelectedApplication(null);
 			setSelectedApiApplicationId(null);
+			setIsResumeCollaborative(false);
+			setResumeConnectionStatus('idle');
 		} catch (err) {
 			if ((err as Error).name !== 'AbortError') {
 				setError(
@@ -191,6 +227,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	}, [isSupported]);
 
 	const detachDirectory = useCallback(async () => {
+		await controllerRef.current?.destroy();
+		controllerRef.current = null;
+		setActiveResumeController(null);
 		await del(STORAGE_KEY);
 		setDirectoryHandle(null);
 		setFiles([]);
@@ -198,6 +237,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		setResumeData(null);
 		setSelectedApplication(null);
 		setSelectedApiApplicationId(null);
+		setIsResumeCollaborative(false);
+		setResumeConnectionStatus('idle');
 		setError(null);
 	}, []);
 
@@ -243,6 +284,11 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	const selectApiApplication = useCallback(
 		async (applicationId: string) => {
+			await controllerRef.current?.destroy();
+			controllerRef.current = null;
+			setActiveResumeController(null);
+			setIsResumeCollaborative(false);
+			setResumeConnectionStatus('connecting');
 			setIsLoading(true);
 			setError(null);
 
@@ -263,6 +309,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 				if (!application.resumeId) {
 					setResumeData(null);
+					setResumeConnectionStatus('idle');
 					return;
 				}
 
@@ -270,9 +317,27 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					variables: { id: application.resumeId },
 				});
 				if (resumeResult.data?.getResume) {
-					setResumeData(resumeResult.data.getResume);
+					const nextResume = resumeResult.data.getResume;
+
+					setResumeData(nextResume);
+
+					const controller = new CollaborativeResumeController({
+						resume: nextResume,
+						url: __CONFIG__.crdtUrl,
+						onSnapshotChange: (resume) => {
+							setResumeData(resume);
+						},
+						onStatusChange: (status) => {
+							setResumeConnectionStatus(status);
+						},
+					});
+
+					controllerRef.current = controller;
+					setActiveResumeController(controller);
+					setIsResumeCollaborative(true);
 				} else {
 					setResumeData(null);
+					setResumeConnectionStatus('idle');
 				}
 			} catch (err) {
 				const isAbortError =
@@ -288,6 +353,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					);
 					setSelectedApiApplicationId(null);
 					setSelectedApplication(null);
+					setResumeConnectionStatus('error');
 				}
 			} finally {
 				setIsLoading(false);
@@ -325,7 +391,19 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	}, [applicationsError, applicationError, resumeError]);
 
 	const updateResumeData = useCallback((resume: Resume) => {
+		if (controllerRef.current) {
+			controllerRef.current.replaceResume(resume);
+			return;
+		}
+
 		setResumeData(resume);
+	}, []);
+
+	useEffect(() => {
+		return () => {
+			void controllerRef.current?.destroy();
+			setActiveResumeController(null);
+		};
 	}, []);
 
 	const value: FileManagerContextValue = {
@@ -337,6 +415,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		apiApplications,
 		selectedApiApplicationId,
 		selectedApplication,
+		isResumeCollaborative,
+		resumeConnectionStatus,
 		isLoading,
 		error,
 		isSupported,
