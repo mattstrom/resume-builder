@@ -1,19 +1,8 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import {
-	ADD_RESUME_COLLECTION_ITEM,
-	REMOVE_RESUME_COLLECTION_ITEM,
-} from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
-import type {
-	AddResumeCollectionItemData,
-	AddResumeCollectionItemVariables,
-	RemoveResumeCollectionItemData,
-	RemoveResumeCollectionItemVariables,
-} from '@/graphql/types.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { useMutation } from '@apollo/client/react';
 import type { Job } from '@resume-builder/entities';
 import { type FC, type PropsWithChildren } from 'react';
 import { observer } from 'mobx-react';
@@ -28,19 +17,8 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
-	const [addItemMutation, { loading: isAdding }] = useMutation<
-		AddResumeCollectionItemData,
-		AddResumeCollectionItemVariables
-	>(ADD_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const [removeItemMutation, { loading: isRemoving }] = useMutation<
-		RemoveResumeCollectionItemData,
-		RemoveResumeCollectionItemVariables
-	>(REMOVE_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const isSaving = isAdding || isRemoving;
+	const controller = getActiveResumeController(resumeId);
+	const isSaving = false;
 
 	return (
 		<CollectionEditor<Job>
@@ -48,25 +26,15 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {
-				await addItemMutation({
-					variables: {
-						id: resumeId,
-						input: {
-							collection: ResumeCollections.WORK_EXPERIENCE,
-						},
-					},
-				});
+				controller?.addCollectionItem(
+					ResumeCollections.WORK_EXPERIENCE,
+				);
 			}}
 			onRemove={async (index) => {
-				await removeItemMutation({
-					variables: {
-						id: resumeId,
-						input: {
-							collection: ResumeCollections.WORK_EXPERIENCE,
-							index,
-						},
-					},
-				});
+				controller?.removeCollectionItem(
+					ResumeCollections.WORK_EXPERIENCE,
+					index,
+				);
 			}}
 		>
 			{({ items, addItem, removeItem, isSaving }) => (

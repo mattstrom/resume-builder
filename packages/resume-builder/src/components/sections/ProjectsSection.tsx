@@ -1,21 +1,10 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
-import {
-	ADD_RESUME_COLLECTION_ITEM,
-	REMOVE_RESUME_COLLECTION_ITEM,
-} from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
-import type {
-	AddResumeCollectionItemData,
-	AddResumeCollectionItemVariables,
-	RemoveResumeCollectionItemData,
-	RemoveResumeCollectionItemVariables,
-} from '@/graphql/types.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { useMutation } from '@apollo/client/react';
 import { type FC, type ReactNode } from 'react';
 import { observer } from 'mobx-react';
 import { useResume, useResumeId } from '../Resume.provider.tsx';
@@ -29,19 +18,8 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
-	const [addItemMutation, { loading: isAdding }] = useMutation<
-		AddResumeCollectionItemData,
-		AddResumeCollectionItemVariables
-	>(ADD_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const [removeItemMutation, { loading: isRemoving }] = useMutation<
-		RemoveResumeCollectionItemData,
-		RemoveResumeCollectionItemVariables
-	>(REMOVE_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const isSaving = isAdding || isRemoving;
+	const controller = getActiveResumeController(resumeId);
+	const isSaving = false;
 
 	return (
 		<CollectionEditor<Project>
@@ -49,25 +27,13 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {
-				await addItemMutation({
-					variables: {
-						id: resumeId,
-						input: {
-							collection: ResumeCollections.PROJECTS,
-						},
-					},
-				});
+				controller?.addCollectionItem(ResumeCollections.PROJECTS);
 			}}
 			onRemove={async (index) => {
-				await removeItemMutation({
-					variables: {
-						id: resumeId,
-						input: {
-							collection: ResumeCollections.PROJECTS,
-							index,
-						},
-					},
-				});
+				controller?.removeCollectionItem(
+					ResumeCollections.PROJECTS,
+					index,
+				);
 			}}
 		>
 			{({ items, addItem, removeItem, isSaving }) => (
