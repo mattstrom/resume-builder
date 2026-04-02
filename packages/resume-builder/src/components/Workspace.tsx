@@ -7,6 +7,8 @@ import { SideBySideView } from '@/components/SideBySideView.tsx';
 import { AnalysisView } from '@/components/AnalysisView.tsx';
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
+import { TailorInsightsView } from '@/components/TailorInsightsView.tsx';
+import { ThreeColumnView } from '@/components/ThreeColumnView.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { PreviewFrame } from './PreviewFrame.tsx';
@@ -33,10 +35,11 @@ export const Workspace: FC = observer(() => {
 				/>
 			)}
 			{mode === Mode.Tailor && (
-				<SideBySideView
+				<ThreeColumnView
 					id="workspace-layout"
-					panelIds={['jobDescription', 'resume']}
+					panelIds={['jobDescription', 'jobInsights', 'resume']}
 					left={<TailorView />}
+					center={<TailorInsightsView />}
 					right={<DirectResumeView />}
 				/>
 			)}
