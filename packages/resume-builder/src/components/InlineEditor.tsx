@@ -36,9 +36,10 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		className,
 		children,
 	}) => {
-		const { inlineEditStore: store } = useStore();
+		const { inlineEditStore: store, uiStateStore } = useStore();
 		const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 		const isEditing = store.isEditing(path);
+		const isEditable = uiStateStore.isResumeEditable;
 
 		useEffect(() => {
 			if (isEditing) {
@@ -47,7 +48,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		}, [isEditing]);
 
 		const handleClick = () => {
-			if (!isEditing) {
+			if (isEditable && !isEditing) {
 				store.beginEdit(resumeId, path, value);
 			}
 		};
@@ -72,7 +73,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 						className,
 						onClick: handleClick,
 						style: {
-							cursor: 'pointer',
+							cursor: isEditable ? 'pointer' : undefined,
 							...(isEditing ? { opacity: 0.5 } : {}),
 						},
 					},

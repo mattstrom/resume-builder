@@ -37,7 +37,7 @@ export const Workspace: FC = observer(() => {
 					id="workspace-layout"
 					panelIds={['jobDescription', 'resume']}
 					left={<TailorView />}
-					right={<PreviewFrame resumeId={resumeId} />}
+					right={<DirectResumeView />}
 				/>
 			)}
 			{mode === Mode.Edit && <DirectResumeView />}

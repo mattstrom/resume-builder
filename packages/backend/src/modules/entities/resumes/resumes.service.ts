@@ -141,19 +141,17 @@ export class ResumesService {
 			throw new BadRequestException(`Path "${path}" is not allowed`);
 		}
 
-		const updated = await this.resumeModel
-			.findOneAndUpdate(
-				{ _id: id, uid },
-				{ $set: { [path]: value } },
-				{ new: true },
-			)
-			.exec();
+		const resume = await this.resumeModel.findOne({ _id: id, uid }).exec();
 
-		if (!updated) {
+		if (!resume) {
 			throw new NotFoundException(`Resume with id ${id} not found`);
 		}
 
-		return updated.toObject();
+		resume.set(path, value);
+		this.ensureEmbeddedUids(resume, uid);
+
+		const saved = await resume.save();
+		return saved.toObject();
 	}
 
 	async addCollectionItem(
@@ -198,6 +196,7 @@ export class ResumesService {
 				);
 		}
 
+		this.ensureEmbeddedUids(resume, uid);
 		const saved = await resume.save();
 		return saved.toObject();
 	}
@@ -224,8 +223,35 @@ export class ResumesService {
 
 		items.splice(index, 1);
 
+		this.ensureEmbeddedUids(resume, uid);
 		const saved = await resume.save();
 		return saved.toObject();
+	}
+
+	private ensureEmbeddedUids(resume: ResumeDocument, uid: string) {
+		const { data } = resume;
+
+		if (data.contactInformation && !data.contactInformation.uid) {
+			data.contactInformation.uid = uid;
+		}
+
+		this.ensureCollectionItemUids(data.education, uid);
+		this.ensureCollectionItemUids(data.skills, uid);
+		this.ensureCollectionItemUids(data.skillGroups, uid);
+		this.ensureCollectionItemUids(data.workExperience, uid);
+		this.ensureCollectionItemUids(data.projects, uid);
+		this.ensureCollectionItemUids(data.volunteering, uid);
+	}
+
+	private ensureCollectionItemUids(
+		items: Array<{ uid?: string }> | undefined,
+		uid: string,
+	) {
+		items?.forEach((item) => {
+			if (!item.uid) {
+				item.uid = uid;
+			}
+		});
 	}
 
 	private getCollectionItems(

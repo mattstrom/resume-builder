@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
+import { observer } from 'mobx-react';
 import { type ReactNode, createElement, useMemo, useState } from 'react';
 
 interface LookupFieldEditorProps<TValue, TOption> {
@@ -28,7 +29,7 @@ interface LookupFieldEditorProps<TValue, TOption> {
 	mapOptionToValue: (option: TOption, currentValue: TValue) => TValue;
 }
 
-export const LookupFieldEditor = <TValue, TOption>({
+const LookupFieldEditorComponent = <TValue, TOption>({
 	path,
 	value,
 	resumeId,
@@ -41,18 +42,18 @@ export const LookupFieldEditor = <TValue, TOption>({
 	renderOption,
 	mapOptionToValue,
 }: LookupFieldEditorProps<TValue, TOption>) => {
-	const { client } = useStore();
+	const { client, uiStateStore } = useStore();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const isEditable = uiStateStore.isResumeEditable;
 
 	const optionMap = useMemo(
-		() =>
-			new Map(options.map((option) => [getOptionKey(option), option])),
+		() => new Map(options.map((option) => [getOptionKey(option), option])),
 		[options, getOptionKey],
 	);
 
 	const beginEdit = () => {
-		if (!isSaving) {
+		if (isEditable && !isSaving) {
 			setIsEditing(true);
 		}
 	};
@@ -82,7 +83,7 @@ export const LookupFieldEditor = <TValue, TOption>({
 		}
 	};
 
-	if (isEditing) {
+	if (isEditable && isEditing) {
 		return createElement(
 			Tag,
 			{ className },
@@ -110,8 +111,10 @@ export const LookupFieldEditor = <TValue, TOption>({
 		{
 			className,
 			onClick: beginEdit,
-			style: { cursor: 'pointer' },
+			style: { cursor: isEditable ? 'pointer' : undefined },
 		},
 		renderDisplay(value),
 	);
 };
+
+export const LookupFieldEditor = observer(LookupFieldEditorComponent);

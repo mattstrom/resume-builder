@@ -1,7 +1,10 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
-import { ADD_RESUME_COLLECTION_ITEM, REMOVE_RESUME_COLLECTION_ITEM } from '@/graphql/mutations.ts';
+import {
+	ADD_RESUME_COLLECTION_ITEM,
+	REMOVE_RESUME_COLLECTION_ITEM,
+} from '@/graphql/mutations.ts';
 import { LIST_RESUMES } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
 import type {
@@ -11,17 +14,21 @@ import type {
 	RemoveResumeCollectionItemVariables,
 } from '@/graphql/types.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 import { useMutation } from '@apollo/client/react';
 import { type FC, type ReactNode } from 'react';
+import { observer } from 'mobx-react';
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
 import type { Project, ResumeContent } from '@resume-builder/entities';
 
 interface ProjectsSectionProps {}
 
-export const ProjectsSection: FC<ProjectsSectionProps> = () => {
+export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 	const { projects } = useResume();
 	const resumeId = useResumeId();
+	const { uiStateStore } = useStore();
+	const isEditable = uiStateStore.isResumeEditable;
 	const [addItemMutation, { loading: isAdding }] = useMutation<
 		AddResumeCollectionItemData,
 		AddResumeCollectionItemVariables
@@ -40,6 +47,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 		<CollectionEditor<Project>
 			items={projects}
 			isSaving={isSaving}
+			isEditable={isEditable}
 			onAdd={async () => {
 				await addItemMutation({
 					variables: {
@@ -67,15 +75,17 @@ export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 					heading="Projects"
 					className="projects"
 					headerActions={
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => void addItem()}
-							disabled={isSaving}
-						>
-							Add project
-						</Button>
+						isEditable ? (
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								onClick={() => void addItem()}
+								disabled={isSaving}
+							>
+								Add project
+							</Button>
+						) : null
 					}
 				>
 					{items.map((item, index) => (
@@ -84,15 +94,17 @@ export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 							project={item}
 							index={index}
 							actions={
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									onClick={() => void removeItem(index)}
-									disabled={isSaving}
-								>
-									Remove
-								</Button>
+								isEditable ? (
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => void removeItem(index)}
+										disabled={isSaving}
+									>
+										Remove
+									</Button>
+								) : null
 							}
 						/>
 					))}
@@ -100,7 +112,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = () => {
 			)}
 		</CollectionEditor>
 	);
-};
+});
 
 interface ProjectProps {
 	project: ResumeContent['projects'][number];

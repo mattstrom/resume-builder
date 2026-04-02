@@ -1,5 +1,8 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import { ADD_RESUME_COLLECTION_ITEM, REMOVE_RESUME_COLLECTION_ITEM } from '@/graphql/mutations.ts';
+import {
+	ADD_RESUME_COLLECTION_ITEM,
+	REMOVE_RESUME_COLLECTION_ITEM,
+} from '@/graphql/mutations.ts';
 import { LIST_RESUMES } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
 import type {
@@ -9,9 +12,11 @@ import type {
 	RemoveResumeCollectionItemVariables,
 } from '@/graphql/types.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 import { useMutation } from '@apollo/client/react';
 import type { Volunteering } from '@resume-builder/entities';
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
+import { observer } from 'mobx-react';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { useResume, useResumeId } from '../Resume.provider.tsx';
@@ -36,28 +41,72 @@ function formatDate(dateString: string): string {
 
 interface VolunteeringSectionProps {}
 
-export const VolunteeringSection: FC<VolunteeringSectionProps> = () => {
-	const { volunteering } = useResume();
-	const resumeId = useResumeId();
-	const [addItemMutation, { loading: isAdding }] = useMutation<
-		AddResumeCollectionItemData,
-		AddResumeCollectionItemVariables
-	>(ADD_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const [removeItemMutation, { loading: isRemoving }] = useMutation<
-		RemoveResumeCollectionItemData,
-		RemoveResumeCollectionItemVariables
-	>(REMOVE_RESUME_COLLECTION_ITEM, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const isSaving = isAdding || isRemoving;
+export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(
+	() => {
+		const { volunteering } = useResume();
+		const resumeId = useResumeId();
+		const { uiStateStore } = useStore();
+		const isEditable = uiStateStore.isResumeEditable;
+		const [addItemMutation, { loading: isAdding }] = useMutation<
+			AddResumeCollectionItemData,
+			AddResumeCollectionItemVariables
+		>(ADD_RESUME_COLLECTION_ITEM, {
+			refetchQueries: [{ query: LIST_RESUMES }],
+		});
+		const [removeItemMutation, { loading: isRemoving }] = useMutation<
+			RemoveResumeCollectionItemData,
+			RemoveResumeCollectionItemVariables
+		>(REMOVE_RESUME_COLLECTION_ITEM, {
+			refetchQueries: [{ query: LIST_RESUMES }],
+		});
+		const isSaving = isAdding || isRemoving;
 
-	if (!volunteering || volunteering.length === 0) {
+		if (!volunteering || volunteering.length === 0) {
+			return (
+				<CollectionEditor<Volunteering>
+					items={[]}
+					isSaving={isSaving}
+					isEditable={isEditable}
+					onAdd={async () => {
+						await addItemMutation({
+							variables: {
+								id: resumeId,
+								input: {
+									collection: ResumeCollections.VOLUNTEERING,
+								},
+							},
+						});
+					}}
+					onRemove={async () => {}}
+				>
+					{({ addItem, isSaving }) => (
+						<Section
+							heading="Volunteering"
+							className="volunteering"
+							headerActions={
+								isEditable ? (
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => void addItem()}
+										disabled={isSaving}
+									>
+										Add role
+									</Button>
+								) : null
+							}
+						/>
+					)}
+				</CollectionEditor>
+			);
+		}
+
 		return (
 			<CollectionEditor<Volunteering>
-				items={[]}
+				items={volunteering}
 				isSaving={isSaving}
+				isEditable={isEditable}
 				onAdd={async () => {
 					await addItemMutation({
 						variables: {
@@ -68,94 +117,64 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = () => {
 						},
 					});
 				}}
-				onRemove={async () => {}}
+				onRemove={async (index) => {
+					await removeItemMutation({
+						variables: {
+							id: resumeId,
+							input: {
+								collection: ResumeCollections.VOLUNTEERING,
+								index,
+							},
+						},
+					});
+				}}
 			>
-				{({ addItem, isSaving }) => (
+				{({ items, addItem, removeItem, isSaving }) => (
 					<Section
 						heading="Volunteering"
 						className="volunteering"
 						headerActions={
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={() => void addItem()}
-								disabled={isSaving}
-							>
-								Add role
-							</Button>
-						}
-					/>
-				)}
-			</CollectionEditor>
-		);
-	}
-
-	return (
-		<CollectionEditor<Volunteering>
-			items={volunteering}
-			isSaving={isSaving}
-			onAdd={async () => {
-				await addItemMutation({
-					variables: {
-							id: resumeId,
-							input: {
-								collection: ResumeCollections.VOLUNTEERING,
-							},
-						},
-					});
-			}}
-			onRemove={async (index) => {
-				await removeItemMutation({
-					variables: {
-						id: resumeId,
-						input: {
-							collection: ResumeCollections.VOLUNTEERING,
-							index,
-						},
-					},
-				});
-			}}
-		>
-			{({ items, addItem, removeItem, isSaving }) => (
-				<Section
-					heading="Volunteering"
-					className="volunteering"
-					headerActions={
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => void addItem()}
-							disabled={isSaving}
-						>
-							Add role
-						</Button>
-					}
-				>
-					{items.map((item, index) => (
-						<VolunteeringPosition
-							key={index}
-							volunteering={item}
-							index={index}
-							actions={
+							isEditable ? (
 								<Button
 									type="button"
 									variant="ghost"
 									size="sm"
-									onClick={() => void removeItem(index)}
+									onClick={() => void addItem()}
 									disabled={isSaving}
 								>
-									Remove
+									Add role
 								</Button>
-							}
-						/>
-					))}
-				</Section>
-			)}
-		</CollectionEditor>
-	);
-};
+							) : null
+						}
+					>
+						{items.map((item, index) => (
+							<VolunteeringPosition
+								key={index}
+								volunteering={item}
+								index={index}
+								actions={
+									isEditable ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											onClick={() =>
+												void removeItem(index)
+											}
+											disabled={isSaving}
+										>
+											Remove
+										</Button>
+									) : null
+								}
+							/>
+						))}
+					</Section>
+				)}
+			</CollectionEditor>
+		);
+	},
+);
 
 interface VolunteeringProps extends PropsWithChildren {
 	volunteering: Volunteering;

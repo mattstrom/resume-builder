@@ -23,14 +23,27 @@ interface ListEditorProps {
 
 export const ListEditor: FC<ListEditorProps> = observer(
 	({ path, items, resumeId, variant, className }) => {
-		const { listEditStore: store } = useStore();
+		const { listEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
+		const isEditable = uiStateStore.isResumeEditable;
 
 		const handleClick = () => {
-			if (!isEditing) {
+			if (isEditable && !isEditing) {
 				store.beginEdit(resumeId, path, items);
 			}
 		};
+
+		if (!isEditable) {
+			return variant === 'block' ? (
+				<ul className={className}>
+					{items.map((item, i) => (
+						<li key={i}>{item}</li>
+					))}
+				</ul>
+			) : (
+				<span className={className}>{items.join(', ')}</span>
+			);
+		}
 
 		if (!isEditing) {
 			return variant === 'block' ? (
