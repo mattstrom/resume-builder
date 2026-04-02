@@ -83,7 +83,7 @@ export const EditorToolbar: FC = observer(() => {
 	const { authStore, uiStateStore } = useStore();
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
-	const { resumeId } = useParams({ strict: false });
+	const { applicationId } = useParams({ strict: false });
 	const { resumeData } = useFileManager();
 	const { showSnackbar } = useSnackbar();
 	const [isExporting, setIsExporting] = useState(false);
@@ -121,7 +121,7 @@ export const EditorToolbar: FC = observer(() => {
 			showMarginPattern: String(showMarginPattern),
 		});
 
-		window.open(`/preview/${resumeId}?${params.toString()}`);
+		window.open(`/preview/${applicationId}?${params.toString()}`);
 	};
 
 	return (

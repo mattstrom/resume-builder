@@ -16,9 +16,9 @@ import './Workspace.css';
 export const Workspace: FC = observer(() => {
 	const { uiStateStore } = useStore();
 	const { mode } = uiStateStore;
-	const { resumeId } = useParams({ strict: false });
+	const { applicationId } = useParams({ strict: false });
 
-	if (!resumeId) {
+	if (!applicationId) {
 		return null;
 	}
 
@@ -29,7 +29,7 @@ export const Workspace: FC = observer(() => {
 					id="workspace-layout"
 					panelIds={['editor', 'resume']}
 					left={<AnalysisView />}
-					right={<PreviewFrame resumeId={resumeId} />}
+					right={<PreviewFrame applicationId={applicationId} />}
 				/>
 			)}
 			{mode === Mode.Tailor && (

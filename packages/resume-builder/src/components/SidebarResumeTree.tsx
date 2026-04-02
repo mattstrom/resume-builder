@@ -33,10 +33,10 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Resume } from '@resume-builder/entities';
+import type { Application } from '@resume-builder/entities';
 import { useStore } from '../stores/store.provider';
 import { useFileManager } from './FileManager/FileManager.provider';
-import { CreateResumeDialog } from './CreateResumeDialog';
+import { CreateApplicationDialog } from './CreateResumeDialog';
 
 const SORT_OPTIONS = [
 	{ value: 'SORT_NAME', label: 'Name' },
@@ -46,7 +46,6 @@ const SORT_OPTIONS = [
 const GROUP_OPTIONS = [
 	{ value: 'GROUP_NONE', label: 'None' },
 	{ value: 'GROUP_COMPANY', label: 'Company' },
-	{ value: 'GROUP_LEVEL', label: 'Level' },
 ] as const;
 
 const actionButtonClass =
@@ -54,59 +53,58 @@ const actionButtonClass =
 
 export const SidebarResumeTree: FC = observer(() => {
 	const navigate = useNavigate();
-	const { resumeStore } = useStore();
-	const { selectedApiResumeId, selectApiResume } = useFileManager();
+	const { applicationStore } = useStore();
+	const { selectedApiApplicationId, selectApiApplication } = useFileManager();
 
-	const resumes = resumeStore.data;
-	const groupedData = resumeStore.groupedData;
+	const applications = applicationStore.data;
+	const groupedData = applicationStore.groupedData;
 
 	const handleSelect = useCallback(
-		(resumeId: string) => {
-			selectApiResume(resumeId);
+		(applicationId: string) => {
+			void selectApiApplication(applicationId);
 			navigate({
-				to: '/editor/$resumeId',
-				params: { resumeId },
+				to: '/editor/$applicationId',
+				params: { applicationId },
 			});
 		},
-		[selectApiResume, navigate],
+		[selectApiApplication, navigate],
 	);
 
 	const handleSortChange = useCallback(
 		(value: string) => {
 			if (!value.startsWith('SORT_')) return;
-			resumeStore.setSort(value === 'SORT_NAME' ? null : 'DATE');
+			applicationStore.setSort(value === 'SORT_NAME' ? 'NAME' : 'DATE');
 		},
-		[resumeStore],
+		[applicationStore],
 	);
 
 	const handleGroupChange = useCallback(
 		(value: string) => {
 			if (!value.startsWith('GROUP_')) return;
-			const groupMap: Record<string, 'company' | 'level' | null> = {
+			const groupMap: Record<string, 'company' | null> = {
 				GROUP_NONE: null,
 				GROUP_COMPANY: 'company',
-				GROUP_LEVEL: 'level',
 			};
-			resumeStore.setGroupBy(groupMap[value] ?? null);
+			applicationStore.setGroupBy(groupMap[value] ?? null);
 		},
-		[resumeStore],
+		[applicationStore],
 	);
 
-	const renderResumeItem = (resume: Resume) => (
-		<SidebarMenuItem key={resume._id}>
+	const renderApplicationItem = (application: Application) => (
+		<SidebarMenuItem key={application._id}>
 			<SidebarMenuButton
-				isActive={selectedApiResumeId === resume._id}
-				onClick={() => handleSelect(resume._id)}
-				tooltip={resume.name}
+				isActive={selectedApiApplicationId === application._id}
+				onClick={() => handleSelect(application._id)}
+				tooltip={application.name}
 			>
 				<FileIcon />
-				<span>{resume.name}</span>
+				<span>{application.name}</span>
 			</SidebarMenuButton>
 		</SidebarMenuItem>
 	);
 
-	const renderGroupedResumes = (groups: Map<string, Resume[]>) =>
-		Array.from(groups.entries()).map(([groupName, groupResumes]) => (
+	const renderGroupedApplications = (groups: Map<string, Application[]>) =>
+		Array.from(groups.entries()).map(([groupName, groupApplications]) => (
 			<SidebarMenuItem key={groupName}>
 				<Collapsible defaultOpen className="group/collapsible">
 					<CollapsibleTrigger asChild>
@@ -117,18 +115,21 @@ export const SidebarResumeTree: FC = observer(() => {
 					</CollapsibleTrigger>
 					<CollapsibleContent>
 						<SidebarMenuSub className="border-l-0">
-							{groupResumes.map((resume) => (
-								<SidebarMenuSubItem key={resume._id}>
+							{groupApplications.map((application) => (
+								<SidebarMenuSubItem key={application._id}>
 									<SidebarMenuButton
 										size="sm"
 										isActive={
-											selectedApiResumeId === resume._id
+											selectedApiApplicationId ===
+											application._id
 										}
-										onClick={() => handleSelect(resume._id)}
-										tooltip={resume.name}
+										onClick={() =>
+											handleSelect(application._id)
+										}
+										tooltip={application.name}
 									>
 										<FileIcon />
-										<span>{resume.name}</span>
+										<span>{application.name}</span>
 									</SidebarMenuButton>
 								</SidebarMenuSubItem>
 							))}
@@ -140,17 +141,20 @@ export const SidebarResumeTree: FC = observer(() => {
 
 	return (
 		<SidebarGroup>
-			<SidebarGroupLabel>Resumes</SidebarGroupLabel>
+			<SidebarGroupLabel>Applications</SidebarGroupLabel>
 			<div className="flex items-center gap-0.5 absolute right-2 top-2">
-				<CreateResumeDialog>
-					<button title="New resume" className={actionButtonClass}>
+				<CreateApplicationDialog>
+					<button
+						title="New application"
+						className={actionButtonClass}
+					>
 						<Plus />
 					</button>
-				</CreateResumeDialog>
+				</CreateApplicationDialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<button
-							title="Sort & group resumes"
+							title="Sort & group applications"
 							className={actionButtonClass}
 						>
 							<ArrowUpDown />
@@ -159,11 +163,7 @@ export const SidebarResumeTree: FC = observer(() => {
 					<DropdownMenuContent align="end">
 						<DropdownMenuLabel>Sort by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
-							value={
-								resumeStore.sortField
-									? `SORT_${resumeStore.sortField}`
-									: 'SORT_NAME'
-							}
+							value={`SORT_${applicationStore.sortField}`}
 							onValueChange={handleSortChange}
 						>
 							{SORT_OPTIONS.map((option) => (
@@ -179,8 +179,8 @@ export const SidebarResumeTree: FC = observer(() => {
 						<DropdownMenuLabel>Group by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
 							value={
-								resumeStore.groupBy
-									? `GROUP_${resumeStore.groupBy.toUpperCase()}`
+								applicationStore.groupBy
+									? `GROUP_${applicationStore.groupBy.toUpperCase()}`
 									: 'GROUP_NONE'
 							}
 							onValueChange={handleGroupChange}
@@ -197,23 +197,23 @@ export const SidebarResumeTree: FC = observer(() => {
 					</DropdownMenuContent>
 				</DropdownMenu>
 				<SidebarGroupAction
-					title="Refresh resumes"
+					title="Refresh applications"
 					className="static"
-					onClick={() => resumeStore.refetch()}
+					onClick={() => applicationStore.refetch()}
 				>
 					<RotateCw />
 				</SidebarGroupAction>
 			</div>
 			<SidebarGroupContent>
 				<SidebarMenu>
-					{resumes.length === 0 ? (
+					{applications.length === 0 ? (
 						<p className="px-2 text-xs text-sidebar-foreground/50">
-							No resumes found.
+							No applications found.
 						</p>
 					) : groupedData ? (
-						renderGroupedResumes(groupedData)
+						renderGroupedApplications(groupedData)
 					) : (
-						resumes.map(renderResumeItem)
+						applications.map(renderApplicationItem)
 					)}
 				</SidebarMenu>
 			</SidebarGroupContent>

@@ -36,7 +36,7 @@ export class Conversation {
 
 	@Field()
 	@Prop({ type: Types.ObjectId, required: true })
-	resumeId: string;
+	applicationId: string;
 
 	@Field()
 	@Prop({ type: String, default: 'New Conversation' })
@@ -58,7 +58,7 @@ export const ConversationSchema = SchemaFactory.createForClass(Conversation);
 @InputType()
 export class ConversationCreateInput {
 	@Field()
-	resumeId: string;
+	applicationId: string;
 
 	@Field({ nullable: true })
 	title?: string;
@@ -74,7 +74,7 @@ export const conversationMessageSchema = z.object({
 export const conversationSchema = z.object({
 	_id: z.any(),
 	uid: z.string(),
-	resumeId: z.string(),
+	applicationId: z.string(),
 	title: z.string(),
 	messages: z.array(conversationMessageSchema),
 	createdAt: z.iso.datetime(),

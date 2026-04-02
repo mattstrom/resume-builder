@@ -40,12 +40,12 @@ import { useSettings } from './Settings.provider';
 
 const API_BASE = 'http://localhost:3000';
 
-function getStorageKey(resumeId: string | undefined) {
-	return resumeId ? `chat:lastConversation:${resumeId}` : null;
+function getStorageKey(applicationId: string | undefined) {
+	return applicationId ? `chat:lastConversation:${applicationId}` : null;
 }
 
 export const ChatPanel: FC = () => {
-	const { resumeId } = useParams({ strict: false });
+	const { applicationId } = useParams({ strict: false });
 	const { setChatOpen } = useSettings();
 	const [input, setInput] = useState('');
 	const conversationIdRef = useRef<string | null>(null);
@@ -57,7 +57,7 @@ export const ChatPanel: FC = () => {
 		() =>
 			new DefaultChatTransport({
 				api: `${API_BASE}/api/chat`,
-				body: { data: { resumeId } },
+				body: { data: { applicationId } },
 				fetch: async (url, init) => {
 					// Inject current conversationId into each request body
 					if (init?.body && typeof init.body === 'string') {
@@ -72,7 +72,7 @@ export const ChatPanel: FC = () => {
 					const newConvId = response.headers.get('X-Conversation-Id');
 					if (newConvId && newConvId !== conversationIdRef.current) {
 						conversationIdRef.current = newConvId;
-						const key = getStorageKey(resumeId);
+						const key = getStorageKey(applicationId);
 						if (key) localStorage.setItem(key, newConvId);
 						// Fetch conversation info for display
 						authFetch(`${API_BASE}/api/conversations/${newConvId}`)
@@ -88,7 +88,7 @@ export const ChatPanel: FC = () => {
 					return response;
 				},
 			}),
-		[resumeId],
+		[applicationId],
 	);
 
 	const { messages, sendMessage, status, stop, setMessages } = useChat({
@@ -118,34 +118,34 @@ export const ChatPanel: FC = () => {
 						}),
 					),
 				);
-				const key = getStorageKey(resumeId);
+				const key = getStorageKey(applicationId);
 				if (key) localStorage.setItem(key, convId);
 				return true;
 			} catch {
 				return false;
 			}
 		},
-		[resumeId, setMessages],
+		[applicationId, setMessages],
 	);
 
 	// Restore last conversation on mount
 	useEffect(() => {
-		const key = getStorageKey(resumeId);
+		const key = getStorageKey(applicationId);
 		const savedId = key ? localStorage.getItem(key) : null;
 		if (savedId) {
 			loadConversation(savedId).then((ok) => {
 				if (!ok && key) localStorage.removeItem(key);
 			});
 		}
-	}, [resumeId, loadConversation]);
+	}, [applicationId, loadConversation]);
 
 	const handleNewChat = useCallback(() => {
 		conversationIdRef.current = null;
 		setConversationInfo(null);
 		setMessages([]);
-		const key = getStorageKey(resumeId);
+		const key = getStorageKey(applicationId);
 		if (key) localStorage.removeItem(key);
-	}, [resumeId, setMessages]);
+	}, [applicationId, setMessages]);
 
 	const handleSelectConversation = useCallback(
 		(conv: { _id: string }) => loadConversation(conv._id),
@@ -171,7 +171,7 @@ export const ChatPanel: FC = () => {
 				</div>
 				<div className="flex items-center gap-1">
 					<ConversationList
-						resumeId={resumeId}
+						applicationId={applicationId}
 						activeConversationId={conversationIdRef.current}
 						onSelect={handleSelectConversation}
 						onNewChat={handleNewChat}
@@ -191,8 +191,8 @@ export const ChatPanel: FC = () => {
 				<ConversationContent>
 					{messages.length === 0 ? (
 						<ConversationEmptyState
-							title="Resume AI Assistant"
-							description="Ask me anything about improving your resume."
+							title="Application AI Assistant"
+							description="Ask me anything about improving this application."
 						/>
 					) : (
 						messages.map((message) => (

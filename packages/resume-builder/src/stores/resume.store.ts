@@ -120,7 +120,7 @@ export class ResumeStore {
 	}
 
 	@action
-	selectResume(resumeId: string) {
+	selectResume(resumeId: string | null) {
 		this.selectedResumeId = resumeId;
 	}
 }

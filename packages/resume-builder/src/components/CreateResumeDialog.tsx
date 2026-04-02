@@ -12,9 +12,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { CREATE_BLANK_RESUME } from '../graphql/mutations';
+import { CREATE_APPLICATION, CREATE_BLANK_RESUME } from '../graphql/mutations';
 import { useStore } from '../stores/store.provider';
 import { useFileManager } from './FileManager/FileManager.provider';
+import type {
+	CreateApplicationData,
+	CreateApplicationVariables,
+} from '../graphql/types';
 
 function slugify(text: string): string {
 	return text
@@ -25,20 +29,24 @@ function slugify(text: string): string {
 		.replace(/-+/g, '-');
 }
 
-interface CreateResumeDialogProps {
+interface CreateApplicationDialogProps {
 	children: React.ReactNode;
 }
 
-export const CreateResumeDialog: FC<CreateResumeDialogProps> = ({
+export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({
 	children,
 }) => {
 	const navigate = useNavigate();
-	const { resumeStore } = useStore();
-	const { selectApiResume } = useFileManager();
+	const { applicationStore, resumeStore } = useStore();
+	const { selectApiApplication } = useFileManager();
 	const [open, setOpen] = useState(false);
 	const [createBlankResume, { loading }] = useMutation<{
 		createBlankResume: { _id: string };
 	}>(CREATE_BLANK_RESUME);
+	const [createApplication] = useMutation<
+		CreateApplicationData,
+		CreateApplicationVariables
+	>(CREATE_APPLICATION);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -62,15 +70,31 @@ export const CreateResumeDialog: FC<CreateResumeDialogProps> = ({
 			},
 		});
 
-		setOpen(false);
-		await resumeStore.refetch();
-
 		const newResumeId = data?.createBlankResume?._id;
-		if (newResumeId) {
-			selectApiResume(newResumeId);
+		if (!newResumeId) {
+			return;
+		}
+
+		const applicationResult = await createApplication({
+			variables: {
+				applicationData: {
+					name,
+					company,
+					jobPostingUrl,
+					resumeId: newResumeId,
+				},
+			},
+		});
+
+		setOpen(false);
+		await Promise.all([applicationStore.refetch(), resumeStore.refetch()]);
+
+		const newApplicationId = applicationResult.data?.createApplication?._id;
+		if (newApplicationId) {
+			await selectApiApplication(newApplicationId);
 			navigate({
-				to: '/editor/$resumeId',
-				params: { resumeId: newResumeId },
+				to: '/editor/$applicationId',
+				params: { applicationId: newApplicationId },
 			});
 		}
 	};
@@ -80,7 +104,7 @@ export const CreateResumeDialog: FC<CreateResumeDialogProps> = ({
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>New Resume</DialogTitle>
+					<DialogTitle>New Application</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={handleSubmit} className="grid gap-4">
 					<div className="grid gap-2">
@@ -88,7 +112,7 @@ export const CreateResumeDialog: FC<CreateResumeDialogProps> = ({
 						<Input
 							id="name"
 							name="name"
-							placeholder="My Resume"
+							placeholder="Frontend Engineer"
 							required
 						/>
 					</div>
