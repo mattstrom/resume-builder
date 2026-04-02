@@ -54,6 +54,9 @@
             },
             "githubProfile": {
               "type": "string"
+            },
+            "personalWebsite": {
+              "type": "string"
             }
           },
           "required": [
@@ -63,7 +66,8 @@
             "phoneNumber",
             "email",
             "linkedInProfile",
-            "githubProfile"
+            "githubProfile",
+            "personalWebsite"
           ],
           "additionalProperties": false
         },
@@ -175,7 +179,12 @@
                 "maximum": 1
               }
             },
-            "required": ["_id", "uid", "name", "category"],
+            "required": [
+              "_id",
+              "uid",
+              "name",
+              "category"
+            ],
             "additionalProperties": false
           }
         },
@@ -205,7 +214,10 @@
               },
               "type": {
                 "type": "string",
-                "enum": ["professional", "personal"]
+                "enum": [
+                  "professional",
+                  "personal"
+                ]
               },
               "relevance": {
                 "type": "number",
@@ -213,7 +225,13 @@
                 "maximum": 1
               }
             },
-            "required": ["_id", "uid", "name", "technologies", "items"],
+            "required": [
+              "_id",
+              "uid",
+              "name",
+              "technologies",
+              "items"
+            ],
             "additionalProperties": false
           }
         },
