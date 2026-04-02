@@ -73,6 +73,8 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 							multiline={multiline}
 							placeholder={placeholder}
 							autoFocus
+							onCommitSuccess={() => store.discard()}
+							onCancel={() => store.discard()}
 							className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
 						/>
 					)}

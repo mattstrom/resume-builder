@@ -2,10 +2,15 @@ import {
 	type FC,
 	type KeyboardEvent,
 	useEffect,
-	useRef,
+	useState,
 } from 'react';
-import { observer } from 'mobx-react';
 import { useStore } from '@/stores/store.provider.tsx';
+import { SET_RESUME_FIELD } from '@/graphql/mutations.ts';
+import { LIST_RESUMES } from '@/graphql/queries.ts';
+import type {
+	SetResumeFieldData,
+	SetResumeFieldVariables,
+} from '@/graphql/types.ts';
 
 interface TextFieldEditorProps {
 	path: string;
@@ -15,9 +20,11 @@ interface TextFieldEditorProps {
 	className?: string;
 	placeholder?: string;
 	autoFocus?: boolean;
+	onCommitSuccess?: () => void;
+	onCancel?: () => void;
 }
 
-export const TextFieldEditor: FC<TextFieldEditorProps> = observer(
+export const TextFieldEditor: FC<TextFieldEditorProps> = (
 	({
 		path,
 		value,
@@ -26,83 +33,87 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = observer(
 		className,
 		placeholder,
 		autoFocus = false,
+		onCommitSuccess,
+		onCancel,
 	}) => {
-		const { inlineEditStore: store, uiStateStore } = useStore();
-		const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-		const isEditing = store.isEditing(path);
+		const { client, uiStateStore } = useStore();
 		const isEditable = uiStateStore.isResumeEditable;
-		const inputValue = isEditing ? store.editValue : value;
+		const [draft, setDraft] = useState(value);
+		const [isSaving, setIsSaving] = useState(false);
 
 		useEffect(() => {
-			if (autoFocus && isEditing) {
-				inputRef.current?.focus();
+			if (!autoFocus) {
+				setDraft(value);
 			}
-		}, [autoFocus, isEditing]);
+		}, [autoFocus, value]);
 
-		const beginEdit = () => {
-			if (isEditable && !isEditing) {
-				store.beginEdit(resumeId, path, value);
-			}
-		};
-
-		const handleFocus = () => {
-			beginEdit();
-		};
-
-		const handleChange = (nextValue: string) => {
-			if (!isEditing) {
-				store.beginEdit(resumeId, path, value);
+		const commit = async () => {
+			if (!isEditable || isSaving) {
+				return;
 			}
 
-			store.updateValue(nextValue);
-		};
+			if (draft === value) {
+				onCommitSuccess?.();
+				return;
+			}
 
-		const handleBlur = () => {
-			if (isEditing) {
-				void store.commit();
+			setIsSaving(true);
+
+			try {
+				await client.mutate<SetResumeFieldData, SetResumeFieldVariables>({
+					mutation: SET_RESUME_FIELD,
+					variables: {
+						id: resumeId,
+						input: { path },
+						value: draft,
+					},
+					refetchQueries: [{ query: LIST_RESUMES }],
+				});
+				onCommitSuccess?.();
+			} finally {
+				setIsSaving(false);
 			}
 		};
 
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') {
 				e.preventDefault();
-				store.discard();
+				setDraft(value);
+				onCancel?.();
 			} else if (e.key === 'Enter' && !(multiline && e.shiftKey)) {
 				e.preventDefault();
-				void store.commit();
+				void commit();
 			}
 		};
 
 		if (multiline) {
 			return (
 				<textarea
-					ref={inputRef as React.RefObject<HTMLTextAreaElement>}
 					className={className}
-					value={inputValue}
-					onFocus={handleFocus}
-					onChange={(e) => handleChange(e.target.value)}
-					onBlur={handleBlur}
+					value={draft}
+					onChange={(e) => setDraft(e.target.value)}
+					onBlur={() => void commit()}
 					onKeyDown={handleKeyDown}
 					placeholder={placeholder}
 					rows={3}
-					readOnly={!isEditable}
+					readOnly={!isEditable || isSaving}
+					autoFocus={autoFocus}
 				/>
 			);
 		}
 
-		return (
-			<input
-				ref={inputRef as React.RefObject<HTMLInputElement>}
+			return (
+				<input
 				type="text"
 				className={className}
-				value={inputValue}
-				onFocus={handleFocus}
-				onChange={(e) => handleChange(e.target.value)}
-				onBlur={handleBlur}
+				value={draft}
+				onChange={(e) => setDraft(e.target.value)}
+				onBlur={() => void commit()}
 				onKeyDown={handleKeyDown}
 				placeholder={placeholder}
-				readOnly={!isEditable}
-			/>
-		);
-	},
+				readOnly={!isEditable || isSaving}
+				autoFocus={autoFocus}
+				/>
+			);
+		}
 );
