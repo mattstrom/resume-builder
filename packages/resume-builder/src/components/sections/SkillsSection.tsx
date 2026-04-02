@@ -1,12 +1,14 @@
+import { ListEditor } from '@/components/ListEditor.tsx';
 import { type FC, Fragment } from 'react';
 import { Section } from './Section.tsx';
-import { useResume } from '../Resume.provider.tsx';
+import { useResume, useResumeId } from '../Resume.provider.tsx';
 import type { Skill, SkillGroup } from '@resume-builder/entities';
 
 interface SkillsSectionProps {}
 
 export const SkillsSection: FC<SkillsSectionProps> = () => {
 	const { skills, skillGroups } = useResume();
+	const resumeId = useResumeId();
 
 	// Prefer skillGroups if available
 	if (skillGroups && skillGroups.length > 0) {
@@ -16,7 +18,14 @@ export const SkillsSection: FC<SkillsSectionProps> = () => {
 					{skillGroups.map((group: SkillGroup, index: number) => (
 						<Fragment key={index}>
 							<dt>{group.name}: </dt>
-							<dd>{group.items.join(', ')}</dd>
+							<dd>
+								<ListEditor
+									path={`data.skillGroups.${index}.items`}
+									items={group.items}
+									resumeId={resumeId}
+									variant="inline"
+								/>
+							</dd>
 						</Fragment>
 					))}
 				</dfn>

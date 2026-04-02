@@ -8,7 +8,8 @@ import {
 } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { type FC } from 'react';
-import { useResume } from '../Resume.provider.tsx';
+import { InlineEditor } from '@/components/InlineEditor.tsx';
+import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Url } from '../Url.tsx';
 
 interface ContactInformationSectionProps {
@@ -19,6 +20,7 @@ export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 	className,
 }) => {
 	const { contactInformation } = useResume();
+	const resumeId = useResumeId();
 	const emailHref = `mailto:${contactInformation.email}`;
 	const phoneNumberHref = `tel:${contactInformation.phoneNumber}`;
 
@@ -36,7 +38,11 @@ export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 				<div className="icon flex items-center m-auto">
 					<MapPin size={24} weight="fill" />
 				</div>
-				<span>{contactInformation.location}</span>
+				<InlineEditor
+					path="data.contactInformation.location"
+					value={contactInformation.location}
+					resumeId={resumeId}
+				/>
 			</div>
 			<div className="contact-information-item phone-number flex items-center gap-[5px]">
 				<div className="icon flex items-center m-auto">
