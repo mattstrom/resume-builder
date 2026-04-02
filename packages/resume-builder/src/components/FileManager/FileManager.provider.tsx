@@ -12,6 +12,7 @@ import { del, get, set } from 'idb-keyval';
 import { useNavigate } from '@tanstack/react-router';
 import type { Application, Resume } from '@resume-builder/entities';
 import { useLazyQuery, useQuery } from '@apollo/client/react';
+import { client as apolloClient } from '@/apollo-client.ts';
 import {
 	getJsonFiles,
 	readJsonFile,
@@ -33,7 +34,7 @@ import type {
 } from '../../graphql/types';
 import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
 import {
-	CollaborativeResumeController,
+	ApiResumeController,
 	LocalResumeController,
 	type ResumeConnectionStatus,
 } from '@/lib/resume-document-controller.ts';
@@ -73,7 +74,7 @@ const FileManagerContext = createContext<FileManagerContextValue | null>(null);
 export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	const navigate = useNavigate();
 	const controllerRef = useRef<
-		CollaborativeResumeController | LocalResumeController | null
+		ApiResumeController | LocalResumeController | null
 	>(null);
 	const [directoryHandle, setDirectoryHandle] =
 		useState<FileSystemDirectoryHandle | null>(null);
@@ -288,7 +289,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			controllerRef.current = null;
 			setActiveResumeController(null);
 			setIsResumeCollaborative(false);
-			setResumeConnectionStatus('connecting');
+			setResumeConnectionStatus('idle');
 			setIsLoading(true);
 			setError(null);
 
@@ -321,20 +322,22 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 					setResumeData(nextResume);
 
-					const controller = new CollaborativeResumeController({
+					const controller = new ApiResumeController({
 						resume: nextResume,
-						url: __CONFIG__.crdtUrl,
+						client: apolloClient,
 						onSnapshotChange: (resume) => {
 							setResumeData(resume);
 						},
-						onStatusChange: (status) => {
-							setResumeConnectionStatus(status);
+						onError: (error) => {
+							setError(error.message);
+							setResumeConnectionStatus('error');
 						},
 					});
 
 					controllerRef.current = controller;
 					setActiveResumeController(controller);
-					setIsResumeCollaborative(true);
+					setIsResumeCollaborative(false);
+					setResumeConnectionStatus('idle');
 				} else {
 					setResumeData(null);
 					setResumeConnectionStatus('idle');

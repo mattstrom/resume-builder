@@ -1,23 +1,23 @@
-import { HocuspocusProvider, type WebSocketStatus } from '@hocuspocus/provider';
+import { ApolloClient, type NormalizedCacheObject } from '@apollo/client';
 import type { Resume } from '@resume-builder/entities';
+import {
+	ADD_RESUME_COLLECTION_ITEM,
+	REMOVE_RESUME_COLLECTION_ITEM,
+	SET_RESUME_FIELD,
+} from '../graphql/mutations.ts';
 import {
 	getResumeCollectionPath,
 	ResumeCollections,
-} from '@/graphql/resume-collections.ts';
-import type { ResumeCollectionValue } from '@/graphql/resume-collections.ts';
-import { ensureAuthToken } from '@/utils/auth.ts';
-import { nanoid } from 'nanoid';
-import * as Y from 'yjs';
-import { IndexedDbDocPersistence } from './indexeddb-doc-persistence.ts';
+} from '../graphql/resume-collections.ts';
+import type {
+	AddResumeCollectionItemData,
+	AddResumeCollectionItemVariables,
+	RemoveResumeCollectionItemData,
+	RemoveResumeCollectionItemVariables,
+	SetResumeFieldData,
+	SetResumeFieldVariables,
+} from '../graphql/types.ts';
 import { reorderItems } from './reorder.ts';
-
-type YValue =
-	| Y.Map<unknown>
-	| Y.Array<unknown>
-	| string
-	| number
-	| boolean
-	| null;
 
 export type ResumeConnectionStatus =
 	| 'idle'
@@ -30,23 +30,22 @@ export interface ResumeDocumentController {
 	readonly resumeId: string;
 	getSnapshot(): Resume | null;
 	replaceResume(resume: Resume): void;
-	setField(path: string, value: unknown): void;
-	moveArrayItem(path: string, fromIndex: number, toIndex: number): void;
-	addCollectionItem(collection: ResumeCollectionValue): void;
+	setField(path: string, value: unknown): void | Promise<void>;
+	moveArrayItem(
+		path: string,
+		fromIndex: number,
+		toIndex: number,
+	): void | Promise<void>;
+	addCollectionItem(
+		collection: ResumeCollectionValue,
+	): void | Promise<void>;
 	removeCollectionItem(
 		collection: ResumeCollectionValue,
 		index: number,
-	): void;
-	undo(): void;
-	redo(): void;
+	): void | Promise<void>;
+	undo(): void | Promise<void>;
+	redo(): void | Promise<void>;
 	destroy(): Promise<void>;
-}
-
-interface CollaborativeResumeControllerOptions {
-	resume: Resume;
-	url: string;
-	onSnapshotChange?: (resume: Resume | null) => void;
-	onStatusChange?: (status: ResumeConnectionStatus) => void;
 }
 
 interface LocalResumeControllerOptions {
@@ -54,96 +53,16 @@ interface LocalResumeControllerOptions {
 	onSnapshotChange?: (resume: Resume | null) => void;
 }
 
+interface ApiResumeControllerOptions extends LocalResumeControllerOptions {
+	client: ApolloClient<NormalizedCacheObject>;
+	onError?: (error: Error) => void;
+}
+
+type ResumeCollectionValue =
+	(typeof ResumeCollections)[keyof typeof ResumeCollections];
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function toYValue(value: unknown): YValue {
-	if (Array.isArray(value)) {
-		const array = new Y.Array<unknown>();
-		array.insert(
-			0,
-			value
-				.filter((item) => item !== undefined)
-				.map((item) => toYValue(item)),
-		);
-		return array;
-	}
-
-	if (isPlainObject(value)) {
-		const map = new Y.Map<unknown>();
-		syncYMap(map, value);
-		return map;
-	}
-
-	if (value === undefined) {
-		return null;
-	}
-
-	return value as Exclude<YValue, Y.Map<unknown> | Y.Array<unknown>>;
-}
-
-function fromYValue(value: unknown): unknown {
-	if (value instanceof Y.Map) {
-		const object: Record<string, unknown> = {};
-
-		for (const [key, entry] of value.entries()) {
-			object[key] = fromYValue(entry);
-		}
-
-		return object;
-	}
-
-	if (value instanceof Y.Array) {
-		return value.toArray().map((entry) => fromYValue(entry));
-	}
-
-	return value;
-}
-
-function syncYArray(target: Y.Array<unknown>, values: unknown[]) {
-	target.delete(0, target.length);
-	target.insert(
-		0,
-		values
-			.filter((value) => value !== undefined)
-			.map((value) => toYValue(value)),
-	);
-}
-
-function syncYMap(target: Y.Map<unknown>, values: Record<string, unknown>) {
-	const nextKeys = new Set(
-		Object.entries(values)
-			.filter(([, value]) => value !== undefined)
-			.map(([key]) => key),
-	);
-
-	for (const key of Array.from(target.keys())) {
-		if (!nextKeys.has(key)) {
-			target.delete(key);
-		}
-	}
-
-	for (const [key, value] of Object.entries(values)) {
-		if (value === undefined) {
-			target.delete(key);
-			continue;
-		}
-
-		const existing = target.get(key);
-
-		if (existing instanceof Y.Map && isPlainObject(value)) {
-			syncYMap(existing, value);
-			continue;
-		}
-
-		if (existing instanceof Y.Array && Array.isArray(value)) {
-			syncYArray(existing, value);
-			continue;
-		}
-
-		target.set(key, toYValue(value));
-	}
 }
 
 function parsePath(path: string) {
@@ -186,123 +105,11 @@ function cloneWithPathValue<T>(source: T, path: string, value: unknown): T {
 	return clone as T;
 }
 
-function createContainerForSegment(nextSegment: string | number | undefined) {
-	return typeof nextSegment === 'number'
-		? new Y.Array<unknown>()
-		: new Y.Map<unknown>();
-}
-
-function ensureArrayIndex(
-	array: Y.Array<unknown>,
-	index: number,
-	nextSegment: string | number | undefined,
-) {
-	while (array.length <= index) {
-		array.insert(array.length, [createContainerForSegment(nextSegment)]);
-	}
-}
-
-function getChild(
-	parent: Y.Map<unknown> | Y.Array<unknown>,
-	segment: string | number,
-) {
-	if (parent instanceof Y.Map) {
-		return parent.get(String(segment));
-	}
-
-	return parent.get(Number(segment));
-}
-
-function setChild(
-	parent: Y.Map<unknown> | Y.Array<unknown>,
-	segment: string | number,
-	value: unknown,
-) {
-	const yValue = toYValue(value);
-
-	if (parent instanceof Y.Map) {
-		parent.set(String(segment), yValue);
-		return;
-	}
-
-	const index = Number(segment);
-
-	if (index < parent.length) {
-		parent.delete(index, 1);
-		parent.insert(index, [yValue]);
-		return;
-	}
-
-	ensureArrayIndex(parent, index, undefined);
-	parent.delete(index, 1);
-	parent.insert(index, [yValue]);
-}
-
-function readResume(root: Y.Map<unknown>): Resume | null {
-	if (root.size === 0) {
-		return null;
-	}
-
-	return fromYValue(root) as Resume;
-}
-
-function resolveCrdtUrl(configuredUrl?: string) {
-	const normalizedUrl = configuredUrl?.trim();
-
-	if (!normalizedUrl) {
-		if (typeof window === 'undefined') {
-			return 'ws://localhost:1234';
-		}
-
-		const url = new URL(window.location.origin);
-		url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-		url.port = url.port || (url.protocol === 'wss:' ? '443' : '1234');
-		url.pathname = '/';
-		return url.toString();
-	}
-
-	if (
-		normalizedUrl.startsWith('ws://') ||
-		normalizedUrl.startsWith('wss://')
-	) {
-		return normalizedUrl;
-	}
-
-	if (
-		normalizedUrl.startsWith('http://') ||
-		normalizedUrl.startsWith('https://')
-	) {
-		const url = new URL(normalizedUrl);
-		url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-		return url.toString();
-	}
-
-	if (typeof window === 'undefined') {
-		return normalizedUrl;
-	}
-
-	const url = new URL(normalizedUrl, window.location.origin);
-	url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-	return url.toString();
-}
-
-function mapProviderStatus(status: WebSocketStatus): ResumeConnectionStatus {
-	switch (status) {
-		case 'connected':
-			return 'connected';
-		case 'connecting':
-			return 'connecting';
-		default:
-			return 'disconnected';
-	}
-}
-
 function createDefaultCollectionItem(
 	collection: ResumeCollectionValue,
 	resume: Resume,
 ) {
 	const base = {
-		_id: nanoid(),
 		uid: resume.uid,
 	};
 
@@ -310,7 +117,7 @@ function createDefaultCollectionItem(
 		case ResumeCollections.WORK_EXPERIENCE:
 			return {
 				...base,
-				company: '',
+				company: resume.company ?? '',
 				position: 'New Role',
 				location: '',
 				startDate: '',
@@ -340,221 +147,27 @@ function createDefaultCollectionItem(
 	}
 }
 
-const UNDOABLE_ORIGIN = Symbol('resume:undoable');
-const NON_UNDOABLE_ORIGIN = Symbol('resume:non-undoable');
-
-export class CollaborativeResumeController implements ResumeDocumentController {
-	readonly resumeId: string;
-
-	private readonly document = new Y.Doc();
-	private readonly root = this.document.getMap('resume');
-	private readonly undoManager = new Y.UndoManager(this.root, {
-		trackedOrigins: new Set([UNDOABLE_ORIGIN]),
-	});
-	private readonly persistence: IndexedDbDocPersistence;
-	private readonly provider: HocuspocusProvider;
-	private destroyed = false;
-
-	constructor(
-		private readonly options: CollaborativeResumeControllerOptions,
-	) {
-		this.resumeId = options.resume._id;
-		this.persistence = new IndexedDbDocPersistence(
-			`resume:${this.resumeId}`,
-			this.document,
-		);
-		this.document.on('update', this.handleDocumentUpdate);
-		this.provider = new HocuspocusProvider({
-			url: resolveCrdtUrl(options.url),
-			name: `resume:${this.resumeId}`,
-			document: this.document,
-			token: async () => {
-				try {
-					return await ensureAuthToken();
-				} catch {
-					return '';
-				}
-			},
-			onStatus: ({ status }) => {
-				this.options.onStatusChange?.(mapProviderStatus(status));
-			},
-			onAuthenticationFailed: () => {
-				this.options.onStatusChange?.('error');
-			},
-		});
-
-		this.options.onStatusChange?.('connecting');
-		void this.initialize();
-	}
-
-	private async initialize() {
-		await this.persistence.ready;
-
-		if (this.destroyed) {
-			return;
-		}
-
-		if (this.root.size === 0) {
-			this.replaceResume(this.options.resume);
-		} else {
-			this.emitSnapshot();
-		}
-	}
-
-	private readonly handleDocumentUpdate = () => {
-		this.emitSnapshot();
-	};
-
-	private emitSnapshot() {
-		this.options.onSnapshotChange?.(readResume(this.root));
-	}
-
-	getSnapshot() {
-		return readResume(this.root);
-	}
-
-	replaceResume(resume: Resume) {
-		this.document.transact(() => {
-			syncYMap(this.root, resume as unknown as Record<string, unknown>);
-		}, NON_UNDOABLE_ORIGIN);
-	}
-
-	setField(path: string, value: unknown) {
-		const segments = parsePath(path);
-
-		if (segments.length === 0) {
-			return;
-		}
-
-		this.document.transact(() => {
-			let current: Y.Map<unknown> | Y.Array<unknown> = this.root;
-
-			for (let index = 0; index < segments.length - 1; index += 1) {
-				const segment = segments[index]!;
-				const nextSegment = segments[index + 1];
-				let next = getChild(current, segment);
-
-				if (!(next instanceof Y.Map) && !(next instanceof Y.Array)) {
-					next = createContainerForSegment(nextSegment);
-
-					if (current instanceof Y.Map) {
-						current.set(String(segment), next);
-					} else {
-						const arrayIndex = Number(segment);
-						ensureArrayIndex(current, arrayIndex, nextSegment);
-						current.delete(arrayIndex, 1);
-						current.insert(arrayIndex, [next]);
-					}
-				}
-
-				current = next as Y.Map<unknown> | Y.Array<unknown>;
-			}
-
-			setChild(current, segments[segments.length - 1]!, value);
-		}, UNDOABLE_ORIGIN);
-	}
-
-	addCollectionItem(collection: ResumeCollectionValue) {
-		const snapshot = this.getSnapshot() ?? this.options.resume;
-		const path = getResumeCollectionPath(collection);
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
-
-		this.setField(path, [
-			...currentItems,
-			createDefaultCollectionItem(collection, snapshot),
-		]);
-	}
-
-	removeCollectionItem(collection: ResumeCollectionValue, index: number) {
-		const path = getResumeCollectionPath(collection);
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
-
-		this.setField(
-			path,
-			currentItems.filter((_, itemIndex) => itemIndex !== index),
-		);
-	}
-
-	moveArrayItem(path: string, fromIndex: number, toIndex: number) {
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
-		const nextItems = reorderItems(currentItems, fromIndex, toIndex);
-
-		if (
-			nextItems.length === currentItems.length &&
-			nextItems.every((item, index) => item === currentItems[index])
-		) {
-			return;
-		}
-
-		this.setField(path, nextItems);
-	}
-
-	undo() {
-		this.undoManager.undo();
-	}
-
-	redo() {
-		this.undoManager.redo();
-	}
-
-	private getValueAtPath(path: string) {
-		const snapshot = this.getSnapshot();
-
-		if (!snapshot) {
-			return undefined;
-		}
-
-		return parsePath(path).reduce<unknown>((current, segment) => {
-			if (current == null) {
-				return undefined;
-			}
-
-			if (typeof segment === 'number' && Array.isArray(current)) {
-				return current[segment];
-			}
-
-			if (isPlainObject(current)) {
-				return current[String(segment)];
-			}
-
-			return undefined;
-		}, snapshot);
-	}
-
-	async destroy() {
-		this.destroyed = true;
-		this.document.off('update', this.handleDocumentUpdate);
-		this.undoManager.destroy();
-		await this.persistence.destroy();
-		this.provider.destroy();
-		this.document.destroy();
-	}
-}
-
 export class LocalResumeController implements ResumeDocumentController {
 	readonly resumeId: string;
 
-	private snapshot: Resume | null;
-	private undoStack: Resume[] = [];
-	private redoStack: Resume[] = [];
+	protected snapshot: Resume | null;
+	protected undoStack: Resume[] = [];
+	protected redoStack: Resume[] = [];
 
-	constructor(private readonly options: LocalResumeControllerOptions) {
+	constructor(protected readonly options: LocalResumeControllerOptions) {
 		this.resumeId = options.resume._id;
-		this.snapshot = options.resume;
+		this.snapshot = structuredClone(options.resume);
 	}
 
 	getSnapshot() {
 		return this.snapshot;
 	}
 
-	private emitSnapshot() {
+	protected emitSnapshot() {
 		this.options.onSnapshotChange?.(this.snapshot);
 	}
 
-	private pushUndoSnapshot() {
+	protected pushUndoSnapshot() {
 		if (!this.snapshot) {
 			return;
 		}
@@ -668,7 +281,7 @@ export class LocalResumeController implements ResumeDocumentController {
 		this.emitSnapshot();
 	}
 
-	private getValueAtPath(path: string) {
+	protected getValueAtPath(path: string) {
 		if (!this.snapshot) {
 			return undefined;
 		}
@@ -691,4 +304,271 @@ export class LocalResumeController implements ResumeDocumentController {
 	}
 
 	async destroy() {}
+}
+
+export class ApiResumeController extends LocalResumeController {
+	private lastPersistedSnapshot: Resume;
+	private writeQueue = Promise.resolve();
+	private destroyed = false;
+
+	constructor(private readonly apiOptions: ApiResumeControllerOptions) {
+		super(apiOptions);
+		this.lastPersistedSnapshot = structuredClone(apiOptions.resume);
+	}
+
+	override replaceResume(resume: Resume) {
+		super.replaceResume(resume);
+		this.lastPersistedSnapshot = structuredClone(resume);
+	}
+
+	override setField(path: string, value: unknown) {
+		const previousSnapshot = this.getSnapshot();
+		super.setField(path, value);
+
+		if (!previousSnapshot || !this.snapshot) {
+			return;
+		}
+
+		this.enqueueWrite(previousSnapshot, async () => {
+			const result = await this.apiOptions.client.mutate<
+				SetResumeFieldData,
+				SetResumeFieldVariables
+			>({
+				mutation: SET_RESUME_FIELD,
+				variables: {
+					id: this.resumeId,
+					input: { path },
+					value,
+				},
+			});
+
+			return result.data?.setResumeField ?? null;
+		});
+	}
+
+	override addCollectionItem(collection: ResumeCollectionValue) {
+		const previousSnapshot = this.getSnapshot();
+		super.addCollectionItem(collection);
+
+		if (!previousSnapshot || !this.snapshot) {
+			return;
+		}
+
+		this.enqueueWrite(previousSnapshot, async () => {
+			const result = await this.apiOptions.client.mutate<
+				AddResumeCollectionItemData,
+				AddResumeCollectionItemVariables
+			>({
+				mutation: ADD_RESUME_COLLECTION_ITEM,
+				variables: {
+					id: this.resumeId,
+					input: { collection },
+				},
+			});
+
+			return result.data?.addResumeCollectionItem ?? null;
+		});
+	}
+
+	override removeCollectionItem(
+		collection: ResumeCollectionValue,
+		index: number,
+	) {
+		const previousSnapshot = this.getSnapshot();
+		super.removeCollectionItem(collection, index);
+
+		if (!previousSnapshot || !this.snapshot) {
+			return;
+		}
+
+		this.enqueueWrite(previousSnapshot, async () => {
+			const result = await this.apiOptions.client.mutate<
+				RemoveResumeCollectionItemData,
+				RemoveResumeCollectionItemVariables
+			>({
+				mutation: REMOVE_RESUME_COLLECTION_ITEM,
+				variables: {
+					id: this.resumeId,
+					input: { collection, index },
+				},
+			});
+
+			return result.data?.removeResumeCollectionItem ?? null;
+		});
+	}
+
+	override moveArrayItem(path: string, fromIndex: number, toIndex: number) {
+		const previousSnapshot = this.getSnapshot();
+		const beforeMove = structuredClone(previousSnapshot);
+		super.moveArrayItem(path, fromIndex, toIndex);
+
+		if (
+			!previousSnapshot ||
+			!this.snapshot ||
+			JSON.stringify(beforeMove) === JSON.stringify(this.snapshot)
+		) {
+			return;
+		}
+
+		const nextValue = this.getValueAtPath(path);
+		this.enqueueWrite(previousSnapshot, async () => {
+			const result = await this.apiOptions.client.mutate<
+				SetResumeFieldData,
+				SetResumeFieldVariables
+			>({
+				mutation: SET_RESUME_FIELD,
+				variables: {
+					id: this.resumeId,
+					input: { path },
+					value: nextValue,
+				},
+			});
+
+			return result.data?.setResumeField ?? null;
+		});
+	}
+
+	override undo() {
+		const previousSnapshot = this.getSnapshot();
+		super.undo();
+		this.persistCurrentSnapshot(previousSnapshot);
+	}
+
+	override redo() {
+		const previousSnapshot = this.getSnapshot();
+		super.redo();
+		this.persistCurrentSnapshot(previousSnapshot);
+	}
+
+	override async destroy() {
+		this.destroyed = true;
+		await this.writeQueue.catch(() => {});
+	}
+
+	private persistCurrentSnapshot(previousSnapshot: Resume | null) {
+		if (!previousSnapshot || !this.snapshot) {
+			return;
+		}
+
+		const currentSnapshot = structuredClone(this.snapshot);
+		this.enqueueWrite(previousSnapshot, async () => {
+			const changes = this.collectChangedFields(
+				previousSnapshot,
+				currentSnapshot,
+			);
+
+			if (changes.length === 0) {
+				return currentSnapshot;
+			}
+
+			let latestSnapshot: Resume | null = null;
+
+			for (const change of changes) {
+				const result = await this.apiOptions.client.mutate<
+					SetResumeFieldData,
+					SetResumeFieldVariables
+				>({
+					mutation: SET_RESUME_FIELD,
+					variables: {
+						id: this.resumeId,
+						input: { path: change.path },
+						value: change.value,
+					},
+				});
+
+				latestSnapshot = result.data?.setResumeField ?? latestSnapshot;
+			}
+
+			return latestSnapshot ?? currentSnapshot;
+		});
+	}
+
+	private enqueueWrite(
+		previousSnapshot: Resume,
+		write: () => Promise<Resume | null>,
+	) {
+		this.writeQueue = this.writeQueue.then(async () => {
+			if (this.destroyed) {
+				return;
+			}
+
+			try {
+				const nextSnapshot = await write();
+
+				if (nextSnapshot) {
+					this.lastPersistedSnapshot = structuredClone(nextSnapshot);
+					this.snapshot = structuredClone(nextSnapshot);
+					this.emitSnapshot();
+				} else if (this.snapshot) {
+					this.lastPersistedSnapshot = structuredClone(this.snapshot);
+				}
+			} catch (error) {
+				this.snapshot = structuredClone(this.lastPersistedSnapshot);
+				this.undoStack = [];
+				this.redoStack = [];
+				this.emitSnapshot();
+				this.apiOptions.onError?.(
+					error instanceof Error
+						? error
+						: new Error('Failed to persist resume changes'),
+				);
+				throw error;
+			}
+		});
+
+		this.writeQueue = this.writeQueue.catch(() => {
+			this.lastPersistedSnapshot = structuredClone(previousSnapshot);
+		});
+	}
+
+	private collectChangedFields(
+		previousSnapshot: Resume,
+		nextSnapshot: Resume,
+	) {
+		const fields = [
+			'data.name',
+			'data.title',
+			'data.summary',
+			'data.contactInformation',
+			'data.workExperience',
+			'data.education',
+			'data.skills',
+			'data.skillGroups',
+			'data.projects',
+			'data.volunteering',
+			'name',
+			'company',
+			'level',
+			'jobPostingUrl',
+		] as const;
+
+		return fields.flatMap((path) => {
+			const previousValue = this.readPathValue(previousSnapshot, path);
+			const nextValue = this.readPathValue(nextSnapshot, path);
+
+			if (JSON.stringify(previousValue) === JSON.stringify(nextValue)) {
+				return [];
+			}
+
+			return [{ path, value: nextValue }];
+		});
+	}
+
+	private readPathValue(source: Resume, path: string) {
+		return parsePath(path).reduce<unknown>((current, segment) => {
+			if (current == null) {
+				return undefined;
+			}
+
+			if (typeof segment === 'number' && Array.isArray(current)) {
+				return current[segment];
+			}
+
+			if (isPlainObject(current)) {
+				return current[String(segment)];
+			}
+
+			return undefined;
+		}, source);
+	}
 }
