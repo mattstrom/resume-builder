@@ -1,9 +1,3 @@
-import { SET_RESUME_FIELD } from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
-import type {
-	SetResumeFieldData,
-	SetResumeFieldVariables,
-} from '@/graphql/types.ts';
 import {
 	Select,
 	SelectContent,
@@ -11,6 +5,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select.tsx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { observer } from 'mobx-react';
 import { type ReactNode, createElement, useMemo, useState } from 'react';
@@ -42,7 +37,7 @@ const LookupFieldEditorComponent = <TValue, TOption>({
 	renderOption,
 	mapOptionToValue,
 }: LookupFieldEditorProps<TValue, TOption>) => {
-	const { client, uiStateStore } = useStore();
+	const { uiStateStore } = useStore();
 	const [isEditing, setIsEditing] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const isEditable = uiStateStore.isResumeEditable;
@@ -68,15 +63,10 @@ const LookupFieldEditorComponent = <TValue, TOption>({
 		setIsSaving(true);
 
 		try {
-			await client.mutate<SetResumeFieldData, SetResumeFieldVariables>({
-				mutation: SET_RESUME_FIELD,
-				variables: {
-					id: resumeId,
-					input: { path },
-					value: mapOptionToValue(selectedOption, value),
-				},
-				refetchQueries: [{ query: LIST_RESUMES }],
-			});
+			getActiveResumeController(resumeId)?.setField(
+				path,
+				mapOptionToValue(selectedOption, value),
+			);
 			setIsEditing(false);
 		} finally {
 			setIsSaving(false);

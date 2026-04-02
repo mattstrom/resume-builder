@@ -1,19 +1,8 @@
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import {
-	ADD_RESUME_COLLECTION_ITEM,
-	REMOVE_RESUME_COLLECTION_ITEM,
-} from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
 import { ResumeCollections } from '@/graphql/resume-collections.ts';
-import type {
-	AddResumeCollectionItemData,
-	AddResumeCollectionItemVariables,
-	RemoveResumeCollectionItemData,
-	RemoveResumeCollectionItemVariables,
-} from '@/graphql/types.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { useMutation } from '@apollo/client/react';
 import type { Volunteering } from '@resume-builder/entities';
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 import { observer } from 'mobx-react';
@@ -47,19 +36,8 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(
 		const resumeId = useResumeId();
 		const { uiStateStore } = useStore();
 		const isEditable = uiStateStore.isResumeEditable;
-		const [addItemMutation, { loading: isAdding }] = useMutation<
-			AddResumeCollectionItemData,
-			AddResumeCollectionItemVariables
-		>(ADD_RESUME_COLLECTION_ITEM, {
-			refetchQueries: [{ query: LIST_RESUMES }],
-		});
-		const [removeItemMutation, { loading: isRemoving }] = useMutation<
-			RemoveResumeCollectionItemData,
-			RemoveResumeCollectionItemVariables
-		>(REMOVE_RESUME_COLLECTION_ITEM, {
-			refetchQueries: [{ query: LIST_RESUMES }],
-		});
-		const isSaving = isAdding || isRemoving;
+		const controller = getActiveResumeController(resumeId);
+		const isSaving = false;
 
 		if (!volunteering || volunteering.length === 0) {
 			return (
@@ -68,14 +46,9 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(
 					isSaving={isSaving}
 					isEditable={isEditable}
 					onAdd={async () => {
-						await addItemMutation({
-							variables: {
-								id: resumeId,
-								input: {
-									collection: ResumeCollections.VOLUNTEERING,
-								},
-							},
-						});
+						controller?.addCollectionItem(
+							ResumeCollections.VOLUNTEERING,
+						);
 					}}
 					onRemove={async () => {}}
 				>
@@ -108,25 +81,15 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(
 				isSaving={isSaving}
 				isEditable={isEditable}
 				onAdd={async () => {
-					await addItemMutation({
-						variables: {
-							id: resumeId,
-							input: {
-								collection: ResumeCollections.VOLUNTEERING,
-							},
-						},
-					});
+					controller?.addCollectionItem(
+						ResumeCollections.VOLUNTEERING,
+					);
 				}}
 				onRemove={async (index) => {
-					await removeItemMutation({
-						variables: {
-							id: resumeId,
-							input: {
-								collection: ResumeCollections.VOLUNTEERING,
-								index,
-							},
-						},
-					});
+					controller?.removeCollectionItem(
+						ResumeCollections.VOLUNTEERING,
+						index,
+					);
 				}}
 			>
 				{({ items, addItem, removeItem, isSaving }) => (

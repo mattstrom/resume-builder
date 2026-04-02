@@ -13,6 +13,7 @@ import { EditorToolbar } from '../../components/EditorToolbar.tsx';
 import { AppSidebar } from '../../components/Sidebar.tsx';
 import { useSettings } from '../../components/Settings.provider.tsx';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import './editor.css';
 
 export const Route = createFileRoute('/_authenticated/editor')({
@@ -38,6 +39,48 @@ function EditorLayout() {
 			panel.collapse();
 		}
 	}, [sidebarOpen]);
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (!(event.metaKey || event.ctrlKey) || event.altKey) {
+				return;
+			}
+
+			if (event.key.toLowerCase() !== 'z') {
+				return;
+			}
+
+			const target = event.target;
+
+			if (
+				target instanceof HTMLElement &&
+				(target.isContentEditable ||
+					target.closest(
+						'input, textarea, select, [contenteditable="true"]',
+					))
+			) {
+				return;
+			}
+
+			const controller = getActiveResumeController(resumeData?._id);
+
+			if (!controller) {
+				return;
+			}
+
+			event.preventDefault();
+
+			if (event.shiftKey) {
+				controller.redo();
+				return;
+			}
+
+			controller.undo();
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [resumeData?._id]);
 
 	return (
 		<SidebarProvider

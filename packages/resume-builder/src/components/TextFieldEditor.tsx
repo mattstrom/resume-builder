@@ -5,12 +5,7 @@ import {
 	useState,
 } from 'react';
 import { useStore } from '@/stores/store.provider.tsx';
-import { SET_RESUME_FIELD } from '@/graphql/mutations.ts';
-import { LIST_RESUMES } from '@/graphql/queries.ts';
-import type {
-	SetResumeFieldData,
-	SetResumeFieldVariables,
-} from '@/graphql/types.ts';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 
 interface TextFieldEditorProps {
 	path: string;
@@ -36,7 +31,7 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = (
 		onCommitSuccess,
 		onCancel,
 	}) => {
-		const { client, uiStateStore } = useStore();
+		const { uiStateStore } = useStore();
 		const isEditable = uiStateStore.isResumeEditable;
 		const [draft, setDraft] = useState(value);
 		const [isSaving, setIsSaving] = useState(false);
@@ -60,15 +55,7 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = (
 			setIsSaving(true);
 
 			try {
-				await client.mutate<SetResumeFieldData, SetResumeFieldVariables>({
-					mutation: SET_RESUME_FIELD,
-					variables: {
-						id: resumeId,
-						input: { path },
-						value: draft,
-					},
-					refetchQueries: [{ query: LIST_RESUMES }],
-				});
+				getActiveResumeController(resumeId)?.setField(path, draft);
 				onCommitSuccess?.();
 			} finally {
 				setIsSaving(false);
