@@ -1,5 +1,39 @@
-import type { Resume } from '@resume-builder/entities';
+import type { Application, Resume } from '@resume-builder/entities';
 import type { ResumeCollectionValue } from './resume-collections.ts';
+
+export interface ListApplicationsData {
+	listApplications: Application[];
+}
+
+export interface GetApplicationData {
+	getApplication: Application;
+}
+
+export interface CreateApplicationData {
+	createApplication: Application;
+}
+
+export interface UpdateApplicationData {
+	updateApplication: Application;
+}
+
+export interface GetApplicationVariables {
+	id: string;
+}
+
+export interface CreateApplicationVariables {
+	applicationData: Omit<
+		Application,
+		'_id' | 'uid' | 'createdAt' | 'updatedAt'
+	>;
+}
+
+export interface UpdateApplicationVariables {
+	id: string;
+	applicationData: Partial<
+		Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>
+	>;
+}
 
 export interface ListResumesData {
 	listResumes: Resume[];

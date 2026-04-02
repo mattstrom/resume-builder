@@ -17,9 +17,12 @@ export class ConversationsController {
 	@Get()
 	async findAll(
 		@CurrentUser('sub') uid: string,
-		@Query('resumeId') resumeId: string,
+		@Query('applicationId') applicationId: string,
 	) {
-		return this.conversationsService.findAllByResumeId(uid, resumeId);
+		return this.conversationsService.findAllByApplicationId(
+			uid,
+			applicationId,
+		);
 	}
 
 	@Get(':id')
@@ -30,7 +33,7 @@ export class ConversationsController {
 	@Post()
 	async create(
 		@CurrentUser('sub') uid: string,
-		@Body() body: { resumeId: string; title?: string },
+		@Body() body: { applicationId: string; title?: string },
 	) {
 		return this.conversationsService.create(uid, body);
 	}

@@ -9,12 +9,12 @@ import { type FC } from 'react';
 interface ResumeViewProps {}
 
 export const ResumeView: FC<ResumeViewProps> = observer(() => {
-	const { resumeId } = useParams({ strict: false });
+	const { applicationId } = useParams({ strict: false });
 
 	const { uiStateStore } = useStore();
 	const { viewMode } = uiStateStore;
 
-	if (!resumeId) {
+	if (!applicationId) {
 		return null;
 	}
 
@@ -23,7 +23,7 @@ export const ResumeView: FC<ResumeViewProps> = observer(() => {
 			{viewMode === ViewMode.Data ? (
 				<JsonEditor />
 			) : (
-				<PreviewFrame resumeId={resumeId} />
+				<PreviewFrame applicationId={applicationId} />
 			)}
 		</div>
 	);

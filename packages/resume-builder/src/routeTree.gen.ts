@@ -16,9 +16,9 @@ import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated
 import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
-import { Route as AuthenticatedPreviewResumeIdRouteImport } from './routes/_authenticated/preview.$resumeId'
-import { Route as AuthenticatedExportResumeIdRouteImport } from './routes/_authenticated/export.$resumeId'
-import { Route as AuthenticatedEditorResumeIdRouteImport } from './routes/_authenticated/editor/$resumeId'
+import { Route as AuthenticatedPreviewApplicationIdRouteImport } from './routes/_authenticated/preview.$applicationId'
+import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_authenticated/export.$applicationId'
+import { Route as AuthenticatedEditorApplicationIdRouteImport } from './routes/_authenticated/editor/$applicationId'
 import { Route as AuthenticatedEditorLocalFilenameRouteImport } from './routes/_authenticated/editor/local/$filename'
 
 const PublicRoute = PublicRouteImport.update({
@@ -55,22 +55,22 @@ const AuthenticatedEditorIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedEditorRoute,
   } as any)
-const AuthenticatedPreviewResumeIdRoute =
-  AuthenticatedPreviewResumeIdRouteImport.update({
-    id: '/preview/$resumeId',
-    path: '/preview/$resumeId',
+const AuthenticatedPreviewApplicationIdRoute =
+  AuthenticatedPreviewApplicationIdRouteImport.update({
+    id: '/preview/$applicationId',
+    path: '/preview/$applicationId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedExportResumeIdRoute =
-  AuthenticatedExportResumeIdRouteImport.update({
-    id: '/export/$resumeId',
-    path: '/export/$resumeId',
+const AuthenticatedExportApplicationIdRoute =
+  AuthenticatedExportApplicationIdRouteImport.update({
+    id: '/export/$applicationId',
+    path: '/export/$applicationId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedEditorResumeIdRoute =
-  AuthenticatedEditorResumeIdRouteImport.update({
-    id: '/$resumeId',
-    path: '/$resumeId',
+const AuthenticatedEditorApplicationIdRoute =
+  AuthenticatedEditorApplicationIdRouteImport.update({
+    id: '/$applicationId',
+    path: '/$applicationId',
     getParentRoute: () => AuthenticatedEditorRoute,
   } as any)
 const AuthenticatedEditorLocalFilenameRoute =
@@ -85,9 +85,9 @@ export interface FileRoutesByFullPath {
   '/logout': typeof publicLogoutRoute
   '/editor': typeof AuthenticatedEditorRouteWithChildren
   '/': typeof AuthenticatedIndexRoute
-  '/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
-  '/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
-  '/preview/$resumeId': typeof AuthenticatedPreviewResumeIdRoute
+  '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
+  '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
+  '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
@@ -95,9 +95,9 @@ export interface FileRoutesByTo {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
   '/': typeof AuthenticatedIndexRoute
-  '/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
-  '/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
-  '/preview/$resumeId': typeof AuthenticatedPreviewResumeIdRoute
+  '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
+  '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
+  '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
@@ -109,9 +109,9 @@ export interface FileRoutesById {
   '/(public)/logout': typeof publicLogoutRoute
   '/_authenticated/editor': typeof AuthenticatedEditorRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/editor/$resumeId': typeof AuthenticatedEditorResumeIdRoute
-  '/_authenticated/export/$resumeId': typeof AuthenticatedExportResumeIdRoute
-  '/_authenticated/preview/$resumeId': typeof AuthenticatedPreviewResumeIdRoute
+  '/_authenticated/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
+  '/_authenticated/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
+  '/_authenticated/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
@@ -122,9 +122,9 @@ export interface FileRouteTypes {
     | '/logout'
     | '/editor'
     | '/'
-    | '/editor/$resumeId'
-    | '/export/$resumeId'
-    | '/preview/$resumeId'
+    | '/editor/$applicationId'
+    | '/export/$applicationId'
+    | '/preview/$applicationId'
     | '/editor/'
     | '/editor/local/$filename'
   fileRoutesByTo: FileRoutesByTo
@@ -132,9 +132,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/'
-    | '/editor/$resumeId'
-    | '/export/$resumeId'
-    | '/preview/$resumeId'
+    | '/editor/$applicationId'
+    | '/export/$applicationId'
+    | '/preview/$applicationId'
     | '/editor'
     | '/editor/local/$filename'
   id:
@@ -145,9 +145,9 @@ export interface FileRouteTypes {
     | '/(public)/logout'
     | '/_authenticated/editor'
     | '/_authenticated/'
-    | '/_authenticated/editor/$resumeId'
-    | '/_authenticated/export/$resumeId'
-    | '/_authenticated/preview/$resumeId'
+    | '/_authenticated/editor/$applicationId'
+    | '/_authenticated/export/$applicationId'
+    | '/_authenticated/preview/$applicationId'
     | '/_authenticated/editor/'
     | '/_authenticated/editor/local/$filename'
   fileRoutesById: FileRoutesById
@@ -210,25 +210,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEditorIndexRouteImport
       parentRoute: typeof AuthenticatedEditorRoute
     }
-    '/_authenticated/preview/$resumeId': {
-      id: '/_authenticated/preview/$resumeId'
-      path: '/preview/$resumeId'
-      fullPath: '/preview/$resumeId'
-      preLoaderRoute: typeof AuthenticatedPreviewResumeIdRouteImport
+    '/_authenticated/preview/$applicationId': {
+      id: '/_authenticated/preview/$applicationId'
+      path: '/preview/$applicationId'
+      fullPath: '/preview/$applicationId'
+      preLoaderRoute: typeof AuthenticatedPreviewApplicationIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/export/$resumeId': {
-      id: '/_authenticated/export/$resumeId'
-      path: '/export/$resumeId'
-      fullPath: '/export/$resumeId'
-      preLoaderRoute: typeof AuthenticatedExportResumeIdRouteImport
+    '/_authenticated/export/$applicationId': {
+      id: '/_authenticated/export/$applicationId'
+      path: '/export/$applicationId'
+      fullPath: '/export/$applicationId'
+      preLoaderRoute: typeof AuthenticatedExportApplicationIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/editor/$resumeId': {
-      id: '/_authenticated/editor/$resumeId'
-      path: '/$resumeId'
-      fullPath: '/editor/$resumeId'
-      preLoaderRoute: typeof AuthenticatedEditorResumeIdRouteImport
+    '/_authenticated/editor/$applicationId': {
+      id: '/_authenticated/editor/$applicationId'
+      path: '/$applicationId'
+      fullPath: '/editor/$applicationId'
+      preLoaderRoute: typeof AuthenticatedEditorApplicationIdRouteImport
       parentRoute: typeof AuthenticatedEditorRoute
     }
     '/_authenticated/editor/local/$filename': {
@@ -242,13 +242,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedEditorRouteChildren {
-  AuthenticatedEditorResumeIdRoute: typeof AuthenticatedEditorResumeIdRoute
+  AuthenticatedEditorApplicationIdRoute: typeof AuthenticatedEditorApplicationIdRoute
   AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
   AuthenticatedEditorLocalFilenameRoute: typeof AuthenticatedEditorLocalFilenameRoute
 }
 
 const AuthenticatedEditorRouteChildren: AuthenticatedEditorRouteChildren = {
-  AuthenticatedEditorResumeIdRoute: AuthenticatedEditorResumeIdRoute,
+  AuthenticatedEditorApplicationIdRoute: AuthenticatedEditorApplicationIdRoute,
   AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
   AuthenticatedEditorLocalFilenameRoute: AuthenticatedEditorLocalFilenameRoute,
 }
@@ -259,15 +259,16 @@ const AuthenticatedEditorRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedEditorRoute: typeof AuthenticatedEditorRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedExportResumeIdRoute: typeof AuthenticatedExportResumeIdRoute
-  AuthenticatedPreviewResumeIdRoute: typeof AuthenticatedPreviewResumeIdRoute
+  AuthenticatedExportApplicationIdRoute: typeof AuthenticatedExportApplicationIdRoute
+  AuthenticatedPreviewApplicationIdRoute: typeof AuthenticatedPreviewApplicationIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEditorRoute: AuthenticatedEditorRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedExportResumeIdRoute: AuthenticatedExportResumeIdRoute,
-  AuthenticatedPreviewResumeIdRoute: AuthenticatedPreviewResumeIdRoute,
+  AuthenticatedExportApplicationIdRoute: AuthenticatedExportApplicationIdRoute,
+  AuthenticatedPreviewApplicationIdRoute:
+    AuthenticatedPreviewApplicationIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

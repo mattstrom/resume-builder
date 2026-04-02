@@ -35,12 +35,12 @@ export class ChatController {
 		@Body()
 		body: {
 			messages: any[];
-			data?: { resumeId?: string; conversationId?: string };
+			data?: { applicationId?: string; conversationId?: string };
 		},
 		@Res() res: Response,
 	) {
 		const { messages, data } = body;
-		const resumeId = data?.resumeId;
+		const applicationId = data?.applicationId;
 		let conversationId = data?.conversationId;
 
 		const systemPrompt = `
@@ -78,10 +78,10 @@ export class ChatController {
 						.join('') ?? '');
 
 		// Create conversation on first message if needed
-		if (!conversationId && resumeId) {
+		if (!conversationId && applicationId) {
 			const title = userText.slice(0, 50) || 'New Conversation';
 			const conversation = await this.conversationsService.create(uid, {
-				resumeId,
+				applicationId,
 				title,
 			});
 			conversationId = String(conversation._id);

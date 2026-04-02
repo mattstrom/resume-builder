@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { del, get, set } from 'idb-keyval';
 import { useNavigate } from '@tanstack/react-router';
-import type { Resume } from '@resume-builder/entities';
+import type { Application, Resume } from '@resume-builder/entities';
 import { useLazyQuery, useQuery } from '@apollo/client/react';
 import {
 	getJsonFiles,
@@ -18,11 +18,17 @@ import {
 	verifyPermission,
 } from '../../utils/fileSystem';
 import { validateResume } from '../../utils/resumeValidation';
-import { GET_RESUME, LIST_RESUMES } from '../../graphql/queries';
+import {
+	GET_APPLICATION,
+	GET_RESUME,
+	LIST_APPLICATIONS,
+} from '../../graphql/queries';
 import type {
+	GetApplicationData,
+	GetApplicationVariables,
 	GetResumeData,
 	GetResumeVariables,
-	ListResumesData,
+	ListApplicationsData,
 } from '../../graphql/types';
 
 const STORAGE_KEY = 'resume:directoryHandle';
@@ -33,8 +39,9 @@ interface FileManagerState {
 	files: string[];
 	selectedFile: string | null;
 	resumeData: Resume | null;
-	apiResumes: Resume[];
-	selectedApiResumeId: string | null;
+	apiApplications: Application[];
+	selectedApiApplicationId: string | null;
+	selectedApplication: Application | null;
 	isLoading: boolean;
 	error: string | null;
 	isSupported: boolean;
@@ -45,8 +52,8 @@ interface FileManagerActions {
 	detachDirectory: () => Promise<void>;
 	selectFile: (fileName: string) => Promise<void>;
 	refreshFiles: () => Promise<void>;
-	loadApiResumes: () => Promise<void>;
-	selectApiResume: (resumeId: string) => Promise<void>;
+	loadApiApplications: () => Promise<void>;
+	selectApiApplication: (applicationId: string) => Promise<void>;
 	updateResumeData: (resume: Resume) => void;
 }
 
@@ -61,10 +68,12 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [files, setFiles] = useState<string[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string | null>(null);
 	const [resumeData, setResumeData] = useState<Resume | null>(null);
-	const [apiResumes, setApiResumes] = useState<Resume[]>([]);
-	const [selectedApiResumeId, setSelectedApiResumeId] = useState<
+	const [apiApplications, setApiApplications] = useState<Application[]>([]);
+	const [selectedApiApplicationId, setSelectedApiApplicationId] = useState<
 		string | null
 	>(null);
+	const [selectedApplication, setSelectedApplication] =
+		useState<Application | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -72,13 +81,22 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	// Apollo GraphQL hooks
 	const {
-		data: resumesData,
-		loading: resumesLoading,
-		error: resumesError,
-		refetch: refetchResumes,
-	} = useQuery<ListResumesData>(LIST_RESUMES, {
+		data: applicationsData,
+		loading: applicationsLoading,
+		error: applicationsError,
+		refetch: refetchApplications,
+	} = useQuery<ListApplicationsData>(LIST_APPLICATIONS, {
 		fetchPolicy: 'network-only',
 	});
+	const [
+		getApplicationQuery,
+		{ loading: applicationLoading, error: applicationError },
+	] = useLazyQuery<GetApplicationData, GetApplicationVariables>(
+		GET_APPLICATION,
+		{
+			fetchPolicy: 'network-only',
+		},
+	);
 	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
 		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME, {
 			fetchPolicy: 'network-only',
@@ -105,7 +123,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 				setResumeData(data as Resume);
 				setSelectedFile(fileName);
 				// Clear API selection when loading a file
-				setSelectedApiResumeId(null);
+				setSelectedApiApplicationId(null);
+				setSelectedApplication(null);
 			} catch (err) {
 				setError(
 					err instanceof Error ? err.message : 'Failed to read file',
@@ -158,6 +177,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			// Clear previous selection
 			setSelectedFile(null);
 			setResumeData(null);
+			setSelectedApplication(null);
+			setSelectedApiApplicationId(null);
 		} catch (err) {
 			if ((err as Error).name !== 'AbortError') {
 				setError(
@@ -175,6 +196,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		setFiles([]);
 		setSelectedFile(null);
 		setResumeData(null);
+		setSelectedApplication(null);
+		setSelectedApiApplicationId(null);
 		setError(null);
 	}, []);
 
@@ -204,39 +227,54 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		}
 	}, [directoryHandle]);
 
-	const loadApiResumes = useCallback(async () => {
+	const loadApiApplications = useCallback(async () => {
 		try {
-			const result = await refetchResumes();
-			const resumes = result.data?.listResumes || [];
-			setApiResumes(resumes);
+			const result = await refetchApplications();
+			const applications = result.data?.listApplications || [];
+			setApiApplications(applications);
 		} catch (err) {
 			setError(
 				err instanceof Error
 					? err.message
-					: 'Failed to load resumes from API',
+					: 'Failed to load applications from API',
 			);
 		}
-	}, [refetchResumes]);
+	}, [refetchApplications]);
 
-	const selectApiResume = useCallback(
-		async (resumeId: string) => {
+	const selectApiApplication = useCallback(
+		async (applicationId: string) => {
 			setIsLoading(true);
 			setError(null);
 
-			// Set the selected ID immediately to prevent navigation loops
-			setSelectedApiResumeId(resumeId);
-			// Clear file selection when selecting API resume
+			setSelectedApiApplicationId(applicationId);
 			setSelectedFile(null);
 
 			try {
-				const result = await getResumeQuery({
-					variables: { id: resumeId },
+				const applicationResult = await getApplicationQuery({
+					variables: { id: applicationId },
 				});
-				if (result.data?.getResume) {
-					setResumeData(result.data.getResume);
+				const application = applicationResult.data?.getApplication;
+
+				if (!application) {
+					throw new Error('Application not found');
+				}
+
+				setSelectedApplication(application);
+
+				if (!application.resumeId) {
+					setResumeData(null);
+					return;
+				}
+
+				const resumeResult = await getResumeQuery({
+					variables: { id: application.resumeId },
+				});
+				if (resumeResult.data?.getResume) {
+					setResumeData(resumeResult.data.getResume);
+				} else {
+					setResumeData(null);
 				}
 			} catch (err) {
-				// Filter out abort errors - these are expected during navigation
 				const isAbortError =
 					err instanceof Error &&
 					(err.name === 'AbortError' ||
@@ -246,43 +284,45 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 					setError(
 						err instanceof Error
 							? err.message
-							: 'Failed to load resume from API',
+							: 'Failed to load application from API',
 					);
-					// Reset selection on error
-					setSelectedApiResumeId(null);
+					setSelectedApiApplicationId(null);
+					setSelectedApplication(null);
 				}
 			} finally {
 				setIsLoading(false);
 			}
 		},
-		[getResumeQuery],
+		[getApplicationQuery, getResumeQuery],
 	);
 
-	// Update API resumes when data changes
 	useEffect(() => {
-		if (resumesData?.listResumes) {
-			setApiResumes(resumesData.listResumes);
+		if (applicationsData?.listApplications) {
+			setApiApplications(applicationsData.listApplications);
 		}
-	}, [resumesData]);
-
-	// Update loading and error state from Apollo queries
-	useEffect(() => {
-		setIsLoading(resumesLoading || resumeLoading);
-	}, [resumesLoading, resumeLoading]);
+	}, [applicationsData]);
 
 	useEffect(() => {
-		if (resumesError) {
-			// Filter out abort errors from Apollo
-			if (!resumesError.message.includes('aborted')) {
-				setError(resumesError.message);
+		setIsLoading(
+			applicationsLoading || applicationLoading || resumeLoading,
+		);
+	}, [applicationsLoading, applicationLoading, resumeLoading]);
+
+	useEffect(() => {
+		if (applicationsError) {
+			if (!applicationsError.message.includes('aborted')) {
+				setError(applicationsError.message);
+			}
+		} else if (applicationError) {
+			if (!applicationError.message.includes('aborted')) {
+				setError(applicationError.message);
 			}
 		} else if (resumeError) {
-			// Filter out abort errors from Apollo
 			if (!resumeError.message.includes('aborted')) {
 				setError(resumeError.message);
 			}
 		}
-	}, [resumesError, resumeError]);
+	}, [applicationsError, applicationError, resumeError]);
 
 	const updateResumeData = useCallback((resume: Resume) => {
 		setResumeData(resume);
@@ -294,8 +334,9 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		files,
 		selectedFile,
 		resumeData,
-		apiResumes,
-		selectedApiResumeId,
+		apiApplications,
+		selectedApiApplicationId,
+		selectedApplication,
 		isLoading,
 		error,
 		isSupported,
@@ -303,8 +344,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 		detachDirectory,
 		selectFile,
 		refreshFiles,
-		loadApiResumes,
-		selectApiResume,
+		loadApiApplications,
+		selectApiApplication,
 		updateResumeData,
 	};
 

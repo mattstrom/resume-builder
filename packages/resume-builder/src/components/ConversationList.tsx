@@ -16,14 +16,14 @@ interface ConversationSummary {
 }
 
 interface ConversationListProps {
-	resumeId: string | undefined;
+	applicationId: string | undefined;
 	activeConversationId: string | null;
 	onSelect: (conversation: ConversationSummary) => void;
 	onNewChat: () => void;
 }
 
 export const ConversationList: FC<ConversationListProps> = ({
-	resumeId,
+	applicationId,
 	activeConversationId,
 	onSelect,
 	onNewChat,
@@ -34,10 +34,10 @@ export const ConversationList: FC<ConversationListProps> = ({
 	const [open, setOpen] = useState(false);
 
 	const fetchConversations = async () => {
-		if (!resumeId) return;
+		if (!applicationId) return;
 		try {
 			const res = await authFetch(
-				`http://localhost:3000/api/conversations?resumeId=${resumeId}`,
+				`http://localhost:3000/api/conversations?applicationId=${applicationId}`,
 			);
 			if (res.ok) {
 				setConversations(await res.json());
@@ -49,9 +49,9 @@ export const ConversationList: FC<ConversationListProps> = ({
 
 	useEffect(() => {
 		if (open) {
-			fetchConversations();
+			void fetchConversations();
 		}
-	}, [open, resumeId]);
+	}, [open, applicationId]);
 
 	const handleDelete = async (e: React.MouseEvent, id: string) => {
 		e.stopPropagation();
