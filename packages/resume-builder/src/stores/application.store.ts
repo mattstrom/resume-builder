@@ -21,12 +21,12 @@ export class ApplicationStore {
 
 	@observable
 	sortAscending: boolean =
-		localStorage.getItem(STORAGE_KEY_SORT_ASCENDING) === 'true';
+		localStorage.getItem(STORAGE_KEY_SORT_ASCENDING) !== 'false';
 
 	@observable
 	groupBy: 'company' | null =
 		(localStorage.getItem(STORAGE_KEY_GROUP_BY) as 'company' | null) ??
-		null;
+		'company';
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -50,20 +50,9 @@ export class ApplicationStore {
 	@computed
 	get data(): Application[] {
 		const applications = this.query.data?.listApplications ?? [];
-		const sorted = [...applications].sort((left, right) => {
-			if (this.sortField === 'NAME') {
-				const nameComparison = left.name.localeCompare(right.name);
-				return this.sortAscending ? nameComparison : -nameComparison;
-			}
-
-			const leftTimestamp = new Date(left.updatedAt).getTime();
-			const rightTimestamp = new Date(right.updatedAt).getTime();
-			return this.sortAscending
-				? leftTimestamp - rightTimestamp
-				: rightTimestamp - leftTimestamp;
-		});
-
-		return sorted;
+		return [...applications].sort((left, right) =>
+			this.compareApplications(left, right),
+		);
 	}
 
 	@computed
@@ -82,7 +71,25 @@ export class ApplicationStore {
 				groups.set(key, [application]);
 			}
 		}
-		return groups;
+
+		const sortedEntries = [...groups.entries()].sort(
+			([leftGroupName, leftApplications], [rightGroupName, rightApplications]) => {
+				if (this.sortField === 'NAME') {
+					const nameComparison =
+						leftGroupName.localeCompare(rightGroupName);
+					return this.sortAscending ? nameComparison : -nameComparison;
+				}
+
+				const leftTimestamp = this.getGroupTimestamp(leftApplications);
+				const rightTimestamp =
+					this.getGroupTimestamp(rightApplications);
+				return this.sortAscending
+					? leftTimestamp - rightTimestamp
+					: rightTimestamp - leftTimestamp;
+			},
+		);
+
+		return new Map(sortedEntries);
 	}
 
 	async refetch() {
@@ -95,7 +102,7 @@ export class ApplicationStore {
 	}
 
 	@action
-	setSort(field: 'NAME' | 'DATE', ascending = false) {
+	setSort(field: 'NAME' | 'DATE', ascending = true) {
 		this.sortField = field;
 		this.sortAscending = ascending;
 		localStorage.setItem(STORAGE_KEY_SORT_FIELD, field);
@@ -111,5 +118,33 @@ export class ApplicationStore {
 		} else {
 			localStorage.removeItem(STORAGE_KEY_GROUP_BY);
 		}
+	}
+
+	private compareApplications(left: Application, right: Application) {
+		if (this.sortField === 'NAME') {
+			const nameComparison = left.name.localeCompare(right.name);
+			return this.sortAscending ? nameComparison : -nameComparison;
+		}
+
+		const leftTimestamp = new Date(left.updatedAt).getTime();
+		const rightTimestamp = new Date(right.updatedAt).getTime();
+		return this.sortAscending
+			? leftTimestamp - rightTimestamp
+			: rightTimestamp - leftTimestamp;
+	}
+
+	private getGroupTimestamp(applications: Application[]) {
+		if (applications.length === 0) {
+			return 0;
+		}
+
+		return applications.reduce((timestamp, application) => {
+			const applicationTimestamp = new Date(
+				application.updatedAt,
+			).getTime();
+			return this.sortAscending
+				? Math.min(timestamp, applicationTimestamp)
+				: Math.max(timestamp, applicationTimestamp);
+		}, new Date(applications[0]!.updatedAt).getTime());
 	}
 }

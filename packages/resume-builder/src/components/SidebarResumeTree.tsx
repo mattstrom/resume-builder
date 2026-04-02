@@ -1,8 +1,9 @@
 import { observer } from 'mobx-react';
-import { type FC, useCallback } from 'react';
+import { type FC, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
 	ArrowUpDown,
+	ChevronsUpDown,
 	ChevronRight,
 	FileIcon,
 	Plus,
@@ -58,6 +59,16 @@ export const SidebarResumeTree: FC = observer(() => {
 
 	const applications = applicationStore.data;
 	const groupedData = applicationStore.groupedData;
+	const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+		() => new Set(),
+	);
+	const groupNames = useMemo(
+		() => (groupedData ? [...groupedData.keys()] : []),
+		[groupedData],
+	);
+	const allGroupsCollapsed =
+		groupNames.length > 0 &&
+		groupNames.every((groupName) => collapsedGroups.has(groupName));
 
 	const handleSelect = useCallback(
 		(applicationId: string) => {
@@ -90,6 +101,34 @@ export const SidebarResumeTree: FC = observer(() => {
 		[applicationStore],
 	);
 
+	const handleGroupToggle = useCallback(
+		(groupName: string, open: boolean) => {
+			setCollapsedGroups((current) => {
+				const next = new Set(current);
+				if (open) {
+					next.delete(groupName);
+				} else {
+					next.add(groupName);
+				}
+				return next;
+			});
+		},
+		[],
+	);
+
+	const toggleAllGroups = useCallback(() => {
+		setCollapsedGroups((current) => {
+			if (
+				groupNames.length > 0 &&
+				groupNames.every((groupName) => current.has(groupName))
+			) {
+				return new Set();
+			}
+
+			return new Set(groupNames);
+		});
+	}, [groupNames]);
+
 	const renderApplicationItem = (application: Application) => (
 		<SidebarMenuItem key={application._id}>
 			<SidebarMenuButton
@@ -106,7 +145,11 @@ export const SidebarResumeTree: FC = observer(() => {
 	const renderGroupedApplications = (groups: Map<string, Application[]>) =>
 		Array.from(groups.entries()).map(([groupName, groupApplications]) => (
 			<SidebarMenuItem key={groupName}>
-				<Collapsible defaultOpen className="group/collapsible">
+				<Collapsible
+					open={!collapsedGroups.has(groupName)}
+					onOpenChange={(open) => handleGroupToggle(groupName, open)}
+					className="group/collapsible"
+				>
 					<CollapsibleTrigger asChild>
 						<SidebarMenuButton>
 							<ChevronRight className="transition-transform group-data-[state=open]/collapsible:rotate-90" />
@@ -196,6 +239,19 @@ export const SidebarResumeTree: FC = observer(() => {
 						</DropdownMenuRadioGroup>
 					</DropdownMenuContent>
 				</DropdownMenu>
+				{groupedData && (
+					<button
+						title={
+							allGroupsCollapsed
+								? 'Expand all groups'
+								: 'Collapse all groups'
+						}
+						className={actionButtonClass}
+						onClick={toggleAllGroups}
+					>
+						<ChevronsUpDown />
+					</button>
+				)}
 				<SidebarGroupAction
 					title="Refresh applications"
 					className="static"
