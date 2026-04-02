@@ -1,3 +1,5 @@
+import { InlineEditStore } from '@/stores/inline-edit.store.ts';
+import { ListEditStore } from '@/stores/list-edit.store.ts';
 import { UiStateStore } from '@/stores/ui-state.store.ts';
 import { ApolloClient } from '@apollo/client';
 import type { AnyRoute, Router } from '@tanstack/react-router';
@@ -14,12 +16,16 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly persistence = new PersistenceService();
 
 	public readonly authStore: AuthStore;
+	public readonly inlineEditStore: InlineEditStore;
+	public readonly listEditStore: ListEditStore;
 	public readonly resumeStore: ResumeStore;
 	public readonly uiStateStore: UiStateStore = new UiStateStore(this);
 
 	constructor(client?: ApolloClient) {
 		this.client = client ?? apolloClient;
 		this.authStore = new AuthStore(this);
+		this.inlineEditStore = new InlineEditStore(this);
+		this.listEditStore = new ListEditStore(this);
 		this.resumeStore = new ResumeStore(this);
 		this.uiStateStore = new UiStateStore(this);
 

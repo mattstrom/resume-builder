@@ -13,12 +13,15 @@ interface ResumeProviderProps extends PropsWithChildren {
 }
 
 export const ResumeContext = createContext<Resume['data'] | null>(null);
+const ResumeIdContext = createContext<string | null>(null);
 
 export const ResumeProvider: FC<ResumeProviderProps> = ({ data, children }) => {
 	return (
-		<ResumeContext.Provider value={data.data}>
-			{children}
-		</ResumeContext.Provider>
+		<ResumeIdContext.Provider value={data._id}>
+			<ResumeContext.Provider value={data.data}>
+				{children}
+			</ResumeContext.Provider>
+		</ResumeIdContext.Provider>
 	);
 };
 
@@ -30,4 +33,14 @@ export function useResume() {
 	}
 
 	return resume;
+}
+
+export function useResumeId() {
+	const id = useContext(ResumeIdContext);
+
+	if (!id) {
+		throw new Error('useResumeId() must be used within a ResumeProvider');
+	}
+
+	return id;
 }
