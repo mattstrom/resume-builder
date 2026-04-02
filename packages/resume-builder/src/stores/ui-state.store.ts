@@ -13,6 +13,7 @@ export enum Mode {
 export enum ViewMode {
 	Data = 'data',
 	Layout = 'layout',
+	Simple = 'simple',
 }
 
 export class UiStateStore {

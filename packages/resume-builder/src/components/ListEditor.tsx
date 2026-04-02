@@ -19,13 +19,23 @@ interface ListEditorProps {
 	variant: 'block' | 'inline';
 	/** className for the outer wrapper */
 	className?: string;
+	/** Placeholder shown when the list is empty */
+	emptyPlaceholder?: string;
 }
 
 export const ListEditor: FC<ListEditorProps> = observer(
-	({ path, items, resumeId, variant, className }) => {
+	({
+		path,
+		items,
+		resumeId,
+		variant,
+		className,
+		emptyPlaceholder,
+	}) => {
 		const { listEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
+		const hasItems = items.length > 0;
 
 		const handleClick = () => {
 			if (isEditable && !isEditing) {
@@ -34,6 +44,12 @@ export const ListEditor: FC<ListEditorProps> = observer(
 		};
 
 		if (!isEditable) {
+			if (!hasItems && emptyPlaceholder) {
+				return (
+					<span className={className}>{emptyPlaceholder}</span>
+				);
+			}
+
 			return variant === 'block' ? (
 				<ul className={className}>
 					{items.map((item, i) => (
@@ -46,6 +62,27 @@ export const ListEditor: FC<ListEditorProps> = observer(
 		}
 
 		if (!isEditing) {
+			if (!hasItems && emptyPlaceholder) {
+				return (
+					<button
+						type="button"
+						className={className}
+						onClick={handleClick}
+						style={{
+							background: 'none',
+							border: 'none',
+							padding: 0,
+							font: 'inherit',
+							color: 'inherit',
+							cursor: 'pointer',
+							textAlign: 'left',
+						}}
+					>
+						{emptyPlaceholder}
+					</button>
+				);
+			}
+
 			return variant === 'block' ? (
 				<ul
 					className={className}

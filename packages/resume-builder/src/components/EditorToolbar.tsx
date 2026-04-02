@@ -182,6 +182,7 @@ export const EditorToolbar: FC = observer(() => {
 					options={[
 						{ value: ViewMode.Data, label: 'Data' },
 						{ value: ViewMode.Layout, label: 'Layout' },
+						{ value: ViewMode.Simple, label: 'Simple' },
 					]}
 				/>
 

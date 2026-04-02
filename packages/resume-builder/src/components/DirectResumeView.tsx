@@ -5,12 +5,16 @@ import { ResumeProvider } from './Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from './layouts';
 import { GridLayout } from './layouts/GridLayout.tsx';
 import { useFileManager } from './FileManager';
+import { SimpleResumeView } from './SimpleResumeView.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
+import { ViewMode } from '@/stores/ui-state.store.ts';
 
 import '../App.css';
 
 export const DirectResumeView: FC = observer(() => {
 	const { template, showMarginPattern } = useSettings();
 	const { resumeData } = useFileManager();
+	const { uiStateStore } = useStore();
 
 	if (!resumeData) {
 		return (
@@ -18,6 +22,10 @@ export const DirectResumeView: FC = observer(() => {
 				No linked resume selected
 			</div>
 		);
+	}
+
+	if (uiStateStore.viewMode === ViewMode.Simple) {
+		return <SimpleResumeView />;
 	}
 
 	const templateComponent = (() => {

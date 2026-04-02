@@ -1,0 +1,355 @@
+.simple-resume-view {
+	background:
+		radial-gradient(circle at top, rgba(56, 189, 248, 0.14), transparent 32%),
+		linear-gradient(180deg, #0f172a 0%, #020617 100%);
+	padding: 24px;
+}
+
+.simple-resume-frame {
+	width: 100%;
+	max-width: 1280px;
+	margin: 0 auto;
+	container-type: inline-size;
+	container-name: simple-resume;
+}
+
+.simple-resume-shell {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	color: #e2e8f0;
+}
+
+.simple-resume-shell input,
+.simple-resume-shell textarea {
+	width: 100%;
+	border: 1px solid rgba(71, 85, 105, 0.9);
+	border-radius: 12px;
+	background: rgba(15, 23, 42, 0.95);
+	padding: 10px 12px;
+	color: inherit;
+}
+
+.simple-resume-shell input::placeholder,
+.simple-resume-shell textarea::placeholder {
+	color: #64748b;
+}
+
+.simple-resume-shell textarea {
+	min-height: 7rem;
+	resize: vertical;
+}
+
+.simple-resume-shell input:focus,
+.simple-resume-shell textarea:focus {
+	outline: none;
+	border-color: #38bdf8;
+	box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+}
+
+.simple-resume-shell input[readonly],
+.simple-resume-shell textarea[readonly] {
+	background: rgba(15, 23, 42, 0.72);
+}
+
+.simple-resume-hero {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 28px;
+	border: 1px solid rgba(51, 65, 85, 0.9);
+	border-radius: 24px;
+	background: rgba(15, 23, 42, 0.9);
+	box-shadow: 0 24px 80px rgba(2, 6, 23, 0.45);
+}
+
+.simple-resume-identity {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.simple-resume-name {
+	font-size: clamp(2rem, 4vw, 3.5rem);
+	font-weight: 700;
+	line-height: 1;
+	letter-spacing: -0.04em;
+	border: none !important;
+	border-radius: 16px !important;
+	background: transparent !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+}
+
+.simple-resume-title {
+	font-size: 1.05rem;
+	line-height: 1.5;
+	color: #94a3b8;
+	border: none !important;
+	background: transparent !important;
+	padding: 0 !important;
+	box-shadow: none !important;
+}
+
+.simple-resume-contact-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.simple-resume-contact-field {
+	padding: 12px 14px;
+	border-radius: 16px;
+	background: rgba(2, 6, 23, 0.4);
+	border: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+.simple-resume-contact-label {
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #38bdf8;
+	margin-bottom: 6px;
+}
+
+.simple-resume-contact-value {
+	font-size: 0.98rem;
+	line-height: 1.5;
+	overflow-wrap: anywhere;
+}
+
+.simple-resume-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
+	gap: 24px;
+	align-items: start;
+}
+
+.simple-resume-main,
+.simple-resume-side {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	min-width: 0;
+}
+
+.simple-resume-section {
+	padding: 24px;
+	border-radius: 24px;
+	background: rgba(15, 23, 42, 0.94);
+	border: 1px solid rgba(51, 65, 85, 0.9);
+	box-shadow: 0 20px 60px rgba(2, 6, 23, 0.32);
+}
+
+.simple-resume-section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 18px;
+}
+
+.simple-resume-section-header h2 {
+	margin: 0;
+	font-size: 0.9rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: #7dd3fc;
+}
+
+.simple-resume-section-body {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.simple-resume-summary {
+	white-space: pre-wrap;
+	line-height: 1.7;
+	color: #cbd5e1;
+}
+
+.simple-resume-entry {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+.simple-resume-entry:last-child {
+	padding-bottom: 0;
+	border-bottom: none;
+}
+
+.simple-resume-entry-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.simple-resume-entry-heading {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.simple-resume-entry-title-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.simple-resume-entry-title {
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: #f8fafc;
+	width: 100%;
+}
+
+.simple-resume-entry-title input,
+.simple-resume-entry-title textarea {
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+.simple-resume-entry-subtitle,
+.simple-resume-entry-meta-row,
+.simple-resume-tagline {
+	font-size: 0.95rem;
+	line-height: 1.5;
+	color: #94a3b8;
+}
+
+.simple-resume-entry-meta {
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #7dd3fc;
+	white-space: nowrap;
+}
+
+.simple-resume-inline-fields,
+.simple-resume-entry-meta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+.simple-resume-inline-fields > * {
+	min-width: 0;
+	flex: 1 1 220px;
+}
+
+.simple-resume-divider {
+	color: #475569;
+}
+
+.simple-resume-list {
+	margin: 0;
+	padding-left: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.simple-resume-list li {
+	line-height: 1.6;
+	color: #cbd5e1;
+}
+
+.simple-resume-skill-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.simple-resume-skill-items {
+	line-height: 1.7;
+	color: #cbd5e1;
+}
+
+.simple-resume-skill-category {
+	color: #7dd3fc;
+}
+
+.simple-resume-stack {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.simple-resume-empty {
+	margin: 0;
+	color: #94a3b8;
+	font-style: italic;
+}
+
+.simple-resume-readonly-note {
+	align-self: flex-end;
+	font-size: 0.8rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #7dd3fc;
+}
+
+@container simple-resume (max-width: 1024px) {
+	.simple-resume-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.simple-resume-main,
+	.simple-resume-side {
+		width: 100%;
+	}
+}
+
+@container simple-resume (max-width: 900px) {
+	.simple-resume-view {
+		padding: 16px;
+	}
+
+	.simple-resume-contact-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.simple-resume-hero,
+	.simple-resume-section {
+		padding: 20px;
+		border-radius: 20px;
+	}
+
+	.simple-resume-entry-header,
+	.simple-resume-entry-title-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.simple-resume-inline-fields {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.simple-resume-entry-heading,
+	.simple-resume-entry-title,
+	.simple-resume-entry-subtitle,
+	.simple-resume-entry-title-row > * {
+		width: 100%;
+	}
+
+	.simple-resume-inline-fields > * {
+		flex: 1 1 auto;
+		width: 100%;
+	}
+
+	.simple-resume-entry-meta {
+		white-space: normal;
+	}
+}
