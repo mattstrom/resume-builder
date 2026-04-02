@@ -8,13 +8,13 @@ export const Route = createFileRoute('/_authenticated/editor/')({
 });
 
 function EditorIndexComponent() {
-	const { resumeData } = useFileManager();
+	const { resumeData, selectedApplication } = useFileManager();
 
 	useEffect(() => {
 		if (resumeData) {
 			const name = resumeData.data.name;
-			const company = resumeData.company;
-			const titleParts = ['Resume', name];
+			const company = selectedApplication?.company ?? resumeData.company;
+			const titleParts = ['Application', name];
 			if (company) {
 				titleParts.push(company);
 			}
@@ -26,17 +26,16 @@ function EditorIndexComponent() {
 		return () => {
 			document.title = 'Resume Builder';
 		};
-	}, [resumeData]);
+	}, [resumeData, selectedApplication]);
 
-	// Show empty state if no resume is loaded
 	if (!resumeData) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full p-6 text-center">
 				<h1 className="text-3xl font-bold mb-4 text-white">
-					No Resume Selected
+					No Linked Resume
 				</h1>
 				<p className="text-white/70">
-					Select a resume from the file manager to get started
+					Select an application from the explorer to get started
 				</p>
 			</div>
 		);

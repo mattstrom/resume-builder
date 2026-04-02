@@ -19,8 +19,8 @@ export const FileManager: FC = () => {
 		directoryName,
 		files,
 		selectedFile,
-		apiResumes,
-		selectedApiResumeId,
+		apiApplications,
+		selectedApiApplicationId,
 		isLoading,
 		error,
 		isSupported,
@@ -28,8 +28,8 @@ export const FileManager: FC = () => {
 		detachDirectory,
 		selectFile,
 		refreshFiles,
-		loadApiResumes,
-		selectApiResume,
+		loadApiApplications,
+		selectApiApplication,
 	} = useFileManager();
 
 	if (!isSupported) {
@@ -44,29 +44,32 @@ export const FileManager: FC = () => {
 
 	return (
 		<div className="mb-4">
-			{/* API Resumes Section */}
-			<h3 className="text-sm font-semibold mb-2">Backend Resumes</h3>
+			{/* API Applications Section */}
+			<h3 className="text-sm font-semibold mb-2">Backend Applications</h3>
 
-			{apiResumes.length > 0 && (
+			{apiApplications.length > 0 && (
 				<div className="mb-4">
 					<Select
-						value={selectedApiResumeId ?? ''}
-						onValueChange={(resumeId: string) => {
-							selectApiResume(resumeId);
+						value={selectedApiApplicationId ?? ''}
+						onValueChange={(applicationId: string) => {
+							selectApiApplication(applicationId);
 							navigate({
-								to: '/editor/$resumeId',
-								params: { resumeId },
+								to: '/editor/$applicationId',
+								params: { applicationId },
 							});
 						}}
 						disabled={isLoading}
 					>
 						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Select Resume" />
+							<SelectValue placeholder="Select Application" />
 						</SelectTrigger>
 						<SelectContent>
-							{apiResumes.map((resume) => (
-								<SelectItem key={resume._id} value={resume._id}>
-									{resume.name}
+							{apiApplications.map((application) => (
+								<SelectItem
+									key={application._id}
+									value={application._id}
+								>
+									{application.name}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -74,12 +77,16 @@ export const FileManager: FC = () => {
 				</div>
 			)}
 
-			{apiResumes.length === 0 && !isLoading && (
+			{apiApplications.length === 0 && !isLoading && (
 				<div className="mb-4">
 					<p className="text-sm text-muted-foreground mb-2">
-						No resumes available from backend
+						No applications available from backend
 					</p>
-					<Button variant="ghost" size="sm" onClick={loadApiResumes}>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={loadApiApplications}
+					>
 						<RotateCw className="mr-2 h-4 w-4" />
 						Retry
 					</Button>

@@ -6,12 +6,12 @@ import { type FC } from 'react';
 interface TailorViewProps {}
 
 export const TailorView: FC<TailorViewProps> = observer(() => {
-	const { resumeStore } = useStore();
-	const { selectedResume } = resumeStore;
+	const { applicationStore } = useStore();
+	const { selectedApplication } = applicationStore;
 
-	if (!selectedResume?.jobPostingUrl) {
+	if (!selectedApplication?.jobPostingUrl) {
 		return null;
 	}
 
-	return <WebView url={selectedResume.jobPostingUrl} />;
+	return <WebView url={selectedApplication.jobPostingUrl} />;
 });

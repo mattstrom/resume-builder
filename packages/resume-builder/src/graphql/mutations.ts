@@ -1,5 +1,28 @@
 import { gql } from '@apollo/client';
-import { resumeContentFragment } from './queries.ts';
+import { applicationFragment, resumeContentFragment } from './queries.ts';
+
+export const CREATE_APPLICATION = gql`
+	mutation CreateApplication($applicationData: ApplicationInput!) {
+		createApplication(applicationData: $applicationData) {
+			...ApplicationFields
+		}
+	}
+
+	${applicationFragment}
+`;
+
+export const UPDATE_APPLICATION = gql`
+	mutation UpdateApplication(
+		$id: String!
+		$applicationData: ApplicationUpdateInput!
+	) {
+		updateApplication(id: $id, applicationData: $applicationData) {
+			...ApplicationFields
+		}
+	}
+
+	${applicationFragment}
+`;
 
 export const CREATE_RESUME = gql`
 	mutation CreateResume($resumeData: ResumeCreateInput!) {

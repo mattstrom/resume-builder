@@ -106,6 +106,56 @@ export const resumeContentFragment = gql`
 	${volunteeringFragment}
 `;
 
+export const applicationFragment = gql`
+	fragment ApplicationFields on Application {
+		_id
+		name
+		company
+		jobPostingUrl
+		jobDescription
+		notionId
+		resumeId
+		coverLetterId
+		notes
+		createdAt
+		updatedAt
+		jobSummary {
+			requiredSkills
+			preferredSkills
+			requiredEducation
+			requiredExperience
+		}
+		analysis {
+			skillRelevance
+			experienceRelevance
+			overallFit
+			strengths
+			weaknesses
+			recommendations
+		}
+	}
+`;
+
+export const LIST_APPLICATIONS = gql`
+	query ListApplications {
+		listApplications {
+			...ApplicationFields
+		}
+	}
+
+	${applicationFragment}
+`;
+
+export const GET_APPLICATION = gql`
+	query GetApplication($id: String!) {
+		getApplication(id: $id) {
+			...ApplicationFields
+		}
+	}
+
+	${applicationFragment}
+`;
+
 export const LIST_RESUMES = gql`
 	query ListResumes($sort: ResumeSortInput) {
 		listResumes(sort: $sort) {

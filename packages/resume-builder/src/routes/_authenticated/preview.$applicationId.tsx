@@ -6,6 +6,13 @@ import { BasicLayout, ColumnLayout } from '../../components/layouts';
 import { GridLayout } from '../../components/layouts/GridLayout.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
+import { GET_APPLICATION, GET_RESUME } from '../../graphql/queries.ts';
+import type {
+	GetApplicationData,
+	GetApplicationVariables,
+	GetResumeData,
+	GetResumeVariables,
+} from '../../graphql/types.ts';
 
 // Import CSS for proper styling
 import '../../App.css';
@@ -23,36 +30,43 @@ const previewSearchSchema = z
 		showMarginPattern: true,
 	});
 
-export const Route = createFileRoute('/_authenticated/preview/$resumeId')({
+export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 	validateSearch: previewSearchSchema,
 
 	loader: async ({ context, params }) => {
-		const { resumeStore } = context.store;
-		const { resumeId } = params;
+		const { client } = context.store;
+		const { applicationId } = params;
 
 		try {
-			const { data: result } = await resumeStore.refetch();
+			const applicationResult = await client.query<
+				GetApplicationData,
+				GetApplicationVariables
+			>({
+				query: GET_APPLICATION,
+				variables: { id: applicationId },
+			});
+			const application = applicationResult.data.getApplication;
 
-			if (!result) {
-				throw new Error('Resume not found');
+			if (!application.resumeId) {
+				throw new Error('Application has no linked resume');
 			}
 
-			const resumes = result.listResumes;
-			const resume = resumes.find((resume) => resume._id === resumeId);
+			const resumeResult = await client.query<
+				GetResumeData,
+				GetResumeVariables
+			>({
+				query: GET_RESUME,
+				variables: { id: application.resumeId },
+			});
 
-			if (!resume) {
-				throw new Error('Resume not found');
-			}
-
-			return resume;
+			return resumeResult.data.getResume;
 		} catch (error) {
-			// Handle GraphQL errors that indicate resume not found
 			if (
 				error instanceof Error &&
 				(error.message?.includes('NotFoundException') ||
 					error.message?.includes('not found'))
 			) {
-				throw new Error('Resume not found (404)');
+				throw new Error('Linked resume not found (404)');
 			}
 			throw error;
 		}

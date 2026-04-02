@@ -13,12 +13,12 @@ export class ConversationsService {
 		private readonly conversationModel: Model<Conversation>,
 	) {}
 
-	async findAllByResumeId(
+	async findAllByApplicationId(
 		uid: string,
-		resumeId: string,
+		applicationId: string,
 	): Promise<Conversation[]> {
 		const results = await this.conversationModel
-			.find({ resumeId, uid })
+			.find({ applicationId, uid })
 			.sort({ updatedAt: -1 })
 			.exec();
 		return results.map((item) => item.toObject());
