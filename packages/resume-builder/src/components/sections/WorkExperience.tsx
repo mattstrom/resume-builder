@@ -1,5 +1,9 @@
+import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import { ResumeCollections } from '@/graphql/resume-collections.ts';
+import {
+	getResumeCollectionPath,
+	ResumeCollections,
+} from '@/graphql/resume-collections.ts';
 import { Button } from '@/components/ui/button.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -36,8 +40,15 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 					index,
 				);
 			}}
+			onMove={async (fromIndex, toIndex) => {
+				controller?.moveArrayItem(
+					getResumeCollectionPath(ResumeCollections.WORK_EXPERIENCE),
+					fromIndex,
+					toIndex,
+				);
+			}}
 		>
-			{({ items, addItem, removeItem, isSaving }) => (
+			{({ items, addItem, removeItem, moveItem, isSaving }) => (
 				<Section
 					heading="Work History"
 					className="work-experience"
@@ -56,10 +67,15 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 					}
 				>
 					{items.map((item, index) => (
-						<JobSection
-							key={index}
-							job={item}
+						<CollectionEditorItem
+							key={item._id}
 							index={index}
+							length={items.length}
+							label="job"
+							isEditable={isEditable}
+							onMove={(fromIndex, toIndex) =>
+								void moveItem(fromIndex, toIndex)
+							}
 							actions={
 								isEditable ? (
 									<Button
@@ -73,7 +89,9 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 									</Button>
 								) : null
 							}
-						/>
+						>
+							<JobSection job={item} index={index} />
+						</CollectionEditorItem>
 					))}
 				</Section>
 			)}
