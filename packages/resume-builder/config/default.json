@@ -1,6 +1,5 @@
 {
   "graphqlUrl": "http://localhost:3000/graphql",
-  "crdtUrl": "ws://localhost:1234",
   "auth0": {
     "domain": "login.mattstrom.com",
     "clientId": "mBzWPqBisgD23yGGtNLJSrW5ejvQZnZH",
