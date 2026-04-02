@@ -6,3 +6,16 @@ export const ResumeCollections = {
 
 export type ResumeCollectionValue =
 	(typeof ResumeCollections)[keyof typeof ResumeCollections];
+
+export function getResumeCollectionPath(
+	collection: ResumeCollectionValue,
+): string {
+	switch (collection) {
+		case ResumeCollections.WORK_EXPERIENCE:
+			return 'data.workExperience';
+		case ResumeCollections.PROJECTS:
+			return 'data.projects';
+		case ResumeCollections.VOLUNTEERING:
+			return 'data.volunteering';
+	}
+}

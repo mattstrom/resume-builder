@@ -1,11 +1,15 @@
 import { HocuspocusProvider, type WebSocketStatus } from '@hocuspocus/provider';
 import type { Resume } from '@resume-builder/entities';
-import { ResumeCollections } from '@/graphql/resume-collections.ts';
+import {
+	getResumeCollectionPath,
+	ResumeCollections,
+} from '@/graphql/resume-collections.ts';
 import type { ResumeCollectionValue } from '@/graphql/resume-collections.ts';
 import { ensureAuthToken } from '@/utils/auth.ts';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 import { IndexedDbDocPersistence } from './indexeddb-doc-persistence.ts';
+import { reorderItems } from './reorder.ts';
 
 type YValue =
 	| Y.Map<unknown>
@@ -27,8 +31,12 @@ export interface ResumeDocumentController {
 	getSnapshot(): Resume | null;
 	replaceResume(resume: Resume): void;
 	setField(path: string, value: unknown): void;
+	moveArrayItem(path: string, fromIndex: number, toIndex: number): void;
 	addCollectionItem(collection: ResumeCollectionValue): void;
-	removeCollectionItem(collection: ResumeCollectionValue, index: number): void;
+	removeCollectionItem(
+		collection: ResumeCollectionValue,
+		index: number,
+	): void;
 	undo(): void;
 	redo(): void;
 	destroy(): Promise<void>;
@@ -202,7 +210,7 @@ function getChild(
 		return parent.get(String(segment));
 	}
 
-	return parent.get(segment);
+	return parent.get(Number(segment));
 }
 
 function setChild(
@@ -332,25 +340,10 @@ function createDefaultCollectionItem(
 	}
 }
 
-function getCollectionPath(collection: ResumeCollectionValue) {
-	switch (collection) {
-		case ResumeCollections.WORK_EXPERIENCE:
-			return 'data.workExperience';
-		case ResumeCollections.PROJECTS:
-			return 'data.projects';
-		case ResumeCollections.VOLUNTEERING:
-			return 'data.volunteering';
-		default:
-			throw new Error(`Unsupported collection "${collection}"`);
-	}
-}
-
 const UNDOABLE_ORIGIN = Symbol('resume:undoable');
 const NON_UNDOABLE_ORIGIN = Symbol('resume:non-undoable');
 
-export class CollaborativeResumeController
-	implements ResumeDocumentController
-{
+export class CollaborativeResumeController implements ResumeDocumentController {
 	readonly resumeId: string;
 
 	private readonly document = new Y.Doc();
@@ -454,7 +447,7 @@ export class CollaborativeResumeController
 					}
 				}
 
-				current = next;
+				current = next as Y.Map<unknown> | Y.Array<unknown>;
 			}
 
 			setChild(current, segments[segments.length - 1]!, value);
@@ -463,7 +456,7 @@ export class CollaborativeResumeController
 
 	addCollectionItem(collection: ResumeCollectionValue) {
 		const snapshot = this.getSnapshot() ?? this.options.resume;
-		const path = getCollectionPath(collection);
+		const path = getResumeCollectionPath(collection);
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
@@ -474,7 +467,7 @@ export class CollaborativeResumeController
 	}
 
 	removeCollectionItem(collection: ResumeCollectionValue, index: number) {
-		const path = getCollectionPath(collection);
+		const path = getResumeCollectionPath(collection);
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
@@ -482,6 +475,21 @@ export class CollaborativeResumeController
 			path,
 			currentItems.filter((_, itemIndex) => itemIndex !== index),
 		);
+	}
+
+	moveArrayItem(path: string, fromIndex: number, toIndex: number) {
+		const currentItems =
+			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const nextItems = reorderItems(currentItems, fromIndex, toIndex);
+
+		if (
+			nextItems.length === currentItems.length &&
+			nextItems.every((item, index) => item === currentItems[index])
+		) {
+			return;
+		}
+
+		this.setField(path, nextItems);
 	}
 
 	undo() {
@@ -577,7 +585,7 @@ export class LocalResumeController implements ResumeDocumentController {
 			return;
 		}
 
-		const path = getCollectionPath(collection);
+		const path = getResumeCollectionPath(collection);
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
@@ -594,7 +602,7 @@ export class LocalResumeController implements ResumeDocumentController {
 			return;
 		}
 
-		const path = getCollectionPath(collection);
+		const path = getResumeCollectionPath(collection);
 		const currentItems =
 			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
@@ -604,6 +612,27 @@ export class LocalResumeController implements ResumeDocumentController {
 			path,
 			currentItems.filter((_, itemIndex) => itemIndex !== index),
 		);
+		this.emitSnapshot();
+	}
+
+	moveArrayItem(path: string, fromIndex: number, toIndex: number) {
+		if (!this.snapshot) {
+			return;
+		}
+
+		const currentItems =
+			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const nextItems = reorderItems(currentItems, fromIndex, toIndex);
+
+		if (
+			nextItems.length === currentItems.length &&
+			nextItems.every((item, index) => item === currentItems[index])
+		) {
+			return;
+		}
+
+		this.pushUndoSnapshot();
+		this.snapshot = cloneWithPathValue(this.snapshot, path, nextItems);
 		this.emitSnapshot();
 	}
 
