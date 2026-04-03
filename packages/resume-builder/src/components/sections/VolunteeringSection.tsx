@@ -44,6 +44,10 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(
 		const isSaving = false;
 
 		if (!volunteering || volunteering.length === 0) {
+			if (!isEditable) {
+				return null;
+			}
+
 			return (
 				<CollectionEditor<Volunteering>
 					items={[]}
