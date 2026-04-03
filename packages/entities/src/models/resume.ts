@@ -50,6 +50,10 @@ export class Resume {
 	@Prop({ type: String, default: '' })
 	jobPostingUrl: string;
 
+	@Field()
+	@Prop({ type: Boolean, default: false })
+	readOnly: boolean;
+
 	@Field(() => ResumeContent)
 	@Prop({ type: ResumeContentSchema, default: () => ({}) })
 	data: ResumeContent;
@@ -152,6 +156,7 @@ export const resumeSchema = z.object({
 	company: z.string(),
 	level: z.string().optional(),
 	jobPostingUrl: z.string(),
+	readOnly: z.boolean(),
 	data: resumeContentSchema,
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
