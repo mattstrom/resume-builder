@@ -18,6 +18,7 @@
     "migrate:add-relevance-and-project-type": "node dist/data/migrate-add-relevance-and-project-type.js",
     "migrate:create-applications": "node dist/data/migrate-create-applications.js",
     "migrate:add-read-only": "node dist/data/migrate-add-read-only.js",
+    "migrate:add-base": "node dist/data/migrate-add-base.js",
     "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
   },
   "private": true,
