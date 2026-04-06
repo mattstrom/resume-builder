@@ -3,6 +3,7 @@
   "auth0": {
     "domain": "login.mattstrom.com",
     "clientId": "mBzWPqBisgD23yGGtNLJSrW5ejvQZnZH",
-    "audience": "https://resume-builder.mattstrom.com"
+    "audience": "https://resume-builder.mattstrom.com",
+    "scope": "openid profile email offline_access"
   }
 }
