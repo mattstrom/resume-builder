@@ -36,6 +36,39 @@ export class JobSummary {
 	})
 	@Prop({ type: String })
 	requiredExperience?: string;
+
+	@Field({ nullable: true, description: 'Role level (e.g. Junior, Senior)' })
+	@Prop({ type: String })
+	roleLevel?: string;
+
+	@Field({
+		nullable: true,
+		description: 'Location policy (e.g. Remote, On-site)',
+	})
+	@Prop({ type: String })
+	locationPolicy?: string;
+
+	@Field({
+		nullable: true,
+		description: 'Compensation range (e.g. $50k-$100k)',
+	})
+	@Prop({ type: String })
+	compensationRange?: string;
+
+	@Field({
+		nullable: true,
+		description: 'Company stage (e.g. Startup, Established)',
+	})
+	@Prop({ type: String })
+	companyStage?: string;
+
+	@Field({ nullable: true, description: 'Team size (e.g. 10-50, 50-100)' })
+	@Prop({ type: String })
+	teamSize?: string;
+
+	@Field(() => [String], { description: 'Tech stack used by company' })
+	@Prop({ type: [String] })
+	techStack: string[];
 }
 
 export const JobSummarySchema = SchemaFactory.createForClass(JobSummary);
@@ -240,6 +273,12 @@ export const jobSummarySchema = z.object({
 	preferredSkills: z.array(z.string()),
 	requiredEducation: z.string().optional(),
 	requiredExperience: z.string().optional(),
+	roleLevel: z.string().optional(),
+	locationPolicy: z.string().optional(),
+	compensationRange: z.string().optional(),
+	companyStage: z.string().optional(),
+	teamSize: z.number().optional(),
+	techStack: z.array(z.string()).optional(),
 });
 
 export const analysisSchema = z.object({

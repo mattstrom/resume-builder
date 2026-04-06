@@ -126,6 +126,8 @@ describe('migrate-create-applications helpers', () => {
 			{ uid: 'user-2', resumeId: null },
 		]);
 
-		expect(keys).toEqual(new Set([getResumeAttachmentKey('user-1', 'resume-1')]));
+		expect(keys).toEqual(
+			new Set([getResumeAttachmentKey('user-1', 'resume-1')]),
+		);
 	});
 });

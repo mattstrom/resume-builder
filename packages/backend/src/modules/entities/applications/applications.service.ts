@@ -52,6 +52,7 @@ export class ApplicationsService {
 				name: 'Untitled Resume',
 				company: applicationData.company,
 				jobPostingUrl: applicationData.jobPostingUrl,
+				base: false,
 			});
 
 			created.resumeId = resume._id;

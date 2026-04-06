@@ -138,19 +138,26 @@ export class ResumeSortInput {
 	@Field(() => ResumeSortBy, { description: 'Field to sort by' })
 	field: ResumeSortBy;
 
-	@Field({ defaultValue: true, description: 'Whether to sort in ascending order' })
+	@Field({
+		defaultValue: true,
+		description: 'Whether to sort in ascending order',
+	})
 	ascending: boolean;
 }
 
 @InputType()
 export class ResumeAddCollectionItemInput {
-	@Field(() => ResumeCollection, { description: 'Collection to add an item to' })
+	@Field(() => ResumeCollection, {
+		description: 'Collection to add an item to',
+	})
 	collection: ResumeCollection;
 }
 
 @InputType()
 export class ResumeRemoveCollectionItemInput {
-	@Field(() => ResumeCollection, { description: 'Collection to remove an item from' })
+	@Field(() => ResumeCollection, {
+		description: 'Collection to remove an item from',
+	})
 	collection: ResumeCollection;
 
 	@Field({ description: 'Index of the item to remove' })
@@ -172,8 +179,10 @@ export const resumeSchema = z.object({
 		.boolean()
 		.describe('Whether this is a base resume for targeted versions'),
 	data: resumeContentSchema.describe('Resume content data'),
-	createdAt: z.date().describe('Date when the resume was created'),
-	updatedAt: z.date().describe('Date when the resume was last updated'),
+	createdAt: z.iso.datetime().describe('Date when the resume was created'),
+	updatedAt: z.iso
+		.datetime()
+		.describe('Date when the resume was last updated'),
 });
 
 export const resumeInputSchema = resumeSchema.omit({
