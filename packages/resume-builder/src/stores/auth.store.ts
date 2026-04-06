@@ -15,13 +15,16 @@ export class AuthStore {
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
 
-		const { domain, clientId, audience } = __CONFIG__.auth0;
+		const { domain, clientId, audience, scope } = __CONFIG__.auth0;
 		this.auth0Client = new Auth0Client({
 			domain,
 			clientId,
 			cacheLocation: 'localstorage',
 			useRefreshTokens: true,
-			authorizationParams: { audience },
+			authorizationParams: {
+				audience,
+				scope,
+			},
 		});
 	}
 
@@ -44,7 +47,10 @@ export class AuthStore {
 	 */
 	async ensureToken(): Promise<string> {
 		return this.auth0Client.getTokenSilently({
-			authorizationParams: { audience: __CONFIG__.auth0.audience },
+			authorizationParams: {
+				audience: __CONFIG__.auth0.audience,
+				scope: __CONFIG__.auth0.scope,
+			},
 		});
 	}
 

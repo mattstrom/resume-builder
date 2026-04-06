@@ -4,5 +4,6 @@ export interface Configuration {
 		domain: string;
 		clientId: string;
 		audience: string;
+		scope: string;
 	};
 }
