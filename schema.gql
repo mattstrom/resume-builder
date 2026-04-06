@@ -111,6 +111,24 @@ type JobSummary {
 
   """Experience requirements (e.g. "5+ years in distributed systems")"""
   requiredExperience: String
+
+  """Role level (e.g. Junior, Senior)"""
+  roleLevel: String
+
+  """Location policy (e.g. Remote, On-site)"""
+  locationPolicy: String
+
+  """Compensation range (e.g. $50k-$100k)"""
+  compensationRange: String
+
+  """Company stage (e.g. Startup, Established)"""
+  companyStage: String
+
+  """Team size (e.g. 10-50, 50-100)"""
+  teamSize: String
+
+  """Tech stack used by company"""
+  techStack: [String!]!
 }
 
 """Analysis of fit between user skills/experience and job posting"""
@@ -203,16 +221,40 @@ type ResumeContent {
 
 """Resume"""
 type Resume {
+  """Unique identifier"""
   _id: ID!
+
+  """User identifier"""
   uid: String!
+
+  """Resume identifier"""
   id: String
+
+  """Name of the resume"""
   name: String!
+
+  """Company name"""
   company: String!
+
+  """Job level"""
   level: String
+
+  """URL to the job posting"""
   jobPostingUrl: String
+
+  """Whether the resume is read-only"""
   readOnly: Boolean!
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean!
+
+  """Resume content data"""
   data: ResumeContent!
+
+  """Date when the resume was created"""
   createdAt: DateTime!
+
+  """Date when the resume was last updated"""
   updatedAt: DateTime!
 }
 
@@ -240,7 +282,10 @@ type Query {
 }
 
 input ResumeSortInput {
+  """Field to sort by"""
   field: ResumeSortBy!
+
+  """Whether to sort in ascending order"""
   ascending: Boolean! = true
 }
 
@@ -274,11 +319,25 @@ type Mutation {
 }
 
 input ResumeCreateInput {
+  """Resume identifier"""
   id: String!
+
+  """Name of the resume"""
   name: String!
+
+  """Company name"""
   company: String!
+
+  """Job level"""
   level: String
+
+  """URL to the job posting"""
   jobPostingUrl: String!
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean!
+
+  """Resume content data"""
   data: ResumeContentInput!
 }
 
@@ -351,19 +410,45 @@ input VolunteeringInput {
 }
 
 input BlankResumeCreateInput {
+  """Resume identifier"""
   id: String!
+
+  """Name of the resume"""
   name: String!
+
+  """Company name"""
   company: String!
+
+  """Job level"""
   level: String
+
+  """URL to the job posting"""
   jobPostingUrl: String!
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean!
 }
 
 input ResumeUpdateInput {
+  """Resume identifier"""
   id: String
+
+  """Name of the resume"""
   name: String
+
+  """Company name"""
   company: String
+
+  """Job level"""
   level: String
+
+  """URL to the job posting"""
   jobPostingUrl: String
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean
+
+  """Resume content data"""
   data: ResumeContentInput
 }
 
@@ -373,10 +458,12 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 input ResumeSetFieldInput {
+  """Path to the field to set"""
   path: String!
 }
 
 input ResumeAddCollectionItemInput {
+  """Collection to add an item to"""
   collection: ResumeCollection!
 }
 
@@ -388,7 +475,10 @@ enum ResumeCollection {
 }
 
 input ResumeRemoveCollectionItemInput {
+  """Collection to remove an item from"""
   collection: ResumeCollection!
+
+  """Index of the item to remove"""
   index: Float!
 }
 

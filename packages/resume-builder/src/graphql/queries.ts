@@ -11,6 +11,17 @@ const contactInformationFragment = gql`
 	}
 `;
 
+const contactInformationSubdocFragment = gql`
+	fragment ContactInformationSubdoc on ContactInformationSubdoc {
+		location
+		email
+		phoneNumber
+		githubProfile
+		linkedInProfile
+		personalWebsite
+	}
+`;
+
 const educationFragment = gql`
 	fragment Education on Education {
 		institution
@@ -75,7 +86,7 @@ export const resumeContentFragment = gql`
 		title
 		summary
 		contactInformation {
-			...ContactInformation
+			...ContactInformationSubdoc
 		}
 		workExperience {
 			...Job
@@ -97,7 +108,7 @@ export const resumeContentFragment = gql`
 		}
 	}
 
-	${contactInformationFragment}
+	${contactInformationSubdocFragment}
 	${educationFragment}
 	${jobFragment}
 	${projectFragment}
@@ -124,6 +135,12 @@ export const applicationFragment = gql`
 			preferredSkills
 			requiredEducation
 			requiredExperience
+			roleLevel
+			locationPolicy
+			compensationRange
+			companyStage
+			teamSize
+			techStack
 		}
 		analysis {
 			skillRelevance

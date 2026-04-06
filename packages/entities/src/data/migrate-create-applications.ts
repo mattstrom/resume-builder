@@ -76,7 +76,8 @@ async function main() {
 		return;
 	}
 
-	const createdApplications = await ApplicationModel.create(applicationsToCreate);
+	const createdApplications =
+		await ApplicationModel.create(applicationsToCreate);
 
 	console.log(`Created ${createdApplications.length} applications`);
 	console.log('\nMigration completed successfully!');
