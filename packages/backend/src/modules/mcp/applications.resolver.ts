@@ -87,7 +87,8 @@ export class ApplicationsResolver {
 
 	@Tool({
 		name: 'create_application',
-		description: 'Creates a job application',
+		description:
+			'Use this tool to create a job application. An application represents a top-level container for all the information about a candidate applying for a job, like a resume and a cover letter.',
 		paramsSchema: { application: applicationInputSchema },
 		annotations: {
 			destructureHint: true,
