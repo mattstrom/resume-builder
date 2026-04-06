@@ -11,9 +11,12 @@ interface EducationSectionProps {}
 export const EducationSection: FC<EducationSectionProps> = () => {
 	const { education } = useResume();
 	const resumeId = useResumeId();
-	const { data } = useQuery<{ listEducations: Education[] }>(LIST_EDUCATIONS, {
-		fetchPolicy: 'network-only',
-	});
+	const { data } = useQuery<{ listEducations: Education[] }>(
+		LIST_EDUCATIONS,
+		{
+			fetchPolicy: 'network-only',
+		},
+	);
 	const options = data?.listEducations ?? [];
 
 	return (

@@ -1,8 +1,4 @@
-import {
-	type FC,
-	type ReactNode,
-	createElement,
-} from 'react';
+import { type FC, type ReactNode, createElement } from 'react';
 import { observer } from 'mobx-react';
 import { useStore } from '@/stores/store.provider.tsx';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
@@ -64,20 +60,19 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 					readContent,
 				)}
 
-				{isEditing &&
-					(
-						<TextFieldEditor
-							path={path}
-							value={value}
-							resumeId={resumeId}
-							multiline={multiline}
-							placeholder={placeholder}
-							autoFocus
-							onCommitSuccess={() => store.discard()}
-							onCancel={() => store.discard()}
-							className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
-						/>
-					)}
+				{isEditing && (
+					<TextFieldEditor
+						path={path}
+						value={value}
+						resumeId={resumeId}
+						multiline={multiline}
+						placeholder={placeholder}
+						autoFocus
+						onCommitSuccess={() => store.discard()}
+						onCancel={() => store.discard()}
+						className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
+					/>
+				)}
 			</span>
 		);
 	},
