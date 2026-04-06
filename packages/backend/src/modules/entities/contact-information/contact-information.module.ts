@@ -5,6 +5,7 @@ import {
 	ContactInformationSchema,
 } from '@resume-builder/entities';
 import { ContactInformationController } from './contact-information.controller';
+import { ContactInformationResolver } from './contact-information.resolver';
 import { ContactInformationService } from './contact-information.service';
 
 @Module({
@@ -14,7 +15,7 @@ import { ContactInformationService } from './contact-information.service';
 		]),
 	],
 	controllers: [ContactInformationController],
-	providers: [ContactInformationService],
+	providers: [ContactInformationService, ContactInformationResolver],
 	exports: [ContactInformationService],
 })
 export class ContactInformationModule {}

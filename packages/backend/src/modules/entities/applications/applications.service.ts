@@ -6,10 +6,12 @@ import {
 	ApplicationUpdateInput,
 } from '@resume-builder/entities';
 import { Model, UpdateOneModel } from 'mongoose';
+import { ResumesService } from '../resumes/resumes.service';
 
 @Injectable()
 export class ApplicationsService {
 	constructor(
+		private readonly resumeService: ResumesService,
 		@InjectModel(Application.name)
 		private readonly applicationModel: Model<Application>,
 	) {}
@@ -37,11 +39,24 @@ export class ApplicationsService {
 	async create(
 		uid: string,
 		applicationData: ApplicationInput,
+		includeResume: boolean = true,
 	): Promise<Application> {
 		const created = new this.applicationModel({
 			...applicationData,
 			uid,
 		});
+
+		if (includeResume) {
+			const resume = await this.resumeService.createBlank(uid, {
+				id: '',
+				name: 'Untitled Resume',
+				company: applicationData.company,
+				jobPostingUrl: applicationData.jobPostingUrl,
+			});
+
+			created.resumeId = resume._id;
+		}
+
 		const saved = await created.save();
 		return saved.toObject();
 	}

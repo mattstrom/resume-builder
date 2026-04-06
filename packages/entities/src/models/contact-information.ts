@@ -37,16 +37,6 @@ export class ContactInformation {
 	personalWebsite: string;
 }
 
-@InputType()
-export class ContactInformationInput extends OmitType(
-	ContactInformation,
-	['_id', 'uid'] as const,
-	InputType,
-) {
-	@Field(() => ID, { nullable: true })
-	_id?: string;
-}
-
 export const ContactInformationSchema =
 	SchemaFactory.createForClass(ContactInformation);
 
@@ -59,4 +49,27 @@ export const contactInformationSchema = z.object({
 	linkedInProfile: z.string(),
 	githubProfile: z.string(),
 	personalWebsite: z.string(),
+});
+
+@InputType()
+export class ContactInformationInput extends OmitType(
+	ContactInformation,
+	['_id', 'uid'] as const,
+	InputType,
+) {
+	@Field(() => ID, { nullable: true })
+	_id?: string;
+}
+
+export const ContactInformationSubdocSchema = ContactInformationSchema.omit([
+	'uid',
+]);
+
+@ObjectType()
+export class ContactInformationSubdoc extends OmitType(ContactInformation, [
+	'uid',
+]) {}
+
+export const contactInformationSubdocSchema = contactInformationSchema.omit({
+	uid: true,
 });

@@ -63,7 +63,7 @@ export class ResumeResolver {
 		@Args('id') id: string,
 		@Args('update', { type: () => GraphQLJSON })
 		update: UpdateOneModel<Resume>,
-	): Promise<void> {
+	): Promise<Resume> {
 		return this.resumesService.patch(uid, id, update);
 	}
 
@@ -83,11 +83,7 @@ export class ResumeResolver {
 		@Args('id') id: string,
 		@Args('input') input: ResumeAddCollectionItemInput,
 	) {
-		return this.resumesService.addCollectionItem(
-			uid,
-			id,
-			input.collection,
-		);
+		return this.resumesService.addCollectionItem(uid, id, input.collection);
 	}
 
 	@Mutation(() => Resume)

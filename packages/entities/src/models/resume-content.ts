@@ -2,10 +2,11 @@ import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 import {
-	ContactInformation,
 	ContactInformationInput,
-	ContactInformationSchema,
 	contactInformationSchema,
+	ContactInformationSubdoc,
+	contactInformationSubdocSchema,
+	ContactInformationSubdocSchema,
 } from './contact-information.js';
 import { Education, educationSchema, EducationSchema } from './education.js';
 import { Job, JobInput, JobSchema, jobSchema } from './job.js';
@@ -45,9 +46,9 @@ export class ResumeContent {
 	@Prop({ type: String, default: '' })
 	title: string;
 
-	@Field(() => ContactInformation)
-	@Prop({ type: ContactInformationSchema, default: () => ({}) })
-	contactInformation: ContactInformation;
+	@Field(() => ContactInformationSubdoc)
+	@Prop({ type: ContactInformationSubdocSchema, default: () => ({}) })
+	contactInformation: ContactInformationSubdoc;
 
 	@Field()
 	@Prop({ type: String, default: '' })
@@ -120,7 +121,7 @@ export const resumeContentSchema = z.object({
 	_id: z.any(),
 	name: z.string(),
 	title: z.string(),
-	contactInformation: contactInformationSchema,
+	contactInformation: contactInformationSubdocSchema,
 	summary: z.string(),
 	workExperience: z.array(jobSchema),
 	education: z.array(educationSchema),
