@@ -1,11 +1,13 @@
 import {
 	BadRequestException,
+	ForbiddenException,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
 	BlankResumeCreateInput,
+	ContactInformation,
 	Job,
 	Project,
 	Resume,
@@ -40,6 +42,8 @@ const ALLOWED_PATH_PREFIXES = [
 export class ResumesService {
 	constructor(
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
+		@InjectModel(ContactInformation.name)
+		private readonly contactInfoModel: Model<ContactInformation>,
 		@InjectModel(Job.name) private readonly jobModel: Model<Job>,
 		@InjectModel(Project.name)
 		private readonly projectModel: Model<Project>,
@@ -96,7 +100,20 @@ export class ResumesService {
 		uid: string,
 		resumeData: BlankResumeCreateInput,
 	): Promise<Resume> {
-		const created = new this.resumeModel({ ...resumeData, uid });
+		const contactInfo = await this.contactInfoModel.findOne({}).exec();
+
+		if (!contactInfo) {
+			throw new NotFoundException('Contact information not found');
+		}
+
+		const created = new this.resumeModel({
+			...resumeData,
+			uid,
+			data: {
+				contactInformation: contactInfo,
+			},
+		});
+
 		const saved = await created.save();
 		return saved.toObject();
 	}
@@ -121,10 +138,31 @@ export class ResumesService {
 		uid: string,
 		id: string,
 		update: UpdateOneModel<Resume>,
-	): Promise<void> {
-		const result = await this.resumeModel
-			.updateOne({ _id: id, uid }, update)
-			.exec();
+	): Promise<Resume> {
+		const resume = await this.getResumeModel(id, uid);
+
+		if (!resume) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
+
+		// else if (resume.readOnly) {
+		// 	throw new ForbiddenException(`Resume with id ${id} is read-only`);
+		// }
+
+		const result = resume.set(update);
+		await result.save();
+
+		return result;
+	}
+
+	private async getResumeModel(id: string, uid: string) {
+		const result = await this.resumeModel.findOne({ _id: id, uid }).exec();
+
+		if (!result) {
+			throw new NotFoundException();
+		}
+
+		return result;
 	}
 
 	async setField(
@@ -230,10 +268,6 @@ export class ResumesService {
 
 	private ensureEmbeddedUids(resume: ResumeDocument, uid: string) {
 		const { data } = resume;
-
-		if (data.contactInformation && !data.contactInformation.uid) {
-			data.contactInformation.uid = uid;
-		}
 
 		this.ensureCollectionItemUids(data.education, uid);
 		this.ensureCollectionItemUids(data.skills, uid);

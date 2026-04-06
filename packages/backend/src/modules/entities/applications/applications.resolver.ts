@@ -1,17 +1,29 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+	Args,
+	Mutation,
+	Parent,
+	Query,
+	ResolveField,
+	Resolver,
+} from '@nestjs/graphql';
 import {
 	Application,
 	ApplicationInput,
 	ApplicationUpdateInput,
+	Resume,
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
 import { CurrentUser } from '../../auth';
+import { ResumesService } from '../resumes/resumes.service';
 import { ApplicationsService } from './applications.service';
 
 @Resolver(() => Application)
 export class ApplicationsResolver {
-	constructor(private readonly applicationsService: ApplicationsService) {}
+	constructor(
+		private readonly applicationsService: ApplicationsService,
+		private readonly resumesService: ResumesService,
+	) {}
 
 	@Query(() => [Application])
 	async listApplications(@CurrentUser('sub') uid: string) {
@@ -60,5 +72,19 @@ export class ApplicationsResolver {
 		update: UpdateOneModel<Application>,
 	): Promise<void> {
 		return this.applicationsService.patch(uid, id, update);
+	}
+
+	@ResolveField(() => [Resume], { nullable: true })
+	async resumes(@Parent() application: Application): Promise<Resume[]> {
+		if (!application.resumeId) {
+			return [];
+		}
+
+		const resume = await this.resumesService.find(
+			application.uid,
+			application.resumeId,
+		);
+
+		return resume ? [resume] : [];
 	}
 }

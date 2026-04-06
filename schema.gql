@@ -14,6 +14,16 @@ type ContactInformation {
   personalWebsite: String!
 }
 
+type ContactInformationSubdoc {
+  _id: ID!
+  location: String!
+  phoneNumber: String!
+  email: String!
+  linkedInProfile: String!
+  githubProfile: String!
+  personalWebsite: String!
+}
+
 """Education"""
 type Education {
   _id: ID!
@@ -166,6 +176,7 @@ type Application {
   notes: String
   createdAt: DateTime!
   updatedAt: DateTime!
+  resumes: [Resume!]
 }
 
 """
@@ -180,7 +191,7 @@ type ResumeContent {
   _id: ID!
   name: String!
   title: String!
-  contactInformation: ContactInformation!
+  contactInformation: ContactInformationSubdoc!
   summary: String!
   workExperience: [Job!]!
   education: [Education!]!
@@ -199,6 +210,7 @@ type Resume {
   company: String!
   level: String
   jobPostingUrl: String
+  readOnly: Boolean!
   data: ResumeContent!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -219,6 +231,7 @@ type Query {
   findEducation(id: String!): Education!
   listProjects: [Project!]!
   findProject(id: String!): Project!
+  listContactInformations: [ContactInformation!]!
   listVolunteering: [Volunteering!]!
   listCoverLetters: [CoverLetter!]!
   getCoverLetter(id: String!): CoverLetter!
