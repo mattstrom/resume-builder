@@ -1,11 +1,5 @@
 import type { Application } from '@resume-builder/entities';
-import {
-	action,
-	computed,
-	makeObservable,
-	observable,
-	reaction,
-} from 'mobx';
+import { action, computed, makeObservable, observable, reaction } from 'mobx';
 import type { RootStore } from './root.store.ts';
 import { StorageKey } from './services/persistence.service.ts';
 
@@ -54,11 +48,7 @@ export class ExplorerSidebarStore {
 			StorageKey.ApplicationExplorerGroupSortAscending,
 			true,
 		);
-		this.watch(
-			'groupBy',
-			StorageKey.ApplicationExplorerGroupBy,
-			'company',
-		);
+		this.watch('groupBy', StorageKey.ApplicationExplorerGroupBy, 'company');
 
 		this.collapsedGroupKeys = new Set(
 			this.rootStore.persistence.retrieve<string[]>(
@@ -109,7 +99,10 @@ export class ExplorerSidebarStore {
 		}
 
 		const sortedEntries = [...groups.entries()].sort(
-			([leftGroupName, leftApplications], [rightGroupName, rightApplications]) => {
+			(
+				[leftGroupName, leftApplications],
+				[rightGroupName, rightApplications],
+			) => {
 				if (this.groupSortField === 'NAME') {
 					const comparison =
 						leftGroupName.localeCompare(rightGroupName);

@@ -25,7 +25,11 @@ export const ResumeView: FC<ResumeViewProps> = observer(() => {
 
 	return (
 		<div className="workspace-review">
-			{viewMode === ViewMode.Data ? <JsonEditor /> : <PreviewFrame applicationId={applicationId} />}
+			{viewMode === ViewMode.Data ? (
+				<JsonEditor />
+			) : (
+				<PreviewFrame applicationId={applicationId} />
+			)}
 		</div>
 	);
 });

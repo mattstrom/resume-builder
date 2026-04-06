@@ -36,9 +36,7 @@ export interface ResumeDocumentController {
 		fromIndex: number,
 		toIndex: number,
 	): void | Promise<void>;
-	addCollectionItem(
-		collection: ResumeCollectionValue,
-	): void | Promise<void>;
+	addCollectionItem(collection: ResumeCollectionValue): void | Promise<void>;
 	removeCollectionItem(
 		collection: ResumeCollectionValue,
 		index: number,
