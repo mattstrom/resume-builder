@@ -265,7 +265,7 @@ type ConversationMessage {
 }
 
 type Query {
-  listResumes(sort: ResumeSortInput): [Resume!]!
+  listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
   listJobs: [Job!]!
   listSkills: [Skill!]!
@@ -294,6 +294,14 @@ enum ResumeSortBy {
   COMPANY
   LEVEL
   DATE
+}
+
+input ResumeFilterInput {
+  """Filter by base resume flag"""
+  base: Boolean
+
+  """Filter by company name (case-insensitive substring match)"""
+  company: String
 }
 
 type Mutation {

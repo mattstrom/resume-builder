@@ -3,11 +3,16 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import { LIST_RESUMES } from '../graphql/queries.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
+import { StorageKey } from './services/persistence.service.ts';
 
 interface ListResumesVariables {
 	sort?: {
 		field: string;
 		ascending: boolean;
+	};
+	filter?: {
+		base?: boolean;
+		company?: string;
 	};
 }
 
@@ -38,6 +43,12 @@ export class ResumeStore {
 			| 'company'
 			| 'level'
 			| null) ?? null;
+
+	@observable
+	filterBase: boolean | null = null;
+
+	@observable
+	filterCompany: string | null = null;
 
 	@computed
 	get selectedResume() {
@@ -71,8 +82,19 @@ export class ResumeStore {
 		}
 		localStorage.setItem(STORAGE_KEY_SORT_ASCENDING, String(ascending));
 
-		const sort = field ? { field, ascending } : undefined;
-		this.query.refetch({ sort });
+		this.query.refetch(this.buildVariables());
+	}
+
+	@action
+	setFilter(base: boolean | null = null, company: string | null = null) {
+		this.filterBase = base;
+		this.filterCompany = company;
+
+		const { persistence } = this.rootStore;
+		persistence.store(StorageKey.ResumeListFilterBase, base);
+		persistence.store(StorageKey.ResumeListFilterCompany, company);
+
+		this.query.refetch(this.buildVariables());
 	}
 
 	@action
@@ -106,17 +128,40 @@ export class ResumeStore {
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
 
-		const sort = this.sortField
-			? { field: this.sortField, ascending: this.sortAscending }
-			: undefined;
+		const { persistence } = rootStore;
+		this.filterBase = persistence.retrieve<boolean>(
+			StorageKey.ResumeListFilterBase,
+		);
+		this.filterCompany = persistence.retrieve<string>(
+			StorageKey.ResumeListFilterCompany,
+		);
 
 		this.query = ApolloMobxWrapper.create<
 			{ listResumes: Resume[] },
 			ListResumesVariables
 		>(rootStore.client, {
 			query: LIST_RESUMES,
-			variables: sort ? { sort } : {},
+			variables: this.buildVariables(),
 		});
+	}
+
+	private buildVariables(): ListResumesVariables {
+		const sort = this.sortField
+			? { field: this.sortField, ascending: this.sortAscending }
+			: undefined;
+
+		const filter: ListResumesVariables['filter'] = {};
+		if (this.filterBase !== null) {
+			filter.base = this.filterBase;
+		}
+		if (this.filterCompany) {
+			filter.company = this.filterCompany;
+		}
+
+		const variables: ListResumesVariables = {};
+		if (sort) variables.sort = sort;
+		if (Object.keys(filter).length > 0) variables.filter = filter;
+		return variables;
 	}
 
 	@action

@@ -1,5 +1,5 @@
-query ListResumes($sort: ResumeSortInput) {
-  listResumes(sort: $sort) {
+query ListResumes($filter: ResumeFilterInput, $sort: ResumeSortInput) {
+  listResumes(filter: $filter, sort: $sort) {
     id
     uid
     name

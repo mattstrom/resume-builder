@@ -174,13 +174,14 @@ export const GET_APPLICATION = gql`
 `;
 
 export const LIST_RESUMES = gql`
-	query ListResumes($sort: ResumeSortInput) {
-		listResumes(sort: $sort) {
+	query ListResumes($sort: ResumeSortInput, $filter: ResumeFilterInput) {
+		listResumes(sort: $sort, filter: $filter) {
 			_id
 			id
 			name
 			company
 			level
+			base
 			jobPostingUrl
 			createdAt
 			updatedAt

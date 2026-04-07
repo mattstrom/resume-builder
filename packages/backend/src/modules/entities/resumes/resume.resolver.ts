@@ -4,6 +4,7 @@ import {
 	Resume,
 	ResumeAddCollectionItemInput,
 	ResumeCreateInput,
+	ResumeFilterInput,
 	ResumeRemoveCollectionItemInput,
 	ResumeSetFieldInput,
 	ResumeSortInput,
@@ -23,8 +24,10 @@ export class ResumeResolver {
 		@CurrentUser('sub') uid: string,
 		@Args('sort', { type: () => ResumeSortInput, nullable: true })
 		sort?: ResumeSortInput,
+		@Args('filter', { type: () => ResumeFilterInput, nullable: true })
+		filter?: ResumeFilterInput,
 	) {
-		return this.resumesService.findAll(uid, sort);
+		return this.resumesService.findAll(uid, sort, filter);
 	}
 
 	@Query(() => Resume)
