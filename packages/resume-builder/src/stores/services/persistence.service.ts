@@ -7,6 +7,8 @@ export enum StorageKey {
 	ApplicationExplorerGroupSortAscending = 'applicationList.groupSortAscending',
 	ApplicationExplorerGroupBy = 'applicationList.groupBy',
 	ApplicationExplorerCollapsedGroups = 'applicationList.collapsedGroups',
+	ResumeListFilterBase = 'resumeList.filterBase',
+	ResumeListFilterCompany = 'resumeList.filterCompany',
 }
 
 export class PersistenceService {

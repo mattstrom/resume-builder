@@ -14,6 +14,7 @@ import {
 	ResumeCollection,
 	ResumeCreateInput,
 	ResumeDocument,
+	ResumeFilterInput,
 	ResumeSortBy,
 	ResumeSortInput,
 	ResumeUpdateInput,
@@ -51,7 +52,20 @@ export class ResumesService {
 		private readonly volunteeringModel: Model<Volunteering>,
 	) {}
 
-	async findAll(uid: string, sort?: ResumeSortInput): Promise<Resume[]> {
+	async findAll(
+		uid: string,
+		sort?: ResumeSortInput,
+		filter?: ResumeFilterInput,
+	): Promise<Resume[]> {
+		const query: Record<string, unknown> = { uid };
+
+		if (filter?.base !== undefined) {
+			query['base'] = filter.base;
+		}
+		if (filter?.company) {
+			query['company'] = { $regex: filter.company, $options: 'i' };
+		}
+
 		const sortCriteria: Record<string, SortOrder> = {};
 
 		if (sort) {
@@ -67,13 +81,7 @@ export class ResumesService {
 		sortCriteria['name'] = 1;
 
 		const results = await this.resumeModel
-			.find({ uid })
-			// .select({
-			// 	name: 1,
-			// 	company: 1,
-			// 	level: 1,
-			// 	tags: 1,
-			// })
+			.find(query)
 			.sort(sortCriteria)
 			.exec();
 

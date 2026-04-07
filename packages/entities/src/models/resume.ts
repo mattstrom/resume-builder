@@ -146,6 +146,19 @@ export class ResumeSortInput {
 }
 
 @InputType()
+export class ResumeFilterInput {
+	@Field({ nullable: true, description: 'Filter by base resume flag' })
+	base?: boolean;
+
+	@Field({
+		nullable: true,
+		description:
+			'Filter by company name (case-insensitive substring match)',
+	})
+	company?: string;
+}
+
+@InputType()
 export class ResumeAddCollectionItemInput {
 	@Field(() => ResumeCollection, {
 		description: 'Collection to add an item to',
