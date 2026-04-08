@@ -1,4 +1,4 @@
-import type Anthropic from '@anthropic-ai/sdk';
+import type { LlmToolDefinition } from '../llm/interfaces/llm-types';
 
 import type { ContactInformationService } from '../entities/contact-information/contact-information.service';
 import type { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
@@ -20,38 +20,43 @@ export interface ChatToolServices {
 	coverLettersService: CoverLettersService;
 }
 
-export const chatTools: Anthropic.Tool[] = [
+export const chatTools: LlmToolDefinition[] = [
 	{
 		name: 'get_resumes',
 		description: 'Retrieve all resumes from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
+	},
+	{
+		name: 'get_resume',
+		description: 'Retrieve all resumes from the database',
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'get_contact_information',
 		description: 'Retrieve contact information from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'get_jobs',
 		description: 'Retrieve job listings from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'get_education',
 		description: 'Retrieve education entries from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'get_projects',
 		description: 'Retrieve projects from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'get_skills',
 		description:
 			'Retrieve skills from the database, optionally filtered by categories',
-		input_schema: {
-			type: 'object' as const,
+		inputSchema: {
+			type: 'object',
 			properties: {
 				categories: {
 					type: 'array',
@@ -65,14 +70,14 @@ export const chatTools: Anthropic.Tool[] = [
 	{
 		name: 'get_cover_letters',
 		description: 'Retrieve all cover letters from the database',
-		input_schema: { type: 'object' as const, properties: {} },
+		inputSchema: { type: 'object', properties: {} },
 	},
 	{
 		name: 'save_resume',
 		description:
 			'Save a resume to the database. If an id is provided, updates the existing resume; otherwise creates a new one.',
-		input_schema: {
-			type: 'object' as const,
+		inputSchema: {
+			type: 'object',
 			properties: {
 				id: {
 					type: 'string',
@@ -89,8 +94,8 @@ export const chatTools: Anthropic.Tool[] = [
 	{
 		name: 'save_cover_letter',
 		description: 'Save a cover letter to the database',
-		input_schema: {
-			type: 'object' as const,
+		inputSchema: {
+			type: 'object',
 			properties: {
 				coverLetter: {
 					type: 'object',
@@ -110,6 +115,10 @@ export async function executeTool(
 ): Promise<string> {
 	switch (name) {
 		case 'get_resumes': {
+			const resumes = await services.resumesService.findAll(uid);
+			return JSON.stringify(resumes);
+		}
+		case 'get_resume': {
 			const resumes = await services.resumesService.findAll(uid);
 			return JSON.stringify(resumes);
 		}

@@ -1,16 +1,8 @@
+import { useStore } from '@/stores/store.provider.tsx';
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
-import {
-	type FC,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
-import { DefaultChatTransport } from 'ai';
+import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { authFetch } from '../utils/auth';
 import { Button } from '@/components/ui/button';
 import {
 	Conversation,
@@ -38,13 +30,15 @@ import {
 import { ConversationList } from './ConversationList';
 import { useSettings } from './Settings.provider';
 
-const API_BASE = 'http://localhost:3000';
+// const API_BASE = 'http://localhost:3000';
 
 function getStorageKey(applicationId: string | undefined) {
 	return applicationId ? `chat:lastConversation:${applicationId}` : null;
 }
 
 export const ChatPanel: FC = () => {
+	const { conversationService } = useStore();
+
 	const { applicationId } = useParams({ strict: false });
 	const { setChatOpen } = useSettings();
 	const [input, setInput] = useState('');
@@ -53,103 +47,107 @@ export const ChatPanel: FC = () => {
 		title: string;
 		createdAt: string;
 	} | null>(null);
-	const transport = useMemo(
-		() =>
-			new DefaultChatTransport({
-				api: `${API_BASE}/api/chat`,
-				body: { data: { applicationId } },
-				fetch: async (url, init) => {
-					// Inject current conversationId into each request body
-					if (init?.body && typeof init.body === 'string') {
-						const parsed = JSON.parse(init.body);
-						parsed.data = {
-							...parsed.data,
-							conversationId: conversationIdRef.current,
-						};
-						init = { ...init, body: JSON.stringify(parsed) };
-					}
-					const response = await authFetch(url, init);
-					const newConvId = response.headers.get('X-Conversation-Id');
-					if (newConvId && newConvId !== conversationIdRef.current) {
-						conversationIdRef.current = newConvId;
-						const key = getStorageKey(applicationId);
-						if (key) localStorage.setItem(key, newConvId);
-						// Fetch conversation info for display
-						authFetch(`${API_BASE}/api/conversations/${newConvId}`)
-							.then((r) => r.json())
-							.then((conv) =>
-								setConversationInfo({
-									title: conv.title,
-									createdAt: conv.createdAt,
-								}),
-							)
-							.catch(() => {});
-					}
-					return response;
-				},
-			}),
-		[applicationId],
-	);
+
+	// const transport = useMemo(
+	// 	() =>
+	// 		new DefaultChatTransport({
+	// 			api: `${API_BASE}/api/chat`,
+	// 			body: { data: { applicationId } },
+	// 			fetch: async (url, init) => {
+	// 				// Inject current conversationId into each request body
+	// 				if (init?.body && typeof init.body === 'string') {
+	// 					const parsed = JSON.parse(init.body);
+	// 					parsed.data = {
+	// 						...parsed.data,
+	// 						conversationId: conversationIdRef.current,
+	// 					};
+	// 					init = { ...init, body: JSON.stringify(parsed) };
+	// 				}
+	// 				const response = await authFetch(url, init);
+	// 				const newConvId = response.headers.get('X-Conversation-Id');
+	// 				if (newConvId && newConvId !== conversationIdRef.current) {
+	// 					conversationIdRef.current = newConvId;
+	// 					const key = getStorageKey(applicationId);
+	// 					if (key) localStorage.setItem(key, newConvId);
+	// 					// Fetch conversation info for display
+	// 					authFetch(`${API_BASE}/api/conversations/${newConvId}`)
+	// 						.then((r) => r.json())
+	// 						.then((conv) =>
+	// 							setConversationInfo({
+	// 								title: conv.title,
+	// 								createdAt: conv.createdAt,
+	// 							}),
+	// 						)
+	// 						.catch(() => {});
+	// 				}
+	// 				return response;
+	// 			},
+	// 		}),
+	// 	[applicationId],
+	// );
 
 	const { messages, sendMessage, status, stop, setMessages } = useChat({
-		transport,
+		transport: conversationService.transport,
 	});
 
-	const loadConversation = useCallback(
-		async (convId: string) => {
-			try {
-				const res = await authFetch(
-					`${API_BASE}/api/conversations/${convId}`,
-				);
-				if (!res.ok) return false;
-				const data = await res.json();
-				conversationIdRef.current = convId;
-				setConversationInfo({
-					title: data.title,
-					createdAt: data.createdAt,
-				});
-				setMessages(
-					data.messages.map(
-						(m: { role: string; content: string }, i: number) => ({
-							id: `loaded-${i}`,
-							role: m.role as 'user' | 'assistant',
-							content: m.content,
-							parts: [{ type: 'text' as const, text: m.content }],
-						}),
-					),
-				);
-				const key = getStorageKey(applicationId);
-				if (key) localStorage.setItem(key, convId);
-				return true;
-			} catch {
-				return false;
-			}
-		},
-		[applicationId, setMessages],
-	);
+	// const loadConversation = useCallback(
+	// 	async (convId: string) => {
+	// 		try {
+	// 			const res = await authFetch(
+	// 				`${API_BASE}/api/conversations/${convId}`,
+	// 			);
+	// 			if (!res.ok) return false;
+	// 			const data = await res.json();
+	// 			conversationIdRef.current = convId;
+	// 			setConversationInfo({
+	// 				title: data.title,
+	// 				createdAt: data.createdAt,
+	// 			});
+	// 			setMessages(
+	// 				data.messages.map(
+	// 					(m: { role: string; content: string }, i: number) => ({
+	// 						id: `loaded-${i}`,
+	// 						role: m.role as 'user' | 'assistant',
+	// 						content: m.content,
+	// 						parts: [{ type: 'text' as const, text: m.content }],
+	// 					}),
+	// 				),
+	// 			);
+	// 			const key = getStorageKey(applicationId);
+	// 			if (key) localStorage.setItem(key, convId);
+	// 			return true;
+	// 		} catch {
+	// 			return false;
+	// 		}
+	// 	},
+	// 	[applicationId, setMessages],
+	// );
 
 	// Restore last conversation on mount
 	useEffect(() => {
-		const key = getStorageKey(applicationId);
-		const savedId = key ? localStorage.getItem(key) : null;
-		if (savedId) {
-			loadConversation(savedId).then((ok) => {
-				if (!ok && key) localStorage.removeItem(key);
-			});
-		}
-	}, [applicationId, loadConversation]);
+		conversationService.loadLastConversation();
+		// const key = getStorageKey(applicationId);
+		// const savedId = key ? localStorage.getItem(key) : null;
+		// if (savedId) {
+		// 	loadConversation(savedId).then((ok) => {
+		// 		if (!ok && key) localStorage.removeItem(key);
+		// 	});
+		// }
+	}, [applicationId]);
 
 	const handleNewChat = useCallback(() => {
-		conversationIdRef.current = null;
-		setConversationInfo(null);
-		setMessages([]);
-		const key = getStorageKey(applicationId);
-		if (key) localStorage.removeItem(key);
+		conversationService.addNewConversation();
+		// conversationIdRef.current = null;
+		// setConversationInfo(null);
+		// setMessages([]);
+		// const key = getStorageKey(applicationId);
+		// if (key) localStorage.removeItem(key);
 	}, [applicationId, setMessages]);
 
 	const handleSelectConversation = useCallback(
-		(conv: { _id: string }) => loadConversation(conv._id),
-		[loadConversation],
+		(conv: { _id: string }) =>
+			conversationService.loadConversation(conv._id),
+		[],
 	);
 
 	return (

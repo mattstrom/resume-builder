@@ -34,6 +34,22 @@ export class ConversationsService {
 		return result.toObject();
 	}
 
+	async findOrCreate(
+		uid: string,
+		id?: string,
+		data?: ConversationCreateInput,
+	): Promise<Conversation> {
+		const existing = await this.conversationModel
+			.findOne({ _id: id, uid })
+			.exec();
+
+		if (existing) {
+			return existing.toObject();
+		}
+
+		return this.create(uid, data!);
+	}
+
 	async create(
 		uid: string,
 		data: ConversationCreateInput,
