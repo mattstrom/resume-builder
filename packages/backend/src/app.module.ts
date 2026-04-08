@@ -11,6 +11,7 @@ import { HealthModule } from './modules/health/health.module';
 import { LoggingModule } from './modules/logging/logging.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
+import { LlmModule } from './modules/llm/llm.module';
 
 @Module({
 	imports: [
@@ -27,6 +28,7 @@ import { PdfModule } from './modules/pdf/pdf.module';
 		MongooseModule.forRoot(config.mongodb.uri),
 		PdfModule,
 		LoggingModule,
+		LlmModule,
 	],
 })
 export class AppModule {}

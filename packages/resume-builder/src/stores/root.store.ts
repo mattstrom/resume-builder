@@ -1,3 +1,4 @@
+import { ConversationService } from '@/stores/chat/conversation.service.ts';
 import { InlineEditStore } from '@/stores/inline-edit.store.ts';
 import { InspectStore } from '@/stores/inspect.store.ts';
 import { ListEditStore } from '@/stores/list-edit.store.ts';
@@ -28,6 +29,7 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly resumeStore: ResumeStore;
 	public readonly themeStore: ThemeStore;
 	public readonly uiStateStore: UiStateStore = new UiStateStore(this);
+	public readonly conversationService: ConversationService;
 
 	constructor(client?: ApolloClient) {
 		this.client = client ?? apolloClient;
@@ -40,6 +42,7 @@ export class RootStore<R extends AnyRoute = any> {
 		this.resumeStore = new ResumeStore(this);
 		this.themeStore = new ThemeStore(this);
 		this.uiStateStore = new UiStateStore(this);
+		this.conversationService = new ConversationService(this);
 
 		if (import.meta.env.DEV) {
 			globalThis.rootStore = this;

@@ -1,3 +1,4 @@
+import { useStore } from '@/stores/store.provider.tsx';
 import { type FC, useCallback, useEffect, useState } from 'react';
 import { authFetch } from '../utils/auth';
 import { MessageSquare, Plus, Trash2 } from 'lucide-react';

@@ -1,5 +1,10 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import type { MessageParam } from '@anthropic-ai/sdk/resources/messages';
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	Post,
+	Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 
 import { CurrentUser } from '../auth';
@@ -12,8 +17,11 @@ import { ProjectsService } from '../entities/projects/projects.service';
 import { ResumesService } from '../entities/resumes/resumes.service';
 import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
-import { streamAnthropicResponse } from './anthropic-stream-adapter';
+import type { LlmMessage } from '../llm/interfaces/llm-types';
 import { chatTools, executeTool } from './chat-tools';
+import { ChatService } from './chat.service';
+
+import configuration from '../../configuration';
 
 @Controller('api/chat')
 export class ChatController {
@@ -27,6 +35,7 @@ export class ChatController {
 		private readonly volunteeringService: VolunteeringService,
 		private readonly coverLettersService: CoverLettersService,
 		private readonly conversationsService: ConversationsService,
+		private readonly chatService: ChatService,
 	) {}
 
 	@Post()
@@ -43,6 +52,10 @@ export class ChatController {
 		const applicationId = data?.applicationId;
 		let conversationId = data?.conversationId;
 
+		if (!applicationId) {
+			throw new BadRequestException('Application ID is required');
+		}
+
 		const systemPrompt = `
 			You are an expert resume preparer. When asked you will help prepare a resume
 			for the given job description.
@@ -53,8 +66,8 @@ export class ChatController {
 			fetch the data using tools before responding.
 		`;
 
-		// Convert useChat messages to Anthropic format
-		const anthropicMessages: MessageParam[] = messages.map((msg) => ({
+		// Convert useChat messages to LLM-agnostic format
+		const llmMessages: LlmMessage[] = messages.map((msg) => ({
 			role: msg.role as 'user' | 'assistant',
 			content:
 				typeof msg.content === 'string'
@@ -77,22 +90,25 @@ export class ChatController {
 						.map((p: any) => p.text)
 						.join('') ?? '');
 
-		// Create conversation on first message if needed
-		if (!conversationId && applicationId) {
-			const title = userText.slice(0, 50) || 'New Conversation';
-			const conversation = await this.conversationsService.create(uid, {
-				applicationId,
-				title,
-			});
-			conversationId = String(conversation._id);
-		}
+		const conversation = await this.conversationsService.findOrCreate(
+			uid,
+			conversationId,
+			{
+				applicationId: applicationId!,
+				title: userText.slice(0, 50) || 'New Conversation',
+			},
+		);
 
 		// Persist user message
-		if (conversationId) {
-			await this.conversationsService.appendMessage(uid, conversationId, {
-				role: 'user',
-				content: userText,
-			});
+		if (conversation._id) {
+			await this.conversationsService.appendMessage(
+				uid,
+				conversation._id,
+				{
+					role: 'user',
+					content: userText,
+				},
+			);
 		}
 
 		const services = {
@@ -106,10 +122,10 @@ export class ChatController {
 			coverLettersService: this.coverLettersService,
 		};
 
-		const assistantText = await streamAnthropicResponse(res, {
-			model: 'claude-haiku-4-5-20251001',
+		const assistantText = await this.chatService.streamWithToolLoop(res, {
+			model: configuration.llms.defaultLlm.model,
 			system: systemPrompt,
-			messages: anthropicMessages,
+			messages: llmMessages,
 			tools: chatTools,
 			executeTool: (name, input) =>
 				executeTool(name, input, services, uid),
@@ -117,11 +133,15 @@ export class ChatController {
 		});
 
 		// Persist assistant response
-		if (conversationId && assistantText) {
-			await this.conversationsService.appendMessage(uid, conversationId, {
-				role: 'assistant',
-				content: assistantText,
-			});
+		if (conversation._id && assistantText) {
+			await this.conversationsService.appendMessage(
+				uid,
+				conversation._id,
+				{
+					role: 'assistant',
+					content: assistantText,
+				},
+			);
 		}
 	}
 }

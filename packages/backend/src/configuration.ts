@@ -2,7 +2,18 @@ import config from 'config';
 import convict from 'convict';
 
 export interface Config {
-	anthropicApiKey: string;
+	llms: {
+		anthropic: {
+			apiKey: string;
+		};
+		ollama: {
+			host: string;
+		};
+		defaultLlm: {
+			provider: string;
+			model: string;
+		};
+	};
 	auth0: {
 		domain: string;
 		audience: string;
@@ -27,12 +38,38 @@ const schema = convict<Config>({
 			env: 'AUTH0_AUDIENCE',
 		},
 	},
-	anthropicApiKey: {
-		doc: 'Anthropic API key for AI chat',
-		format: String,
-		default: '',
-		env: 'ANTHROPIC_API_KEY',
-		sensitive: true,
+	llms: {
+		anthropic: {
+			apiKey: {
+				doc: 'Anthropic API key for AI chat',
+				format: String,
+				default: '',
+				env: 'ANTHROPIC_API_KEY',
+				sensitive: true,
+			},
+		},
+		ollama: {
+			host: {
+				doc: 'Ollama server host URL',
+				format: String,
+				default: 'http://localhost:11434',
+				env: 'OLLAMA_HOST',
+			},
+		},
+		defaultLlm: {
+			provider: {
+				doc: 'Default LLM provider (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'DEFAULT_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'Default LLM model name',
+				format: String,
+				default: 'claude-haiku-4-5-20251001',
+				env: 'DEFAULT_LLM_MODEL',
+			},
+		},
 	},
 	mongodb: {
 		uri: {
