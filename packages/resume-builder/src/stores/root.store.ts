@@ -1,4 +1,5 @@
 import { InlineEditStore } from '@/stores/inline-edit.store.ts';
+import { InspectStore } from '@/stores/inspect.store.ts';
 import { ListEditStore } from '@/stores/list-edit.store.ts';
 import { ThemeStore } from '@/stores/theme.store.ts';
 import { UiStateStore } from '@/stores/ui-state.store.ts';
@@ -22,6 +23,7 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly applicationStore: ApplicationStore;
 	public readonly explorerSidebarStore: ExplorerSidebarStore;
 	public readonly inlineEditStore: InlineEditStore;
+	public readonly inspectStore: InspectStore;
 	public readonly listEditStore: ListEditStore;
 	public readonly resumeStore: ResumeStore;
 	public readonly themeStore: ThemeStore;
@@ -33,6 +35,7 @@ export class RootStore<R extends AnyRoute = any> {
 		this.applicationStore = new ApplicationStore(this);
 		this.explorerSidebarStore = new ExplorerSidebarStore(this);
 		this.inlineEditStore = new InlineEditStore(this);
+		this.inspectStore = new InspectStore(this);
 		this.listEditStore = new ListEditStore(this);
 		this.resumeStore = new ResumeStore(this);
 		this.themeStore = new ThemeStore(this);

@@ -1,3 +1,4 @@
+import { Stack } from '@/components/common/Stack.tsx';
 import { type FC } from 'react';
 import { observer } from 'mobx-react';
 import { useSettings } from './Settings.provider.tsx';
@@ -5,6 +6,7 @@ import { ResumeProvider } from './Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from './layouts';
 import { GridLayout } from './layouts/GridLayout.tsx';
 import { useFileManager } from './FileManager';
+import { ResumeToolbar } from './ResumeToolbar.tsx';
 import { SimpleResumeView } from './SimpleResumeView.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { ViewMode } from '@/stores/ui-state.store.ts';
@@ -44,11 +46,14 @@ export const DirectResumeView: FC = observer(() => {
 
 	return (
 		<div className="workspace-review">
-			<div className="preview-frame">
-				<ResumeProvider data={resumeData}>
-					<div className={className}>{templateComponent}</div>
-				</ResumeProvider>
-			</div>
+			<Stack direction="column">
+				<ResumeToolbar />
+				<div className="preview-frame">
+					<ResumeProvider data={resumeData}>
+						<div className={className}>{templateComponent}</div>
+					</ResumeProvider>
+				</div>
+			</Stack>
 		</div>
 	);
 });
