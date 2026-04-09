@@ -1,7 +1,3 @@
-import { useStore } from '@/stores/store.provider.tsx';
-import { type FC, useCallback, useEffect, useState } from 'react';
-import { authFetch } from '../utils/auth';
-import { MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
 	Popover,
@@ -9,6 +5,9 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageSquare, Plus, Trash2 } from 'lucide-react';
+import { type FC, useEffect, useState } from 'react';
+import { authFetch } from '../utils/auth';
 
 interface ConversationSummary {
 	_id: string;
