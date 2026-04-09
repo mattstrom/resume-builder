@@ -11,14 +11,34 @@ const config: Config = {
 	llms: {
 		anthropic: {
 			apiKey: '',
+			models: [
+				{
+					name: 'claude-haiku-4-5-20251001',
+					label: 'Claude Haiku 4.5',
+				},
+			],
 		},
 		ollama: {
 			host: 'http://localhost:11434',
+			models: [
+				{ name: 'llama3.2', label: 'Llama 3.2' },
+				{ name: 'qwen3.5', label: 'Qwen 3.5' },
+			],
+		},
+		lmStudio: {
+			host: 'http://localhost:1234',
+			models: [
+				{ name: 'gemma-4-31b-it', label: 'Gemma 4.31b (IT)' },
+				{ name: 'qwen3.5', label: 'Qwen 3.5' },
+			],
 		},
 		defaultLlm: {
-			provider: 'ollama',
+			provider: 'lm-studio',
+			model: 'gemma-4-31b-it',
+			// provider: 'ollama',
 			// model: 'llama3.2',
-			model: 'qwen3.5',
+			// model: 'qwen3.5',
+			// model: 'gemma4:31b',
 		},
 	},
 };
