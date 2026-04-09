@@ -1,13 +1,24 @@
 import config from 'config';
 import convict from 'convict';
 
+interface ModelInfo {
+	name: string;
+	label: string;
+}
+
 export interface Config {
 	llms: {
 		anthropic: {
 			apiKey: string;
+			models: ModelInfo[];
 		};
 		ollama: {
 			host: string;
+			models: ModelInfo[];
+		};
+		lmStudio: {
+			host: string;
+			models: ModelInfo[];
 		};
 		defaultLlm: {
 			provider: string;
@@ -47,6 +58,11 @@ const schema = convict<Config>({
 				env: 'ANTHROPIC_API_KEY',
 				sensitive: true,
 			},
+			models: {
+				doc: 'List of available Anthropic models',
+				format: Array<string>,
+				default: [],
+			},
 		},
 		ollama: {
 			host: {
@@ -54,6 +70,24 @@ const schema = convict<Config>({
 				format: String,
 				default: 'http://localhost:11434',
 				env: 'OLLAMA_HOST',
+			},
+			models: {
+				doc: 'List of available Ollama models',
+				format: Array<{ name: string; label: string }>,
+				default: [],
+			},
+		},
+		lmStudio: {
+			host: {
+				doc: 'LM Studio server host URL',
+				format: String,
+				default: 'http://localhost:1234',
+				env: 'LMSTUDIO_HOST',
+			},
+			models: {
+				doc: 'List of available LM Studio models',
+				format: Array<{ name: string; label: string }>,
+				default: [],
 			},
 		},
 		defaultLlm: {
