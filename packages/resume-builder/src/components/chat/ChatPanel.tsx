@@ -1,3 +1,5 @@
+import { PromptInputProvider } from '@/components/ai-elements/prompt-input.tsx';
+import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
@@ -9,41 +11,29 @@ import {
 	ConversationContent,
 	ConversationEmptyState,
 	ConversationScrollButton,
-} from './ai-elements/conversation';
+} from '../ai-elements/conversation';
 import {
 	Message,
 	MessageContent,
 	MessageResponse,
-} from './ai-elements/message';
-import {
-	PromptInput,
-	PromptInputTextarea,
-	PromptInputSubmit,
-} from './ai-elements/prompt-input';
+} from '../ai-elements/message';
 import {
 	Tool,
 	ToolHeader,
 	ToolContent,
 	ToolInput,
 	ToolOutput,
-} from './ai-elements/tool';
-import { ConversationList } from './ConversationList';
-import { useSettings } from './Settings.provider';
-
-// const API_BASE = 'http://localhost:3000';
-
-function getStorageKey(applicationId: string | undefined) {
-	return applicationId ? `chat:lastConversation:${applicationId}` : null;
-}
+} from '../ai-elements/tool';
+import { ConversationList } from '../ConversationList';
+import { useSettings } from '../Settings.provider';
 
 export const ChatPanel: FC = () => {
 	const { conversationService } = useStore();
 
 	const { applicationId } = useParams({ strict: false });
 	const { setChatOpen } = useSettings();
-	const [input, setInput] = useState('');
 	const conversationIdRef = useRef<string | null>(null);
-	const [conversationInfo, setConversationInfo] = useState<{
+	const [conversationInfo] = useState<{
 		title: string;
 		createdAt: string;
 	} | null>(null);
@@ -86,53 +76,14 @@ export const ChatPanel: FC = () => {
 	// 	[applicationId],
 	// );
 
-	const { messages, sendMessage, status, stop, setMessages } = useChat({
+	const helpers = useChat({
 		transport: conversationService.transport,
 	});
-
-	// const loadConversation = useCallback(
-	// 	async (convId: string) => {
-	// 		try {
-	// 			const res = await authFetch(
-	// 				`${API_BASE}/api/conversations/${convId}`,
-	// 			);
-	// 			if (!res.ok) return false;
-	// 			const data = await res.json();
-	// 			conversationIdRef.current = convId;
-	// 			setConversationInfo({
-	// 				title: data.title,
-	// 				createdAt: data.createdAt,
-	// 			});
-	// 			setMessages(
-	// 				data.messages.map(
-	// 					(m: { role: string; content: string }, i: number) => ({
-	// 						id: `loaded-${i}`,
-	// 						role: m.role as 'user' | 'assistant',
-	// 						content: m.content,
-	// 						parts: [{ type: 'text' as const, text: m.content }],
-	// 					}),
-	// 				),
-	// 			);
-	// 			const key = getStorageKey(applicationId);
-	// 			if (key) localStorage.setItem(key, convId);
-	// 			return true;
-	// 		} catch {
-	// 			return false;
-	// 		}
-	// 	},
-	// 	[applicationId, setMessages],
-	// );
+	const { messages, sendMessage, setMessages } = helpers;
 
 	// Restore last conversation on mount
 	useEffect(() => {
 		conversationService.loadLastConversation();
-		// const key = getStorageKey(applicationId);
-		// const savedId = key ? localStorage.getItem(key) : null;
-		// if (savedId) {
-		// 	loadConversation(savedId).then((ok) => {
-		// 		if (!ok && key) localStorage.removeItem(key);
-		// 	});
-		// }
 	}, [applicationId]);
 
 	const handleNewChat = useCallback(() => {
@@ -267,19 +218,14 @@ export const ChatPanel: FC = () => {
 			</Conversation>
 
 			<div className="border-t border-border p-4">
-				<PromptInput
-					onSubmit={(message) => {
-						sendMessage({ text: message.text });
-						setInput('');
-					}}
-				>
-					<PromptInputTextarea
-						value={input}
-						onChange={(e) => setInput(e.target.value)}
-						placeholder="Ask about your resume..."
+				<PromptInputProvider>
+					<ChatPrompt
+						helpers={helpers}
+						onSubmit={(message) => {
+							sendMessage({ text: message.text });
+						}}
 					/>
-					<PromptInputSubmit status={status} onStop={stop} />
-				</PromptInput>
+				</PromptInputProvider>
 			</div>
 		</div>
 	);

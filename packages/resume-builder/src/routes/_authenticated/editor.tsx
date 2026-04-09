@@ -6,7 +6,7 @@ import {
 	Separator as PanelResizeHandle,
 	type PanelImperativeHandle,
 } from 'react-resizable-panels';
-import { ChatPanel } from '../../components/ChatPanel.tsx';
+import { ChatPanel } from '../../components/chat/ChatPanel.tsx';
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { useFileManager } from '../../components/FileManager';
 import { EditorToolbar } from '../../components/EditorToolbar.tsx';
