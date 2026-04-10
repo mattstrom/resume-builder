@@ -35,3 +35,8 @@ charts/*/charts/
 
 backup
 files
+
+
+storybook-static
+.claude/worktrees
+.claude/settings.local.json
