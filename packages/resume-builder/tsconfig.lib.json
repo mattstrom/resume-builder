@@ -8,5 +8,13 @@
     "rootDir": "./src"
   },
   "include": ["src/lib/**/*", "src/components/**/*", "src/hooks/**/*"],
-  "exclude": ["src/main.tsx", "src/App.tsx", "src/data/**/*"]
+  "exclude": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/data/**/*",
+    "**/*.stories.ts",
+    "**/*.stories.js",
+    "**/*.stories.jsx",
+    "**/*.stories.tsx"
+  ]
 }
