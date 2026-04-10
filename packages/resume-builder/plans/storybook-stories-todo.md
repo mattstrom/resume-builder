@@ -19,28 +19,28 @@ This document outlines the progress of implementing Storybook stories for the Sh
 - [x] Button Group
 - [x] Card
 - [x] Collapsible
+- [x] Hover Card
+- [x] Input Group
+- [x] Progress
+- [x] Scroll Area
+- [x] Sidebar
+- [x] Accordion
+- [x] Carousel
+- [x] Checkbox
+- [x] Command
+- [x] Dialog
+- [x] Dropdown Menu
+- [x] Popover
+- [x] Select
+- [x] Sheet
+- [x] Tabs
+- [x] Tooltip
 
 ### 🟢 Simple Components
 
 ### 🟡 Compound Components
-- [ ] Hover Card
-- [ ] Input Group
-- [ ] Progress
-- [ ] Scroll Area
-- [ ] Sidebar
 
 ### 🔴 Complex / Interactive Components
-- [ ] Accordion
-- [ ] Carousel
-- [ ] Checkbox
-- [ ] Command
-- [ ] Dialog
-- [ ] Dropdown Menu
-- [ ] Popover
-- [ ] Select
-- [ ] Sheet
-- [ ] Tabs
-- [ ] Tooltip
 
 ## Next Steps
 1. Start with the **Simple Components** group to quickly build up the story library.
