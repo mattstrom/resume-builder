@@ -7,22 +7,22 @@ This document outlines the progress of implementing Storybook stories for the Sh
 ### ✅ Completed
 - [x] Alert
 - [x] Button
+- [x] Badge
+- [x] Input
+- [x] Label
+- [x] Separator
+- [x] Skeleton
+- [x] Textarea
+- [x] Switch
+- [x] Spinner
+- [x] Avatar
+- [x] Button Group
+- [x] Card
+- [x] Collapsible
 
 ### 🟢 Simple Components
-- [ ] Badge
-- [ ] Input
-- [ ] Label
-- [ ] Separator
-- [ ] Skeleton
-- [ ] Textarea
-- [ ] Switch
-- [ ] Spinner
 
 ### 🟡 Compound Components
-- [ ] Avatar
-- [ ] Button Group
-- [ ] Card
-- [ ] Collapsible
 - [ ] Hover Card
 - [ ] Input Group
 - [ ] Progress
