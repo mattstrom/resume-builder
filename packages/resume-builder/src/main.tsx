@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { RootStore } from './stores/root.store.ts';
 import { StoreProvider } from './stores/store.provider.tsx';
-import { Auth0Provider } from './components/Auth0Provider.tsx';
-import { Auth0SyncProvider } from './components/Auth0SyncProvider.tsx';
 
 import './index.css';
 
@@ -32,12 +30,8 @@ declare module '@tanstack/react-router' {
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<Auth0Provider>
-			<StoreProvider>
-				<Auth0SyncProvider>
-					<RouterProvider router={router} context={{ store }} />
-				</Auth0SyncProvider>
-			</StoreProvider>
-		</Auth0Provider>
+		<StoreProvider>
+			<RouterProvider router={router} context={{ store }} />
+		</StoreProvider>
 	</StrictMode>,
 );

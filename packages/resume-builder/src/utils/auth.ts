@@ -5,7 +5,8 @@ import { RootStore } from '../stores/root.store.ts';
  * Safe to call from route loaders (outside React).
  */
 export async function ensureAuthToken(): Promise<string> {
-	return RootStore.getInstance().authStore.ensureToken();
+	const { authStore } = RootStore.getInstance();
+	return authStore.ensureToken();
 }
 
 export async function authFetch(

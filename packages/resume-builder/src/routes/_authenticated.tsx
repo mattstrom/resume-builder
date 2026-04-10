@@ -20,7 +20,7 @@ export const Route = createFileRoute('/_authenticated')({
 	beforeLoad: async () => {
 		try {
 			await ensureAuthToken();
-		} catch {
+		} catch (err) {
 			throw redirect({ to: '/login' });
 		}
 	},

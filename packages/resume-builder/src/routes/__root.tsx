@@ -15,7 +15,7 @@ const RootComponent = observer(() => {
 	// Auth0 is initializing or processing the callback redirect
 	const queryString = window.location.search;
 	const isProcessingCallback =
-		authStore.isLoading ||
+		!authStore.isInitialized ||
 		queryString.includes('code=') ||
 		queryString.includes('state=');
 

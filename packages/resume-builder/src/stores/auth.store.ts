@@ -1,85 +1,124 @@
-import { Auth0Client } from '@auth0/auth0-spa-js';
-import type { User } from '@auth0/auth0-react';
-import { action, computed, makeObservable, observable } from 'mobx';
+import {
+	Auth0Client,
+	createAuth0Client,
+	type Auth0ClientOptions,
+} from '@auth0/auth0-spa-js';
+import type {
+	GetTokenSilentlyOptions,
+	RedirectLoginOptions,
+	User,
+} from '@auth0/auth0-react';
+import { action, computed, makeObservable, observable, when } from 'mobx';
+import { BehaviorSubject } from 'rxjs';
 import type { RootStore } from './root.store.ts';
 
+const authOptions: Auth0ClientOptions = {
+	domain: __CONFIG__.auth0.domain,
+	clientId: __CONFIG__.auth0.clientId,
+	cacheLocation: 'localstorage',
+	useRefreshTokens: true,
+	authorizationParams: {
+		redirect_uri: window.location.origin,
+		audience: __CONFIG__.auth0.audience,
+		scope: __CONFIG__.auth0.scope,
+	},
+};
+
 export class AuthStore {
-	@observable isLoading = true;
+	@observable isInitialized = false;
 	@observable isAuthenticated = false;
 	@observable user: User | undefined = undefined;
 
-	private auth0Client: Auth0Client;
-	private _loginWithRedirect: (() => Promise<void>) | null = null;
-	private _logoutHandler: ((options?: any) => Promise<void>) | null = null;
+	public token$ = new BehaviorSubject<string | null>(null);
+	private auth0Client!: Auth0Client;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
-
-		const { domain, clientId, audience, scope } = __CONFIG__.auth0;
-		this.auth0Client = new Auth0Client({
-			domain,
-			clientId,
-			cacheLocation: 'localstorage',
-			useRefreshTokens: true,
-			authorizationParams: {
-				audience,
-				scope,
-			},
-		});
+		this.initialize();
 	}
 
-	/**
-	 * Called by Auth0SyncProvider to push React Auth0 state into MobX.
-	 */
 	@action
-	syncFromAuth0(state: {
-		isLoading: boolean;
-		isAuthenticated: boolean;
-		user: User | undefined;
-	}) {
-		this.isLoading = state.isLoading;
-		this.isAuthenticated = state.isAuthenticated;
-		this.user = state.user;
+	private async initialize(): Promise<void> {
+		this.auth0Client = await createAuth0Client(authOptions);
+
+		if (window.location.search.includes('code=')) {
+			try {
+				const result = await this.auth0Client.handleRedirectCallback();
+				await this.onRedirectCallback(result.appState).catch(() =>
+					this.logout(),
+				);
+			} catch (error) {
+				console.error('Error handling redirect callback:', error);
+				throw error;
+			}
+		} else if (window.location.search.includes('error=')) {
+			console.error('Error occurred while logging in.');
+			this.logout();
+			return;
+		}
+
+		try {
+			await this.auth0Client.getTokenSilently();
+		} catch (error) {
+			console.error('Error retrieving token silently:', error);
+
+			await this.auth0Client.loginWithRedirect();
+			return;
+		}
+
+		this.isAuthenticated = await this.auth0Client.isAuthenticated();
+		this.user = await this.auth0Client.getUser();
+		this.isInitialized = true;
 	}
+
+	onRedirectCallback = async (state: any = {}) => {
+		window.history.replaceState(
+			state,
+			document.title,
+			state?.redirectUrl ?? window.location.pathname,
+		);
+	};
 
 	/**
 	 * Token retrieval -- uses Auth0Client directly (works outside React).
 	 */
 	async ensureToken(): Promise<string> {
-		return this.auth0Client.getTokenSilently({
-			authorizationParams: {
-				audience: __CONFIG__.auth0.audience,
-				scope: __CONFIG__.auth0.scope,
+		await when(() => this.isInitialized);
+		return this.auth0Client.getTokenSilently();
+	}
+
+	@action
+	async getIdTokenClaims() {
+		return this.auth0Client!.getIdTokenClaims();
+	}
+
+	@action
+	async getTokenSilently(options?: GetTokenSilentlyOptions): Promise<string> {
+		try {
+			const token = await this.auth0Client.getTokenSilently(options);
+			this.token$.next(token);
+
+			return token;
+		} catch (err) {
+			console.error(err);
+			throw err;
+		}
+	}
+
+	@action
+	async login(options?: RedirectLoginOptions) {
+		await when(() => this.isInitialized);
+		await this.auth0Client.loginWithRedirect(options);
+	}
+
+	@action
+	async logout(returnTo?: string) {
+		await this.auth0Client?.logout({
+			logoutParams: {
+				client_id: authOptions.clientId,
+				returnTo: returnTo ?? `${window.location.origin}/logout`,
 			},
 		});
-	}
-
-	setLoginHandler(handler: () => Promise<void>) {
-		this._loginWithRedirect = handler;
-	}
-
-	setLogoutHandler(handler: (options?: any) => Promise<void>) {
-		this._logoutHandler = handler;
-	}
-
-	async login() {
-		if (this._loginWithRedirect) {
-			return this._loginWithRedirect();
-		}
-		await this.auth0Client.loginWithRedirect();
-	}
-
-	async logout(returnTo?: string) {
-		const params = {
-			logoutParams: {
-				returnTo: returnTo ?? window.location.origin + '/logout',
-			},
-		};
-
-		if (this._logoutHandler) {
-			return this._logoutHandler(params);
-		}
-		await this.auth0Client.logout(params);
 	}
 
 	@computed
