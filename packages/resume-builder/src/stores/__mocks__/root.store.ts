@@ -5,6 +5,13 @@ export class RootStore {
 		},
 	};
 
+	public inspectStore = {
+		isInspectingMode: false,
+		isHighlighted(): boolean {
+			return false;
+		},
+	};
+
 	public uiStateStore = {
 		isResumeEditable: true,
 	};
