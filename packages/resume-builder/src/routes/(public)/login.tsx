@@ -15,7 +15,7 @@ import { useStore } from '../../stores/store.provider.tsx';
 const LoginPage = observer(() => {
 	const { authStore } = useStore();
 
-	if (authStore.isLoading) {
+	if (!authStore.isInitialized) {
 		return (
 			<div className="min-h-screen bg-slate-950 flex items-center justify-center">
 				<Loader2 className="h-8 w-8 animate-spin text-white" />
