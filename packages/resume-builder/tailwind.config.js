@@ -40,6 +40,27 @@ export default {
 					DEFAULT: 'hsl(var(--destructive))',
 					foreground: 'hsl(var(--destructive-foreground))',
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))',
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))',
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))',
+				},
+				editor: {
+					DEFAULT: 'hsl(var(--editor-background))',
+					foreground: 'hsl(var(--editor-foreground))',
+				},
+				'toolbar-overlay': {
+					DEFAULT: 'hsl(var(--toolbar-overlay))',
+					hover: 'hsl(var(--toolbar-overlay-hover))',
+				},
+				'toolbar-border': 'hsl(var(--toolbar-border))',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

@@ -65,7 +65,8 @@ export const DescriptionOnly: Story = {
 	render: (args) => (
 		<Alert {...args}>
 			<AlertDescription>
-				You can use this alert to show just a message without a title or icon.
+				You can use this alert to show just a message without a title or
+				icon.
 			</AlertDescription>
 		</Alert>
 	),

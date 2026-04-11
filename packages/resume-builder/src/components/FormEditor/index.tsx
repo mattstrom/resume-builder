@@ -134,7 +134,7 @@ export const FormEditor: FC = () => {
 	};
 
 	return (
-		<div className="form-editor h-full bg-[#1e1e1e] overflow-auto p-4">
+		<div className="form-editor h-full bg-editor text-editor-foreground overflow-auto p-4">
 			<div className="space-y-4">
 				<div className="flex justify-end mb-4">
 					<Button

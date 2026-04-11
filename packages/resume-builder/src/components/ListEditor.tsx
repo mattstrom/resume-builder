@@ -360,8 +360,8 @@ const ItemInput: FC<ItemInputProps> = ({
 			type="text"
 			className={
 				inline
-					? 'inline-block w-auto rounded border border-gray-300 bg-white px-1 text-sm shadow-sm'
-					: 'w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-sm'
+					? 'inline-block w-auto rounded border border-border bg-background px-1 text-sm shadow-sm'
+					: 'w-full rounded border border-border bg-background p-1 text-sm shadow-sm'
 			}
 			value={value}
 			onChange={(event) => onChange(event.target.value)}
