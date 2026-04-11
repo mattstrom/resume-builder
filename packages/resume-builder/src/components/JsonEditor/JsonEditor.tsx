@@ -8,6 +8,8 @@ import {
 } from 'react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { useMutation } from '@apollo/client/react';
+import { observer } from 'mobx-react';
+import { useStore } from '../../stores/store.provider.tsx';
 import { useFileManager } from '../FileManager';
 import { validateResume } from '../../utils/resumeValidation';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
@@ -35,7 +37,8 @@ function debounce<T extends (...args: any[]) => any>(
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
-export const JsonEditor: FC = () => {
+export const JsonEditor: FC = observer(() => {
+	const { themeStore } = useStore();
 	const { resumeData, updateResumeData } = useFileManager();
 	const [jsonString, setJsonString] = useState<string>('');
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -231,14 +234,14 @@ export const JsonEditor: FC = () => {
 	);
 
 	return (
-		<div
-			style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-		>
-			<div style={{ flex: 1, overflow: 'hidden' }}>
+		<div className="flex flex-col h-full">
+			<div className="flex-1 overflow-hidden">
 				<Editor
 					height="100%"
 					defaultLanguage="json"
-					theme="vs-dark"
+					theme={
+						themeStore.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'
+					}
 					value={jsonString}
 					onChange={handleEditorChange}
 					options={{
@@ -253,18 +256,9 @@ export const JsonEditor: FC = () => {
 				/>
 			</div>
 			{validationErrors.length > 0 && (
-				<div
-					style={{
-						padding: '8px',
-						backgroundColor: '#f44336',
-						color: 'white',
-						fontSize: '12px',
-						maxHeight: '100px',
-						overflow: 'auto',
-					}}
-				>
+				<div className="p-2 bg-destructive text-destructive-foreground text-xs max-h-[100px] overflow-auto">
 					<strong>Validation Errors:</strong>
-					<ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+					<ul className="my-1 pl-5">
 						{validationErrors.map((error, idx) => (
 							<li key={idx}>{error}</li>
 						))}
@@ -273,18 +267,13 @@ export const JsonEditor: FC = () => {
 			)}
 			{saveStatus !== 'idle' && (
 				<div
-					style={{
-						padding: '4px 8px',
-						backgroundColor:
-							saveStatus === 'saving'
-								? '#2196F3'
-								: saveStatus === 'saved'
-									? '#4CAF50'
-									: '#f44336',
-						color: 'white',
-						fontSize: '11px',
-						textAlign: 'center',
-					}}
+					className={`px-2 py-1 text-[11px] text-center ${
+						saveStatus === 'saving'
+							? 'bg-info text-info-foreground'
+							: saveStatus === 'saved'
+								? 'bg-success text-success-foreground'
+								: 'bg-destructive text-destructive-foreground'
+					}`}
 				>
 					{saveStatus === 'saving' && '💾 Auto-saving...'}
 					{saveStatus === 'saved' && '✓ Saved'}
@@ -293,4 +282,4 @@ export const JsonEditor: FC = () => {
 			)}
 		</div>
 	);
-};
+});

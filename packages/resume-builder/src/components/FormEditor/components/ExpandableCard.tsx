@@ -20,7 +20,7 @@ export const ExpandableCard: FC<ExpandableCardProps> = ({
 	children,
 }) => {
 	return (
-		<Card className="mb-4 bg-card/5 border-white/10">
+		<Card className="mb-4 bg-card/5 border-border/50">
 			<Collapsible open={expanded} onOpenChange={onExpandChange}>
 				<CardHeader className="py-3">
 					<div className="flex items-center justify-between">

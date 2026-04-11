@@ -70,7 +70,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 						autoFocus
 						onCommitSuccess={() => store.discard()}
 						onCancel={() => store.discard()}
-						className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-gray-300 bg-white p-1 text-sm shadow-md"
+						className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-border bg-popover text-popover-foreground p-1 text-sm shadow-md"
 					/>
 				)}
 			</span>

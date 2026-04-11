@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ButtonGroup, ButtonGroupText, ButtonGroupSeparator } from './button-group';
+import {
+	ButtonGroup,
+	ButtonGroupText,
+	ButtonGroupSeparator,
+} from './button-group';
 import { Button } from './button';
 import { ChevronDown, Plus, Pencil, Trash } from 'lucide-react';
 

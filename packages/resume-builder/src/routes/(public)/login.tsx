@@ -17,8 +17,8 @@ const LoginPage = observer(() => {
 
 	if (!authStore.isInitialized) {
 		return (
-			<div className="min-h-screen bg-slate-950 flex items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-white" />
+			<div className="min-h-screen bg-background flex items-center justify-center">
+				<Loader2 className="h-8 w-8 animate-spin text-foreground" />
 			</div>
 		);
 	}
@@ -28,13 +28,11 @@ const LoginPage = observer(() => {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-950 flex items-center justify-center">
-			<Card className="w-[400px] bg-slate-900 border-slate-800">
+		<div className="min-h-screen bg-background flex items-center justify-center">
+			<Card className="w-[400px]">
 				<CardHeader className="text-center">
-					<CardTitle className="text-2xl text-white">
-						Resume Builder
-					</CardTitle>
-					<CardDescription className="text-slate-400">
+					<CardTitle className="text-2xl">Resume Builder</CardTitle>
+					<CardDescription>
 						Sign in to create and manage your resumes
 					</CardDescription>
 				</CardHeader>

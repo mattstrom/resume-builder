@@ -1,4 +1,5 @@
 import { Mode, ViewMode } from '@/stores/ui-state.store.ts';
+import type { Theme } from '@/stores/theme.store.ts';
 import { observer } from 'mobx-react';
 import { useParams } from '@tanstack/react-router';
 import { type FC, useState } from 'react';
@@ -6,8 +7,11 @@ import {
 	Loader2,
 	LogOut,
 	MessageCircle,
+	Monitor,
+	Moon,
 	PanelLeftClose,
 	PanelLeftOpen,
+	Sun,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,6 +34,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
 	DropdownMenu,
+	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
@@ -49,19 +54,19 @@ interface ToggleGroupProps {
 }
 
 const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
-	<div className="inline-flex rounded-md border border-white/30">
+	<div className="inline-flex rounded-md border border-border">
 		{options.map((opt, idx) => (
 			<Button
 				key={opt.value}
-				variant={value === opt.value ? 'default' : 'ghost'}
+				variant="ghost"
 				size="sm"
 				className={cn(
-					'rounded-none text-white/70 border-white/30 hover:bg-white/10 hover:text-white',
+					'rounded-none border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground',
 					idx === 0 && 'rounded-l-md',
 					idx === options.length - 1 && 'rounded-r-md',
 					idx > 0 && 'border-l',
 					value === opt.value &&
-						'bg-white/20 text-white border-white/50 hover:bg-white/25',
+						'bg-accent text-accent-foreground hover:bg-accent',
 				)}
 				onClick={() => onChange(opt.value)}
 			>
@@ -70,6 +75,53 @@ const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
 		))}
 	</div>
 );
+
+const THEME_OPTIONS: Array<{
+	value: Theme;
+	label: string;
+	Icon: typeof Sun;
+}> = [
+	{ value: 'light', label: 'Light', Icon: Sun },
+	{ value: 'dark', label: 'Dark', Icon: Moon },
+	{ value: 'system', label: 'System', Icon: Monitor },
+];
+
+const ThemeToggle: FC = observer(() => {
+	const { themeStore } = useStore();
+	const ActiveIcon =
+		themeStore.theme === 'system'
+			? Monitor
+			: themeStore.resolvedTheme === 'dark'
+				? Moon
+				: Sun;
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="h-8 w-8"
+					aria-label="Toggle theme"
+				>
+					<ActiveIcon className="h-5 w-5" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent align="end">
+				{THEME_OPTIONS.map(({ value, label, Icon }) => (
+					<DropdownMenuCheckboxItem
+						key={value}
+						checked={themeStore.theme === value}
+						onCheckedChange={() => themeStore.setTheme(value)}
+					>
+						<Icon className="mr-2 h-4 w-4" />
+						{label}
+					</DropdownMenuCheckboxItem>
+				))}
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
+});
 
 export const EditorToolbar: FC = observer(() => {
 	const {
@@ -125,7 +177,7 @@ export const EditorToolbar: FC = observer(() => {
 	};
 
 	return (
-		<header className="bg-slate-900 text-white border-b border-slate-800">
+		<header className="bg-card text-card-foreground border-b border-border">
 			<div className="flex items-center gap-4 flex-wrap p-4">
 				<TooltipProvider>
 					<Tooltip>
@@ -133,7 +185,7 @@ export const EditorToolbar: FC = observer(() => {
 							<Button
 								variant="ghost"
 								size="icon"
-								className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8"
+								className="h-8 w-8"
 								onClick={toggleSidebar}
 								aria-label={
 									sidebarOpen
@@ -156,7 +208,7 @@ export const EditorToolbar: FC = observer(() => {
 
 				<h1 className="text-xl font-semibold">Resume Builder</h1>
 
-				<Separator orientation="vertical" className="h-6 bg-white/30" />
+				<Separator orientation="vertical" className="h-6" />
 
 				<ToggleGroup
 					value={uiStateStore.mode}
@@ -172,7 +224,7 @@ export const EditorToolbar: FC = observer(() => {
 					]}
 				/>
 
-				<Separator orientation="vertical" className="h-6 bg-white/30" />
+				<Separator orientation="vertical" className="h-6" />
 
 				<ToggleGroup
 					value={uiStateStore.viewMode}
@@ -186,17 +238,14 @@ export const EditorToolbar: FC = observer(() => {
 					]}
 				/>
 
-				<Separator orientation="vertical" className="h-6 bg-white/30" />
+				<Separator orientation="vertical" className="h-6" />
 
 				<div className="flex items-center gap-2">
-					<Label htmlFor="template" className="text-white text-sm">
+					<Label htmlFor="template" className="text-sm">
 						Template
 					</Label>
 					<Select value={template} onValueChange={setTemplate}>
-						<SelectTrigger
-							id="template"
-							className="w-[120px] h-9 text-white border-white/30 hover:border-white/50 focus:border-white bg-transparent [&>svg]:text-white"
-						>
+						<SelectTrigger id="template" className="w-[120px] h-9">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
@@ -214,22 +263,16 @@ export const EditorToolbar: FC = observer(() => {
 						onCheckedChange={(checked) =>
 							setShowMarginPattern(checked === true)
 						}
-						className="border-white/70 data-[state=checked]:bg-white data-[state=checked]:text-slate-900 data-[state=checked]:border-white"
 					/>
 					<Label
 						htmlFor="marginPattern"
-						className="text-white text-sm cursor-pointer"
+						className="text-sm cursor-pointer"
 					>
 						Show Margin Pattern
 					</Label>
 				</div>
 
-				<Button
-					onClick={onPrint}
-					variant="outline"
-					size="sm"
-					className="text-white border-white/50 hover:border-white hover:bg-white/10"
-				>
+				<Button onClick={onPrint} variant="outline" size="sm">
 					Print
 				</Button>
 
@@ -238,7 +281,6 @@ export const EditorToolbar: FC = observer(() => {
 					disabled={isExporting}
 					variant="outline"
 					size="sm"
-					className="text-white border-white/50 hover:border-white hover:bg-white/10"
 				>
 					{isExporting ? (
 						<>
@@ -250,12 +292,7 @@ export const EditorToolbar: FC = observer(() => {
 					)}
 				</Button>
 
-				<Button
-					onClick={onPreview}
-					variant="outline"
-					size="sm"
-					className="text-white border-white/50 hover:border-white hover:bg-white/10"
-				>
+				<Button onClick={onPreview} variant="outline" size="sm">
 					Preview
 				</Button>
 
@@ -266,24 +303,25 @@ export const EditorToolbar: FC = observer(() => {
 						}
 						variant="outline"
 						size="sm"
-						className="text-white border-white/50 hover:border-white hover:bg-white/10"
 					>
 						Open Job Posting
 					</Button>
 				)}
 				<div className="ml-auto flex items-center gap-2">
+					<ThemeToggle />
+
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
-								className="h-8 w-8 rounded-full p-0 hover:bg-white/10"
+								className="h-8 w-8 rounded-full p-0"
 							>
 								<Avatar className="h-8 w-8">
 									<AvatarImage
 										src={authStore.user?.picture}
 										alt={authStore.user?.name}
 									/>
-									<AvatarFallback className="bg-white/20 text-white text-xs">
+									<AvatarFallback className="bg-muted text-muted-foreground text-xs">
 										{authStore.userInitial}
 									</AvatarFallback>
 								</Avatar>
@@ -303,14 +341,9 @@ export const EditorToolbar: FC = observer(() => {
 						<Tooltip>
 							<TooltipTrigger asChild>
 								<Button
-									variant={chatOpen ? 'default' : 'ghost'}
+									variant={chatOpen ? 'secondary' : 'ghost'}
 									size="icon"
-									className={cn(
-										'h-8 w-8',
-										chatOpen
-											? 'bg-white/20 text-white hover:bg-white/25'
-											: 'text-white/70 hover:text-white hover:bg-white/10',
-									)}
+									className="h-8 w-8"
 									onClick={() => setChatOpen((prev) => !prev)}
 									aria-label={
 										chatOpen ? 'Close chat' : 'Open chat'

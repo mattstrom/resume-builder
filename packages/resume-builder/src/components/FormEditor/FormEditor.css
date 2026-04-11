@@ -1,4 +1,4 @@
 .form-editor {
 	/* Container styling for form editor - most styling now handled by Tailwind */
-	color: white;
+	color: hsl(var(--editor-foreground));
 }

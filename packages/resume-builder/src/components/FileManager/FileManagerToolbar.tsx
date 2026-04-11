@@ -45,7 +45,6 @@ export const FileManagerToolbar: FC = observer(() => {
 								variant="outline"
 								onClick={attachDirectory}
 								size="sm"
-								className="text-white border-white/50 hover:border-white hover:bg-white/10"
 							>
 								<FolderOpen className="mr-2 h-4 w-4" />
 								Local Files
@@ -63,7 +62,7 @@ export const FileManagerToolbar: FC = observer(() => {
 								onValueChange={selectFile}
 								disabled={isLoading}
 							>
-								<SelectTrigger className="w-[150px] text-white border-white/30 hover:border-white/50 focus:border-white [&_svg]:text-white">
+								<SelectTrigger className="w-[150px]">
 									<SelectValue placeholder="Local File" />
 								</SelectTrigger>
 								<SelectContent>
@@ -82,7 +81,7 @@ export const FileManagerToolbar: FC = observer(() => {
 									variant="ghost"
 									size="icon"
 									onClick={refreshFiles}
-									className="text-white hover:bg-white/10"
+									className=""
 								>
 									<RotateCw className="h-4 w-4" />
 								</Button>
@@ -98,7 +97,7 @@ export const FileManagerToolbar: FC = observer(() => {
 									variant="ghost"
 									size="icon"
 									onClick={detachDirectory}
-									className="text-white hover:bg-white/10"
+									className=""
 								>
 									<X className="h-4 w-4" />
 								</Button>

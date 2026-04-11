@@ -55,7 +55,10 @@ export const CopyToClipboard: Story = {
 
 		return (
 			<InputGroup>
-				<InputGroupInput value="https://example.com/share-link" readOnly />
+				<InputGroupInput
+					value="https://example.com/share-link"
+					readOnly
+				/>
 				<InputGroupAddon align="inline-end">
 					<InputGroupButton
 						variant="ghost"

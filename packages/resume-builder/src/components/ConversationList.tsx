@@ -70,7 +70,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 			<Button
 				variant="ghost"
 				size="icon"
-				className="h-7 w-7 text-slate-400 hover:text-white hover:bg-slate-800"
+				className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent"
 				onClick={onNewChat}
 				title="New Chat"
 			>
@@ -81,34 +81,31 @@ export const ConversationList: FC<ConversationListProps> = ({
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-7 w-7 text-slate-400 hover:text-white hover:bg-slate-800"
+						className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent"
 						title="Chat History"
 					>
 						<MessageSquare className="h-4 w-4" />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent
-					className="w-72 p-0 bg-slate-800 border-slate-700"
-					align="start"
-				>
-					<div className="px-3 py-2 border-b border-slate-700">
-						<p className="text-xs font-medium text-slate-300">
+				<PopoverContent className="w-72 p-0" align="start">
+					<div className="px-3 py-2 border-b border-border">
+						<p className="text-xs font-medium text-foreground">
 							Past Conversations
 						</p>
 					</div>
 					<ScrollArea className="max-h-64">
 						{conversations.length === 0 ? (
-							<p className="px-3 py-4 text-xs text-slate-500 text-center">
+							<p className="px-3 py-4 text-xs text-muted-foreground text-center">
 								No conversations yet
 							</p>
 						) : (
 							conversations.map((conv) => (
 								<button
 									key={conv._id}
-									className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-700 transition-colors ${
+									className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent transition-colors ${
 										conv._id === activeConversationId
-											? 'bg-slate-700/50 text-white'
-											: 'text-slate-300'
+											? 'bg-accent text-accent-foreground'
+											: 'text-muted-foreground'
 									}`}
 									onClick={() => {
 										onSelect(conv);
@@ -119,7 +116,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 										<p className="truncate text-xs">
 											{conv.title}
 										</p>
-										<p className="text-[10px] text-slate-500">
+										<p className="text-[10px] text-muted-foreground">
 											{new Date(
 												conv.updatedAt,
 											).toLocaleDateString()}
@@ -128,7 +125,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-6 w-6 shrink-0 text-slate-500 hover:text-red-400 hover:bg-transparent"
+										className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive hover:bg-transparent"
 										onClick={(e) =>
 											handleDelete(e, conv._id)
 										}

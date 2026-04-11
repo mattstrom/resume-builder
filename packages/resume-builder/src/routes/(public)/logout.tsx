@@ -19,8 +19,8 @@ const LogoutPage = observer(() => {
 	}
 
 	return (
-		<div className="min-h-screen bg-slate-950 flex items-center justify-center">
-			<Loader2 className="h-8 w-8 animate-spin text-white" />
+		<div className="min-h-screen bg-background flex items-center justify-center">
+			<Loader2 className="h-8 w-8 animate-spin text-foreground" />
 		</div>
 	);
 });

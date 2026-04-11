@@ -153,16 +153,16 @@ export const ChatPanel: FC = () => {
 	);
 
 	return (
-		<div className="dark flex flex-col h-full w-full border-l border-slate-700 bg-slate-900 text-slate-100">
-			<div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
+		<div className="flex flex-col h-full w-full border-l border-border bg-card text-card-foreground">
+			<div className="flex items-center justify-between px-4 py-3 border-b border-border">
 				<div className="min-w-0 flex-1">
-					<h2 className="text-sm font-semibold text-white truncate">
+					<h2 className="text-sm font-semibold text-foreground truncate">
 						{conversationInfo
 							? conversationInfo.title
 							: 'AI Assistant'}
 					</h2>
 					{conversationInfo && (
-						<p className="text-[10px] text-slate-400">
+						<p className="text-[10px] text-muted-foreground">
 							{new Date(
 								conversationInfo.createdAt,
 							).toLocaleString()}
@@ -179,7 +179,7 @@ export const ChatPanel: FC = () => {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="h-7 w-7 text-slate-400 hover:text-white hover:bg-slate-800"
+						className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent"
 						onClick={() => setChatOpen(false)}
 					>
 						<X className="h-4 w-4" />
@@ -268,7 +268,7 @@ export const ChatPanel: FC = () => {
 				<ConversationScrollButton />
 			</Conversation>
 
-			<div className="border-t border-slate-700 p-4">
+			<div className="border-t border-border p-4">
 				<PromptInput
 					onSubmit={(message) => {
 						sendMessage({ text: message.text });
