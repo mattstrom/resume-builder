@@ -34,7 +34,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 		<Accordion type="single" defaultValue="basic-info" collapsible>
 			<AccordionItem
 				value="basic-info"
-				className="bg-card/5 border-white/10 px-4"
+				className="bg-card/5 border-border/50 px-4"
 			>
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Basic Information

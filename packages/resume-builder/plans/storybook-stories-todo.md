@@ -5,6 +5,7 @@ This document outlines the progress of implementing Storybook stories for the Sh
 ## Component Status
 
 ### ✅ Completed
+
 - [x] Alert
 - [x] Button
 - [x] Badge
@@ -43,6 +44,7 @@ This document outlines the progress of implementing Storybook stories for the Sh
 ### 🔴 Complex / Interactive Components
 
 ## Next Steps
+
 1. Start with the **Simple Components** group to quickly build up the story library.
 2. Progress to **Compound Components** as layouts are stabilized.
 3. Finish with **Complex / Interactive Components** which require more detailed story setups (e.g., state management or mock providers).

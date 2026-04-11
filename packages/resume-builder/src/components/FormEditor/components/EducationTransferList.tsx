@@ -92,11 +92,11 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 	};
 
 	const customList = (title: string, items: Education[]) => (
-		<div className="w-full h-[300px] overflow-auto bg-black/20 border border-white/10 rounded-md">
-			<div className="p-2 text-sm font-medium text-foreground border-b border-white/10">
+		<div className="w-full h-[300px] overflow-auto bg-muted/30 border border-border rounded-md">
+			<div className="p-2 text-sm font-medium text-foreground border-b border-border">
 				{title}
 			</div>
-			<div role="list" className="divide-y divide-white/5">
+			<div role="list" className="divide-y divide-border">
 				{items.map((edu) => {
 					const labelId = `transfer-list-item-${edu._id}-label`;
 					const isChecked = checked.indexOf(edu._id) !== -1;
@@ -104,7 +104,7 @@ export const EducationTransferList: FC<EducationTransferListProps> = ({
 						<div
 							key={edu._id}
 							role="listitem"
-							className="flex items-center px-3 py-2 hover:bg-white/5 cursor-pointer transition-colors"
+							className="flex items-center px-3 py-2 hover:bg-accent cursor-pointer transition-colors"
 							onClick={() => handleToggle(edu._id)}
 						>
 							<Checkbox

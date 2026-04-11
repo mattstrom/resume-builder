@@ -1,31 +1,29 @@
 import { Button } from '@/components/ui/button.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 import Editor from '@monaco-editor/react';
+import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
 interface AnalysisViewProps {}
 
-export const AnalysisView: FC<AnalysisViewProps> = () => {
+export const AnalysisView: FC<AnalysisViewProps> = observer(() => {
+	const { themeStore } = useStore();
 	const json = JSON.stringify({ name: 'John Doe', age: 30 }, null, 2);
 
 	return (
-		<div
-			style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-		>
-			<div style={{ flexGrow: 0, overflow: 'hidden' }}>
-				<Button
-					onClick={() => {}}
-					variant="outline"
-					size="sm"
-					className="text-white border-white/50 hover:border-white hover:bg-white/10"
-				>
+		<div className="flex flex-col h-full">
+			<div className="shrink-0 overflow-hidden">
+				<Button onClick={() => {}} variant="outline" size="sm">
 					New Application
 				</Button>
 			</div>
-			<div style={{ flex: 1, overflow: 'hidden' }}>
+			<div className="flex-1 overflow-hidden">
 				<Editor
 					height="100%"
 					defaultLanguage="json"
-					theme="vs-dark"
+					theme={
+						themeStore.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'
+					}
 					value={json}
 					options={{
 						minimap: { enabled: false },
@@ -39,4 +37,4 @@ export const AnalysisView: FC<AnalysisViewProps> = () => {
 			</div>
 		</div>
 	);
-};
+});

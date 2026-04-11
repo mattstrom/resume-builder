@@ -1,5 +1,6 @@
 import { InlineEditStore } from '@/stores/inline-edit.store.ts';
 import { ListEditStore } from '@/stores/list-edit.store.ts';
+import { ThemeStore } from '@/stores/theme.store.ts';
 import { UiStateStore } from '@/stores/ui-state.store.ts';
 import { ExplorerSidebarStore } from '@/stores/explorer-sidebar.store.ts';
 import { ApolloClient } from '@apollo/client';
@@ -23,6 +24,7 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly inlineEditStore: InlineEditStore;
 	public readonly listEditStore: ListEditStore;
 	public readonly resumeStore: ResumeStore;
+	public readonly themeStore: ThemeStore;
 	public readonly uiStateStore: UiStateStore = new UiStateStore(this);
 
 	constructor(client?: ApolloClient) {
@@ -33,6 +35,7 @@ export class RootStore<R extends AnyRoute = any> {
 		this.inlineEditStore = new InlineEditStore(this);
 		this.listEditStore = new ListEditStore(this);
 		this.resumeStore = new ResumeStore(this);
+		this.themeStore = new ThemeStore(this);
 		this.uiStateStore = new UiStateStore(this);
 
 		if (import.meta.env.DEV) {
