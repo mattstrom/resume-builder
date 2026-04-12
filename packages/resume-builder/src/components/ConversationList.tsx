@@ -100,9 +100,11 @@ export const ConversationList: FC<ConversationListProps> = ({
 							</p>
 						) : (
 							conversations.map((conv) => (
-								<button
+								<div
 									key={conv._id}
-									className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent transition-colors ${
+									role="button"
+									tabIndex={0}
+									className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent transition-colors cursor-pointer ${
 										conv._id === activeConversationId
 											? 'bg-accent text-accent-foreground'
 											: 'text-muted-foreground'
@@ -110,6 +112,16 @@ export const ConversationList: FC<ConversationListProps> = ({
 									onClick={() => {
 										onSelect(conv);
 										setOpen(false);
+									}}
+									onKeyDown={(e) => {
+										if (
+											e.key === 'Enter' ||
+											e.key === ' '
+										) {
+											e.preventDefault();
+											onSelect(conv);
+											setOpen(false);
+										}
 									}}
 								>
 									<div className="min-w-0 flex-1">
@@ -132,7 +144,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 									>
 										<Trash2 className="h-3 w-3" />
 									</Button>
-								</button>
+								</div>
 							))
 						)}
 					</ScrollArea>

@@ -3,6 +3,7 @@ import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
+import { observer } from 'mobx-react-lite';
 import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ import {
 import { ConversationList } from '../ConversationList';
 import { useSettings } from '../Settings.provider';
 
-export const ChatPanel: FC = () => {
+export const ChatPanel: FC = observer(() => {
 	const { conversationService } = useStore();
 
 	const { applicationId } = useParams({ strict: false });
@@ -85,6 +86,23 @@ export const ChatPanel: FC = () => {
 	useEffect(() => {
 		conversationService.loadLastConversation();
 	}, [applicationId]);
+
+	// Sync loaded conversation messages into the useChat view
+	const activeConversationId = conversationService.activeConversationId;
+	const activeConversation = conversationService.activeConversation;
+	useEffect(() => {
+		if (!activeConversation) {
+			setMessages([]);
+			return;
+		}
+		setMessages(
+			activeConversation.messages.map((m) => ({
+				id: m.id,
+				role: m.role,
+				parts: m.parts,
+			})) as any,
+		);
+	}, [activeConversationId, activeConversation, setMessages]);
 
 	const handleNewChat = useCallback(() => {
 		conversationService.addNewConversation();
@@ -229,4 +247,4 @@ export const ChatPanel: FC = () => {
 			</div>
 		</div>
 	);
-};
+});
