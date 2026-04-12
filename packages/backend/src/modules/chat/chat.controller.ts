@@ -8,6 +8,7 @@ import {
 import type { Response } from 'express';
 
 import { CurrentUser } from '../auth';
+import { ApplicationsService } from '../entities/applications/applications.service';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service';
 import { ConversationsService } from '../entities/conversations/conversations.service';
 import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
@@ -21,11 +22,14 @@ import type { LlmMessage } from '../llm/interfaces/llm-types';
 import { chatTools, executeTool } from './chat-tools';
 import { ChatService } from './chat.service';
 
+import { outdent } from 'outdent';
+
 import configuration from '../../configuration';
 
 @Controller('api/chat')
 export class ChatController {
 	constructor(
+		private readonly applicationsService: ApplicationsService,
 		private readonly resumesService: ResumesService,
 		private readonly contactInformationService: ContactInformationService,
 		private readonly educationsService: EducationsService,
@@ -56,7 +60,52 @@ export class ChatController {
 			throw new BadRequestException('Application ID is required');
 		}
 
-		const systemPrompt = `
+		// Fetch application and its linked resume for context injection
+		const application = await this.applicationsService.find(
+			uid,
+			applicationId,
+		);
+
+		let resumeContext = '';
+		if (application.resumeId) {
+			const resume = await this.resumesService.find(
+				uid,
+				application.resumeId,
+			);
+			if (resume?.data) {
+				resumeContext = outdent`
+					## Current Resume
+
+					The following is the candidate's current resume for this application. Use this as your primary context — do not call get_resumes or get_resume unless the user explicitly asks about a different resume.
+
+					\`\`\`json
+					${JSON.stringify(resume.data, null, 2)}
+					\`\`\`
+				`;
+			}
+		}
+
+		let jobContext = '';
+		if (application.jobDescription) {
+			jobContext += outdent`
+				## Job Description
+
+				\`\`\`
+				${application.jobDescription}
+				\`\`\`
+			`;
+		}
+		if (application.jobSummary) {
+			jobContext += outdent`
+				## Job Requirements Summary
+
+				\`\`\`json
+				${JSON.stringify(application.jobSummary, null, 2)}
+				\`\`\`
+			`;
+		}
+
+		const systemPrompt = outdent`
 			You are an expert resume preparer. When asked you will help prepare a resume
 			for the given job description.
 
@@ -64,6 +113,8 @@ export class ChatController {
 			(education, work history, skills, projects, etc.) as needed to
 			answer the hiring manager's questions. Do not guess — always
 			fetch the data using tools before responding.
+
+			${resumeContext}${jobContext}
 		`;
 
 		// Convert useChat messages to LLM-agnostic format
