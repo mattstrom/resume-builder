@@ -12,7 +12,7 @@ export class InspectStore implements Disposable {
 	quickHighlight: boolean = false;
 
 	@observable
-	selectedPaths = new Set<string>();
+	selectedPaths = new Map<string, string>();
 
 	private disposers: DisposableStack = new DisposableStack();
 
@@ -56,9 +56,12 @@ export class InspectStore implements Disposable {
 
 	@computed
 	get selectedRegions() {
-		return Array.from(this.selectedPaths).map((path) => ({
-			path,
-		}));
+		return Array.from(this.selectedPaths.entries()).map(
+			([path, label]) => ({
+				path,
+				label,
+			}),
+		);
 	}
 
 	isHighlighted = computedFn((path: string) => {
@@ -78,11 +81,11 @@ export class InspectStore implements Disposable {
 	}
 
 	@action
-	toggleSelected(path: string) {
+	toggleSelected(path: string, label?: string) {
 		if (this.selectedPaths.has(path)) {
 			this.selectedPaths.delete(path);
 		} else {
-			this.selectedPaths.add(path);
+			this.selectedPaths.set(path, label ?? path);
 		}
 	}
 

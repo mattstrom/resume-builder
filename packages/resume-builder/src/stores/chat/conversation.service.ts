@@ -74,9 +74,11 @@ export class ConversationService {
 	@computed
 	get scope() {
 		const { selectedApplicationId } = this.rootStore.applicationStore;
+		const { selectedPaths } = this.rootStore.inspectStore;
 
 		return {
 			applicationId: selectedApplicationId,
+			highlightedPaths: Array.from(selectedPaths.keys()),
 		};
 	}
 
