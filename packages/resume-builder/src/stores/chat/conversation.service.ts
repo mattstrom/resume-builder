@@ -7,17 +7,17 @@ import { ObjectId } from 'bson';
 const API_BASE = 'http://localhost:3000';
 
 interface ConversationPayload {
-	id: string;
+	_id: string;
 	title: string;
 	createdAt: string;
-	messages: any[];
+	messages: { role: string; content: string; createdAt?: string }[];
 }
 
-interface Message {
+export interface Message {
 	id: string;
 	role: 'user' | 'assistant';
 	content: string;
-	parts: { type: string; text: string }[];
+	parts: { type: 'text'; text: string }[];
 }
 
 export class Conversation {
@@ -32,14 +32,14 @@ export class Conversation {
 		const conversation = new Conversation();
 
 		Object.assign(conversation, {
-			id: payload.id,
+			id: payload._id,
 			title: payload.title,
 			createdAt: payload.createdAt,
 		});
 
-		for (const message of payload.messages) {
+		payload.messages.forEach((message, index) => {
 			conversation.messages.push({
-				id: message.id,
+				id: `${payload._id}-${index}`,
 				role: message.role as 'user' | 'assistant',
 				content: message.content,
 				parts: [
@@ -49,7 +49,7 @@ export class Conversation {
 					},
 				],
 			});
-		}
+		});
 
 		return conversation;
 	}
@@ -179,6 +179,7 @@ export class ConversationService {
 
 			const conversation = Conversation.createFrom(data);
 			this.conversations.set(conversationId, conversation);
+			this.activeConversationId = conversationId;
 
 			if (applicationId) {
 				const key = getStorageKey(applicationId);
