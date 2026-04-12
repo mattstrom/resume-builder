@@ -48,7 +48,11 @@ export class ChatController {
 		@Body()
 		body: {
 			messages: any[];
-			data?: { applicationId?: string; conversationId?: string };
+			data?: {
+				applicationId?: string;
+				conversationId?: string;
+				highlightedPaths?: string[];
+			};
 		},
 		@Res() res: Response,
 	) {
@@ -66,23 +70,21 @@ export class ChatController {
 			applicationId,
 		);
 
+		const resume = application.resumeId
+			? await this.resumesService.find(uid, application.resumeId)
+			: null;
+
 		let resumeContext = '';
-		if (application.resumeId) {
-			const resume = await this.resumesService.find(
-				uid,
-				application.resumeId,
-			);
-			if (resume?.data) {
-				resumeContext = outdent`
-					## Current Resume
+		if (resume?.data) {
+			resumeContext = outdent`
+				## Current Resume
 
-					The following is the candidate's current resume for this application. Use this as your primary context — do not call get_resumes or get_resume unless the user explicitly asks about a different resume.
+				The following is the candidate's current resume for this application. Use this as your primary context — do not call get_resumes or get_resume unless the user explicitly asks about a different resume.
 
-					\`\`\`json
-					${JSON.stringify(resume.data, null, 2)}
-					\`\`\`
-				`;
-			}
+				\`\`\`json
+				${JSON.stringify(resume.data, null, 2)}
+				\`\`\`
+			`;
 		}
 
 		let jobContext = '';
@@ -105,6 +107,42 @@ export class ChatController {
 			`;
 		}
 
+		let highlightedContext = '';
+		const highlightedPaths = data?.highlightedPaths;
+		if (highlightedPaths?.length && resume?.data) {
+			const sections: Record<string, unknown> = {};
+			for (const path of highlightedPaths) {
+				// Paths are like "data.summary" — strip "data." prefix since resume.data is the root
+				const resolvedPath = path.startsWith('data.')
+					? path.slice(5)
+					: path;
+				const value =
+					resolvedPath === 'data' || resolvedPath === ''
+						? resume.data
+						: resolvedPath
+								.split('.')
+								.reduce(
+									(obj: any, key) => obj?.[key],
+									resume.data,
+								);
+				if (value !== undefined) {
+					sections[path] = value;
+				}
+			}
+
+			if (Object.keys(sections).length > 0) {
+				highlightedContext = outdent`
+					## Highlighted Sections
+
+					The user has highlighted the following sections of their resume for focused attention. Prioritize these sections in your response:
+
+					\`\`\`json
+					${JSON.stringify(sections, null, 2)}
+					\`\`\`
+				`;
+			}
+		}
+
 		const systemPrompt = outdent`
 			You are an expert resume preparer. When asked you will help prepare a resume
 			for the given job description.
@@ -114,7 +152,7 @@ export class ChatController {
 			answer the hiring manager's questions. Do not guess — always
 			fetch the data using tools before responding.
 
-			${resumeContext}${jobContext}
+			${resumeContext}${jobContext}${highlightedContext}
 		`;
 
 		// Convert useChat messages to LLM-agnostic format

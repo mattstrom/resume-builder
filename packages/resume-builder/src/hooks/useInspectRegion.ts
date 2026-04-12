@@ -14,7 +14,10 @@ export interface InspectRegionState {
 	handlers: InspectRegionHandlers;
 }
 
-export function useInspectRegion(path: string): InspectRegionState {
+export function useInspectRegion(
+	path: string,
+	label?: string,
+): InspectRegionState {
 	const { inspectStore } = useStore();
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -29,7 +32,7 @@ export function useInspectRegion(path: string): InspectRegionState {
 		},
 		onClick: (e) => {
 			e.stopPropagation();
-			inspectStore.toggleSelected(path);
+			inspectStore.toggleSelected(path, label);
 		},
 	};
 

@@ -11,7 +11,7 @@ export const SummarySection: FC<SummaryProps> = () => {
 	const resumeId = useResumeId();
 
 	return (
-		<HighlightRegion path={'data.summary'}>
+		<HighlightRegion path={'data.summary'} label="Summary">
 			<Section heading="Professional Summary" className="summary">
 				<InlineEditor
 					path="data.summary"

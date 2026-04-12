@@ -6,12 +6,13 @@ import { useInspectRegion } from '@/hooks/useInspectRegion.ts';
 
 interface HighlightRegionProps extends PropsWithChildren {
 	path: string;
+	label?: string;
 }
 
 export const HighlightRegion: FC<HighlightRegionProps> = observer(
-	({ path, children }) => {
+	({ path, label, children }) => {
 		const { isInspectMode, isHovered, isSelected, handlers } =
-			useInspectRegion(path);
+			useInspectRegion(path, label);
 
 		if (!isInspectMode && !isSelected) {
 			return <>{children}</>;

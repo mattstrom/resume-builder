@@ -7,15 +7,21 @@ import {
 } from '@/components/ai-elements/prompt-input.tsx';
 import { ChatFilesMenu } from '@/components/chat/ChatFilesMenu.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
-import { AtSignIcon, BriefcaseIcon, RulerIcon } from 'lucide-react';
+import {
+	AtSignIcon,
+	BriefcaseIcon,
+	HighlighterIcon,
+	RulerIcon,
+} from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { type FC } from 'react';
 
 interface ChatPromptHeaderProps {}
 
 export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
-	const { applicationStore } = useStore();
+	const { applicationStore, inspectStore } = useStore();
 	const application = applicationStore.selectedApplication;
+	const regions = inspectStore.selectedRegions;
 
 	return (
 		<>
@@ -31,6 +37,22 @@ export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
 						</span>
 					</PromptInputButton>
 				)}
+				{regions.map((region) => (
+					<PromptInputButton
+						key={region.path}
+						size="sm"
+						variant="outline"
+						onClick={() => inspectStore.toggleSelected(region.path)}
+					>
+						<HighlighterIcon
+							className="text-muted-foreground"
+							size={12}
+						/>
+						<span className="max-w-[200px] truncate">
+							{region.label}
+						</span>
+					</PromptInputButton>
+				))}
 				<PromptInputHoverCard>
 					<PromptInputHoverCardTrigger>
 						<PromptInputButton variant="outline">
