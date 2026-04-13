@@ -258,10 +258,20 @@ type Resume {
   updatedAt: DateTime!
 }
 
+type ChatModelSelectionModel {
+  provider: String!
+  model: String!
+}
+
 type ConversationMessage {
   role: String!
   content: String!
   createdAt: DateTime!
+}
+
+input ChatModelSelectionInput {
+  provider: String!
+  model: String!
 }
 
 type Query {

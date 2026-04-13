@@ -2,9 +2,14 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	Post,
 	Res,
 } from '@nestjs/common';
+import type {
+	ChatModelSelection,
+	ChatModelsResponse,
+} from '@resume-builder/entities';
 import type { Response } from 'express';
 
 import { CurrentUser } from '../auth';
@@ -20,6 +25,10 @@ import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
 import type { LlmMessage } from '../llm/interfaces/llm-types';
 import { chatTools, executeTool } from './chat-tools';
+import {
+	getChatModelCatalog,
+	isConfiguredChatModel,
+} from './chat-models';
 import { ChatService } from './chat.service';
 
 import { outdent } from 'outdent';
@@ -42,6 +51,11 @@ export class ChatController {
 		private readonly chatService: ChatService,
 	) {}
 
+	@Get('models')
+	getModels(): ChatModelsResponse {
+		return getChatModelCatalog();
+	}
+
 	@Post()
 	async chat(
 		@CurrentUser('sub') uid: string,
@@ -52,6 +66,7 @@ export class ChatController {
 				applicationId?: string;
 				conversationId?: string;
 				highlightedPaths?: string[];
+				model?: ChatModelSelection;
 			};
 		},
 		@Res() res: Response,
@@ -59,9 +74,14 @@ export class ChatController {
 		const { messages, data } = body;
 		const applicationId = data?.applicationId;
 		let conversationId = data?.conversationId;
+		const requestedModel = data?.model;
 
 		if (!applicationId) {
 			throw new BadRequestException('Application ID is required');
+		}
+
+		if (requestedModel && !isConfiguredChatModel(requestedModel)) {
+			throw new BadRequestException('Invalid chat model selection');
 		}
 
 		// Fetch application and its linked resume for context injection
@@ -185,8 +205,33 @@ export class ChatController {
 			{
 				applicationId: applicationId!,
 				title: userText.slice(0, 50) || 'New Conversation',
+				model: requestedModel,
 			},
 		);
+		conversationId = conversation._id;
+
+		const persistedModel =
+			conversation.model && isConfiguredChatModel(conversation.model)
+				? conversation.model
+				: null;
+		const selectedModel = requestedModel ?? persistedModel ?? {
+			provider: configuration.llms.defaultLlm.provider,
+			model: configuration.llms.defaultLlm.model,
+		};
+
+		if (requestedModel && conversation._id) {
+			const storedModel = conversation.model;
+			const changed =
+				storedModel?.provider !== requestedModel.provider ||
+				storedModel?.model !== requestedModel.model;
+			if (changed) {
+				await this.conversationsService.setModel(
+					uid,
+					conversation._id,
+					requestedModel,
+				);
+			}
+		}
 
 		// Persist user message
 		if (conversation._id) {
@@ -212,7 +257,8 @@ export class ChatController {
 		};
 
 		const assistantText = await this.chatService.streamWithToolLoop(res, {
-			model: configuration.llms.defaultLlm.model,
+			provider: selectedModel.provider,
+			model: selectedModel.model,
 			system: systemPrompt,
 			messages: llmMessages,
 			tools: chatTools,

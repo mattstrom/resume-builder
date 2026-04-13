@@ -54,9 +54,12 @@ export const ChatPanel: FC = observer(() => {
 	useEffect(
 		() =>
 			autorun(() => {
-				const { activeConversation } = conversationService;
+				const { activeConversation, activeConversationId } =
+					conversationService;
 				if (!activeConversation) {
-					setMessages([]);
+					if (!activeConversationId) {
+						setMessages([]);
+					}
 					return;
 				}
 

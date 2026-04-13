@@ -1,5 +1,10 @@
 import type { RootStore } from '@/stores/root.store.ts';
 import { authFetch } from '@/utils/auth.ts';
+import type {
+	ChatModelOption,
+	ChatModelSelection,
+	ChatModelsResponse,
+} from '@resume-builder/entities';
 import { DefaultChatTransport } from 'ai';
 import { action, computed, makeObservable, observable } from 'mobx';
 
@@ -10,6 +15,7 @@ interface ConversationPayload {
 	title: string;
 	createdAt: string;
 	messages: { role: string; content: string; createdAt?: string }[];
+	model?: ChatModelSelection;
 }
 
 export interface Message {
@@ -23,6 +29,7 @@ export class Conversation {
 	public id!: string;
 	public title!: string;
 	public createdAt!: string;
+	public model: ChatModelSelection | null = null;
 
 	@observable
 	messages: Message[] = [];
@@ -38,6 +45,7 @@ export class Conversation {
 			id: payload._id,
 			title: payload.title,
 			createdAt: payload.createdAt,
+			model: payload.model ?? null,
 		});
 
 		payload.messages.forEach((message, index) => {
@@ -65,6 +73,15 @@ export class ConversationService {
 	@observable
 	activeConversationId: string | null = null;
 
+	@observable
+	models: ChatModelOption[] = [];
+
+	@observable
+	defaultModelSelection: ChatModelSelection | null = null;
+
+	@observable
+	selectedModel: ChatModelSelection | null = null;
+
 	@computed
 	get activeConversation() {
 		if (!this.activeConversationId) {
@@ -72,6 +89,35 @@ export class ConversationService {
 		}
 
 		return this.conversations.get(this.activeConversationId) ?? null;
+	}
+
+	@computed
+	get modelsByProvider() {
+		const groups = new Map<string, ChatModelOption[]>();
+		for (const model of this.models) {
+			const group = groups.get(model.providerLabel) ?? [];
+			group.push(model);
+			groups.set(model.providerLabel, group);
+		}
+		return Array.from(groups.entries()).map(([providerLabel, models]) => ({
+			providerLabel,
+			models,
+		}));
+	}
+
+	@computed
+	get activeModelOption(): ChatModelOption | null {
+		if (!this.selectedModel) {
+			return null;
+		}
+
+		return (
+			this.models.find(
+				(model) =>
+					model.provider === this.selectedModel?.provider &&
+					model.model === this.selectedModel?.model,
+			) ?? null
+		);
 	}
 
 	@computed
@@ -99,6 +145,7 @@ export class ConversationService {
 					parsed.data = {
 						...parsed.data,
 						conversationId: this.activeConversationId,
+						model: this.selectedModel,
 					};
 
 					init = { ...init, body: JSON.stringify(parsed) };
@@ -138,27 +185,44 @@ export class ConversationService {
 			}
 		});
 
+		await this.loadModelCatalog();
 		await this.loadLastConversation();
 	}
 
 	@action
 	addNewConversation() {
-		const conversation = new Conversation();
+		this.activeConversationId = null;
+		this.selectedModel ??= this.defaultModelSelection;
 
-		Object.assign(conversation, {
-			title: 'New Conversation',
-			createdAt: new Date().toISOString(),
-		});
+		if (this.scope?.applicationId) {
+			const key = getStorageKey(this.scope.applicationId);
+			this.persistence.remove(key);
+		}
+	}
 
-		this.conversations.set(conversation.id, conversation);
-		this.activeConversationId = conversation.id;
+	@action
+	setSelectedModel(model: ChatModelSelection) {
+		this.selectedModel = model;
 
-		if (!this.scope?.applicationId) {
-			return;
+		const activeConversation = this.activeConversation;
+		if (activeConversation) {
+			activeConversation.model = model;
+		}
+	}
+
+	@action
+	async loadModelCatalog(): Promise<void> {
+		const res = await authFetch(`${API_BASE}/api/chat/models`);
+		if (!res.ok) {
+			throw new Error(
+				`Failed to load chat models: ${res.status} ${res.statusText}`,
+			);
 		}
 
-		const key = getStorageKey(this.scope.applicationId);
-		this.persistence.store(key, conversation.id);
+		const data = (await res.json()) as ChatModelsResponse;
+		this.models = data.models;
+		this.defaultModelSelection = data.defaultSelection;
+		this.selectedModel = this.resolveModelSelection(this.selectedModel);
 	}
 
 	@action
@@ -186,6 +250,7 @@ export class ConversationService {
 			const conversation = Conversation.createFrom(data);
 			this.conversations.set(conversationId, conversation);
 			this.activeConversationId = conversationId;
+			this.selectedModel = this.resolveModelSelection(conversation.model);
 
 			if (applicationId) {
 				const key = getStorageKey(applicationId);
@@ -215,7 +280,26 @@ export class ConversationService {
 			return true;
 		}
 
+		this.selectedModel = this.resolveModelSelection(null);
+
 		return false;
+	}
+
+	private resolveModelSelection(
+		model: ChatModelSelection | null | undefined,
+	): ChatModelSelection | null {
+		if (
+			model &&
+			this.models.some(
+				(option) =>
+					option.provider === model.provider &&
+					option.model === model.model,
+			)
+		) {
+			return model;
+		}
+
+		return this.defaultModelSelection;
 	}
 }
 

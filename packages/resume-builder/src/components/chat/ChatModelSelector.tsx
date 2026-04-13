@@ -7,64 +7,34 @@ import {
 	ModelSelectorItem,
 	ModelSelectorList,
 	ModelSelectorLogo,
-	ModelSelectorLogoGroup,
 	ModelSelectorName,
 	ModelSelectorTrigger,
 } from '@/components/ai-elements/model-selector.tsx';
 import { PromptInputButton } from '@/components/ai-elements/prompt-input.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
+import type { ChatModelOption } from '@resume-builder/entities';
 import { CheckIcon } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
 import { type FC, memo, useCallback, useState } from 'react';
 
-const models = [
-	{
-		chef: 'OpenAI',
-		chefSlug: 'openai',
-		id: 'gpt-4o',
-		name: 'GPT-4o',
-		providers: ['openai', 'azure'],
-	},
-	{
-		chef: 'OpenAI',
-		chefSlug: 'openai',
-		id: 'gpt-4o-mini',
-		name: 'GPT-4o Mini',
-		providers: ['openai', 'azure'],
-	},
-	{
-		chef: 'Anthropic',
-		chefSlug: 'anthropic',
-		id: 'claude-opus-4-20250514',
-		name: 'Claude 4 Opus',
-		providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
-	},
-	{
-		chef: 'Anthropic',
-		chefSlug: 'anthropic',
-		id: 'claude-sonnet-4-20250514',
-		name: 'Claude 4 Sonnet',
-		providers: ['anthropic', 'azure', 'google', 'amazon-bedrock'],
-	},
-	{
-		chef: 'Google',
-		chefSlug: 'google',
-		id: 'gemini-2.0-flash-exp',
-		name: 'Gemini 2.0 Flash',
-		providers: ['google'],
-	},
-];
-
-interface ChatModelSelectorProps {}
-
-export const ChatModelSelector: FC<ChatModelSelectorProps> = () => {
-	const [model, setModel] = useState<string>(models[0].id);
+export const ChatModelSelector: FC = observer(() => {
+	const { conversationService } = useStore();
 	const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
 
-	const selectedModelData = models.find((m) => m.id === model);
+	const selectedModel = conversationService.selectedModel;
+	const selectedModelData = conversationService.activeModelOption;
+	const modelGroups = conversationService.modelsByProvider;
 
-	const handleModelSelect = useCallback((id: string) => {
-		setModel(id);
-		setModelSelectorOpen(false);
-	}, []);
+	const handleModelSelect = useCallback(
+		(model: ChatModelOption) => {
+			conversationService.setSelectedModel({
+				provider: model.provider,
+				model: model.model,
+			});
+			setModelSelectorOpen(false);
+		},
+		[conversationService],
+	);
 
 	return (
 		<ModelSelector
@@ -73,66 +43,77 @@ export const ChatModelSelector: FC<ChatModelSelectorProps> = () => {
 		>
 			<ModelSelectorTrigger asChild>
 				<PromptInputButton>
-					{selectedModelData?.chefSlug && (
+					{selectedModelData?.logoProvider && (
 						<ModelSelectorLogo
-							provider={selectedModelData.chefSlug}
+							provider={selectedModelData.logoProvider}
 						/>
 					)}
-					{selectedModelData?.name && (
-						<ModelSelectorName>
-							{selectedModelData.name}
-						</ModelSelectorName>
-					)}
+					<ModelSelectorName>
+						{selectedModelData?.label ?? 'Select model'}
+					</ModelSelectorName>
 				</PromptInputButton>
 			</ModelSelectorTrigger>
 			<ModelSelectorContent>
 				<ModelSelectorInput placeholder="Search models..." />
 				<ModelSelectorList>
 					<ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-					{['OpenAI', 'Anthropic', 'Google'].map((chef) => (
-						<ModelSelectorGroup heading={chef} key={chef}>
-							{models
-								.filter((m) => m.chef === chef)
-								.map((m) => (
-									<ModelItem
-										key={m.id}
-										m={m}
-										onSelect={handleModelSelect}
-										selectedModel={model}
-									/>
-								))}
+					{modelGroups.map((group) => (
+						<ModelSelectorGroup
+							heading={group.providerLabel}
+							key={group.providerLabel}
+						>
+							{group.models.map((model) => (
+								<ModelItem
+									key={`${model.provider}:${model.model}`}
+									model={model}
+									onSelect={handleModelSelect}
+									selectedModel={selectedModel}
+								/>
+							))}
 						</ModelSelectorGroup>
 					))}
 				</ModelSelectorList>
 			</ModelSelectorContent>
 		</ModelSelector>
 	);
-};
+});
 
 interface ModelItemProps {
-	m: (typeof models)[0];
-	selectedModel: string;
-	onSelect: (id: string) => void;
+	model: ChatModelOption;
+	selectedModel: {
+		provider: string;
+		model: string;
+	} | null;
+	onSelect: (model: ChatModelOption) => void;
 }
 
-const ModelItem = memo(({ m, selectedModel, onSelect }: ModelItemProps) => {
-	const handleSelect = useCallback(() => onSelect(m.id), [onSelect, m.id]);
-	return (
-		<ModelSelectorItem key={m.id} onSelect={handleSelect} value={m.id}>
-			<ModelSelectorLogo provider={m.chefSlug} />
-			<ModelSelectorName>{m.name}</ModelSelectorName>
-			<ModelSelectorLogoGroup>
-				{m.providers.map((provider) => (
-					<ModelSelectorLogo key={provider} provider={provider} />
-				))}
-			</ModelSelectorLogoGroup>
-			{selectedModel === m.id ? (
-				<CheckIcon className="ml-auto size-4" />
-			) : (
-				<div className="ml-auto size-4" />
-			)}
-		</ModelSelectorItem>
-	);
-});
+const ModelItem = memo(
+	({ model, selectedModel, onSelect }: ModelItemProps) => {
+		const handleSelect = useCallback(
+			() => onSelect(model),
+			[onSelect, model],
+		);
+		const isSelected =
+			selectedModel?.provider === model.provider &&
+			selectedModel.model === model.model;
+
+		return (
+			<ModelSelectorItem
+				onSelect={handleSelect}
+				value={`${model.provider} ${model.label} ${model.model}`}
+			>
+				{model.logoProvider && (
+					<ModelSelectorLogo provider={model.logoProvider} />
+				)}
+				<ModelSelectorName>{model.label}</ModelSelectorName>
+				{isSelected ? (
+					<CheckIcon className="ml-auto size-4" />
+				) : (
+					<div className="ml-auto size-4" />
+				)}
+			</ModelSelectorItem>
+		);
+	},
+);
 
 ModelItem.displayName = 'ModelItem';
