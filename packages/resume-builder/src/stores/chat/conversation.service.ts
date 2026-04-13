@@ -1,8 +1,7 @@
+import type { RootStore } from '@/stores/root.store.ts';
 import { authFetch } from '@/utils/auth.ts';
 import { DefaultChatTransport } from 'ai';
-import { action, computed, observable } from 'mobx';
-import type { RootStore } from '@/stores/root.store.ts';
-import { ObjectId } from 'bson';
+import { action, computed, makeObservable, observable } from 'mobx';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -27,6 +26,10 @@ export class Conversation {
 
 	@observable
 	messages: Message[] = [];
+
+	constructor() {
+		makeObservable(this);
+	}
 
 	static createFrom(payload: ConversationPayload): Conversation {
 		const conversation = new Conversation();
@@ -111,17 +114,6 @@ export class ConversationService {
 					if (key) {
 						localStorage.setItem(key, newConvId);
 					}
-
-					// Fetch conversation info for display
-					// authFetch(`${API_BASE}/api/conversations/${newConvId}`)
-					// 	.then((r) => r.json())
-					// 	.then((conv) =>
-					// 		setConversationInfo({
-					// 			title: conv.title,
-					// 			createdAt: conv.createdAt,
-					// 		}),
-					// 	)
-					// 	.catch(() => {});
 				}
 
 				return response;
@@ -129,9 +121,15 @@ export class ConversationService {
 		});
 	}
 
-	constructor(private readonly rootStore: RootStore) {}
+	get persistence() {
+		return this.rootStore.persistence;
+	}
 
-	initialize() {
+	constructor(private readonly rootStore: RootStore) {
+		makeObservable(this);
+	}
+
+	async initialize() {
 		const { router } = this.rootStore;
 
 		router?.subscribe('onLoad', () => {
@@ -139,6 +137,8 @@ export class ConversationService {
 				return;
 			}
 		});
+
+		await this.loadLastConversation();
 	}
 
 	@action
@@ -146,13 +146,19 @@ export class ConversationService {
 		const conversation = new Conversation();
 
 		Object.assign(conversation, {
-			// id: new ObjectId().toHexString(),
 			title: 'New Conversation',
 			createdAt: new Date().toISOString(),
 		});
 
 		this.conversations.set(conversation.id, conversation);
 		this.activeConversationId = conversation.id;
+
+		if (!this.scope?.applicationId) {
+			return;
+		}
+
+		const key = getStorageKey(this.scope.applicationId);
+		this.persistence.store(key, conversation.id);
 	}
 
 	@action
@@ -201,8 +207,7 @@ export class ConversationService {
 		}
 
 		const key = getStorageKey(applicationId);
-		// const savedId = persistence.retrieve(key) as string;
-		const savedId = '69d01895565629509fdf24d2';
+		const savedId = persistence.retrieve(key) as string;
 
 		if (savedId) {
 			this.activeConversationId = savedId;

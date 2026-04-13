@@ -24,7 +24,7 @@ const router = createRouter({
 	},
 });
 
-store.setRouter(router);
+await store.setRouter(router);
 
 // Register the router instance for type safety
 declare module '@tanstack/react-router' {
