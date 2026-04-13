@@ -92,9 +92,10 @@ function EditorLayout() {
 			<EditorToolbar />
 			<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
 				<Panel
-					ref={sidebarPanelRef}
+					panelRef={sidebarPanelRef}
 					id="sidebar"
 					collapsible
+					collapsedSize="3rem"
 					defaultSize={`${sidebarDefaultSize}%`}
 					minSize="8%"
 					maxSize="30%"

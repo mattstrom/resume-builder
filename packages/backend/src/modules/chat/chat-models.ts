@@ -60,9 +60,7 @@ export function getChatModelCatalog(): ChatModelsResponse {
 	};
 }
 
-export function isConfiguredChatModel(
-	selection: ChatModelSelection,
-): boolean {
+export function isConfiguredChatModel(selection: ChatModelSelection): boolean {
 	return getChatModelCatalog().models.some(
 		(model) =>
 			model.provider === selection.provider &&
