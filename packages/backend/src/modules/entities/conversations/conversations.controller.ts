@@ -7,6 +7,7 @@ import {
 	Post,
 	Query,
 } from '@nestjs/common';
+import type { ChatModelSelection } from '@resume-builder/entities';
 import { CurrentUser } from '../../auth';
 import { ConversationsService } from './conversations.service';
 
@@ -33,7 +34,12 @@ export class ConversationsController {
 	@Post()
 	async create(
 		@CurrentUser('sub') uid: string,
-		@Body() body: { applicationId: string; title?: string },
+		@Body()
+		body: {
+			applicationId: string;
+			title?: string;
+			model?: ChatModelSelection;
+		},
 	) {
 		return this.conversationsService.create(uid, body);
 	}

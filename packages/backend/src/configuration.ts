@@ -1,7 +1,7 @@
 import config from 'config';
 import convict from 'convict';
 
-interface ModelInfo {
+export interface ModelInfo {
 	name: string;
 	label: string;
 }
@@ -60,7 +60,7 @@ const schema = convict<Config>({
 			},
 			models: {
 				doc: 'List of available Anthropic models',
-				format: Array<string>,
+				format: Array,
 				default: [],
 			},
 		},
@@ -73,7 +73,7 @@ const schema = convict<Config>({
 			},
 			models: {
 				doc: 'List of available Ollama models',
-				format: Array<{ name: string; label: string }>,
+				format: Array,
 				default: [],
 			},
 		},
@@ -86,7 +86,7 @@ const schema = convict<Config>({
 			},
 			models: {
 				doc: 'List of available LM Studio models',
-				format: Array<{ name: string; label: string }>,
+				format: Array,
 				default: [],
 			},
 		},

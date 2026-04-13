@@ -13,5 +13,7 @@ export * from './models/application.js';
 export * from './models/resume-content.js';
 export * from './models/resume.js';
 export * from './models/conversation.js';
+export * from './models/chat-model.js';
+export * from './chat-models.js';
 
 export * from './utils/database.js';

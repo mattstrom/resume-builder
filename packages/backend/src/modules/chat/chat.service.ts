@@ -17,6 +17,7 @@ import {
 const MAX_TOOL_ITERATIONS = 10;
 
 export interface StreamWithToolLoopOptions {
+	provider: string;
 	model: string;
 	system: string;
 	messages: LlmMessage[];
@@ -36,8 +37,15 @@ export class ChatService {
 		res: Response,
 		options: StreamWithToolLoopOptions,
 	): Promise<string> {
-		const { model, system, tools, executeTool, conversationId } = options;
-		const provider = this.llmRegistry.getDefaultProvider();
+		const {
+			provider: providerName,
+			model,
+			system,
+			tools,
+			executeTool,
+			conversationId,
+		} = options;
+		const provider = this.llmRegistry.getProvider(providerName);
 
 		initSseHeaders(res, conversationId);
 		writeChunk(res, { type: 'start' });
