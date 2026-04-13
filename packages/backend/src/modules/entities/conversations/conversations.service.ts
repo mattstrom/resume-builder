@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
+	type ChatModelSelection,
 	Conversation,
 	ConversationCreateInput,
 } from '@resume-builder/entities';
@@ -69,6 +70,19 @@ export class ConversationsService {
 				{ _id: id, uid },
 				{ $push: { messages: { ...message, createdAt: new Date() } } },
 			)
+			.exec();
+		if (result.matchedCount === 0) {
+			throw new NotFoundException(`Conversation with id ${id} not found`);
+		}
+	}
+
+	async setModel(
+		uid: string,
+		id: string,
+		model: ChatModelSelection,
+	): Promise<void> {
+		const result = await this.conversationModel
+			.updateOne({ _id: id, uid }, { $set: { model } })
 			.exec();
 		if (result.matchedCount === 0) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);

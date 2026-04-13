@@ -3,6 +3,15 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { z } from 'zod';
 
+import {
+	type ChatModelSelection,
+	chatModelSelectionSchema,
+} from '../chat-models';
+import {
+	ChatModelSelectionModel,
+	ChatModelSelectionSchema,
+} from './chat-model';
+
 @ObjectType()
 @Schema({ _id: false, versionKey: false, timestamps: false })
 export class ConversationMessage {
@@ -46,6 +55,10 @@ export class Conversation {
 	@Prop({ type: [ConversationMessageSchema], default: [] })
 	messages: ConversationMessage[];
 
+	@Field(() => ChatModelSelectionModel, { nullable: true })
+	@Prop({ type: ChatModelSelectionSchema, required: false })
+	model?: ChatModelSelection;
+
 	@Field()
 	createdAt: Date;
 
@@ -62,6 +75,9 @@ export class ConversationCreateInput {
 
 	@Field({ nullable: true })
 	title?: string;
+
+	@Field(() => ChatModelSelectionModel, { nullable: true })
+	model?: ChatModelSelection;
 }
 
 export const conversationMessageSchema = z.object({
@@ -77,6 +93,7 @@ export const conversationSchema = z.object({
 	applicationId: z.string(),
 	title: z.string(),
 	messages: z.array(conversationMessageSchema),
+	model: chatModelSelectionSchema.optional(),
 	createdAt: z.iso.datetime(),
 	updatedAt: z.iso.datetime(),
 });
