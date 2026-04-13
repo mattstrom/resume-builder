@@ -98,8 +98,6 @@ function EditorLayout() {
 					defaultSize={`${sidebarDefaultSize}%`}
 					minSize="8%"
 					maxSize="30%"
-					onCollapse={() => setSidebarOpen(false)}
-					onExpand={() => setSidebarOpen(true)}
 					onResize={(size) =>
 						localStorage.setItem('sidebar-panel-size', String(size))
 					}
