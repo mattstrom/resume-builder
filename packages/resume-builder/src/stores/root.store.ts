@@ -49,8 +49,13 @@ export class RootStore<R extends AnyRoute = any> {
 		}
 	}
 
-	setRouter(router: Router<R>) {
+	async initialize() {
+		await this.conversationService.initialize();
+	}
+
+	async setRouter(router: Router<R>) {
 		this.router = router;
+		await this.initialize();
 	}
 
 	static getInstance<R extends AnyRoute = any>() {

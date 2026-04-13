@@ -1,12 +1,14 @@
 import { PromptInputProvider } from '@/components/ai-elements/prompt-input.tsx';
 import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
+import { Button } from '@/components/ui/button';
 import { useStore } from '@/stores/store.provider.tsx';
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
-import { observer } from 'mobx-react-lite';
-import { type FC, useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { autorun } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import { type FC, useEffect, useRef, useState } from 'react';
+
 import {
 	Conversation,
 	ConversationContent,
@@ -20,8 +22,8 @@ import {
 } from '../ai-elements/message';
 import {
 	Tool,
-	ToolHeader,
 	ToolContent,
+	ToolHeader,
 	ToolInput,
 	ToolOutput,
 } from '../ai-elements/tool';
@@ -39,44 +41,6 @@ export const ChatPanel: FC = observer(() => {
 		createdAt: string;
 	} | null>(null);
 
-	// const transport = useMemo(
-	// 	() =>
-	// 		new DefaultChatTransport({
-	// 			api: `${API_BASE}/api/chat`,
-	// 			body: { data: { applicationId } },
-	// 			fetch: async (url, init) => {
-	// 				// Inject current conversationId into each request body
-	// 				if (init?.body && typeof init.body === 'string') {
-	// 					const parsed = JSON.parse(init.body);
-	// 					parsed.data = {
-	// 						...parsed.data,
-	// 						conversationId: conversationIdRef.current,
-	// 					};
-	// 					init = { ...init, body: JSON.stringify(parsed) };
-	// 				}
-	// 				const response = await authFetch(url, init);
-	// 				const newConvId = response.headers.get('X-Conversation-Id');
-	// 				if (newConvId && newConvId !== conversationIdRef.current) {
-	// 					conversationIdRef.current = newConvId;
-	// 					const key = getStorageKey(applicationId);
-	// 					if (key) localStorage.setItem(key, newConvId);
-	// 					// Fetch conversation info for display
-	// 					authFetch(`${API_BASE}/api/conversations/${newConvId}`)
-	// 						.then((r) => r.json())
-	// 						.then((conv) =>
-	// 							setConversationInfo({
-	// 								title: conv.title,
-	// 								createdAt: conv.createdAt,
-	// 							}),
-	// 						)
-	// 						.catch(() => {});
-	// 				}
-	// 				return response;
-	// 			},
-	// 		}),
-	// 	[applicationId],
-	// );
-
 	const helpers = useChat({
 		transport: conversationService.transport,
 	});
@@ -87,37 +51,32 @@ export const ChatPanel: FC = observer(() => {
 		conversationService.loadLastConversation();
 	}, [applicationId]);
 
-	// Sync loaded conversation messages into the useChat view
-	const activeConversationId = conversationService.activeConversationId;
-	const activeConversation = conversationService.activeConversation;
-	useEffect(() => {
-		if (!activeConversation) {
-			setMessages([]);
-			return;
-		}
-		setMessages(
-			activeConversation.messages.map((m) => ({
-				id: m.id,
-				role: m.role,
-				parts: m.parts,
-			})) as any,
-		);
-	}, [activeConversationId, activeConversation, setMessages]);
+	useEffect(
+		() =>
+			autorun(() => {
+				const { activeConversation } = conversationService;
+				if (!activeConversation) {
+					setMessages([]);
+					return;
+				}
 
-	const handleNewChat = useCallback(() => {
-		conversationService.addNewConversation();
-		// conversationIdRef.current = null;
-		// setConversationInfo(null);
-		// setMessages([]);
-		// const key = getStorageKey(applicationId);
-		// if (key) localStorage.removeItem(key);
-	}, [applicationId, setMessages]);
-
-	const handleSelectConversation = useCallback(
-		(conv: { _id: string }) =>
-			conversationService.loadConversation(conv._id),
+				setMessages(
+					activeConversation.messages.map((m) => ({
+						id: m.id,
+						role: m.role,
+						parts: m.parts,
+					})) as any,
+				);
+			}),
 		[],
 	);
+
+	const handleNewChat = () => {
+		conversationService.addNewConversation();
+	};
+
+	const handleSelectConversation = (conv: { _id: string }) =>
+		conversationService.loadConversation(conv._id);
 
 	return (
 		<div className="flex flex-col h-full w-full border-l border-border bg-card text-card-foreground">
