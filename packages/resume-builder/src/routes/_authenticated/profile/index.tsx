@@ -1,4 +1,4 @@
-import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { NarrativeEditor } from '@/components/profile/NarrativeEditor.tsx';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/_authenticated/profile/')({
@@ -6,5 +6,5 @@ export const Route = createFileRoute('/_authenticated/profile/')({
 });
 
 function ProfileIndexComponent() {
-	return <AppShell />;
+	return <NarrativeEditor />;
 }

@@ -13,6 +13,7 @@ import {
 	volunteeringSchema,
 	coverLetterSchema,
 	contactInformationSchema,
+	profileSchema,
 	conversationSchema,
 	conversationMessageSchema,
 } from '@resume-builder/entities';
@@ -31,6 +32,7 @@ const schemas: Record<string, z.ZodType> = {
 	volunteering: volunteeringSchema,
 	'cover-letter': coverLetterSchema,
 	'contact-information': contactInformationSchema,
+	profile: profileSchema,
 	conversation: conversationSchema,
 	'conversation-message': conversationMessageSchema,
 };

@@ -1,6 +1,7 @@
 import { Extension } from '@hocuspocus/server';
 import { Document as StoredDocument } from './document.js';
-import { Resume } from '@resume-builder/entities';
+import { ProfileUpdate } from './profile-update.js';
+import { Profile, Resume } from '@resume-builder/entities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -57,12 +58,20 @@ function syncYMap(target: Y.Map<unknown>, values: Record<string, unknown>) {
 	}
 }
 
+type ParsedDocumentName =
+	| { kind: 'resume'; resumeId: string }
+	| { kind: 'profile'; uid: string };
+
 @Injectable()
 export class StorageService implements Extension {
 	constructor(
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
+		@InjectModel(Profile.name)
+		private readonly profileModel: Model<Profile>,
 		@InjectModel(StoredDocument.name)
 		private readonly documentModel: Model<StoredDocument>,
+		@InjectModel(ProfileUpdate.name)
+		private readonly profileUpdateModel: Model<ProfileUpdate>,
 	) {}
 
 	async onLoadDocument({ context, documentName }) {
@@ -77,12 +86,22 @@ export class StorageService implements Extension {
 		);
 	}
 
-	private parseDocumentName(documentName: string) {
-		if (!documentName.startsWith('resume:')) {
-			throw new Error(`Unsupported document "${documentName}"`);
+	private parseDocumentName(documentName: string): ParsedDocumentName {
+		if (documentName.startsWith('resume:')) {
+			return {
+				kind: 'resume',
+				resumeId: documentName.slice('resume:'.length),
+			};
 		}
 
-		return documentName.slice('resume:'.length);
+		if (documentName.startsWith('profile:')) {
+			return {
+				kind: 'profile',
+				uid: documentName.slice('profile:'.length),
+			};
+		}
+
+		throw new Error(`Unsupported document "${documentName}"`);
 	}
 
 	private readResumeDocument(document: Y.Doc) {
@@ -96,8 +115,7 @@ export class StorageService implements Extension {
 		);
 	}
 
-	async assertResumeAccess(uid: string, documentName: string) {
-		const resumeId = this.parseDocumentName(documentName);
+	async assertResumeAccess(uid: string, resumeId: string) {
 		const resume = await this.resumeModel
 			.findOne({ _id: resumeId, uid })
 			.exec();
@@ -110,7 +128,42 @@ export class StorageService implements Extension {
 	}
 
 	async loadDocument(uid: string, documentName: string) {
-		const resume = await this.assertResumeAccess(uid, documentName);
+		const parsed = this.parseDocumentName(documentName);
+
+		if (parsed.kind === 'resume') {
+			return this.loadResumeDocument(uid, documentName, parsed.resumeId);
+		}
+
+		return this.loadProfileDocument(uid, documentName, parsed.uid);
+	}
+
+	async storeDocument(uid: string, documentName: string, document: Y.Doc) {
+		const parsed = this.parseDocumentName(documentName);
+
+		if (parsed.kind === 'resume') {
+			await this.storeResumeDocument(
+				uid,
+				documentName,
+				parsed.resumeId,
+				document,
+			);
+			return;
+		}
+
+		await this.storeProfileDocument(
+			uid,
+			documentName,
+			parsed.uid,
+			document,
+		);
+	}
+
+	private async loadResumeDocument(
+		uid: string,
+		documentName: string,
+		resumeId: string,
+	) {
+		const resume = await this.assertResumeAccess(uid, resumeId);
 		const stored = await this.documentModel
 			.findOne({ name: documentName, uid })
 			.exec();
@@ -125,8 +178,13 @@ export class StorageService implements Extension {
 		return document;
 	}
 
-	async storeDocument(uid: string, documentName: string, document: Y.Doc) {
-		await this.assertResumeAccess(uid, documentName);
+	private async storeResumeDocument(
+		uid: string,
+		documentName: string,
+		resumeId: string,
+		document: Y.Doc,
+	) {
+		await this.assertResumeAccess(uid, resumeId);
 
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 		const snapshot = this.readResumeDocument(document);
@@ -150,9 +208,83 @@ export class StorageService implements Extension {
 			};
 
 		await this.resumeModel
+			.findOneAndUpdate({ _id: resumeId, uid }, resumeUpdate)
+			.exec();
+	}
+
+	private assertProfileAccess(uid: string, profileUid: string) {
+		if (uid !== profileUid) {
+			throw new Error(
+				`Profile "${profileUid}" is not accessible to user "${uid}"`,
+			);
+		}
+	}
+
+	private async loadProfileDocument(
+		uid: string,
+		documentName: string,
+		profileUid: string,
+	) {
+		this.assertProfileAccess(uid, profileUid);
+
+		const document = new Y.Doc();
+		const latest = await this.profileUpdateModel
+			.findOne({ name: documentName })
+			.sort({ sequence: -1 })
+			.exec();
+
+		if (latest?.update) {
+			Y.applyUpdate(document, new Uint8Array(latest.update));
+			return document;
+		}
+
+		const profile = await this.profileModel.findOne({ uid }).exec();
+		const profileMap = document.getMap('profile');
+		const narrative = new Y.Text();
+
+		if (profile?.narrative) {
+			narrative.insert(0, profile.narrative);
+		}
+
+		profileMap.set('narrative', narrative);
+
+		return document;
+	}
+
+	private async storeProfileDocument(
+		uid: string,
+		documentName: string,
+		profileUid: string,
+		document: Y.Doc,
+	) {
+		this.assertProfileAccess(uid, profileUid);
+
+		const update = Buffer.from(Y.encodeStateAsUpdate(document));
+
+		const previous = await this.profileUpdateModel
+			.findOne({ name: documentName })
+			.sort({ sequence: -1 })
+			.select({ sequence: 1 })
+			.exec();
+
+		const nextSequence = (previous?.sequence ?? 0) + 1;
+
+		await this.profileUpdateModel.create({
+			name: documentName,
+			uid,
+			sequence: nextSequence,
+			update,
+		});
+
+		const narrativeText = document.getMap('profile').get('narrative');
+		const narrative =
+			narrativeText instanceof Y.Text ? narrativeText.toString() : '';
+
+		await this.profileModel
 			.findOneAndUpdate(
-				{ _id: this.parseDocumentName(documentName), uid },
-				resumeUpdate,
+				{ uid },
+				{ $set: { narrative }, $setOnInsert: { uid } },
+				{ upsert: true, new: true },
 			)
 			.exec();
 	}
