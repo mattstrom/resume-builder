@@ -2,6 +2,8 @@ export enum StorageKey {
 	Mode = 'resume:mode',
 	ViewMode = 'resume:viewMode',
 	Theme = 'resume:theme',
+	SidebarOpen = 'sidebarOpen',
+	ChatOpen = 'chatOpen',
 	ApplicationExplorerApplicationSortField = 'applicationList.applicationSortField',
 	ApplicationExplorerApplicationSortAscending = 'applicationList.applicationSortAscending',
 	ApplicationExplorerGroupSortField = 'applicationList.groupSortField',

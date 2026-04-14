@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated/editor'
 import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
+import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
 import { Route as AuthenticatedPreviewApplicationIdRouteImport } from './routes/_authenticated/preview.$applicationId'
 import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_authenticated/export.$applicationId'
@@ -49,6 +50,12 @@ const publicLoginRoute = publicLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedProfileIndexRoute =
+  AuthenticatedProfileIndexRouteImport.update({
+    id: '/profile/',
+    path: '/profile/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEditorIndexRoute =
   AuthenticatedEditorIndexRouteImport.update({
     id: '/',
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
+  '/profile': typeof AuthenticatedProfileIndexRoute
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesById {
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/_authenticated/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/_authenticated/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
+  '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRouteTypes {
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/export/$applicationId'
     | '/preview/$applicationId'
     | '/editor/'
+    | '/profile'
     | '/editor/local/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -136,6 +147,7 @@ export interface FileRouteTypes {
     | '/export/$applicationId'
     | '/preview/$applicationId'
     | '/editor'
+    | '/profile'
     | '/editor/local/$filename'
   id:
     | '__root__'
@@ -149,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/export/$applicationId'
     | '/_authenticated/preview/$applicationId'
     | '/_authenticated/editor/'
+    | '/_authenticated/profile/'
     | '/_authenticated/editor/local/$filename'
   fileRoutesById: FileRoutesById
 }
@@ -202,6 +215,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof publicLoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/profile/': {
+      id: '/_authenticated/profile/'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/editor/': {
       id: '/_authenticated/editor/'
@@ -261,6 +281,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedExportApplicationIdRoute: typeof AuthenticatedExportApplicationIdRoute
   AuthenticatedPreviewApplicationIdRoute: typeof AuthenticatedPreviewApplicationIdRoute
+  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -269,6 +290,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedExportApplicationIdRoute: AuthenticatedExportApplicationIdRoute,
   AuthenticatedPreviewApplicationIdRoute:
     AuthenticatedPreviewApplicationIdRoute,
+  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

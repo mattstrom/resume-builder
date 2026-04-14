@@ -1,18 +1,3 @@
-import { Mode, ViewMode } from '@/stores/ui-state.store.ts';
-import type { Theme } from '@/stores/theme.store.ts';
-import { observer } from 'mobx-react';
-import { useParams } from '@tanstack/react-router';
-import { type FC, useState } from 'react';
-import {
-	Loader2,
-	LogOut,
-	MessageCircle,
-	Monitor,
-	Moon,
-	PanelLeftClose,
-	PanelLeftOpen,
-	Sun,
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -31,20 +16,23 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useStore } from '../stores/store.provider.tsx';
-import { useSettings } from './Settings.provider.tsx';
-import { useFileManager } from './FileManager';
-import { generatePDF } from '../utils/pdfExport';
-import { useSnackbar } from './SnackbarProvider';
+import { Mode, ViewMode } from '@/stores/ui-state.store.ts';
+import { useParams } from '@tanstack/react-router';
+import {
+	Loader2,
+	MessageCircle,
+	PanelLeftClose,
+	PanelLeftOpen,
+} from 'lucide-react';
+import { observer } from 'mobx-react';
+import { type FC, useState } from 'react';
+
+import { useStore } from '../../stores/store.provider.tsx';
+import { generatePDF } from '../../utils/pdfExport';
+import { useFileManager } from '../FileManager';
+import { useSettings } from '../Settings.provider.tsx';
+import { useSnackbar } from '../SnackbarProvider';
 
 // Custom ToggleGroup component (no direct ShadCN equivalent)
 interface ToggleGroupProps {
@@ -76,63 +64,11 @@ const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
 	</div>
 );
 
-const THEME_OPTIONS: Array<{
-	value: Theme;
-	label: string;
-	Icon: typeof Sun;
-}> = [
-	{ value: 'light', label: 'Light', Icon: Sun },
-	{ value: 'dark', label: 'Dark', Icon: Moon },
-	{ value: 'system', label: 'System', Icon: Monitor },
-];
-
-const ThemeToggle: FC = observer(() => {
-	const { themeStore } = useStore();
-	const ActiveIcon =
-		themeStore.theme === 'system'
-			? Monitor
-			: themeStore.resolvedTheme === 'dark'
-				? Moon
-				: Sun;
-
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
-					variant="ghost"
-					size="icon"
-					className="h-8 w-8"
-					aria-label="Toggle theme"
-				>
-					<ActiveIcon className="h-5 w-5" />
-				</Button>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
-				{THEME_OPTIONS.map(({ value, label, Icon }) => (
-					<DropdownMenuCheckboxItem
-						key={value}
-						checked={themeStore.theme === value}
-						onCheckedChange={() => themeStore.setTheme(value)}
-					>
-						<Icon className="mr-2 h-4 w-4" />
-						{label}
-					</DropdownMenuCheckboxItem>
-				))}
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
-});
-
-export const EditorToolbar: FC = observer(() => {
-	const {
-		template,
-		setTemplate,
-		showMarginPattern,
-		setShowMarginPattern,
-		chatOpen,
-		setChatOpen,
-	} = useSettings();
-	const { authStore, uiStateStore } = useStore();
+export const AppBar: FC = observer(() => {
+	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
+		useSettings();
+	const { uiStateStore } = useStore();
+	const { chatOpen } = uiStateStore;
 	const { open: sidebarOpen, toggleSidebar } = useSidebar();
 
 	const { applicationId } = useParams({ strict: false });
@@ -308,35 +244,6 @@ export const EditorToolbar: FC = observer(() => {
 					</Button>
 				)}
 				<div className="ml-auto flex items-center gap-2">
-					<ThemeToggle />
-
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								className="h-8 w-8 rounded-full p-0"
-							>
-								<Avatar className="h-8 w-8">
-									<AvatarImage
-										src={authStore.user?.picture}
-										alt={authStore.user?.name}
-									/>
-									<AvatarFallback className="bg-muted text-muted-foreground text-xs">
-										{authStore.userInitial}
-									</AvatarFallback>
-								</Avatar>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem
-								onClick={() => authStore.logout()}
-							>
-								<LogOut className="mr-2 h-4 w-4" />
-								Log out
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-
 					<TooltipProvider>
 						<Tooltip>
 							<TooltipTrigger asChild>
@@ -344,7 +251,7 @@ export const EditorToolbar: FC = observer(() => {
 									variant={chatOpen ? 'secondary' : 'ghost'}
 									size="icon"
 									className="h-8 w-8"
-									onClick={() => setChatOpen((prev) => !prev)}
+									onClick={() => uiStateStore.setChatOpen()}
 									aria-label={
 										chatOpen ? 'Close chat' : 'Open chat'
 									}
