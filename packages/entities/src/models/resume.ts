@@ -60,6 +60,10 @@ export class Resume {
 	@Prop({ type: Boolean, default: false })
 	base: boolean;
 
+	@Field({ description: 'Source resume for this version' })
+	@Prop({ type: Types.ObjectId, ref: 'Resume', default: null })
+	sourceResume?: Resume;
+
 	@Field(() => ResumeContent, { description: 'Resume content data' })
 	@Prop({ type: ResumeContentSchema, default: () => ({}) })
 	data: ResumeContent;
