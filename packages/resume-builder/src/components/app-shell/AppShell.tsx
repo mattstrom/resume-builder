@@ -9,6 +9,7 @@ import {
 	type CSSProperties,
 	type FC,
 	type PropsWithChildren,
+	type ReactNode,
 	useEffect,
 	useRef,
 } from 'react';
@@ -22,9 +23,11 @@ import { AppSidebar } from './AppSidebar.tsx';
 
 import './AppShell.css';
 
-interface AppShellProps extends PropsWithChildren {}
+interface AppShellProps extends PropsWithChildren {
+	toolbar?: ReactNode;
+}
 
-export const AppShell: FC<AppShellProps> = observer(({ children }) => {
+export const AppShell: FC<AppShellProps> = observer(({ children, toolbar }) => {
 	const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
 	const { uiStateStore } = useStore();
 	const { chatOpen, sidebarOpen } = uiStateStore;
@@ -59,7 +62,7 @@ export const AppShell: FC<AppShellProps> = observer(({ children }) => {
 			style={{ '--sidebar-width': '100%' } as CSSProperties}
 			className="min-h-0 h-screen flex-col"
 		>
-			<AppBar />
+			<AppBar toolbar={toolbar} />
 			<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
 				<Panel
 					panelRef={sidebarPanelRef}

@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { useEffect } from 'react';
@@ -55,7 +56,7 @@ function EditorLayout() {
 	}, [resumeData?._id]);
 
 	return (
-		<AppShell>
+		<AppShell toolbar={<ResumeToolbar />}>
 			{resumeData ? (
 				<ResumeProvider data={resumeData}>
 					<Outlet />
