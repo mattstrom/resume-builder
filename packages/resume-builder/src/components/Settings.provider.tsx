@@ -13,10 +13,6 @@ interface Settings {
 	setTemplate: Dispatch<SetStateAction<string>>;
 	showMarginPattern: boolean;
 	setShowMarginPattern: Dispatch<SetStateAction<boolean>>;
-	sidebarOpen: boolean;
-	setSidebarOpen: Dispatch<SetStateAction<boolean>>;
-	chatOpen: boolean;
-	setChatOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const SettingsContext = createContext<Settings | null>(null);
@@ -27,21 +23,12 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		'resume:showMarginPattern',
 		true,
 	);
-	const [sidebarOpen, setSidebarOpen] = useLocalStorage(
-		'resume:sidebarOpen',
-		true,
-	);
-	const [chatOpen, setChatOpen] = useLocalStorage('resume:chatOpen', false);
 
 	const settings = {
 		template,
 		setTemplate,
 		showMarginPattern,
 		setShowMarginPattern,
-		sidebarOpen,
-		setSidebarOpen,
-		chatOpen,
-		setChatOpen,
 	};
 
 	return (

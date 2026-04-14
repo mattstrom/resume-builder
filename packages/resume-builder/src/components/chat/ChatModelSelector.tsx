@@ -87,33 +87,28 @@ interface ModelItemProps {
 	onSelect: (model: ChatModelOption) => void;
 }
 
-const ModelItem = memo(
-	({ model, selectedModel, onSelect }: ModelItemProps) => {
-		const handleSelect = useCallback(
-			() => onSelect(model),
-			[onSelect, model],
-		);
-		const isSelected =
-			selectedModel?.provider === model.provider &&
-			selectedModel.model === model.model;
+const ModelItem = memo(({ model, selectedModel, onSelect }: ModelItemProps) => {
+	const handleSelect = useCallback(() => onSelect(model), [onSelect, model]);
+	const isSelected =
+		selectedModel?.provider === model.provider &&
+		selectedModel.model === model.model;
 
-		return (
-			<ModelSelectorItem
-				onSelect={handleSelect}
-				value={`${model.provider} ${model.label} ${model.model}`}
-			>
-				{model.logoProvider && (
-					<ModelSelectorLogo provider={model.logoProvider} />
-				)}
-				<ModelSelectorName>{model.label}</ModelSelectorName>
-				{isSelected ? (
-					<CheckIcon className="ml-auto size-4" />
-				) : (
-					<div className="ml-auto size-4" />
-				)}
-			</ModelSelectorItem>
-		);
-	},
-);
+	return (
+		<ModelSelectorItem
+			onSelect={handleSelect}
+			value={`${model.provider} ${model.label} ${model.model}`}
+		>
+			{model.logoProvider && (
+				<ModelSelectorLogo provider={model.logoProvider} />
+			)}
+			<ModelSelectorName>{model.label}</ModelSelectorName>
+			{isSelected ? (
+				<CheckIcon className="ml-auto size-4" />
+			) : (
+				<div className="ml-auto size-4" />
+			)}
+		</ModelSelectorItem>
+	);
+});
 
 ModelItem.displayName = 'ModelItem';

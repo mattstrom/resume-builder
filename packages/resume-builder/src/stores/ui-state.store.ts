@@ -23,6 +23,12 @@ export class UiStateStore {
 	@observable
 	viewMode: ViewMode = ViewMode.Layout;
 
+	@observable
+	sidebarOpen: boolean = false;
+
+	@observable
+	chatOpen: boolean = false;
+
 	@computed
 	get isResumeEditable() {
 		return (
@@ -40,6 +46,8 @@ export class UiStateStore {
 
 		this.watch('mode', StorageKey.Mode, Mode.Review);
 		this.watch('viewMode', StorageKey.ViewMode, ViewMode.Layout);
+		this.watch('sidebarOpen', StorageKey.SidebarOpen, false);
+		this.watch('chatOpen', StorageKey.ChatOpen, false);
 	}
 
 	@action
@@ -61,9 +69,20 @@ export class UiStateStore {
 			this.viewMode = ViewMode.Layout;
 		}
 	}
+
+	@action
+	setChatOpen(open?: boolean) {
+		this.chatOpen = open === undefined ? !this.chatOpen : open;
+	}
+
 	@action
 	setViewMode(viewMode: ViewMode) {
 		this.viewMode = viewMode;
+	}
+
+	@action
+	setSidebarOpen(open?: boolean) {
+		this.sidebarOpen = open === undefined ? !this.sidebarOpen : open;
 	}
 
 	watch<P extends keyof this>(

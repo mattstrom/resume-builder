@@ -1,3 +1,4 @@
+import { Centered } from '@/components/common/Centered.tsx';
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { Workspace } from '../../../components/Workspace.tsx';
@@ -30,14 +31,14 @@ function EditorIndexComponent() {
 
 	if (!resumeData) {
 		return (
-			<div className="flex flex-col items-center justify-center h-full p-6 text-center">
+			<Centered>
 				<h1 className="text-3xl font-bold mb-4 text-foreground">
 					No Linked Resume
 				</h1>
 				<p className="text-muted-foreground">
 					Select an application from the explorer to get started
 				</p>
-			</div>
+			</Centered>
 		);
 	}
 

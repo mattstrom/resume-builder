@@ -28,13 +28,11 @@ import {
 	ToolOutput,
 } from '../ai-elements/tool';
 import { ConversationList } from '../ConversationList';
-import { useSettings } from '../Settings.provider';
 
 export const ChatPanel: FC = observer(() => {
-	const { conversationService } = useStore();
+	const { conversationService, uiStateStore } = useStore();
 
 	const { applicationId } = useParams({ strict: false });
-	const { setChatOpen } = useSettings();
 	const conversationIdRef = useRef<string | null>(null);
 	const [conversationInfo] = useState<{
 		title: string;
@@ -109,7 +107,7 @@ export const ChatPanel: FC = observer(() => {
 						variant="ghost"
 						size="icon"
 						className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent"
-						onClick={() => setChatOpen(false)}
+						onClick={() => uiStateStore.setChatOpen(false)}
 					>
 						<X className="h-4 w-4" />
 					</Button>
