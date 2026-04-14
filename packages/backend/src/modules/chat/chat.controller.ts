@@ -25,10 +25,7 @@ import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
 import type { LlmMessage } from '../llm/interfaces/llm-types';
 import { chatTools, executeTool } from './chat-tools';
-import {
-	getChatModelCatalog,
-	isConfiguredChatModel,
-} from './chat-models';
+import { getChatModelCatalog, isConfiguredChatModel } from './chat-models';
 import { ChatService } from './chat.service';
 
 import { outdent } from 'outdent';
@@ -214,10 +211,11 @@ export class ChatController {
 			conversation.model && isConfiguredChatModel(conversation.model)
 				? conversation.model
 				: null;
-		const selectedModel = requestedModel ?? persistedModel ?? {
-			provider: configuration.llms.defaultLlm.provider,
-			model: configuration.llms.defaultLlm.model,
-		};
+		const selectedModel = requestedModel ??
+			persistedModel ?? {
+				provider: configuration.llms.defaultLlm.provider,
+				model: configuration.llms.defaultLlm.model,
+			};
 
 		if (requestedModel && conversation._id) {
 			const storedModel = conversation.model;
