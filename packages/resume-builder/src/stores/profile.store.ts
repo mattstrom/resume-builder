@@ -10,24 +10,27 @@ export type ProfileConnectionStatus =
 	| 'connected'
 	| 'disconnected';
 
-const PROFILE_MAP_KEY = 'profile';
-const NARRATIVE_KEY = 'narrative';
+const NARRATIVE_FIELD = 'narrative';
 
 export class ProfileStore {
 	@observable
 	status: ProfileConnectionStatus = 'idle';
 
 	@observable.ref
-	narrativeText: Y.Text | null = null;
+	doc: Y.Doc | null = null;
+
+	@observable.ref
+	provider: HocuspocusProvider | null = null;
 
 	@observable
 	isSynced = false;
 
-	private doc: Y.Doc | null = null;
-	private provider: HocuspocusProvider | null = null;
-
 	constructor(private readonly rootStore: RootStore) {
 		makeObservable(this);
+	}
+
+	get narrativeFragment(): Y.XmlFragment | null {
+		return this.doc?.getXmlFragment(NARRATIVE_FIELD) ?? null;
 	}
 
 	get awareness() {
@@ -52,20 +55,6 @@ export class ProfileStore {
 		}
 
 		const doc = new Y.Doc();
-		this.doc = doc;
-
-		// Pre-register the Y.Text so MonacoBinding can attach immediately.
-		const profileMap = doc.getMap<Y.Text>(PROFILE_MAP_KEY);
-		let text = profileMap.get(NARRATIVE_KEY);
-		if (!(text instanceof Y.Text)) {
-			text = new Y.Text();
-			profileMap.set(NARRATIVE_KEY, text);
-		}
-
-		runInAction(() => {
-			this.status = 'connecting';
-			this.narrativeText = text!;
-		});
 
 		const provider = new HocuspocusProvider({
 			url: __CONFIG__.collaborationUrl,
@@ -83,21 +72,17 @@ export class ProfileStore {
 				});
 			},
 			onSynced: () => {
-				// Re-read the Y.Text in case the server replaced the map entry
-				// with its authoritative version during the initial sync.
-				const synced = doc
-					.getMap<Y.Text>(PROFILE_MAP_KEY)
-					.get(NARRATIVE_KEY);
 				runInAction(() => {
-					if (synced instanceof Y.Text) {
-						this.narrativeText = synced;
-					}
 					this.isSynced = true;
 				});
 			},
 		});
 
-		this.provider = provider;
+		runInAction(() => {
+			this.status = 'connecting';
+			this.doc = doc;
+			this.provider = provider;
+		});
 	}
 
 	@action
@@ -106,7 +91,6 @@ export class ProfileStore {
 		this.provider = null;
 		this.doc?.destroy();
 		this.doc = null;
-		this.narrativeText = null;
 		this.isSynced = false;
 		this.status = 'idle';
 	}

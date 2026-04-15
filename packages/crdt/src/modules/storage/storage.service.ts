@@ -238,15 +238,11 @@ export class StorageService implements Extension {
 			return document;
 		}
 
-		const profile = await this.profileModel.findOne({ uid }).exec();
-		const profileMap = document.getMap('profile');
-		const narrative = new Y.Text();
-
-		if (profile?.narrative) {
-			narrative.insert(0, profile.narrative);
-		}
-
-		profileMap.set('narrative', narrative);
+		// No snapshot yet: return an empty doc. The Tiptap Collaboration
+		// extension will create the `narrative` XmlFragment on first edit.
+		// We intentionally do not seed from Profile.narrative here — the
+		// markdown→ProseMirror parse would need a matching schema and the
+		// feature just landed, so there is no legacy content to preserve.
 
 		return document;
 	}
@@ -276,9 +272,11 @@ export class StorageService implements Extension {
 			update,
 		});
 
-		const narrativeText = document.getMap('profile').get('narrative');
-		const narrative =
-			narrativeText instanceof Y.Text ? narrativeText.toString() : '';
+		// Mirror the narrative as XML to Profile.narrative for downstream
+		// consumers (LLM extraction, etc). Y.XmlFragment.toString() returns
+		// the Tiptap/ProseMirror doc serialized as XML without needing a
+		// schema on the server.
+		const narrative = document.getXmlFragment('narrative').toString();
 
 		await this.profileModel
 			.findOneAndUpdate(
