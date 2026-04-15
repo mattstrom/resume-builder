@@ -11,6 +11,9 @@ const config: Config = {
 	redis: {
 		url: 'redis://localhost:6379',
 	},
+	crdt: {
+		url: 'ws://localhost:1234',
+	},
 	llms: {
 		anthropic: {
 			apiKey: '',

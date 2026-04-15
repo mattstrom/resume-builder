@@ -35,6 +35,9 @@ export interface Config {
 	redis: {
 		url: string;
 	};
+	crdt: {
+		url: string;
+	};
 }
 
 const schema = convict<Config>({
@@ -123,6 +126,14 @@ const schema = convict<Config>({
 			format: String,
 			default: 'redis://localhost:6379',
 			env: 'REDIS_URL',
+		},
+	},
+	crdt: {
+		url: {
+			doc: 'Hocuspocus CRDT server WebSocket URL',
+			format: String,
+			default: 'ws://localhost:1234',
+			env: 'CRDT_URL',
 		},
 	},
 });
