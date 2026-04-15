@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Document, DocumentSchema } from './document.js';
+import { ProfileUpdate, ProfileUpdateSchema } from './profile-update.js';
 import {
 	ContactInformation,
 	ContactInformationSchema,
@@ -8,6 +9,8 @@ import {
 	EducationSchema,
 	Job,
 	JobSchema,
+	Profile,
+	ProfileSchema,
 	Project,
 	ProjectSchema,
 	Resume,
@@ -29,7 +32,9 @@ import { StorageService } from './storage.service.js';
 			{ name: Job.name, schema: JobSchema },
 			{ name: Project.name, schema: ProjectSchema },
 			{ name: Skill.name, schema: SkillSchema },
+			{ name: Profile.name, schema: ProfileSchema },
 			{ name: Document.name, schema: DocumentSchema },
+			{ name: ProfileUpdate.name, schema: ProfileUpdateSchema },
 		]),
 	],
 	providers: [StorageService],

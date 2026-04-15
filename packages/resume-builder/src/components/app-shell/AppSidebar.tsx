@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useStore } from '@/stores/store.provider.tsx';
 import type { Theme } from '@/stores/theme.store.ts';
+import { useNavigate } from '@tanstack/react-router';
 import {
 	ChevronsUpDown,
 	LogOut,
@@ -45,6 +46,7 @@ import { SidebarResumeTree } from '../SidebarResumeTree';
 
 export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 	const { authStore, themeStore } = useStore();
+	const navigate = useNavigate();
 	const user = authStore.user;
 
 	return (
@@ -58,6 +60,11 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 				<SidebarGroup>
 					<SidebarGroupLabel>Profile</SidebarGroupLabel>
 					<SidebarGroupContent>
+						<SidebarMenuButton
+							onClick={() => void navigate({ to: '/profile' })}
+						>
+							Narrative
+						</SidebarMenuButton>
 						<SidebarMenuButton>
 							Contact Information
 						</SidebarMenuButton>
