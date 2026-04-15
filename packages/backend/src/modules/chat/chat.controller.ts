@@ -200,7 +200,7 @@ export class ChatController {
 			uid,
 			conversationId,
 			{
-				applicationId: applicationId!,
+				applicationId: applicationId,
 				title: userText.slice(0, 50) || 'New Conversation',
 				model: requestedModel,
 			},

@@ -8,6 +8,9 @@ const config: Config = {
 	mongodb: {
 		uri: 'mongodb://localhost:27017/resume-builder',
 	},
+	redis: {
+		url: 'redis://localhost:6379',
+	},
 	llms: {
 		anthropic: {
 			apiKey: '',

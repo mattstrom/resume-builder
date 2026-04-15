@@ -32,6 +32,9 @@ export interface Config {
 	mongodb: {
 		uri: string;
 	};
+	redis: {
+		url: string;
+	};
 }
 
 const schema = convict<Config>({
@@ -112,6 +115,14 @@ const schema = convict<Config>({
 			default: '',
 			env: 'MONGODB_URI',
 			sensitive: true,
+		},
+	},
+	redis: {
+		url: {
+			doc: 'Redis connection URL for BullMQ',
+			format: String,
+			default: 'redis://localhost:6379',
+			env: 'REDIS_URL',
 		},
 	},
 });
