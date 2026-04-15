@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated/editor'
 import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
@@ -35,6 +36,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedEditorRoute = AuthenticatedEditorRouteImport.update({
   id: '/editor',
   path: '/editor',
@@ -52,9 +58,9 @@ const publicLoginRoute = publicLoginRouteImport.update({
 } as any)
 const AuthenticatedProfileIndexRoute =
   AuthenticatedProfileIndexRouteImport.update({
-    id: '/profile/',
-    path: '/profile/',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedProfileRoute,
   } as any)
 const AuthenticatedEditorIndexRoute =
   AuthenticatedEditorIndexRouteImport.update({
@@ -91,12 +97,13 @@ export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
   '/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/': typeof AuthenticatedIndexRoute
   '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
-  '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/': typeof AuthenticatedProfileIndexRoute
   '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesById {
   '/(public)/login': typeof publicLoginRoute
   '/(public)/logout': typeof publicLogoutRoute
   '/_authenticated/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/_authenticated/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
@@ -131,12 +139,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/editor'
+    | '/profile'
     | '/'
     | '/editor/$applicationId'
     | '/export/$applicationId'
     | '/preview/$applicationId'
     | '/editor/'
-    | '/profile'
+    | '/profile/'
     | '/editor/local/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/(public)/login'
     | '/(public)/logout'
     | '/_authenticated/editor'
+    | '/_authenticated/profile'
     | '/_authenticated/'
     | '/_authenticated/editor/$applicationId'
     | '/_authenticated/export/$applicationId'
@@ -195,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/editor': {
       id: '/_authenticated/editor'
       path: '/editor'
@@ -218,10 +235,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/profile/': {
       id: '/_authenticated/profile/'
-      path: '/profile'
-      fullPath: '/profile'
+      path: '/'
+      fullPath: '/profile/'
       preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedProfileRoute
     }
     '/_authenticated/editor/': {
       id: '/_authenticated/editor/'
@@ -276,21 +293,32 @@ const AuthenticatedEditorRouteChildren: AuthenticatedEditorRouteChildren = {
 const AuthenticatedEditorRouteWithChildren =
   AuthenticatedEditorRoute._addFileChildren(AuthenticatedEditorRouteChildren)
 
+interface AuthenticatedProfileRouteChildren {
+  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
+}
+
+const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
+  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
+}
+
+const AuthenticatedProfileRouteWithChildren =
+  AuthenticatedProfileRoute._addFileChildren(AuthenticatedProfileRouteChildren)
+
 interface AuthenticatedRouteChildren {
   AuthenticatedEditorRoute: typeof AuthenticatedEditorRouteWithChildren
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedExportApplicationIdRoute: typeof AuthenticatedExportApplicationIdRoute
   AuthenticatedPreviewApplicationIdRoute: typeof AuthenticatedPreviewApplicationIdRoute
-  AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEditorRoute: AuthenticatedEditorRouteWithChildren,
+  AuthenticatedProfileRoute: AuthenticatedProfileRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedExportApplicationIdRoute: AuthenticatedExportApplicationIdRoute,
   AuthenticatedPreviewApplicationIdRoute:
     AuthenticatedPreviewApplicationIdRoute,
-  AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

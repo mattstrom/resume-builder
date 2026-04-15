@@ -10,6 +10,7 @@ export * from './models/volunteering.js';
 export * from './models/cover-letter.js';
 export * from './models/application.js';
 
+export * from './models/profile.js';
 export * from './models/resume-content.js';
 export * from './models/resume.js';
 export * from './models/conversation.js';

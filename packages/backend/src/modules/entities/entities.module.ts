@@ -10,6 +10,7 @@ import { VolunteeringModule } from './volunteering/volunteering.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { CoverLettersModule } from './cover-letters/cover-letters.module';
 import { ApplicationsModule } from './applications/applications.module';
+import { ProfilesModule } from './profiles/profiles.module';
 
 const imports = [
 	MongodbModule,
@@ -19,6 +20,7 @@ const imports = [
 	EducationsModule,
 	ProjectsModule,
 	ContactInformationModule,
+	ProfilesModule,
 	VolunteeringModule,
 	CoverLettersModule,
 	ConversationsModule,
