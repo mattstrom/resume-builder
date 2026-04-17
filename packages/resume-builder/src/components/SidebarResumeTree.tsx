@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react';
 import { type FC, useCallback } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import {
 	ArrowUpDown,
 	ChevronsUpDown,
@@ -53,24 +52,12 @@ const actionButtonClass =
 	'flex aspect-square items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0';
 
 export const SidebarResumeTree: FC = observer(() => {
-	const navigate = useNavigate();
 	const { applicationStore, explorerSidebarStore } = useStore();
 	const { selectedApiApplicationId, selectApiApplication } = useFileManager();
 
 	const applications = explorerSidebarStore.applications;
 	const groupedApplications = explorerSidebarStore.groupedApplications;
 	const allGroupsCollapsed = explorerSidebarStore.allGroupsCollapsed;
-
-	const handleSelect = useCallback(
-		(applicationId: string) => {
-			void selectApiApplication(applicationId);
-			navigate({
-				to: '/editor/$applicationId',
-				params: { applicationId },
-			});
-		},
-		[selectApiApplication, navigate],
-	);
 
 	const handleSortChange = useCallback(
 		(value: string) => {
@@ -118,8 +105,10 @@ export const SidebarResumeTree: FC = observer(() => {
 	const renderApplicationItem = (application: Application) => (
 		<SidebarMenuItem key={application._id}>
 			<SidebarMenuButton
+				to="/editor/$applicationId"
+				params={{ applicationId: application._id }}
 				isActive={selectedApiApplicationId === application._id}
-				onClick={() => handleSelect(application._id)}
+				onClick={() => void selectApiApplication(application._id)}
 				tooltip={application.name}
 			>
 				<FileIcon />
@@ -145,15 +134,24 @@ export const SidebarResumeTree: FC = observer(() => {
 					<CollapsibleContent>
 						<SidebarMenuSub className="border-l-0">
 							{groupApplications.map((application) => (
-								<SidebarMenuSubItem key={application._id}>
+								<SidebarMenuSubItem
+									key={application._id}
+									className="list-none"
+								>
 									<SidebarMenuButton
 										size="sm"
+										to="/editor/$applicationId"
+										params={{
+											applicationId: application._id,
+										}}
 										isActive={
 											selectedApiApplicationId ===
 											application._id
 										}
 										onClick={() =>
-											handleSelect(application._id)
+											void selectApiApplication(
+												application._id,
+											)
 										}
 										tooltip={application.name}
 									>
