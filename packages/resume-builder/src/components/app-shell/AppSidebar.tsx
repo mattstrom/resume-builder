@@ -3,6 +3,7 @@ import {
 	AvatarFallback,
 	AvatarImage,
 } from '@/components/ui/avatar.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -24,6 +25,7 @@ import {
 	Monitor,
 	Moon,
 	Palette,
+	Search,
 	Sun,
 	UserCog,
 } from 'lucide-react';
@@ -49,10 +51,17 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 
 	return (
 		<ShadcnSidebar collapsible="icon" className="print:hidden h-full">
-			<SidebarHeader className="border-b border-sidebar-border px-4 py-3 group-data-[collapsible=icon]:px-2">
-				<span className="text-sm font-medium text-sidebar-foreground/70 uppercase tracking-wider group-data-[collapsible=icon]:hidden">
-					Explorer
-				</span>
+			<SidebarHeader className="border-b border-sidebar-border px-2 py-2 group-data-[collapsible=icon]:px-2">
+				<div className="relative group-data-[collapsible=icon]:hidden">
+					<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+					<Input
+						placeholder="Search…"
+						className="h-7 pl-8 pr-8 text-xs bg-muted/40 border-sidebar-border focus-visible:ring-1"
+					/>
+					<span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/60 font-mono border border-sidebar-border rounded px-1 bg-background">
+						⌘K
+					</span>
+				</div>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>

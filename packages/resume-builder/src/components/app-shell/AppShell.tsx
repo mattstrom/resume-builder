@@ -24,86 +24,92 @@ import { AppSidebar } from './AppSidebar.tsx';
 import './AppShell.css';
 
 interface AppShellProps extends PropsWithChildren {
+	primaryNav?: ReactNode;
 	toolbar?: ReactNode;
 }
 
-export const AppShell: FC<AppShellProps> = observer(({ children, toolbar }) => {
-	const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
-	const { uiStateStore } = useStore();
-	const { chatOpen, sidebarOpen } = uiStateStore;
+export const AppShell: FC<AppShellProps> = observer(
+	({ children, primaryNav, toolbar }) => {
+		const sidebarPanelRef = useRef<PanelImperativeHandle>(null);
+		const { uiStateStore } = useStore();
+		const { chatOpen, sidebarOpen } = uiStateStore;
 
-	const sidebarDefaultSize =
-		Number(localStorage.getItem('sidebar-panel-size')) || 15;
-	const chatDefaultSize =
-		Number(localStorage.getItem('chat-panel-size')) || 25;
+		const sidebarDefaultSize =
+			Number(localStorage.getItem('sidebar-panel-size')) || 15;
+		const chatDefaultSize =
+			Number(localStorage.getItem('chat-panel-size')) || 25;
 
-	useEffect(
-		() =>
-			autorun(() => {
-				const panel = sidebarPanelRef.current;
-				const { sidebarOpen } = uiStateStore;
-				if (!panel) {
-					return;
-				}
-
-				if (sidebarOpen && panel.isCollapsed()) {
-					panel.expand();
-				} else if (!sidebarOpen && !panel.isCollapsed()) {
-					panel.collapse();
-				}
-			}),
-		[],
-	);
-
-	return (
-		<SidebarProvider
-			open={sidebarOpen}
-			onOpenChange={(open) => uiStateStore.setSidebarOpen(open)}
-			style={{ '--sidebar-width': '100%' } as CSSProperties}
-			className="min-h-0 h-screen flex-col"
-		>
-			<AppBar toolbar={toolbar} />
-			<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
-				<Panel
-					panelRef={sidebarPanelRef}
-					id="sidebar"
-					collapsible
-					collapsedSize="3rem"
-					defaultSize={`${sidebarDefaultSize}%`}
-					minSize="8%"
-					maxSize="30%"
-					onResize={(size) =>
-						localStorage.setItem('sidebar-panel-size', String(size))
+		useEffect(
+			() =>
+				autorun(() => {
+					const panel = sidebarPanelRef.current;
+					const { sidebarOpen } = uiStateStore;
+					if (!panel) {
+						return;
 					}
-				>
-					<AppSidebar />
-				</Panel>
-				<PanelResizeHandle className="editor-resize-handle" />
-				<Panel id="main">
-					<SidebarInset className="h-full">
-						{children ?? <Outlet />}
-					</SidebarInset>
-				</Panel>
-				{chatOpen && (
-					<>
-						<PanelResizeHandle className="editor-resize-handle" />
-						<Panel
-							id="chat"
-							defaultSize={`${chatDefaultSize}%`}
-							minSize="15%"
-							maxSize="40%"
-							onResize={(size) =>
-								localStorage.setItem(
-									'chat-panel-size',
-									String(size),
-								)
-							}
-						>
-							<ChatPanel />
-						</Panel>
-					</>
-				)}
-			</PanelGroup>
-		</SidebarProvider>
-	);
-});
+
+					if (sidebarOpen && panel.isCollapsed()) {
+						panel.expand();
+					} else if (!sidebarOpen && !panel.isCollapsed()) {
+						panel.collapse();
+					}
+				}),
+			[],
+		);
+
+		return (
+			<SidebarProvider
+				open={sidebarOpen}
+				onOpenChange={(open) => uiStateStore.setSidebarOpen(open)}
+				style={{ '--sidebar-width': '100%' } as CSSProperties}
+				className="min-h-0 h-screen flex-col"
+			>
+				<AppBar primaryNav={primaryNav} toolbar={toolbar} />
+				<PanelGroup orientation="horizontal" className="flex-1 min-h-0">
+					<Panel
+						panelRef={sidebarPanelRef}
+						id="sidebar"
+						collapsible
+						collapsedSize="3rem"
+						defaultSize={`${sidebarDefaultSize}%`}
+						minSize="8%"
+						maxSize="30%"
+						onResize={(size) =>
+							localStorage.setItem(
+								'sidebar-panel-size',
+								String(size),
+							)
+						}
+					>
+						<AppSidebar />
+					</Panel>
+					<PanelResizeHandle className="editor-resize-handle" />
+					<Panel id="main">
+						<SidebarInset className="h-full">
+							{children ?? <Outlet />}
+						</SidebarInset>
+					</Panel>
+					{chatOpen && (
+						<>
+							<PanelResizeHandle className="editor-resize-handle" />
+							<Panel
+								id="chat"
+								defaultSize={`${chatDefaultSize}%`}
+								minSize="15%"
+								maxSize="40%"
+								onResize={(size) =>
+									localStorage.setItem(
+										'chat-panel-size',
+										String(size),
+									)
+								}
+							>
+								<ChatPanel />
+							</Panel>
+						</>
+					)}
+				</PanelGroup>
+			</SidebarProvider>
+		);
+	},
+);
