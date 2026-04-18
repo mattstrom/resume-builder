@@ -25,6 +25,9 @@ export class ExplorerSidebarStore {
 	@observable.shallow
 	collapsedGroupKeys = new Set<string>();
 
+	@observable
+	searchQuery = '';
+
 	constructor(private readonly rootStore: RootStore) {
 		makeObservable(this);
 
@@ -71,7 +74,7 @@ export class ExplorerSidebarStore {
 	@computed
 	get applications(): Application[] {
 		const applications = this.rootStore.applicationStore.data;
-		return [...applications].sort((left, right) =>
+		const sorted = [...applications].sort((left, right) =>
 			this.compareApplications(
 				left,
 				right,
@@ -79,11 +82,18 @@ export class ExplorerSidebarStore {
 				this.applicationSortAscending,
 			),
 		);
+		const q = this.searchQuery.trim().toLowerCase();
+		if (!q) return sorted;
+		return sorted.filter(
+			(a) =>
+				a.name.toLowerCase().includes(q) ||
+				a.company.toLowerCase().includes(q),
+		);
 	}
 
 	@computed
 	get groupedApplications(): Map<string, Application[]> | null {
-		if (!this.groupBy) {
+		if (this.searchQuery.trim() || !this.groupBy) {
 			return null;
 		}
 
@@ -141,6 +151,11 @@ export class ExplorerSidebarStore {
 				this.collapsedGroupKeys.has(groupKey),
 			)
 		);
+	}
+
+	@action
+	setSearchQuery(q: string) {
+		this.searchQuery = q;
 	}
 
 	@action
