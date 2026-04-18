@@ -19,6 +19,7 @@
     "migrate:create-applications": "node dist/data/migrate-create-applications.js",
     "migrate:add-read-only": "node dist/data/migrate-add-read-only.js",
     "migrate:add-base": "node dist/data/migrate-add-base.js",
+    "migrate:add-job-preferences": "node dist/data/migrate-add-job-preferences.js",
     "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
   },
   "private": true,

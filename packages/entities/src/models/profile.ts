@@ -7,6 +7,7 @@ import {
 	PartialType,
 } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import GraphQLJSON from 'graphql-type-json';
 import { HydratedDocument } from 'mongoose';
 import { z } from 'zod';
 
@@ -29,6 +30,12 @@ export class Profile {
 	@Prop({ type: String, default: '' })
 	narrative: string;
 
+	@Field(() => GraphQLJSON, {
+		description: 'Structured job search preferences',
+	})
+	@Prop({ type: Object, default: {} })
+	jobPreferences: Record<string, unknown>;
+
 	@Field({ description: 'Date when the profile was created' })
 	createdAt: Date;
 
@@ -44,6 +51,9 @@ export const profileSchema = z.object({
 	narrative: z
 		.string()
 		.describe('Narrative description of the user`s work history'),
+	jobPreferences: z
+		.record(z.string(), z.unknown())
+		.describe('Structured job search preferences'),
 	createdAt: z.iso.datetime().describe('Date when the profile was created'),
 	updatedAt: z.iso
 		.datetime()

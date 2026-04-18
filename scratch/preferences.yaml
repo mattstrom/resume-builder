@@ -1,0 +1,55 @@
+# Candidate Preferences
+#
+# Used by the job-fit-assessor skill for logistical fit scoring.
+# Update these values when job search criteria change.
+# Future: migrate to a MongoDB collection with get_preferences / update_preferences MCP tools.
+
+target_level: 'Staff IC'
+
+location:
+  preferred: 'Fully remote'
+  acceptable_hybrid:
+    - 'San Francisco proper'
+    - 'Oakland'
+    - 'Berkeley'
+    - 'East Bay'
+  unacceptable:
+    - 'South Bay'
+    - 'South Peninsula'
+
+compensation:
+  target_range: '$190K–$250K+'
+  acceptable_floor: '$180K–$200K'
+  structure: 'Cash-heavy preferred'
+  note: 'AI-sector companies pay 50-100% premiums over general market'
+
+company:
+  preferred_stage: 'Growth-stage with proven product-market fit'
+  preferred_domains:
+    - 'Developer tools'
+    - 'AI infrastructure'
+  aspirational_domains:
+    - 'Creative/media platforms'
+    - 'Manufacturing-adjacent tech'
+    - 'Robotics'
+    - '3D printing / CAD'
+    - 'IoT'
+  less_excited_industries:
+    - 'Marketing'
+    - 'Advertising'
+    - 'Content strategy'
+  avoid:
+    - 'FAANG-style bureaucracy'
+  notes:
+    - 'Early-stage startups are less attractive (layoff risk) but not ruled out'
+  culture: 'Startup-like, generalist-friendly, continuous learning'
+
+employment:
+  type: 'Full-time only'
+
+career_trajectory:
+  current: 'Full-stack TypeScript/Node.js/React, Electron, SDK/API, real-time systems, CI/CD'
+  long_term: 'Systems-level work (Rust, C++, CAD, robotics)'
+  notes:
+    - 'Next role should support rather than hinder the systems-level pivot'
+    - 'Avoid being pigeonholed into purely frontend work — values breadth and full-stack scope'

@@ -277,11 +277,14 @@ export class StorageService implements Extension {
 		// the Tiptap/ProseMirror doc serialized as XML without needing a
 		// schema on the server.
 		const narrative = document.getXmlFragment('narrative').toString();
+		const jobPreferences = fromYValue(
+			document.getMap('jobPreferences'),
+		) as Record<string, unknown>;
 
 		await this.profileModel
 			.findOneAndUpdate(
 				{ uid },
-				{ $set: { narrative }, $setOnInsert: { uid } },
+				{ $set: { narrative, jobPreferences }, $setOnInsert: { uid } },
 				{ upsert: true, new: true },
 			)
 			.exec();
