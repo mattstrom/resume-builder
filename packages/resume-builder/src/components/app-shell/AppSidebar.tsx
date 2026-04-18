@@ -61,6 +61,9 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 						<SidebarMenuButton to="/profile">
 							Narrative
 						</SidebarMenuButton>
+						<SidebarMenuButton to="/profile/preferences">
+							Job Preferences
+						</SidebarMenuButton>
 						<SidebarMenuButton>
 							Contact Information
 						</SidebarMenuButton>

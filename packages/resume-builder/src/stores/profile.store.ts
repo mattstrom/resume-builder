@@ -11,6 +11,7 @@ export type ProfileConnectionStatus =
 	| 'disconnected';
 
 const NARRATIVE_FIELD = 'narrative';
+const JOB_PREFERENCES_FIELD = 'jobPreferences';
 
 export class ProfileStore {
 	@observable
@@ -31,6 +32,10 @@ export class ProfileStore {
 
 	get narrativeFragment(): Y.XmlFragment | null {
 		return this.doc?.getXmlFragment(NARRATIVE_FIELD) ?? null;
+	}
+
+	get jobPreferencesMap(): Y.Map<unknown> | null {
+		return this.doc?.getMap(JOB_PREFERENCES_FIELD) ?? null;
 	}
 
 	get awareness() {

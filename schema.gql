@@ -213,12 +213,20 @@ type Profile {
   """Narrative description of the user`s work history and background"""
   narrative: String!
 
+  """Structured job search preferences"""
+  jobPreferences: JSON!
+
   """Date when the profile was created"""
   createdAt: DateTime!
 
   """Date when the profile was last updated"""
   updatedAt: DateTime!
 }
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
 
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
@@ -493,11 +501,6 @@ input ResumeUpdateInput {
   data: ResumeContentInput
 }
 
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
-
 input ResumeSetFieldInput {
   """Path to the field to set"""
   path: String!
@@ -534,6 +537,9 @@ input EducationInput {
 input ProfileUpdateInput {
   """Narrative description of the user`s work history and background"""
   narrative: String
+
+  """Structured job search preferences"""
+  jobPreferences: JSON
 }
 
 input CoverLetterInput {
