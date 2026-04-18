@@ -13,18 +13,12 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip.tsx';
 import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { Mode, ViewMode } from '@/stores/ui-state.store.ts';
+import { ViewMode } from '@/stores/ui-state.store.ts';
 import { generatePDF } from '@/utils/pdfExport.ts';
 import { useParams } from '@tanstack/react-router';
-import { Loader2, MessageCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useState } from 'react';
 
@@ -34,7 +28,6 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
 		useSettings();
 	const { uiStateStore } = useStore();
-	const { chatOpen } = uiStateStore;
 
 	const { applicationId } = useParams({ strict: false });
 	const { resumeData } = useFileManager();
@@ -78,23 +71,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	};
 
 	return (
-		<Stack direction="row" className="items-center gap-4">
-			<ToggleGroup
-				value={uiStateStore.mode}
-				onChange={(newMode) => {
-					uiStateStore.setMode(newMode as Mode);
-				}}
-				options={[
-					{ value: Mode.Analysis, label: 'Analysis' },
-					{ value: Mode.Tailor, label: 'Tailor' },
-					{ value: Mode.Form, label: 'Form' },
-					{ value: Mode.Edit, label: 'Edit' },
-					{ value: Mode.Review, label: 'Review' },
-				]}
-			/>
-
-			<Separator orientation="vertical" className="h-6" />
-
+		<Stack direction="row" className="items-center gap-2 w-full">
 			<ToggleGroup
 				value={uiStateStore.viewMode}
 				onChange={(newMode) => {
@@ -107,14 +84,20 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				]}
 			/>
 
-			<Separator orientation="vertical" className="h-6" />
+			<Separator orientation="vertical" className="h-5" />
 
 			<div className="flex items-center gap-2">
-				<Label htmlFor="template" className="text-sm">
+				<Label
+					htmlFor="template"
+					className="text-xs text-muted-foreground"
+				>
 					Template
 				</Label>
 				<Select value={template} onValueChange={setTemplate}>
-					<SelectTrigger id="template" className="w-[120px] h-9">
+					<SelectTrigger
+						id="template"
+						className="w-[110px] h-7 text-xs"
+					>
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
@@ -125,23 +108,31 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				</Select>
 			</div>
 
-			<div className="flex items-center space-x-2">
+			<div className="flex items-center gap-1.5">
 				<Checkbox
 					id="marginPattern"
 					checked={showMarginPattern}
 					onCheckedChange={(checked) =>
 						setShowMarginPattern(checked === true)
 					}
+					className="h-3.5 w-3.5"
 				/>
 				<Label
 					htmlFor="marginPattern"
-					className="text-sm cursor-pointer"
+					className="text-xs text-muted-foreground cursor-pointer"
 				>
-					Show Margin Pattern
+					Margin pattern
 				</Label>
 			</div>
 
-			<Button onClick={onPrint} variant="outline" size="sm">
+			<div className="flex-1" />
+
+			<Button
+				onClick={onPrint}
+				variant="ghost"
+				size="sm"
+				className="h-7 text-xs"
+			>
 				Print
 			</Button>
 
@@ -150,10 +141,11 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				disabled={isExporting}
 				variant="outline"
 				size="sm"
+				className="h-7 text-xs"
 			>
 				{isExporting ? (
 					<>
-						<Loader2 className="h-4 w-4 animate-spin mr-2" />
+						<Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
 						Generating...
 					</>
 				) : (
@@ -161,48 +153,33 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				)}
 			</Button>
 
-			<Button onClick={onPreview} variant="outline" size="sm">
+			<Button
+				onClick={onPreview}
+				variant="ghost"
+				size="sm"
+				className="h-7 text-xs"
+			>
 				Preview
 			</Button>
 
 			{resumeData?.jobPostingUrl && (
-				<Button
-					onClick={() =>
-						window.open(resumeData.jobPostingUrl, '_blank')
-					}
-					variant="outline"
-					size="sm"
-				>
-					Open Job Posting
-				</Button>
+				<>
+					<Separator orientation="vertical" className="h-5" />
+					<Button
+						onClick={() =>
+							window.open(resumeData.jobPostingUrl, '_blank')
+						}
+						size="sm"
+						className="h-7 text-xs"
+					>
+						Open job posting
+					</Button>
+				</>
 			)}
-			<div className="ml-auto flex items-center gap-2">
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Button
-								variant={chatOpen ? 'secondary' : 'ghost'}
-								size="icon"
-								className="h-8 w-8"
-								onClick={() => uiStateStore.setChatOpen()}
-								aria-label={
-									chatOpen ? 'Close chat' : 'Open chat'
-								}
-							>
-								<MessageCircle className="h-5 w-5" />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent side="bottom">
-							Toggle AI chat
-						</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
-			</div>
 		</Stack>
 	);
 });
 
-// Custom ToggleGroup component (no direct ShadCN equivalent)
 interface ToggleGroupProps {
 	value: string;
 	onChange: (value: string) => void;
@@ -210,19 +187,19 @@ interface ToggleGroupProps {
 }
 
 const ToggleGroup: FC<ToggleGroupProps> = ({ value, onChange, options }) => (
-	<div className="inline-flex rounded-md border border-border">
+	<div className="inline-flex rounded-md border border-border bg-muted/30">
 		{options.map((opt, idx) => (
 			<Button
 				key={opt.value}
 				variant="ghost"
 				size="sm"
 				className={cn(
-					'rounded-none border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+					'h-7 rounded-none px-3 text-xs border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground',
 					idx === 0 && 'rounded-l-md',
 					idx === options.length - 1 && 'rounded-r-md',
 					idx > 0 && 'border-l',
 					value === opt.value &&
-						'bg-accent text-accent-foreground hover:bg-accent',
+						'bg-background text-foreground shadow-sm hover:bg-background',
 				)}
 				onClick={() => onChange(opt.value)}
 			>

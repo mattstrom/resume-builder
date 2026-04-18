@@ -1,4 +1,5 @@
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { ResumePrimaryNav } from '@/components/resumes/ResumePrimaryNav.tsx';
 import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
@@ -56,7 +57,7 @@ function EditorLayout() {
 	}, [resumeData?._id]);
 
 	return (
-		<AppShell toolbar={<ResumeToolbar />}>
+		<AppShell primaryNav={<ResumePrimaryNav />} toolbar={<ResumeToolbar />}>
 			{resumeData ? (
 				<ResumeProvider data={resumeData}>
 					<Outlet />
