@@ -19,6 +19,7 @@ import {
 	useState,
 } from 'react';
 import * as Y from 'yjs';
+import { formatKey } from '@/lib/format-key.ts';
 
 // ─── Seed skeleton (matches scratch/preferences.yaml) ───────────────────────
 
@@ -108,12 +109,6 @@ function useYMapDeep(map: Y.Map<unknown> | null) {
 		map.observeDeep(forceUpdate);
 		return () => map.unobserveDeep(forceUpdate);
 	}, [map]);
-}
-
-// ─── Formatting ───────────────────────────────────────────────────────────────
-
-function formatKey(key: string): string {
-	return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ─── Field editors ────────────────────────────────────────────────────────────

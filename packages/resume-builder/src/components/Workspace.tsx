@@ -3,7 +3,6 @@ import { useParams } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
-import { SideBySideView } from '@/components/SideBySideView.tsx';
 import { AnalysisView } from '@/components/AnalysisView.tsx';
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
@@ -11,7 +10,6 @@ import { TailorInsightsView } from '@/components/TailorInsightsView.tsx';
 import { ThreeColumnView } from '@/components/ThreeColumnView.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { PreviewFrame } from './PreviewFrame.tsx';
 
 import './Workspace.css';
 
@@ -26,14 +24,7 @@ export const Workspace: FC = observer(() => {
 
 	return (
 		<div className="workspace">
-			{mode === Mode.Analysis && (
-				<SideBySideView
-					id="workspace-layout"
-					panelIds={['editor', 'resume']}
-					left={<AnalysisView />}
-					right={<PreviewFrame applicationId={applicationId} />}
-				/>
-			)}
+			{mode === Mode.Analysis && <AnalysisView />}
 			{mode === Mode.Tailor && (
 				<ThreeColumnView
 					id="workspace-layout"

@@ -4,15 +4,18 @@ import {
 	Controller,
 	Get,
 	Post,
+	Req,
 	Res,
+	UnauthorizedException,
 } from '@nestjs/common';
 import type {
 	ChatModelSelection,
 	ChatModelsResponse,
 } from '@resume-builder/entities';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 import { CurrentUser } from '../auth';
+import { CrdtClientService } from '../crdt-client/crdt-client.service';
 import { ApplicationsService } from '../entities/applications/applications.service';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service';
 import { ConversationsService } from '../entities/conversations/conversations.service';
@@ -46,6 +49,7 @@ export class ChatController {
 		private readonly coverLettersService: CoverLettersService,
 		private readonly conversationsService: ConversationsService,
 		private readonly chatService: ChatService,
+		private readonly crdtClientService: CrdtClientService,
 	) {}
 
 	@Get('models')
@@ -56,6 +60,7 @@ export class ChatController {
 	@Post()
 	async chat(
 		@CurrentUser('sub') uid: string,
+		@Req() req: Request,
 		@Body()
 		body: {
 			messages: any[];
@@ -68,6 +73,14 @@ export class ChatController {
 		},
 		@Res() res: Response,
 	) {
+		// Raw bearer token — reused to authenticate the backend's
+		// Hocuspocus client session for patch_resume tool calls.
+		const authHeader = req.headers.authorization ?? '';
+		const accessToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+		if (!accessToken) {
+			throw new UnauthorizedException('Missing access token');
+		}
+
 		const { messages, data } = body;
 		const applicationId = data?.applicationId;
 		let conversationId = data?.conversationId;
@@ -200,7 +213,7 @@ export class ChatController {
 			uid,
 			conversationId,
 			{
-				applicationId: applicationId!,
+				applicationId: applicationId,
 				title: userText.slice(0, 50) || 'New Conversation',
 				model: requestedModel,
 			},
@@ -252,6 +265,7 @@ export class ChatController {
 			jobsService: this.jobsService,
 			volunteeringService: this.volunteeringService,
 			coverLettersService: this.coverLettersService,
+			crdtClientService: this.crdtClientService,
 		};
 
 		const assistantText = await this.chatService.streamWithToolLoop(res, {
@@ -261,7 +275,7 @@ export class ChatController {
 			messages: llmMessages,
 			tools: chatTools,
 			executeTool: (name, input) =>
-				executeTool(name, input, services, uid),
+				executeTool(name, input, services, uid, accessToken),
 			conversationId,
 		});
 

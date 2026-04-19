@@ -24,6 +24,14 @@ export interface Config {
 			provider: string;
 			model: string;
 		};
+		jobAssessment: {
+			provider: string;
+			model: string;
+		};
+		narrativeSummarizer: {
+			provider: string;
+			model: string;
+		};
 	};
 	auth0: {
 		domain: string;
@@ -31,6 +39,12 @@ export interface Config {
 	};
 	mongodb: {
 		uri: string;
+	};
+	redis: {
+		url: string;
+	};
+	crdt: {
+		url: string;
 	};
 }
 
@@ -104,6 +118,34 @@ const schema = convict<Config>({
 				env: 'DEFAULT_LLM_MODEL',
 			},
 		},
+		jobAssessment: {
+			provider: {
+				doc: 'LLM provider to use for job assessment (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'JOB_ASSESSMENT_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'LLM model to use for job assessment',
+				format: String,
+				default: 'claude-sonnet-4-6',
+				env: 'JOB_ASSESSMENT_LLM_MODEL',
+			},
+		},
+		narrativeSummarizer: {
+			provider: {
+				doc: 'LLM provider to use for narrative summarization (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'NARRATIVE_SUMMARIZER_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'LLM model to use for narrative summarization',
+				format: String,
+				default: 'claude-sonnet-4-6',
+				env: 'NARRATIVE_SUMMARIZER_LLM_MODEL',
+			},
+		},
 	},
 	mongodb: {
 		uri: {
@@ -112,6 +154,22 @@ const schema = convict<Config>({
 			default: '',
 			env: 'MONGODB_URI',
 			sensitive: true,
+		},
+	},
+	redis: {
+		url: {
+			doc: 'Redis connection URL for BullMQ',
+			format: String,
+			default: 'redis://localhost:6379',
+			env: 'REDIS_URL',
+		},
+	},
+	crdt: {
+		url: {
+			doc: 'Hocuspocus CRDT server WebSocket URL',
+			format: String,
+			default: 'ws://localhost:1234',
+			env: 'CRDT_URL',
 		},
 	},
 });

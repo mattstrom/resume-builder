@@ -91,6 +91,42 @@ export class Analysis {
 	@Prop({ type: Number })
 	experienceRelevance: number;
 
+	@Field(() => Float, {
+		nullable: true,
+		description: 'Fit for the target role level (0-1)',
+	})
+	@Prop({ type: Number })
+	roleLevelFit?: number;
+
+	@Field(() => Float, {
+		nullable: true,
+		description: 'Fit for the candidate location preferences (0-1)',
+	})
+	@Prop({ type: Number })
+	locationFit?: number;
+
+	@Field(() => Float, {
+		nullable: true,
+		description: 'Fit for the candidate compensation target (0-1)',
+	})
+	@Prop({ type: Number })
+	compensationFit?: number;
+
+	@Field(() => Float, {
+		nullable: true,
+		description: 'Fit for company stage, domain, and culture (0-1)',
+	})
+	@Prop({ type: Number })
+	companyFit?: number;
+
+	@Field(() => Float, {
+		nullable: true,
+		description:
+			'Weighted composite of roleLevelFit, locationFit, compensationFit, companyFit (0-1)',
+	})
+	@Prop({ type: Number })
+	logisticalFit?: number;
+
 	@Field(() => Float, { description: 'Aggregate fit score (0-1)' })
 	@Prop({ type: Number })
 	overallFit: number;
@@ -219,6 +255,21 @@ export class AnalysisInput {
 	@Field(() => Float)
 	experienceRelevance: number;
 
+	@Field(() => Float, { nullable: true })
+	roleLevelFit?: number;
+
+	@Field(() => Float, { nullable: true })
+	locationFit?: number;
+
+	@Field(() => Float, { nullable: true })
+	compensationFit?: number;
+
+	@Field(() => Float, { nullable: true })
+	companyFit?: number;
+
+	@Field(() => Float, { nullable: true })
+	logisticalFit?: number;
+
 	@Field(() => Float)
 	overallFit: number;
 
@@ -284,6 +335,11 @@ export const jobSummarySchema = z.object({
 export const analysisSchema = z.object({
 	skillRelevance: z.number().min(0).max(1),
 	experienceRelevance: z.number().min(0).max(1),
+	roleLevelFit: z.number().min(0).max(1).optional(),
+	locationFit: z.number().min(0).max(1).optional(),
+	compensationFit: z.number().min(0).max(1).optional(),
+	companyFit: z.number().min(0).max(1).optional(),
+	logisticalFit: z.number().min(0).max(1).optional(),
 	overallFit: z.number().min(0).max(1),
 	strengths: z.array(z.string()),
 	weaknesses: z.array(z.string()),

@@ -12,6 +12,7 @@ import { LoggingModule } from './modules/logging/logging.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { LlmModule } from './modules/llm/llm.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { LlmModule } from './modules/llm/llm.module';
 			load: [() => config],
 		}),
 		AuthModule,
+		QueueModule,
 		ChatModule,
 		EntitiesModule,
 		GraphQLModule,
