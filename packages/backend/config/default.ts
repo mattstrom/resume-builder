@@ -38,6 +38,10 @@ const config: Config = {
 				{ name: 'qwen3.5', label: 'Qwen 3.5' },
 			],
 		},
+		jobAssessment: {
+			provider: 'anthropic',
+			model: 'claude-sonnet-4-6',
+		},
 		defaultLlm: {
 			provider: 'lm-studio',
 			model: 'gemma-4-31b-it',

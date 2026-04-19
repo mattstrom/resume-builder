@@ -24,6 +24,10 @@ export interface Config {
 			provider: string;
 			model: string;
 		};
+		jobAssessment: {
+			provider: string;
+			model: string;
+		};
 	};
 	auth0: {
 		domain: string;
@@ -108,6 +112,20 @@ const schema = convict<Config>({
 				format: String,
 				default: 'claude-haiku-4-5-20251001',
 				env: 'DEFAULT_LLM_MODEL',
+			},
+		},
+		jobAssessment: {
+			provider: {
+				doc: 'LLM provider to use for job assessment (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'JOB_ASSESSMENT_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'LLM model to use for job assessment',
+				format: String,
+				default: 'claude-sonnet-4-6',
+				env: 'JOB_ASSESSMENT_LLM_MODEL',
 			},
 		},
 	},

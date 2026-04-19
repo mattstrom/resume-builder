@@ -5,6 +5,7 @@
  */
 export const QUEUES = {
 	PING: 'ping',
+	JOB_ASSESSMENT: 'job-assessment',
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
