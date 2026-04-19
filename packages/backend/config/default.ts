@@ -42,6 +42,10 @@ const config: Config = {
 			provider: 'anthropic',
 			model: 'claude-sonnet-4-6',
 		},
+		narrativeSummarizer: {
+			provider: 'anthropic',
+			model: 'claude-sonnet-4-6',
+		},
 		defaultLlm: {
 			provider: 'lm-studio',
 			model: 'gemma-4-31b-it',

@@ -9,6 +9,7 @@ import type { Config } from '@/config';
 
 import { ExamplesModule } from './examples/examples.module';
 import { JobAssessmentModule } from './job-assessment/job-assessment.module';
+import { ProfileSummarizerModule } from './profile-summarizer/profile-summarizer.module';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -40,6 +41,7 @@ const isProd = process.env.NODE_ENV === 'production';
 				]),
 		ExamplesModule,
 		JobAssessmentModule,
+		ProfileSummarizerModule,
 	],
 	exports: [CqrsModule, BullModule],
 })

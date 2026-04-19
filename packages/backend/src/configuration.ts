@@ -28,6 +28,10 @@ export interface Config {
 			provider: string;
 			model: string;
 		};
+		narrativeSummarizer: {
+			provider: string;
+			model: string;
+		};
 	};
 	auth0: {
 		domain: string;
@@ -126,6 +130,20 @@ const schema = convict<Config>({
 				format: String,
 				default: 'claude-sonnet-4-6',
 				env: 'JOB_ASSESSMENT_LLM_MODEL',
+			},
+		},
+		narrativeSummarizer: {
+			provider: {
+				doc: 'LLM provider to use for narrative summarization (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'NARRATIVE_SUMMARIZER_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'LLM model to use for narrative summarization',
+				format: String,
+				default: 'claude-sonnet-4-6',
+				env: 'NARRATIVE_SUMMARIZER_LLM_MODEL',
 			},
 		},
 	},

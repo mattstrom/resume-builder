@@ -1,7 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { EventBus } from '@nestjs/cqrs';
-import { analysisSchema, jobSummarySchema } from '@resume-builder/entities';
+import {
+	analysisSchema,
+	jobSummarySchema,
+	NarrativeSummary,
+} from '@resume-builder/entities';
 import { Job } from 'bullmq';
 import { outdent } from 'outdent';
 
@@ -107,6 +111,62 @@ const ANALYSIS_TOOL: LlmToolDefinition = {
 	},
 };
 
+function formatNarrativeSummary(summary: NarrativeSummary): string {
+	const lines: string[] = [];
+
+	lines.push(`Headline: ${summary.headline}`, '');
+	lines.push('Summary:', summary.summary, '');
+
+	if (summary.skills.length > 0) {
+		lines.push('Skills:', summary.skills.join(', '), '');
+	}
+
+	if (summary.workExperience.length > 0) {
+		lines.push('Work Experience:');
+		for (const exp of summary.workExperience) {
+			const dates =
+				exp.startDate || exp.endDate
+					? ` (${exp.startDate ?? '?'} – ${exp.endDate ?? 'present'})`
+					: '';
+			lines.push(`${exp.company} — ${exp.role}${dates}`);
+			for (const h of exp.highlights) {
+				lines.push(`  - ${h}`);
+			}
+		}
+		lines.push('');
+	}
+
+	if (summary.education.length > 0) {
+		lines.push('Education:');
+		for (const edu of summary.education) {
+			const field = edu.field ? ` in ${edu.field}` : '';
+			const year = edu.graduationYear ? ` (${edu.graduationYear})` : '';
+			lines.push(`${edu.degree}${field}, ${edu.institution}${year}`);
+		}
+		lines.push('');
+	}
+
+	if (summary.projects.length > 0) {
+		lines.push('Projects:');
+		for (const proj of summary.projects) {
+			const tech =
+				proj.technologies.length > 0
+					? ` (${proj.technologies.join(', ')})`
+					: '';
+			lines.push(`${proj.name}: ${proj.description}${tech}`);
+		}
+	}
+
+	return lines.join('\n').trim();
+}
+
+function stripXmlTags(xml: string): string {
+	return xml
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/\s{2,}/g, ' ')
+		.trim();
+}
+
 @Processor(QUEUES.JOB_ASSESSMENT)
 export class JobAssessmentProcessor extends WorkerHost {
 	private readonly logger = new Logger(JobAssessmentProcessor.name);
@@ -145,6 +205,15 @@ export class JobAssessmentProcessor extends WorkerHost {
 				: '';
 		const hasJobPreferences = jobPreferencesText.length > 0;
 
+		const candidateResumeText = profile?.narrativeSummary
+			? formatNarrativeSummary(
+					profile.narrativeSummary as NarrativeSummary,
+				)
+			: profile?.narrative
+				? stripXmlTags(profile.narrative)
+				: '';
+		const hasCandidateResume = candidateResumeText.length > 0;
+
 		const { provider: providerName, model } =
 			configuration.llms.jobAssessment;
 		const provider = this.llmRegistry.getProvider(providerName);
@@ -160,6 +229,8 @@ export class JobAssessmentProcessor extends WorkerHost {
 					content: outdent`
 						Job Description:
 						${application.jobDescription}
+
+						${hasCandidateResume ? `Candidate Resume:\n${candidateResumeText}` : ''}
 
 						${hasJobPreferences ? `Candidate Job Preferences:\n${jobPreferencesText}` : ''}
 					`,

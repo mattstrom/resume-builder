@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Profile, ProfileUpdateInput } from '@resume-builder/entities';
+import {
+	NarrativeSummaryData,
+	Profile,
+	ProfileUpdateInput,
+} from '@resume-builder/entities';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -19,6 +23,21 @@ export class ProfilesService {
 			.findOneAndUpdate(
 				{ uid },
 				{ $set: input, $setOnInsert: { uid } },
+				{ upsert: true, new: true },
+			)
+			.exec();
+
+		return result as Profile;
+	}
+
+	async updateNarrativeSummary(
+		uid: string,
+		narrativeSummary: NarrativeSummaryData,
+	): Promise<Profile> {
+		const result = await this.profileModel
+			.findOneAndUpdate(
+				{ uid },
+				{ $set: { narrativeSummary }, $setOnInsert: { uid } },
 				{ upsert: true, new: true },
 			)
 			.exec();
