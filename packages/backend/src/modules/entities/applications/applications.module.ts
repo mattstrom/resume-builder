@@ -4,6 +4,7 @@ import { Application, ApplicationSchema } from '@resume-builder/entities';
 
 import { MongodbModule } from '../../mongodb/mongodb.module';
 import { ResumesModule } from '../resumes/resumes.module';
+import { ApplicationsController } from './applications.controller';
 import { ApplicationsResolver } from './applications.resolver';
 import { ApplicationsService } from './applications.service';
 
@@ -15,6 +16,7 @@ import { ApplicationsService } from './applications.service';
 			{ name: Application.name, schema: ApplicationSchema },
 		]),
 	],
+	controllers: [ApplicationsController],
 	providers: [ApplicationsResolver, ApplicationsService],
 	exports: [ApplicationsService],
 })

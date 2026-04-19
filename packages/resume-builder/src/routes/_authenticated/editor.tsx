@@ -1,18 +1,25 @@
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { AnalysisToolbar } from '@/components/analysis/AnalysisToolbar.tsx';
 import { ResumePrimaryNav } from '@/components/resumes/ResumePrimaryNav.tsx';
 import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
+import { useStore } from '@/stores/store.provider.tsx';
+import { Mode } from '@/stores/ui-state.store.ts';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { observer } from 'mobx-react';
 import { useEffect } from 'react';
 import { useFileManager } from '../../components/FileManager';
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 
-export const Route = createFileRoute('/_authenticated/editor')({
-	component: EditorLayout,
-});
-
-function EditorLayout() {
+const EditorLayout = observer(function EditorLayout() {
 	const { resumeData } = useFileManager();
+	const { uiStateStore } = useStore();
+	const toolbar =
+		uiStateStore.mode === Mode.Analysis ? (
+			<AnalysisToolbar />
+		) : (
+			<ResumeToolbar />
+		);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -57,7 +64,7 @@ function EditorLayout() {
 	}, [resumeData?._id]);
 
 	return (
-		<AppShell primaryNav={<ResumePrimaryNav />} toolbar={<ResumeToolbar />}>
+		<AppShell primaryNav={<ResumePrimaryNav />} toolbar={toolbar}>
 			{resumeData ? (
 				<ResumeProvider data={resumeData}>
 					<Outlet />
@@ -67,4 +74,8 @@ function EditorLayout() {
 			)}
 		</AppShell>
 	);
-}
+});
+
+export const Route = createFileRoute('/_authenticated/editor')({
+	component: EditorLayout,
+});

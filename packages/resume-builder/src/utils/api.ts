@@ -2,7 +2,7 @@ import type { Resume } from '@resume-builder/entities';
 
 import { authFetch } from './auth';
 
-const API_BASE_URL = 'http://localhost:3000';
+export const API_BASE_URL = 'http://localhost:3000';
 
 export interface ApiError {
 	message: string;

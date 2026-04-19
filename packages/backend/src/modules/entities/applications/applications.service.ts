@@ -78,6 +78,32 @@ export class ApplicationsService {
 		return updated.toObject();
 	}
 
+	async updateAssessment(
+		uid: string,
+		id: string,
+		assessment: {
+			jobSummary: Application['jobSummary'];
+			analysis: Application['analysis'];
+		},
+	): Promise<Application> {
+		const updated = await this.applicationModel
+			.findOneAndUpdate(
+				{ _id: id, uid },
+				{
+					jobSummary: assessment.jobSummary,
+					analysis: assessment.analysis,
+				},
+				{ new: true },
+			)
+			.exec();
+
+		if (!updated) {
+			throw new NotFoundException(`Application with id ${id} not found`);
+		}
+
+		return updated.toObject();
+	}
+
 	async updateAnalysis(
 		uid: string,
 		id: string,

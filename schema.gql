@@ -139,6 +139,23 @@ type Analysis {
   """Relevance of work experience to the job posting (0-1)"""
   experienceRelevance: Float!
 
+  """Fit for the target role level (0-1)"""
+  roleLevelFit: Float
+
+  """Fit for the candidate location preferences (0-1)"""
+  locationFit: Float
+
+  """Fit for the candidate compensation target (0-1)"""
+  compensationFit: Float
+
+  """Fit for company stage, domain, and culture (0-1)"""
+  companyFit: Float
+
+  """
+  Weighted composite of roleLevelFit, locationFit, compensationFit, companyFit (0-1)
+  """
+  logisticalFit: Float
+
   """Aggregate fit score (0-1)"""
   overallFit: Float!
 
@@ -202,6 +219,36 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type NarrativeWorkExperience {
+  company: String!
+  role: String!
+  startDate: String
+  endDate: String
+  highlights: [String!]!
+}
+
+type NarrativeEducation {
+  institution: String!
+  degree: String!
+  field: String
+  graduationYear: String
+}
+
+type NarrativeProject {
+  name: String!
+  description: String!
+  technologies: [String!]!
+}
+
+type NarrativeSummary {
+  headline: String!
+  summary: String!
+  skills: [String!]!
+  workExperience: [NarrativeWorkExperience!]!
+  education: [NarrativeEducation!]!
+  projects: [NarrativeProject!]!
+}
+
 """User Profile"""
 type Profile {
   """Unique identifier"""
@@ -212,6 +259,9 @@ type Profile {
 
   """Narrative description of the user`s work history and background"""
   narrative: String!
+
+  """Structured summary extracted from the narrative"""
+  narrativeSummary: NarrativeSummary
 
   """Structured job search preferences"""
   jobPreferences: JSON!
@@ -298,14 +348,21 @@ type ConversationMessage {
   createdAt: DateTime!
 }
 
+type GenerateNarrativeSummaryResult {
+  jobId: String!
+}
+
 input ChatModelSelectionInput {
   provider: String!
   model: String!
 }
 
 type Query {
+  listApplications: [Application!]!
+  getApplication(id: String!): Application!
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
+  getProfile: Profile
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
@@ -313,12 +370,9 @@ type Query {
   listProjects: [Project!]!
   findProject(id: String!): Project!
   listContactInformations: [ContactInformation!]!
-  getProfile: Profile
   listVolunteering: [Volunteering!]!
   listCoverLetters: [CoverLetter!]!
   getCoverLetter(id: String!): CoverLetter!
-  listApplications: [Application!]!
-  getApplication(id: String!): Application!
 }
 
 input ResumeSortInput {
@@ -345,6 +399,10 @@ input ResumeFilterInput {
 }
 
 type Mutation {
+  createApplication(applicationData: ApplicationInput!): Application!
+  updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
+  deleteApplication(id: String!): Boolean!
+  patchApplication(id: String!, update: JSON!): Application!
   createResume(resumeData: ResumeCreateInput!): Resume!
   createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
   updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
@@ -352,19 +410,63 @@ type Mutation {
   setResumeField(id: String!, input: ResumeSetFieldInput!, value: JSON!): Resume!
   addResumeCollectionItem(id: String!, input: ResumeAddCollectionItemInput!): Resume!
   removeResumeCollectionItem(id: String!, input: ResumeRemoveCollectionItemInput!): Resume!
+  updateProfile(input: ProfileUpdateInput!): Profile!
+  generateNarrativeSummary: GenerateNarrativeSummaryResult!
   createEducation(education: EducationInput!): Education!
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
   createProject(project: ProjectInput!): Project!
-  updateProfile(input: ProfileUpdateInput!): Profile!
   createVolunteering(volunteering: VolunteeringInput!): Volunteering!
   createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
   updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
   patchCoverLetter(id: String!, update: JSON!): CoverLetter!
-  createApplication(applicationData: ApplicationInput!): Application!
-  updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
-  deleteApplication(id: String!): Boolean!
-  patchApplication(id: String!, update: JSON!): Application!
+}
+
+input ApplicationInput {
+  name: String!
+  company: String!
+  jobPostingUrl: String!
+  jobDescription: String
+  notionId: String
+  resumeId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
+}
+
+input JobSummaryInput {
+  requiredSkills: [String!]!
+  preferredSkills: [String!]!
+  requiredEducation: String
+  requiredExperience: String
+}
+
+input AnalysisInput {
+  skillRelevance: Float!
+  experienceRelevance: Float!
+  roleLevelFit: Float
+  locationFit: Float
+  compensationFit: Float
+  companyFit: Float
+  logisticalFit: Float
+  overallFit: Float!
+  strengths: [String!]!
+  weaknesses: [String!]!
+  recommendations: [String!]!
+}
+
+input ApplicationUpdateInput {
+  name: String
+  company: String
+  jobPostingUrl: String
+  jobDescription: String
+  notionId: String
+  resumeId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
 }
 
 input ResumeCreateInput {
@@ -526,20 +628,20 @@ input ResumeRemoveCollectionItemInput {
   index: Float!
 }
 
-input EducationInput {
-  degree: String!
-  field: String!
-  institution: String!
-  graduated: String!
-  _id: ID
-}
-
 input ProfileUpdateInput {
   """Narrative description of the user`s work history and background"""
   narrative: String
 
   """Structured job search preferences"""
   jobPreferences: JSON
+}
+
+input EducationInput {
+  degree: String!
+  field: String!
+  institution: String!
+  graduated: String!
+  _id: ID
 }
 
 input CoverLetterInput {
@@ -554,46 +656,4 @@ input CoverLetterUpdateInput {
   company: String
   jobPostingUrl: String
   content: String
-}
-
-input ApplicationInput {
-  name: String!
-  company: String!
-  jobPostingUrl: String!
-  jobDescription: String
-  notionId: String
-  resumeId: String
-  coverLetterId: String
-  jobSummary: JobSummaryInput
-  analysis: AnalysisInput
-  notes: String
-}
-
-input JobSummaryInput {
-  requiredSkills: [String!]!
-  preferredSkills: [String!]!
-  requiredEducation: String
-  requiredExperience: String
-}
-
-input AnalysisInput {
-  skillRelevance: Float!
-  experienceRelevance: Float!
-  overallFit: Float!
-  strengths: [String!]!
-  weaknesses: [String!]!
-  recommendations: [String!]!
-}
-
-input ApplicationUpdateInput {
-  name: String
-  company: String
-  jobPostingUrl: String
-  jobDescription: String
-  notionId: String
-  resumeId: String
-  coverLetterId: String
-  jobSummary: JobSummaryInput
-  analysis: AnalysisInput
-  notes: String
 }

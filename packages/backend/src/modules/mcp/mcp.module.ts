@@ -4,6 +4,7 @@ import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { EntitiesModule } from '../entities';
 import { ApplicationsResolver } from './applications.resolver';
 import { HealthResolver } from './health.resolver';
+import { FitAssessorPromptResolver } from './prompts/fit-assessor.resolver';
 import { ProfileResolver } from './profile.resolver';
 import { ResumesResolver } from './resumes.resolver';
 import { SchemasResolver } from './schemas.resolver';
@@ -25,6 +26,7 @@ import { SchemasResolver } from './schemas.resolver';
 	exports: [NestMcpModule],
 	providers: [
 		ApplicationsResolver,
+		FitAssessorPromptResolver,
 		HealthResolver,
 		ProfileResolver,
 		ResumesResolver,

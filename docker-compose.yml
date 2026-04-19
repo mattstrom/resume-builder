@@ -13,8 +13,10 @@ services:
       - ./packages/entities/dist:/app/packages/entities/dist
     environment:
       MONGODB_URI: mongodb://mongodb:27017/resume-builder
+      REDIS_URL: redis://redis:6379
     depends_on:
       - mongodb
+      - redis
 
   mcp:
     image: ghcr.io/apollographql/apollo-mcp-server:latest
@@ -43,6 +45,14 @@ services:
       - mongodb:/data/db
       - ./backup:/backup
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+    command: redis-server --appendonly yes
+
   web:
     build:
       context: .
@@ -61,3 +71,4 @@ services:
 volumes:
   mongodb:
   mcp:
+  redis:

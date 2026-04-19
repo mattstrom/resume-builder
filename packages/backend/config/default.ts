@@ -8,6 +8,12 @@ const config: Config = {
 	mongodb: {
 		uri: 'mongodb://localhost:27017/resume-builder',
 	},
+	redis: {
+		url: 'redis://localhost:6379',
+	},
+	crdt: {
+		url: 'ws://localhost:1234',
+	},
 	llms: {
 		anthropic: {
 			apiKey: '',
@@ -31,6 +37,14 @@ const config: Config = {
 				{ name: 'gemma-4-31b-it', label: 'Gemma 4.31b (IT)' },
 				{ name: 'qwen3.5', label: 'Qwen 3.5' },
 			],
+		},
+		jobAssessment: {
+			provider: 'anthropic',
+			model: 'claude-sonnet-4-6',
+		},
+		narrativeSummarizer: {
+			provider: 'anthropic',
+			model: 'claude-sonnet-4-6',
 		},
 		defaultLlm: {
 			provider: 'lm-studio',
