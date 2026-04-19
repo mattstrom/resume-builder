@@ -1,6 +1,8 @@
 import type { Application } from '@resume-builder/entities';
 import { action, computed, makeObservable, observable } from 'mobx';
 import { LIST_APPLICATIONS } from '../graphql/queries.ts';
+import { API_BASE_URL } from '../utils/api.ts';
+import { authFetch } from '../utils/auth.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
 
@@ -36,6 +38,16 @@ export class ApplicationStore {
 
 	async refetch() {
 		return this.query.refetch();
+	}
+
+	async assess(applicationId: string): Promise<void> {
+		const response = await authFetch(
+			`${API_BASE_URL}/applications/${applicationId}/assess`,
+			{ method: 'POST' },
+		);
+		if (!response.ok) {
+			throw new Error(`Assessment failed: ${response.status}`);
+		}
 	}
 
 	@action
