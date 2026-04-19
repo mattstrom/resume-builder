@@ -139,6 +139,23 @@ type Analysis {
   """Relevance of work experience to the job posting (0-1)"""
   experienceRelevance: Float!
 
+  """Fit for the target role level (0-1)"""
+  roleLevelFit: Float
+
+  """Fit for the candidate location preferences (0-1)"""
+  locationFit: Float
+
+  """Fit for the candidate compensation target (0-1)"""
+  compensationFit: Float
+
+  """Fit for company stage, domain, and culture (0-1)"""
+  companyFit: Float
+
+  """
+  Weighted composite of roleLevelFit, locationFit, compensationFit, companyFit (0-1)
+  """
+  logisticalFit: Float
+
   """Aggregate fit score (0-1)"""
   overallFit: Float!
 
@@ -390,6 +407,11 @@ input JobSummaryInput {
 input AnalysisInput {
   skillRelevance: Float!
   experienceRelevance: Float!
+  roleLevelFit: Float
+  locationFit: Float
+  compensationFit: Float
+  companyFit: Float
+  logisticalFit: Float
   overallFit: Float!
   strengths: [String!]!
   weaknesses: [String!]!

@@ -6,7 +6,6 @@ import { Module } from '@nestjs/common';
 import { LlmModule } from '../../llm/llm.module';
 import { ApplicationsModule } from '../../entities/applications/applications.module';
 import { ProfilesModule } from '../../entities/profiles/profiles.module';
-import { ResumesModule } from '../../entities/resumes/resumes.module';
 import { QUEUES } from '../queues';
 import { JobAssessmentCommandHandler } from './job-assessment.command-handler';
 import { JobAssessmentCompletedEventHandler } from './job-assessment-completed.event-handler';
@@ -18,7 +17,6 @@ const isProd = process.env.NODE_ENV === 'production';
 	imports: [
 		ApplicationsModule,
 		ProfilesModule,
-		ResumesModule,
 		LlmModule,
 		BullModule.registerQueue({ name: QUEUES.JOB_ASSESSMENT }),
 		...(isProd

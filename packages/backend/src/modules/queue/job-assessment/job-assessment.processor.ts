@@ -6,11 +6,11 @@ import { Job } from 'bullmq';
 import { outdent } from 'outdent';
 
 import configuration from '../../../configuration';
+import { FIT_ASSESSOR_SYSTEM_PROMPT } from './fit-assessor.rubric';
 import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
 import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
 import { ApplicationsService } from '../../entities/applications/applications.service';
 import { ProfilesService } from '../../entities/profiles/profiles.service';
-import { ResumesService } from '../../entities/resumes/resumes.service';
 import { QUEUES } from '../queues';
 import { JobAssessmentCompletedEvent } from './job-assessment-completed.event';
 
@@ -44,21 +44,48 @@ const JOB_SUMMARY_TOOL: LlmToolDefinition = {
 const ANALYSIS_TOOL: LlmToolDefinition = {
 	name: 'extract_analysis',
 	description:
-		'Analyze the fit between a candidate resume and job requirements.',
+		'Analyze the fit between a candidate resume and job requirements using the scoring rubric.',
 	inputSchema: {
 		type: 'object',
 		properties: {
 			skillRelevance: {
 				type: 'number',
-				description: 'Score from 0 to 1 indicating skill match',
+				description:
+					'Score 0-1 per rubric: skill coverage of JD requirements',
 			},
 			experienceRelevance: {
 				type: 'number',
-				description: 'Score from 0 to 1 indicating experience match',
+				description: 'Score 0-1 per rubric: work history relevance',
+			},
+			roleLevelFit: {
+				type: 'number',
+				description:
+					'Score 0-1 per rubric: role level vs. candidate target level',
+			},
+			locationFit: {
+				type: 'number',
+				description:
+					'Score 0-1 per rubric: location policy vs. candidate preferences',
+			},
+			compensationFit: {
+				type: 'number',
+				description:
+					'Score 0-1 per rubric: compensation vs. candidate target range',
+			},
+			companyFit: {
+				type: 'number',
+				description:
+					'Score 0-1 per rubric: company stage, domain, culture fit',
+			},
+			logisticalFit: {
+				type: 'number',
+				description:
+					'Weighted composite: roleLevelFit×0.30 + locationFit×0.25 + compensationFit×0.25 + companyFit×0.20',
 			},
 			overallFit: {
 				type: 'number',
-				description: 'Overall fit score from 0 to 1',
+				description:
+					'Weighted composite: skillRelevance×0.25 + experienceRelevance×0.20 + logisticalFit×0.55',
 			},
 			strengths: { type: 'array', items: { type: 'string' } },
 			weaknesses: { type: 'array', items: { type: 'string' } },
@@ -67,6 +94,11 @@ const ANALYSIS_TOOL: LlmToolDefinition = {
 		required: [
 			'skillRelevance',
 			'experienceRelevance',
+			'roleLevelFit',
+			'locationFit',
+			'compensationFit',
+			'companyFit',
+			'logisticalFit',
 			'overallFit',
 			'strengths',
 			'weaknesses',
@@ -83,7 +115,6 @@ export class JobAssessmentProcessor extends WorkerHost {
 		private readonly eventBus: EventBus,
 		private readonly applicationsService: ApplicationsService,
 		private readonly profilesService: ProfilesService,
-		private readonly resumesService: ResumesService,
 		private readonly llmRegistry: LlmProviderRegistry,
 	) {
 		super();
@@ -106,22 +137,8 @@ export class JobAssessmentProcessor extends WorkerHost {
 			);
 		}
 
-		const [resume, profile] = await Promise.all([
-			application.resumeId
-				? this.resumesService
-						.find(uid, String(application.resumeId))
-						.catch(() => {
-							this.logger.warn(
-								`Could not fetch resume ${application.resumeId} for application ${applicationId} — proceeding without resume`,
-							);
-							return null;
-						})
-				: null,
-			this.profilesService.findOne(uid),
-		]);
+		const profile = await this.profilesService.findOne(uid);
 
-		const resumeText = resume ? JSON.stringify(resume.data) : '';
-		const hasResume = resumeText.length > 0;
 		const jobPreferencesText =
 			profile && Object.keys(profile.jobPreferences).length > 0
 				? JSON.stringify(profile.jobPreferences)
@@ -136,19 +153,13 @@ export class JobAssessmentProcessor extends WorkerHost {
 		const stream = provider.stream({
 			model,
 			maxTokens: 4096,
-			system: outdent`
-				You are a job assessment assistant. You MUST call BOTH tools:
-				extract_job_summary AND extract_analysis, in that order.
-				${!hasResume ? 'No resume is available — use conservative scores and base the analysis on the job description alone.' : ''}
-			`,
+			system: FIT_ASSESSOR_SYSTEM_PROMPT,
 			messages: [
 				{
 					role: 'user',
 					content: outdent`
 						Job Description:
 						${application.jobDescription}
-
-						${hasResume ? `Resume:\n${resumeText}` : 'No resume available.'}
 
 						${hasJobPreferences ? `Candidate Job Preferences:\n${jobPreferencesText}` : ''}
 					`,
