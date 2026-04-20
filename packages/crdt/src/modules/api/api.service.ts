@@ -5,16 +5,28 @@ import * as Y from 'yjs';
 
 const NARRATIVE_FIELD = 'narrative';
 
+type TextRun = {
+	text: string;
+	marks?: Record<string, unknown>;
+};
+
 type InsertItem = {
 	nodeType: string;
-	text: string;
 	attrs?: Record<string, string>;
+	content: TextRun[];
 };
 
 type DeltaOp =
 	| { retain: number }
 	| { delete: number }
 	| { insert: InsertItem[] };
+
+type StructuredNode = {
+	index: number;
+	nodeType: string;
+	attrs: Record<string, string>;
+	content: TextRun[];
+};
 
 function contextForDocument(documentName: string): { user: { sub: string } } {
 	if (documentName.startsWith('profile:')) {
@@ -38,6 +50,35 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 	res.end(JSON.stringify(body));
 }
 
+function elementToStructured(
+	element: Y.XmlElement,
+	index: number,
+): StructuredNode {
+	const content: TextRun[] = [];
+	for (const child of element.toArray()) {
+		if (child instanceof Y.XmlText) {
+			const delta = child.toDelta() as Array<{
+				insert: string;
+				attributes?: Record<string, unknown>;
+			}>;
+			for (const run of delta) {
+				const marks = run.attributes;
+				content.push(
+					marks && Object.keys(marks).length > 0
+						? { text: run.insert, marks }
+						: { text: run.insert },
+				);
+			}
+		}
+	}
+	return {
+		index,
+		nodeType: element.nodeName,
+		attrs: (element.getAttributes() ?? {}) as Record<string, string>,
+		content,
+	};
+}
+
 function buildElement(item: InsertItem): Y.XmlElement {
 	const element = new Y.XmlElement(item.nodeType);
 	if (item.attrs) {
@@ -46,7 +87,12 @@ function buildElement(item: InsertItem): Y.XmlElement {
 		}
 	}
 	const textNode = new Y.XmlText();
-	textNode.insert(0, item.text);
+	textNode.applyDelta(
+		item.content.map((run) => ({
+			insert: run.text,
+			...(run.marks ? { attributes: run.marks } : {}),
+		})),
+	);
 	element.insert(0, [textNode]);
 	return element;
 }
@@ -92,17 +138,16 @@ export class ApiService implements Extension {
 					contextForDocument(name),
 				);
 				try {
-					let nodes: Array<{ index: number; xml: string }> = [];
+					let nodes: StructuredNode[] = [];
 					await conn.transact((doc) => {
 						const fragment = doc.getXmlFragment(NARRATIVE_FIELD);
 						nodes = Array.from(
 							{ length: fragment.length },
-							(_, i) => ({
-								index: i,
-								xml: (
-									fragment.get(i) as Y.XmlElement
-								).toString(),
-							}),
+							(_, i) =>
+								elementToStructured(
+									fragment.get(i) as Y.XmlElement,
+									i,
+								),
 						);
 					});
 					sendJson(response, 200, { nodes });

@@ -6,13 +6,28 @@ import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service';
 import { McpGuard } from './mcp.guard';
 import { type McpExtra, type McpToolParams } from './types';
 
+const textRunSchema = z.object({
+	text: z.string().describe('Text content of this run'),
+	marks: z
+		.record(z.string(), z.unknown())
+		.optional()
+		.describe(
+			'Inline marks on this run, e.g. { "bold": true, "italic": true }',
+		),
+});
+
 const insertItemSchema = z.object({
 	nodeType: z.enum(['paragraph', 'heading']).describe('Type of block node'),
-	text: z.string().describe('Plain text content'),
 	attrs: z
 		.record(z.string(), z.string())
 		.optional()
-		.describe('Node attributes, e.g. { level: "2" } for headings'),
+		.describe('Node attributes, e.g. { "level": "2" } for headings'),
+	content: z
+		.array(textRunSchema)
+		.describe(
+			'Text runs making up this node. Use multiple runs to mix plain and marked text, ' +
+				'e.g. [{ "text": "Hello " }, { "text": "world", "marks": { "bold": true } }]',
+		),
 });
 
 const deltaOpSchema = z.union([
@@ -29,9 +44,10 @@ const editParamsShape = {
 	delta: z
 		.array(deltaOpSchema)
 		.describe(
-			'Sequence of retain/delete/insert ops following the Yjs delta format. ' +
-				'Always call read_narrative first to get current node indices. ' +
-				'Example — replace node 0: [{ "delete": 1 }, { "insert": [{ "nodeType": "heading", "text": "New Title", "attrs": { "level": "1" } }] }]',
+			'Sequence of retain/delete/insert ops. Always call read_narrative first. ' +
+				'Example — replace node 0 with a bold heading: ' +
+				'[{ "delete": 1 }, { "insert": [{ "nodeType": "heading", "attrs": { "level": "1" }, ' +
+				'"content": [{ "text": "Hello ", }, { "text": "world", "marks": { "bold": true } }] }] }]',
 		),
 };
 
@@ -43,7 +59,7 @@ export class NarrativeEditorResolver {
 	@Tool({
 		name: 'read_narrative',
 		description:
-			"Read the current user's narrative document. Returns an indexed list of nodes so you can identify positions before editing.",
+			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing.",
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
@@ -52,7 +68,12 @@ export class NarrativeEditorResolver {
 	async readNarrative({ user }: McpExtra): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
 		const { nodes } = await this.crdtApiService.readDocument(documentName);
-		const text = nodes.map((n) => `[${n.index}] ${n.xml}`).join('\n');
+		const text = nodes
+			.map(
+				(n) =>
+					`[${n.index}] ${n.nodeType}${Object.keys(n.attrs).length ? ' ' + JSON.stringify(n.attrs) : ''}: ${JSON.stringify(n.content)}`,
+			)
+			.join('\n');
 		return {
 			content: [{ type: 'text', text }],
 			structuredContent: { nodes },

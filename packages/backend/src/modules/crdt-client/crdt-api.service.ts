@@ -2,10 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import configuration from '../../configuration';
 
+export type TextRun = {
+	text: string;
+	marks?: Record<string, unknown>;
+};
+
 export type InsertItem = {
 	nodeType: 'paragraph' | 'heading';
-	text: string;
 	attrs?: Record<string, string>;
+	content: TextRun[];
 };
 
 export type DeltaOp =
@@ -13,7 +18,12 @@ export type DeltaOp =
 	| { delete: number }
 	| { insert: InsertItem[] };
 
-export type NarrativeNode = { index: number; xml: string };
+export type NarrativeNode = {
+	index: number;
+	nodeType: string;
+	attrs: Record<string, string>;
+	content: TextRun[];
+};
 
 @Injectable()
 export class CrdtApiService {
