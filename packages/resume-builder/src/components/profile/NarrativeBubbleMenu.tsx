@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils';
 import { type Editor, useEditorState } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
-import { Bold, Code, Italic } from 'lucide-react';
+import { Bold, Code, Highlighter, Italic } from 'lucide-react';
 import type { FC } from 'react';
 
 interface NarrativeBubbleMenuProps {
@@ -20,6 +20,7 @@ export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({
 						isBold: e.isActive('bold'),
 						isItalic: e.isActive('italic'),
 						isCode: e.isActive('code'),
+						isHighlight: e.isActive('highlight'),
 					}
 				: null,
 	});
@@ -53,6 +54,13 @@ export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({
 				onClick={() => editor.chain().focus().toggleCode().run()}
 			>
 				<Code className="size-4" />
+			</BubbleButton>
+			<BubbleButton
+				label="Highlight"
+				active={state.isHighlight}
+				onClick={() => editor.chain().focus().toggleHighlight().run()}
+			>
+				<Highlighter className="size-4" />
 			</BubbleButton>
 		</BubbleMenu>
 	);

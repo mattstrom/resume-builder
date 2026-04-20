@@ -13,6 +13,8 @@ const config: Config = {
 	},
 	crdt: {
 		url: 'ws://localhost:1234',
+		httpUrl: 'http://localhost:1234',
+		internalKey: 'secret',
 	},
 	llms: {
 		anthropic: {
