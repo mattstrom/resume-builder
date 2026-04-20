@@ -2,7 +2,17 @@ import { useStore } from '@/stores/store.provider.tsx';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
+import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
+import {
+	Table,
+	TableCell,
+	TableHeader,
+	TableRow,
+} from '@tiptap/extension-table';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import TextAlign from '@tiptap/extension-text-align';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { observer } from 'mobx-react';
@@ -11,6 +21,7 @@ import type * as Y from 'yjs';
 
 import { NarrativeBubbleMenu } from './NarrativeBubbleMenu.tsx';
 import { NarrativeToolbar } from './NarrativeToolbar.tsx';
+import { Details } from './extensions/details.extension.tsx';
 import './tiptap.css';
 
 // NOTE: The extension set here must match the set used by the server's
@@ -28,6 +39,15 @@ const buildExtensions = (
 	Placeholder.configure({
 		placeholder: 'Describe your work history…',
 	}),
+	Highlight,
+	TextAlign.configure({ types: ['heading', 'paragraph'] }),
+	Table.configure({ resizable: true }),
+	TableRow,
+	TableCell,
+	TableHeader,
+	TaskList,
+	TaskItem.configure({ nested: true }),
+	Details,
 	Collaboration.configure({
 		document: doc,
 		field: 'narrative',
