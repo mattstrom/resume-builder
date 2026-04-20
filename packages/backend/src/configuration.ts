@@ -45,6 +45,8 @@ export interface Config {
 	};
 	crdt: {
 		url: string;
+		httpUrl: string;
+		internalKey: string;
 	};
 }
 
@@ -170,6 +172,19 @@ const schema = convict<Config>({
 			format: String,
 			default: 'ws://localhost:1234',
 			env: 'CRDT_URL',
+		},
+		httpUrl: {
+			doc: 'Hocuspocus CRDT server HTTP URL for internal API',
+			format: String,
+			default: 'http://localhost:1234',
+			env: 'CRDT_HTTP_URL',
+		},
+		internalKey: {
+			doc: 'Shared secret for CRDT internal HTTP API',
+			format: String,
+			default: '',
+			env: 'CRDT_INTERNAL_KEY',
+			sensitive: true,
 		},
 	},
 });

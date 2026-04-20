@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import { AppModule } from './app.module.js';
+import { ApiService } from './modules/api/api.service.js';
 import { AuthService } from './modules/auth/auth.service.js';
 import { LoggingService } from './modules/logging/logging.service.js';
 import { StorageService } from './modules/storage/storage.service.js';
@@ -38,6 +39,7 @@ import { StorageService } from './modules/storage/storage.service.js';
 // }
 
 function createServer(app: INestApplicationContext) {
+	const apiService = app.get(ApiService);
 	const authService = app.get(AuthService);
 	const loggingService = app.get(LoggingService);
 	const storageService = app.get(StorageService);
@@ -45,7 +47,7 @@ function createServer(app: INestApplicationContext) {
 	return new Server({
 		name: 'hocuspocus',
 		port: 1234,
-		extensions: [authService, loggingService, storageService],
+		extensions: [apiService, authService, loggingService, storageService],
 		async onDestroy() {
 			await app.close();
 		},

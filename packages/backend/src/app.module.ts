@@ -13,6 +13,7 @@ import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
 import { LlmModule } from './modules/llm/llm.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { RequestSigningModule } from './modules/request-signing';
 
 @Module({
 	imports: [
@@ -21,6 +22,7 @@ import { QueueModule } from './modules/queue/queue.module';
 			load: [() => config],
 		}),
 		AuthModule,
+		RequestSigningModule,
 		QueueModule,
 		ChatModule,
 		EntitiesModule,
