@@ -2,12 +2,18 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import configuration from '../../configuration';
 
-export interface InsertNodePayload {
-	index: number;
+export type InsertItem = {
 	nodeType: 'paragraph' | 'heading';
 	text: string;
 	attrs?: Record<string, string>;
-}
+};
+
+export type DeltaOp =
+	| { retain: number }
+	| { delete: number }
+	| { insert: InsertItem[] };
+
+export type NarrativeNode = { index: number; xml: string };
 
 @Injectable()
 export class CrdtApiService {
@@ -15,7 +21,9 @@ export class CrdtApiService {
 	private readonly baseUrl = configuration.crdt.httpUrl;
 	private readonly internalKey = configuration.crdt.internalKey;
 
-	async readDocument(documentName: string): Promise<{ xml: string }> {
+	async readDocument(
+		documentName: string,
+	): Promise<{ nodes: NarrativeNode[] }> {
 		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}`;
 		const res = await fetch(url, {
 			headers: { 'x-internal-key': this.internalKey },
@@ -25,25 +33,27 @@ export class CrdtApiService {
 			this.logger.error(`CRDT API read failed: ${res.status} ${body}`);
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
-		return res.json() as Promise<{ xml: string }>;
+		return res.json() as Promise<{ nodes: NarrativeNode[] }>;
 	}
 
-	async insertNode(
+	async applyDelta(
 		documentName: string,
-		payload: InsertNodePayload,
+		delta: DeltaOp[],
 	): Promise<{ ok: boolean; length: number }> {
-		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}/insert`;
+		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}/apply-delta`;
 		const res = await fetch(url, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				'x-internal-key': this.internalKey,
 			},
-			body: JSON.stringify(payload),
+			body: JSON.stringify({ delta }),
 		});
 		if (!res.ok) {
 			const body = await res.text();
-			this.logger.error(`CRDT API insert failed: ${res.status} ${body}`);
+			this.logger.error(
+				`CRDT API apply-delta failed: ${res.status} ${body}`,
+			);
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
 		return res.json() as Promise<{ ok: boolean; length: number }>;

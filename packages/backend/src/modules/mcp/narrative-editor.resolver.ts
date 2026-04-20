@@ -2,23 +2,37 @@ import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
-import { CrdtApiService } from '../crdt-client/crdt-api.service';
+import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service';
 import { McpGuard } from './mcp.guard';
 import { type McpExtra, type McpToolParams } from './types';
 
-const insertParamsShape = {
-	index: z
-		.number()
-		.int()
-		.describe('Child index in the document fragment. Use -1 to append.'),
-	nodeType: z
-		.enum(['paragraph', 'heading'])
-		.describe('Type of block node to insert'),
-	text: z.string().describe('Plain text content of the node'),
+const insertItemSchema = z.object({
+	nodeType: z.enum(['paragraph', 'heading']).describe('Type of block node'),
+	text: z.string().describe('Plain text content'),
 	attrs: z
 		.record(z.string(), z.string())
 		.optional()
 		.describe('Node attributes, e.g. { level: "2" } for headings'),
+});
+
+const deltaOpSchema = z.union([
+	z.object({ retain: z.number().int().describe('Skip N nodes') }),
+	z.object({ delete: z.number().int().describe('Delete N nodes') }),
+	z.object({
+		insert: z
+			.array(insertItemSchema)
+			.describe('Nodes to insert at current position'),
+	}),
+]);
+
+const editParamsShape = {
+	delta: z
+		.array(deltaOpSchema)
+		.describe(
+			'Sequence of retain/delete/insert ops following the Yjs delta format. ' +
+				'Always call read_narrative first to get current node indices. ' +
+				'Example — replace node 0: [{ "delete": 1 }, { "insert": [{ "nodeType": "heading", "text": "New Title", "attrs": { "level": "1" } }] }]',
+		),
 };
 
 @Resolver()
@@ -29,7 +43,7 @@ export class NarrativeEditorResolver {
 	@Tool({
 		name: 'read_narrative',
 		description:
-			"Read the current user's narrative document as XML. Use this to understand the document structure before making edits.",
+			"Read the current user's narrative document. Returns an indexed list of nodes so you can identify positions before editing.",
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,
@@ -37,44 +51,40 @@ export class NarrativeEditorResolver {
 	})
 	async readNarrative({ user }: McpExtra): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
-		const { xml } = await this.crdtApiService.readDocument(documentName);
+		const { nodes } = await this.crdtApiService.readDocument(documentName);
+		const text = nodes.map((n) => `[${n.index}] ${n.xml}`).join('\n');
 		return {
-			content: [{ type: 'text', text: xml }],
-			structuredContent: { xml },
+			content: [{ type: 'text', text }],
+			structuredContent: { nodes },
 		};
 	}
 
 	@Tool({
-		name: 'insert_into_narrative',
+		name: 'edit_narrative',
 		description:
-			"Insert a block node (paragraph or heading) into the user's narrative document at a specific position. Changes appear live in the editor for all collaborators.",
-		paramsSchema: insertParamsShape,
+			"Apply a delta to the user's narrative document. Changes appear live in the editor. " +
+			'Use retain to skip nodes, delete to remove them, and insert to add new ones. ' +
+			'Always call read_narrative first.',
+		paramsSchema: editParamsShape,
 		annotations: {
 			destructureHint: false,
 			idempotentHint: false,
 		},
 	})
-	async insertIntoNarrative(
-		{
-			index,
-			nodeType,
-			text,
-			attrs,
-		}: McpToolParams<z.infer<z.ZodObject<typeof insertParamsShape>>>,
+	async editNarrative(
+		{ delta }: McpToolParams<z.infer<z.ZodObject<typeof editParamsShape>>>,
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
-		const result = await this.crdtApiService.insertNode(documentName, {
-			index,
-			nodeType,
-			text,
-			attrs,
-		});
+		const result = await this.crdtApiService.applyDelta(
+			documentName,
+			delta as DeltaOp[],
+		);
 		return {
 			content: [
 				{
 					type: 'text',
-					text: `Inserted ${nodeType} at position ${index === -1 ? 'end' : index}. Document now has ${result.length} top-level nodes.`,
+					text: `Delta applied. Document now has ${result.length} top-level nodes.`,
 				},
 			],
 			structuredContent: result,

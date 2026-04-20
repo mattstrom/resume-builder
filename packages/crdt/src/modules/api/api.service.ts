@@ -5,6 +5,17 @@ import * as Y from 'yjs';
 
 const NARRATIVE_FIELD = 'narrative';
 
+type InsertItem = {
+	nodeType: string;
+	text: string;
+	attrs?: Record<string, string>;
+};
+
+type DeltaOp =
+	| { retain: number }
+	| { delete: number }
+	| { insert: InsertItem[] };
+
 function contextForDocument(documentName: string): { user: { sub: string } } {
 	if (documentName.startsWith('profile:')) {
 		return { user: { sub: documentName.slice('profile:'.length) } };
@@ -25,6 +36,34 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 	if (res.headersSent) return;
 	res.writeHead(status, { 'Content-Type': 'application/json' });
 	res.end(JSON.stringify(body));
+}
+
+function buildElement(item: InsertItem): Y.XmlElement {
+	const element = new Y.XmlElement(item.nodeType);
+	if (item.attrs) {
+		for (const [key, val] of Object.entries(item.attrs)) {
+			element.setAttribute(key, val);
+		}
+	}
+	const textNode = new Y.XmlText();
+	textNode.insert(0, item.text);
+	element.insert(0, [textNode]);
+	return element;
+}
+
+function applyDelta(fragment: Y.XmlFragment, delta: DeltaOp[]) {
+	let cursor = 0;
+	for (const op of delta) {
+		if ('retain' in op) {
+			cursor += op.retain;
+		} else if ('delete' in op) {
+			fragment.delete(cursor, op.delete);
+		} else {
+			const elements = op.insert.map(buildElement);
+			fragment.insert(cursor, elements);
+			cursor += elements.length;
+		}
+	}
 }
 
 @Injectable()
@@ -53,27 +92,33 @@ export class ApiService implements Extension {
 					contextForDocument(name),
 				);
 				try {
-					let xml = '';
+					let nodes: Array<{ index: number; xml: string }> = [];
 					await conn.transact((doc) => {
-						xml = doc.getXmlFragment(NARRATIVE_FIELD).toString();
+						const fragment = doc.getXmlFragment(NARRATIVE_FIELD);
+						nodes = Array.from(
+							{ length: fragment.length },
+							(_, i) => ({
+								index: i,
+								xml: (
+									fragment.get(i) as Y.XmlElement
+								).toString(),
+							}),
+						);
 					});
-					sendJson(response, 200, { xml });
+					sendJson(response, 200, { nodes });
 				} finally {
 					await conn.disconnect();
 				}
 				return;
 			}
 
-			const insertMatch = url.pathname.match(
-				/^\/api\/documents\/([^/]+)\/insert$/,
+			const deltaMatch = url.pathname.match(
+				/^\/api\/documents\/([^/]+)\/apply-delta$/,
 			);
-			if (insertMatch && request.method === 'POST') {
-				const name = decodeURIComponent(insertMatch[1]);
+			if (deltaMatch && request.method === 'POST') {
+				const name = decodeURIComponent(deltaMatch[1]);
 				const body = JSON.parse(await readBody(request)) as {
-					index: number;
-					nodeType: string;
-					text: string;
-					attrs?: Record<string, string>;
+					delta: DeltaOp[];
 				};
 
 				const conn = await instance.openDirectConnection(
@@ -84,20 +129,7 @@ export class ApiService implements Extension {
 				try {
 					await conn.transact((doc) => {
 						const fragment = doc.getXmlFragment(NARRATIVE_FIELD);
-						const element = new Y.XmlElement(body.nodeType);
-						if (body.attrs) {
-							for (const [key, val] of Object.entries(
-								body.attrs,
-							)) {
-								element.setAttribute(key, val);
-							}
-						}
-						const textNode = new Y.XmlText();
-						textNode.insert(0, body.text);
-						element.insert(0, [textNode]);
-						const pos =
-							body.index === -1 ? fragment.length : body.index;
-						fragment.insert(pos, [element]);
+						applyDelta(fragment, body.delta);
 						length = fragment.length;
 					});
 				} finally {
