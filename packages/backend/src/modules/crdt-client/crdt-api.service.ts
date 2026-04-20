@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import configuration from '../../configuration';
+import { RequestSigningService } from '../request-signing';
 
 export type TextRun = {
 	text: string;
@@ -29,14 +30,15 @@ export type NarrativeNode = {
 export class CrdtApiService {
 	private readonly logger = new Logger(CrdtApiService.name);
 	private readonly baseUrl = configuration.crdt.httpUrl;
-	private readonly internalKey = configuration.crdt.internalKey;
+
+	constructor(private readonly signing: RequestSigningService) {}
 
 	async readDocument(
 		documentName: string,
 	): Promise<{ nodes: NarrativeNode[] }> {
 		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}`;
 		const res = await fetch(url, {
-			headers: { 'x-internal-key': this.internalKey },
+			headers: this.signing.getSigningHeaders(),
 		});
 		if (!res.ok) {
 			const body = await res.text();
@@ -55,10 +57,11 @@ export class CrdtApiService {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'x-internal-key': this.internalKey,
+				...this.signing.getSigningHeaders(),
 			},
 			body: JSON.stringify({ delta }),
 		});
+
 		if (!res.ok) {
 			const body = await res.text();
 			this.logger.error(
@@ -66,6 +69,7 @@ export class CrdtApiService {
 			);
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
+
 		return res.json() as Promise<{ ok: boolean; length: number }>;
 	}
 }

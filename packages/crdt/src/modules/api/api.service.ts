@@ -1,5 +1,6 @@
 import type { Extension, onRequestPayload } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
+import * as crypto from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import * as Y from 'yjs';
 
@@ -116,15 +117,31 @@ function applyDelta(fragment: Y.XmlFragment, delta: DeltaOp[]) {
 export class ApiService implements Extension {
 	private readonly internalKey = process.env.CRDT_INTERNAL_KEY ?? '';
 
+	private verifyRequest(request: IncomingMessage): boolean {
+		const nonce = request.headers['x-nonce'] as string | undefined;
+		const ts = request.headers['x-timestamp'] as string | undefined;
+		const sig = request.headers['x-signature'] as string | undefined;
+		if (!nonce || !ts || !sig || !this.internalKey) return false;
+
+		if (Math.abs(Date.now() - Number(ts)) > 30_000) return false;
+
+		const expected = crypto
+			.createHmac('sha256', this.internalKey)
+			.update(`${nonce}:${ts}`)
+			.digest('hex');
+
+		return crypto.timingSafeEqual(
+			Buffer.from(sig, 'hex'),
+			Buffer.from(expected, 'hex'),
+		);
+	}
+
 	async onRequest({ request, response, instance }: onRequestPayload) {
 		const url = new URL(request.url ?? '/', 'http://localhost');
 
 		if (!url.pathname.startsWith('/api/')) return;
 
-		if (
-			!this.internalKey ||
-			request.headers['x-internal-key'] !== this.internalKey
-		) {
+		if (!this.verifyRequest(request)) {
 			sendJson(response, 401, { error: 'Unauthorized' });
 			return;
 		}
