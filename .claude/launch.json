@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Web (Vite)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd packages/resume-builder && npx vite"],
+      "port": 5173
+    },
+    {
+      "name": "Backend (NestJS)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:dev"],
+      "port": 3000
+    },
+    {
+      "name": "CRDT (Hocuspocus)",
+      "runtimeExecutable": "nx",
+      "runtimeArgs": ["start", "@resume-builder/crdt"],
+      "port": 1234
+    },
+    {
+      "name": "All Services (Docker Compose)",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up"],
+      "port": 5173
+    }
+  ]
+}
