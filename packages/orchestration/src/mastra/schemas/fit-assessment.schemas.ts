@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const jobSummarySchema = z.object({
-	requiredSkills: z.array(z.string()),
-	preferredSkills: z.array(z.string()),
+	requiredSkills: z.array(z.string()).optional(),
+	preferredSkills: z.array(z.string()).optional(),
 	requiredEducation: z.string().optional(),
 	requiredExperience: z.string().optional(),
 	roleLevel: z.string().optional(),

@@ -67,11 +67,25 @@ function stripXmlTags(xml: string): string {
 		.trim();
 }
 
+// const extractJobDescription = createStep({
+// 	id: 'extract-job-description',
+// 	description: 'Extracts job description from the application',
+// 	inputSchema: z.object({
+// 		applicationId: z.string(),
+// 	}),
+// 	outputSchema: z.object({
+// 		jobDescription: z.string(),
+// 	}),
+// 	execute: async ({ inputData }) => {
+//
+// 	}
+// });
+
 const fetchAssessmentData = createStep({
 	id: 'fetch-assessment-data',
 	description:
 		'Fetches job description and candidate profile via the backend MCP tools',
-	inputSchema: z.object({ applicationId: z.string().uuid() }),
+	inputSchema: z.object({ applicationId: z.string() }),
 	outputSchema: z.object({
 		applicationId: z.string(),
 		jobDescription: z.string(),
@@ -160,14 +174,14 @@ const runFitAssessment = createStep({
 		);
 
 		const allToolResults = (result.steps ?? []).flatMap(
-			(step: any) => step.toolResults ?? [],
+			(step) => step.toolResults ?? [],
 		);
 
 		const jobSummaryResult = allToolResults.find(
-			(r: any) => r.toolName === 'extract_job_summary',
+			(r) => r.payload.toolName === 'extract_job_summary',
 		);
 		const analysisResult = allToolResults.find(
-			(r: any) => r.toolName === 'extract_analysis',
+			(r) => r.payload.toolName === 'extract_analysis',
 		);
 
 		if (!jobSummaryResult || !analysisResult) {
@@ -176,8 +190,10 @@ const runFitAssessment = createStep({
 			);
 		}
 
-		const jobSummary = jobSummarySchema.parse(jobSummaryResult.result);
-		const analysis = analysisSchema.parse(analysisResult.result);
+		const jobSummary = jobSummarySchema.parse(
+			jobSummaryResult.payload.result,
+		);
+		const analysis = analysisSchema.parse(analysisResult.payload.result);
 
 		return { applicationId, jobSummary, analysis };
 	},
@@ -213,7 +229,7 @@ const saveAssessmentResults = createStep({
 const fitAssessmentWorkflow = createWorkflow({
 	id: 'fit-assessment-workflow',
 	inputSchema: z.object({
-		applicationId: z.string().uuid(),
+		applicationId: z.string(),
 	}),
 	outputSchema: z.object({
 		jobSummary: jobSummarySchema,

@@ -116,7 +116,7 @@ Inside a Mastra project, run:
 npm run dev
 ```
 
-Then open `http://localhost:4111` in your browser to access Mastra Studio.
+Then open `http://localhost:4111` in your browsers to access Mastra Studio.
 
 ## Critical requirements
 

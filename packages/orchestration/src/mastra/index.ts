@@ -1,27 +1,34 @@
 import { Mastra } from '@mastra/core/mastra';
-import { PinoLogger } from '@mastra/loggers';
-import { LibSQLStore } from '@mastra/libsql';
-import { DuckDBStore } from '@mastra/duckdb';
 import { MastraCompositeStore } from '@mastra/core/storage';
+import { DuckDBStore } from '@mastra/duckdb';
+import { MastraEditor } from '@mastra/editor';
+import { LibSQLStore } from '@mastra/libsql';
+import { PinoLogger } from '@mastra/loggers';
 import {
-	Observability,
-	DefaultExporter,
 	CloudExporter,
+	DefaultExporter,
+	Observability,
 	SensitiveDataFilter,
 } from '@mastra/observability';
-import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
-import { weatherWorkflow } from './workflows/weather-workflow';
-import { weatherAgent } from './agents/weather-agent';
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
+import { weatherAgent } from './agents/weather-agent';
+import { webAgent } from './agents/web-agent';
 import {
-	toolCallAppropriatenessScorer,
 	completenessScorer,
+	toolCallAppropriatenessScorer,
 	translationScorer,
 } from './scorers/weather-scorer';
+import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
+import { weatherWorkflow } from './workflows/weather-workflow';
 
 export const mastra = new Mastra({
+	bundler: {
+		sourcemap: true,
+		externals: ['@duckdb/node-bindings', '@resume-builder/entities'],
+	},
 	workflows: { weatherWorkflow, fitAssessmentWorkflow },
-	agents: { weatherAgent, fitAssessmentAgent },
+	agents: { weatherAgent, fitAssessmentAgent, webAgent },
+	editor: new MastraEditor(),
 	scorers: {
 		toolCallAppropriatenessScorer,
 		completenessScorer,
