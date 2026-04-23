@@ -38,6 +38,16 @@ export class Project {
 	@Field(() => Float, { nullable: true })
 	@Prop({ type: Number, required: false })
 	relevance?: number;
+
+	static isValid(data: unknown): data is Project {
+		if (!data || typeof data !== 'object') return false;
+		const obj = data as Record<string, unknown>;
+		return (
+			typeof obj.name === 'string' &&
+			Array.isArray(obj.technologies) &&
+			Array.isArray(obj.items)
+		);
+	}
 }
 
 @InputType()

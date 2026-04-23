@@ -11,12 +11,17 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 
 import { z } from 'zod';
+import { ContactInformation } from './contact-information.js';
+import { Education } from './education.js';
+import { Job } from './job.js';
+import { Project } from './project.js';
 import {
 	ResumeContent,
 	ResumeContentInput,
 	ResumeContentSchema,
 	resumeContentSchema,
 } from './resume-content.js';
+import { SkillGroup } from './skill-group.js';
 
 export type ResumeDocument = HydratedDocument<Resume>;
 
@@ -73,6 +78,62 @@ export class Resume {
 
 	@Field({ description: 'Date when the resume was last updated' })
 	updatedAt: Date;
+
+	static validate(data: unknown): { valid: boolean; errors: string[] } {
+		const errors: string[] = [];
+
+		if (!data || typeof data !== 'object') {
+			return { valid: false, errors: ['Data must be an object'] };
+		}
+
+		const resume = data as Record<string, unknown>;
+
+		if (!resume.data || typeof resume.data !== 'object') {
+			return { valid: false, errors: ['Missing "data" property'] };
+		}
+
+		const obj = resume.data as Record<string, unknown>;
+
+		if (typeof obj.name !== 'string')
+			errors.push('Missing or invalid "name" field');
+		if (typeof obj.title !== 'string')
+			errors.push('Missing or invalid "title" field');
+		if (typeof obj.summary !== 'string')
+			errors.push('Missing or invalid "summary" field');
+		if (!ContactInformation.isValid(obj.contactInformation))
+			errors.push('Missing or invalid "contactInformation" object');
+		if (!Array.isArray(obj.workExperience)) {
+			errors.push('Missing "workExperience" array');
+		} else if (!obj.workExperience.every(Job.isValid)) {
+			errors.push('Invalid job entry in "workExperience"');
+		}
+		if (!Array.isArray(obj.education)) {
+			errors.push('Missing "education" array');
+		} else if (!obj.education.every(Education.isValid)) {
+			errors.push('Invalid entry in "education"');
+		}
+		if (obj.skills !== undefined && !Array.isArray(obj.skills)) {
+			errors.push('Invalid "skills" field - must be an array');
+		}
+		if (obj.skillGroups !== undefined) {
+			if (!Array.isArray(obj.skillGroups)) {
+				errors.push('Invalid "skillGroups" field - must be an array');
+			} else if (!obj.skillGroups.every(SkillGroup.isValid)) {
+				errors.push('Invalid entry in "skillGroups"');
+			}
+		}
+		if (!Array.isArray(obj.projects)) {
+			errors.push('Missing "projects" array');
+		} else if (!obj.projects.every(Project.isValid)) {
+			errors.push('Invalid entry in "projects"');
+		}
+
+		return { valid: errors.length === 0, errors };
+	}
+
+	static isValid(data: unknown): data is Resume {
+		return Resume.validate(data).valid;
+	}
 }
 
 @InputType()

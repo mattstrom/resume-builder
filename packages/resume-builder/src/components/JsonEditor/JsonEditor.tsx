@@ -11,7 +11,6 @@ import { useMutation } from '@apollo/client/react';
 import { observer } from 'mobx-react';
 import { useStore } from '../../stores/store.provider.tsx';
 import { useFileManager } from '../FileManager';
-import { validateResume } from '../../utils/resumeValidation';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
 import type { Resume } from '@resume-builder/entities';
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
@@ -196,7 +195,7 @@ export const JsonEditor: FC = observer(() => {
 			debounce((jsonStr: string) => {
 				try {
 					const parsed = JSON.parse(jsonStr);
-					const validation = validateResume(parsed);
+					const validation = Resume.validate(parsed);
 
 					if (validation.valid) {
 						console.log(
