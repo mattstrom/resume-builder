@@ -21,6 +21,7 @@ import { useStore } from '@/stores/store.provider.tsx';
 import type { Theme } from '@/stores/theme.store.ts';
 import {
 	ChevronsUpDown,
+	Home,
 	LogOut,
 	Monitor,
 	Moon,
@@ -100,6 +101,19 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 				</div>
 			</SidebarHeader>
 			<SidebarContent>
+				<SidebarGroup>
+					<SidebarGroupLabel>Workspace</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/home">
+									<Home />
+									<span>Home</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						</SidebarMenu>
+					</SidebarGroupContent>
+				</SidebarGroup>
 				<SidebarGroup>
 					<SidebarGroupLabel>Profile</SidebarGroupLabel>
 					<SidebarGroupContent>

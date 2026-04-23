@@ -13,6 +13,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated/editor'
 import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
@@ -40,6 +41,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedEditorRoute = AuthenticatedEditorRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
   '/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/home': typeof AuthenticatedHomeRoute
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/': typeof AuthenticatedIndexRoute
   '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/': typeof AuthenticatedIndexRoute
   '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/(public)/login': typeof publicLoginRoute
   '/(public)/logout': typeof publicLogoutRoute
   '/_authenticated/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/editor'
+    | '/home'
     | '/profile'
     | '/'
     | '/editor/$applicationId'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/logout'
+    | '/home'
     | '/'
     | '/editor/$applicationId'
     | '/export/$applicationId'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/(public)/login'
     | '/(public)/logout'
     | '/_authenticated/editor'
+    | '/_authenticated/home'
     | '/_authenticated/profile'
     | '/_authenticated/'
     | '/_authenticated/editor/$applicationId'
@@ -223,6 +235,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/editor': {
@@ -328,6 +347,7 @@ const AuthenticatedProfileRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEditorRoute: typeof AuthenticatedEditorRouteWithChildren
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedExportApplicationIdRoute: typeof AuthenticatedExportApplicationIdRoute
@@ -336,6 +356,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEditorRoute: AuthenticatedEditorRouteWithChildren,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedExportApplicationIdRoute: AuthenticatedExportApplicationIdRoute,

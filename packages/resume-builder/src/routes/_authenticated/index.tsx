@@ -5,5 +5,5 @@ export const Route = createFileRoute('/_authenticated/')({
 });
 
 function IndexComponent() {
-	return <Navigate to="/editor" />;
+	return <Navigate to="/home" />;
 }

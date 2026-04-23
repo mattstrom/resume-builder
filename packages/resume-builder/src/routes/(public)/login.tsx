@@ -24,7 +24,7 @@ const LoginPage = observer(() => {
 	}
 
 	if (authStore.isAuthenticated) {
-		return <Navigate to="/editor" />;
+		return <Navigate to="/home" />;
 	}
 
 	return (
