@@ -10,6 +10,8 @@ import type { AnyRoute, Router } from '@tanstack/react-router';
 import { client as apolloClient } from '../apollo-client.ts';
 import { AuthStore } from './auth.store.ts';
 import { ApplicationStore } from './application.store.ts';
+import { ContactInformationStore } from './contact-information.store.ts';
+import { EducationStore } from './education.store.ts';
 import { ProfileStore } from './profile.store.ts';
 import { ResumeStore } from './resume.store.ts';
 import { PersistenceService } from '@/stores/services/persistence.service.ts';
@@ -23,6 +25,8 @@ export class RootStore<R extends AnyRoute = any> {
 
 	public readonly authStore: AuthStore;
 	public readonly applicationStore: ApplicationStore;
+	public readonly contactInformationStore: ContactInformationStore;
+	public readonly educationStore: EducationStore;
 	public readonly explorerSidebarStore: ExplorerSidebarStore;
 	public readonly inlineEditStore: InlineEditStore;
 	public readonly inspectStore: InspectStore;
@@ -37,6 +41,8 @@ export class RootStore<R extends AnyRoute = any> {
 		this.client = client ?? apolloClient;
 		this.authStore = new AuthStore(this);
 		this.applicationStore = new ApplicationStore(this);
+		this.contactInformationStore = new ContactInformationStore(this);
+		this.educationStore = new EducationStore(this);
 		this.explorerSidebarStore = new ExplorerSidebarStore(this);
 		this.inlineEditStore = new InlineEditStore(this);
 		this.inspectStore = new InspectStore(this);

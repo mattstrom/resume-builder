@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { ContactInformation } from '@resume-builder/entities';
+import {
+	ContactInformation,
+	ContactInformationInput,
+} from '@resume-builder/entities';
 import { Model } from 'mongoose';
 
 @Injectable()
@@ -16,5 +19,15 @@ export class ContactInformationService {
 
 	async findOne(uid: string) {
 		return this.contactInformationModel.findOne({ uid }).exec();
+	}
+
+	async upsert(uid: string, input: ContactInformationInput) {
+		return this.contactInformationModel
+			.findOneAndUpdate(
+				{ uid },
+				{ uid, ...input },
+				{ upsert: true, new: true, setDefaultsOnInsert: true },
+			)
+			.exec();
 	}
 }

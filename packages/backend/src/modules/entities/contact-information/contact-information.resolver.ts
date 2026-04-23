@@ -1,5 +1,8 @@
-import { Query, Resolver } from '@nestjs/graphql';
-import { ContactInformation } from '@resume-builder/entities';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import {
+	ContactInformation,
+	ContactInformationInput,
+} from '@resume-builder/entities';
 import { CurrentUser } from '../../auth';
 import { ContactInformationService } from './contact-information.service';
 
@@ -12,5 +15,13 @@ export class ContactInformationResolver {
 	@Query(() => [ContactInformation])
 	async listContactInformations(@CurrentUser('sub') uid: string) {
 		return this.contactInformationService.findAll(uid);
+	}
+
+	@Mutation(() => ContactInformation)
+	async upsertContactInformation(
+		@CurrentUser('sub') uid: string,
+		@Args('input') input: ContactInformationInput,
+	) {
+		return this.contactInformationService.upsert(uid, input);
 	}
 }

@@ -20,6 +20,7 @@ import { Route as publicLoginRouteImport } from './routes/(public)/login'
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
 import { Route as AuthenticatedProfilePreferencesRouteImport } from './routes/_authenticated/profile/preferences'
+import { Route as AuthenticatedProfileBackgroundRouteImport } from './routes/_authenticated/profile/background'
 import { Route as AuthenticatedPreviewApplicationIdRouteImport } from './routes/_authenticated/preview.$applicationId'
 import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_authenticated/export.$applicationId'
 import { Route as AuthenticatedEditorApplicationIdRouteImport } from './routes/_authenticated/editor/$applicationId'
@@ -81,6 +82,12 @@ const AuthenticatedProfilePreferencesRoute =
     path: '/preferences',
     getParentRoute: () => AuthenticatedProfileRoute,
   } as any)
+const AuthenticatedProfileBackgroundRoute =
+  AuthenticatedProfileBackgroundRouteImport.update({
+    id: '/background',
+    path: '/background',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
 const AuthenticatedPreviewApplicationIdRoute =
   AuthenticatedPreviewApplicationIdRouteImport.update({
     id: '/preview/$applicationId',
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
+  '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
@@ -129,6 +137,7 @@ export interface FileRoutesByTo {
   '/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
+  '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
@@ -147,6 +156,7 @@ export interface FileRoutesById {
   '/_authenticated/editor/$applicationId': typeof AuthenticatedEditorApplicationIdRoute
   '/_authenticated/export/$applicationId': typeof AuthenticatedExportApplicationIdRoute
   '/_authenticated/preview/$applicationId': typeof AuthenticatedPreviewApplicationIdRoute
+  '/_authenticated/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/_authenticated/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/editor/$applicationId'
     | '/export/$applicationId'
     | '/preview/$applicationId'
+    | '/profile/background'
     | '/profile/preferences'
     | '/editor/'
     | '/profile/'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/editor/$applicationId'
     | '/export/$applicationId'
     | '/preview/$applicationId'
+    | '/profile/background'
     | '/profile/preferences'
     | '/editor'
     | '/profile'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
     | '/_authenticated/editor/$applicationId'
     | '/_authenticated/export/$applicationId'
     | '/_authenticated/preview/$applicationId'
+    | '/_authenticated/profile/background'
     | '/_authenticated/profile/preferences'
     | '/_authenticated/editor/'
     | '/_authenticated/profile/'
@@ -286,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfilePreferencesRouteImport
       parentRoute: typeof AuthenticatedProfileRoute
     }
+    '/_authenticated/profile/background': {
+      id: '/_authenticated/profile/background'
+      path: '/background'
+      fullPath: '/profile/background'
+      preLoaderRoute: typeof AuthenticatedProfileBackgroundRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
     '/_authenticated/preview/$applicationId': {
       id: '/_authenticated/preview/$applicationId'
       path: '/preview/$applicationId'
@@ -333,11 +353,13 @@ const AuthenticatedEditorRouteWithChildren =
   AuthenticatedEditorRoute._addFileChildren(AuthenticatedEditorRouteChildren)
 
 interface AuthenticatedProfileRouteChildren {
+  AuthenticatedProfileBackgroundRoute: typeof AuthenticatedProfileBackgroundRoute
   AuthenticatedProfilePreferencesRoute: typeof AuthenticatedProfilePreferencesRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
 }
 
 const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
+  AuthenticatedProfileBackgroundRoute: AuthenticatedProfileBackgroundRoute,
   AuthenticatedProfilePreferencesRoute: AuthenticatedProfilePreferencesRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
 }
