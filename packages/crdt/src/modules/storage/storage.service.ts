@@ -229,7 +229,7 @@ export class StorageService implements Extension {
 
 		const document = new Y.Doc();
 		const latest = await this.profileUpdateModel
-			.findOne({ name: documentName })
+			.findOne({ name: documentName, uid })
 			.sort({ sequence: -1 })
 			.exec();
 
@@ -258,7 +258,7 @@ export class StorageService implements Extension {
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 
 		const previous = await this.profileUpdateModel
-			.findOne({ name: documentName })
+			.findOne({ name: documentName, uid })
 			.sort({ sequence: -1 })
 			.select({ sequence: 1 })
 			.exec();

@@ -24,55 +24,34 @@ import { formatKey } from '@/lib/format-key.ts';
 // ─── Seed skeleton (matches scratch/preferences.yaml) ───────────────────────
 
 const SKELETON: Record<string, unknown> = {
-	target_level: 'Staff IC',
+	target_level: '',
 	location: {
-		preferred: 'Fully remote',
-		acceptable_hybrid: [
-			'San Francisco proper',
-			'Oakland',
-			'Berkeley',
-			'East Bay',
-		],
-		unacceptable: ['South Bay', 'South Peninsula'],
+		preferred: '',
+		acceptable_hybrid: [],
+		unacceptable: [],
 	},
 	compensation: {
-		target_range: '$190K–$250K+',
-		acceptable_floor: '$180K–$200K',
-		structure: 'Cash-heavy preferred',
-		note: 'AI-sector companies pay 50-100% premiums over general market',
+		target_range: '',
+		acceptable_floor: '',
+		structure: '',
+		note: '',
 	},
 	company: {
-		preferred_stage: 'Growth-stage with proven product-market fit',
-		preferred_domains: ['Developer tools', 'AI infrastructure'],
-		aspirational_domains: [
-			'Creative/media platforms',
-			'Manufacturing-adjacent tech',
-			'Robotics',
-			'3D printing / CAD',
-			'IoT',
-		],
-		less_excited_industries: [
-			'Marketing',
-			'Advertising',
-			'Content strategy',
-		],
-		avoid: ['FAANG-style bureaucracy'],
-		notes: [
-			'Early-stage startups are less attractive (layoff risk) but not ruled out',
-		],
-		culture: 'Startup-like, generalist-friendly, continuous learning',
+		preferred_stage: '',
+		preferred_domains: [],
+		aspirational_domains: [],
+		less_excited_industries: [],
+		avoid: [],
+		notes: [],
+		culture: '',
 	},
 	employment: {
-		type: 'Full-time only',
+		type: '',
 	},
 	career_trajectory: {
-		current:
-			'Full-stack TypeScript/Node.js/React, Electron, SDK/API, real-time systems, CI/CD',
-		long_term: 'Systems-level work (Rust, C++, CAD, robotics)',
-		notes: [
-			'Next role should support rather than hinder the systems-level pivot',
-			'Avoid being pigeonholed into purely frontend work — values breadth and full-stack scope',
-		],
+		current: '',
+		long_term: '',
+		notes: [],
 	},
 };
 
