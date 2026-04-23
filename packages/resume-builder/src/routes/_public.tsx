@@ -5,7 +5,7 @@ export const Route = createFileRoute('/_public')({
 		const { authStore } = context.store;
 
 		if (authStore.isAuthenticated) {
-			return redirect({ to: '/editor' });
+			return redirect({ to: '/home' });
 		} else {
 			return redirect({ to: '/login' });
 		}
