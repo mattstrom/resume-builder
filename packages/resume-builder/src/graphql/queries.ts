@@ -216,6 +216,20 @@ export const GET_RESUME = gql`
 	${resumeContentFragment}
 `;
 
+export const GET_CONTACT_INFORMATION = gql`
+	query GetContactInformation {
+		listContactInformations {
+			_id
+			location
+			email
+			phoneNumber
+			linkedInProfile
+			githubProfile
+			personalWebsite
+		}
+	}
+`;
+
 export const LIST_EDUCATIONS = gql`
 	query ListEducations {
 		listEducations {

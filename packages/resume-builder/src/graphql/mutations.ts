@@ -1,6 +1,50 @@
 import { gql } from '@apollo/client';
 import { applicationFragment, resumeContentFragment } from './queries.ts';
 
+export const UPSERT_CONTACT_INFORMATION = gql`
+	mutation UpsertContactInformation($input: ContactInformationInput!) {
+		upsertContactInformation(input: $input) {
+			_id
+			location
+			email
+			phoneNumber
+			linkedInProfile
+			githubProfile
+			personalWebsite
+		}
+	}
+`;
+
+export const CREATE_EDUCATION = gql`
+	mutation CreateEducation($education: EducationInput!) {
+		createEducation(education: $education) {
+			_id
+			institution
+			degree
+			field
+			graduated
+		}
+	}
+`;
+
+export const UPDATE_EDUCATION = gql`
+	mutation UpdateEducation($id: String!, $education: EducationInput!) {
+		updateEducation(id: $id, education: $education) {
+			_id
+			institution
+			degree
+			field
+			graduated
+		}
+	}
+`;
+
+export const DELETE_EDUCATION = gql`
+	mutation DeleteEducation($id: String!) {
+		deleteEducation(id: $id)
+	}
+`;
+
 export const CREATE_APPLICATION = gql`
 	mutation CreateApplication($applicationData: ApplicationInput!) {
 		createApplication(applicationData: $applicationData) {

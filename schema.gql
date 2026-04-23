@@ -416,6 +416,7 @@ type Mutation {
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
   createProject(project: ProjectInput!): Project!
+  upsertContactInformation(input: ContactInformationInput!): ContactInformation!
   createVolunteering(volunteering: VolunteeringInput!): Volunteering!
   createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
   updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!

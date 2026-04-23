@@ -27,6 +27,17 @@ export class Education {
 	@Field()
 	@Prop({ type: String, default: '' })
 	graduated: string;
+
+	static isValid(data: unknown): data is Education {
+		if (!data || typeof data !== 'object') return false;
+		const obj = data as Record<string, unknown>;
+		return (
+			typeof obj.degree === 'string' &&
+			typeof obj.field === 'string' &&
+			typeof obj.institution === 'string' &&
+			typeof obj.graduated === 'string'
+		);
+	}
 }
 
 @InputType()
