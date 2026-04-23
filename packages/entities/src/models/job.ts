@@ -46,6 +46,18 @@ export class Job {
 	@Field(() => Float, { nullable: true })
 	@Prop({ type: Number, required: false })
 	relevance?: number;
+
+	static isValid(data: unknown): data is Job {
+		if (!data || typeof data !== 'object') return false;
+		const obj = data as Record<string, unknown>;
+		return (
+			typeof obj.company === 'string' &&
+			typeof obj.position === 'string' &&
+			typeof obj.location === 'string' &&
+			typeof obj.startDate === 'string' &&
+			Array.isArray(obj.responsibilities)
+		);
+	}
 }
 
 @InputType()

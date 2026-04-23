@@ -117,16 +117,15 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 				<SidebarGroup>
 					<SidebarGroupLabel>Profile</SidebarGroupLabel>
 					<SidebarGroupContent>
+						<SidebarMenuButton to="/profile/background">
+							Background
+						</SidebarMenuButton>
 						<SidebarMenuButton to="/profile">
 							Narrative
 						</SidebarMenuButton>
 						<SidebarMenuButton to="/profile/preferences">
 							Job Preferences
 						</SidebarMenuButton>
-						<SidebarMenuButton>
-							Contact Information
-						</SidebarMenuButton>
-						<SidebarMenuButton>Education</SidebarMenuButton>
 					</SidebarGroupContent>
 				</SidebarGroup>
 				<SidebarResumeTree />

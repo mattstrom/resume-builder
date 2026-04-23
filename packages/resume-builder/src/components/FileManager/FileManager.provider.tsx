@@ -19,7 +19,6 @@ import {
 	requestDirectoryAccess,
 	verifyPermission,
 } from '../../utils/fileSystem';
-import { validateResume } from '../../utils/resumeValidation';
 import {
 	GET_APPLICATION,
 	GET_RESUME,
@@ -130,7 +129,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 			try {
 				const data = await readJsonFile<unknown>(handle, fileName);
-				const validation = validateResume(data);
+				const validation = Resume.validate(data);
 
 				if (!validation.valid) {
 					setError(

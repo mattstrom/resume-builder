@@ -19,6 +19,12 @@ export class SkillGroup {
 	@Field(() => [String])
 	@Prop({ type: [String], default: [] })
 	items: string[];
+
+	static isValid(data: unknown): data is SkillGroup {
+		if (!data || typeof data !== 'object') return false;
+		const obj = data as Record<string, unknown>;
+		return typeof obj.name === 'string' && Array.isArray(obj.items);
+	}
 }
 
 @InputType()

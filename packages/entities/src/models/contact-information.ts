@@ -35,6 +35,18 @@ export class ContactInformation {
 	@Field()
 	@Prop({ type: String, default: '' })
 	personalWebsite: string;
+
+	static isValid(data: unknown): data is ContactInformation {
+		if (!data || typeof data !== 'object') return false;
+		const obj = data as Record<string, unknown>;
+		return (
+			typeof obj.location === 'string' &&
+			typeof obj.phoneNumber === 'string' &&
+			typeof obj.email === 'string' &&
+			typeof obj.linkedInProfile === 'string' &&
+			typeof obj.githubProfile === 'string'
+		);
+	}
 }
 
 export const ContactInformationSchema =
