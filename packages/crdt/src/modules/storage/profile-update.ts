@@ -26,4 +26,4 @@ export class ProfileUpdate {
 
 export const ProfileUpdateSchema = SchemaFactory.createForClass(ProfileUpdate);
 
-ProfileUpdateSchema.index({ name: 1, sequence: -1 });
+ProfileUpdateSchema.index({ name: 1, uid: 1, sequence: -1 });
