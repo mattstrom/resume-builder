@@ -9,6 +9,7 @@ import {
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { z } from 'zod';
+import { Resume } from './resume.js';
 
 @ObjectType({ description: 'Structured summary of job posting requirements' })
 @Schema({ _id: false, versionKey: false })
@@ -191,13 +192,6 @@ export class Application {
 
 	@Field({
 		nullable: true,
-		description: 'Reference to resume prepared for this application',
-	})
-	@Prop({ type: Types.ObjectId })
-	resumeId?: string;
-
-	@Field({
-		nullable: true,
 		description: 'Reference to cover letter prepared for this application',
 	})
 	@Prop({ type: Types.ObjectId })
@@ -222,6 +216,9 @@ export class Application {
 	@Field({ nullable: true, description: 'Freeform notes' })
 	@Prop({ type: String })
 	notes?: string;
+
+	@Field(() => [Resume], { nullable: true })
+	resumes?: Resume[];
 
 	@Field()
 	createdAt: Date;
@@ -301,9 +298,6 @@ export class ApplicationInput {
 	notionId?: string;
 
 	@Field({ nullable: true })
-	resumeId?: string;
-
-	@Field({ nullable: true })
 	coverLetterId?: string;
 
 	@Field(() => JobSummaryInput, { nullable: true })
@@ -364,7 +358,6 @@ export const applicationSchema = z.object({
 		.describe('URL where the job posting can be found'),
 	jobDescription: z.string().optional(),
 	notionId: z.string().optional(),
-	resumeId: z.string().optional(),
 	coverLetterId: z.string().optional(),
 	jobSummary: jobSummarySchema.optional(),
 	analysis: analysisSchema.optional(),

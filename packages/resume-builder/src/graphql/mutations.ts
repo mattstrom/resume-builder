@@ -182,8 +182,13 @@ export const CREATE_BLANK_RESUME = gql`
 			company
 			level
 			jobPostingUrl
+			data {
+				...ResumeContent
+			}
 		}
 	}
+
+	${resumeContentFragment}
 `;
 
 export const UPDATE_RESUME = gql`

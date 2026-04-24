@@ -5,7 +5,6 @@ import { useSettings } from './Settings.provider.tsx';
 import { ResumeProvider } from './Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from './layouts';
 import { GridLayout } from './layouts/GridLayout.tsx';
-import { useFileManager } from './FileManager';
 import { ResumeToolbar } from './ResumeToolbar.tsx';
 import { SimpleResumeView } from './SimpleResumeView.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -15,8 +14,8 @@ import '../App.css';
 
 export const DirectResumeView: FC = observer(() => {
 	const { template, showMarginPattern } = useSettings();
-	const { resumeData } = useFileManager();
-	const { uiStateStore } = useStore();
+	const { editorStore, uiStateStore } = useStore();
+	const { resumeData } = editorStore;
 
 	if (!resumeData) {
 		return (

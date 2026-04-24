@@ -60,7 +60,7 @@ export class HomePageStore {
 		return {
 			totalApplications: this.applicationStore.data.length,
 			applicationsWithResume: this.applicationStore.data.filter(
-				(application) => application.resumeId != null,
+				(application) => (application.resumes?.length ?? 0) > 0,
 			).length,
 			distinctCompanies: distinctCompanies.size,
 		};
