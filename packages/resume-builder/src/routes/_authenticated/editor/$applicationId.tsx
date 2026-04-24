@@ -3,12 +3,12 @@ import { useEffect } from 'react';
 import { Workspace } from '../../../components/Workspace.tsx';
 import { useFileManager } from '../../../components/FileManager';
 import { RouteLoading } from '../../../components/RouteLoading.tsx';
-import { GET_APPLICATION, GET_RESUME } from '../../../graphql/queries.ts';
+import { GET_APPLICATION, LIST_RESUMES } from '../../../graphql/queries.ts';
 import type {
 	GetApplicationData,
 	GetApplicationVariables,
-	GetResumeData,
-	GetResumeVariables,
+	ListResumesData,
+	ListResumesVariables,
 } from '../../../graphql/types.ts';
 
 export const Route = createFileRoute('/_authenticated/editor/$applicationId')({
@@ -29,24 +29,18 @@ export const Route = createFileRoute('/_authenticated/editor/$applicationId')({
 		const application = applicationResult.data.getApplication;
 
 		applicationStore.selectApplication(applicationId);
-		resumeStore.selectResume(application.resumeId ?? null);
 
-		if (!application.resumeId) {
-			return { application, resume: null };
-		}
-
-		const resumeResult = await client.query<
-			GetResumeData,
-			GetResumeVariables
+		const resumesResult = await client.query<
+			ListResumesData,
+			ListResumesVariables
 		>({
-			query: GET_RESUME,
-			variables: { id: application.resumeId },
+			query: LIST_RESUMES,
+			variables: { filter: { applicationId } },
 		});
+		const resume = resumesResult.data.listResumes[0] ?? null;
+		resumeStore.selectResume(resume?._id ?? null);
 
-		return {
-			application,
-			resume: resumeResult.data.getResume,
-		};
+		return { application, resume };
 	},
 });
 

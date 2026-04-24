@@ -39,6 +39,11 @@ export interface ListResumesData {
 	listResumes: Resume[];
 }
 
+export interface ListResumesVariables {
+	sort?: { field: string; ascending: boolean };
+	filter?: { base?: boolean; company?: string; applicationId?: string };
+}
+
 export interface GetResumeData {
 	getResume: Resume;
 }

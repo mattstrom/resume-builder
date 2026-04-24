@@ -192,9 +192,9 @@ export const HomePage = observer(function HomePage() {
 												Resume status
 											</p>
 											<p className="mt-2 text-sm font-medium text-foreground">
-												{homePageStore
+												{(homePageStore
 													.continueApplication
-													?.resumeId
+													?.resumes?.length ?? 0) > 0
 													? 'Resume linked'
 													: 'Resume not linked yet'}
 											</p>
@@ -282,7 +282,10 @@ export const HomePage = observer(function HomePage() {
 															)}
 														</p>
 														<p className="text-xs text-muted-foreground">
-															{application.resumeId
+															{(application
+																.resumes
+																?.length ?? 0) >
+															0
 																? 'Resume linked'
 																: 'No linked resume'}
 														</p>

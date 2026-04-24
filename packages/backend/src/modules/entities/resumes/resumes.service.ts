@@ -65,6 +65,9 @@ export class ResumesService {
 		if (filter?.company) {
 			query['company'] = { $regex: filter.company, $options: 'i' };
 		}
+		if (filter?.applicationId) {
+			query['applicationId'] = filter.applicationId;
+		}
 
 		const sortCriteria: Record<string, SortOrder> = {};
 

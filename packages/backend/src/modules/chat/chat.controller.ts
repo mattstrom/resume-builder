@@ -100,9 +100,10 @@ export class ChatController {
 			applicationId,
 		);
 
-		const resume = application.resumeId
-			? await this.resumesService.find(uid, application.resumeId)
-			: null;
+		const resumes = await this.resumesService.findAll(uid, undefined, {
+			applicationId: application._id,
+		});
+		const resume = resumes[0] ?? null;
 
 		let resumeContext = '';
 		if (resume?.data) {

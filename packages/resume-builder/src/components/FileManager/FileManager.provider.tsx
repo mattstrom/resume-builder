@@ -21,15 +21,15 @@ import {
 } from '../../utils/fileSystem';
 import {
 	GET_APPLICATION,
-	GET_RESUME,
 	LIST_APPLICATIONS,
+	LIST_RESUMES,
 } from '../../graphql/queries';
 import type {
 	GetApplicationData,
 	GetApplicationVariables,
-	GetResumeData,
-	GetResumeVariables,
 	ListApplicationsData,
+	ListResumesData,
+	ListResumesVariables,
 } from '../../graphql/types';
 import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
 import {
@@ -112,8 +112,8 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 			fetchPolicy: 'network-only',
 		},
 	);
-	const [getResumeQuery, { loading: resumeLoading, error: resumeError }] =
-		useLazyQuery<GetResumeData, GetResumeVariables>(GET_RESUME, {
+	const [listResumesQuery, { loading: resumeLoading, error: resumeError }] =
+		useLazyQuery<ListResumesData, ListResumesVariables>(LIST_RESUMES, {
 			fetchPolicy: 'network-only',
 		});
 
@@ -307,18 +307,12 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 
 				setSelectedApplication(application);
 
-				if (!application.resumeId) {
-					setResumeData(null);
-					setResumeConnectionStatus('idle');
-					return;
-				}
-
-				const resumeResult = await getResumeQuery({
-					variables: { id: application.resumeId },
+				const resumesResult = await listResumesQuery({
+					variables: { filter: { applicationId } },
 				});
-				if (resumeResult.data?.getResume) {
-					const nextResume = resumeResult.data.getResume;
+				const nextResume = resumesResult.data?.listResumes[0];
 
+				if (nextResume) {
 					setResumeData(nextResume);
 
 					const controller = new ApiResumeController({
@@ -361,7 +355,7 @@ export const FileManagerProvider: FC<PropsWithChildren> = ({ children }) => {
 				setIsLoading(false);
 			}
 		},
-		[getApplicationQuery, getResumeQuery],
+		[getApplicationQuery, listResumesQuery],
 	);
 
 	useEffect(() => {

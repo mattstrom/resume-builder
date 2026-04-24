@@ -7,13 +7,11 @@ import { BasicLayout, ColumnLayout } from '../../components/layouts';
 import { GridLayout } from '../../components/layouts/GridLayout.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
-import { GET_APPLICATION, GET_RESUME } from '../../graphql/queries.ts';
+import { LIST_RESUMES } from '../../graphql/queries.ts';
 import { generatePDFFromHTML } from '../../utils/pdfExport';
 import type {
-	GetApplicationData,
-	GetApplicationVariables,
-	GetResumeData,
-	GetResumeVariables,
+	ListResumesData,
+	ListResumesVariables,
 } from '../../graphql/types.ts';
 
 import '../../App.css';
@@ -35,28 +33,20 @@ export const Route = createFileRoute('/_authenticated/export/$applicationId')({
 		const { applicationId } = params;
 
 		try {
-			const applicationResult = await client.query<
-				GetApplicationData,
-				GetApplicationVariables
+			const resumesResult = await client.query<
+				ListResumesData,
+				ListResumesVariables
 			>({
-				query: GET_APPLICATION,
-				variables: { id: applicationId },
+				query: LIST_RESUMES,
+				variables: { filter: { applicationId } },
 			});
-			const application = applicationResult.data.getApplication;
+			const resume = resumesResult.data.listResumes[0];
 
-			if (!application.resumeId) {
+			if (!resume) {
 				throw new Error('Application has no linked resume');
 			}
 
-			const resumeResult = await client.query<
-				GetResumeData,
-				GetResumeVariables
-			>({
-				query: GET_RESUME,
-				variables: { id: application.resumeId },
-			});
-
-			return resumeResult.data.getResume;
+			return resume;
 		} catch (error) {
 			if (
 				error instanceof Error &&
