@@ -1,7 +1,7 @@
 import { type FC, useCallback, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useMutation } from '@apollo/client/react';
-import { useFileManager } from '../FileManager';
+import { useStore } from '@/stores/store.provider.tsx';
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
 import { LIST_RESUMES } from '../../graphql/queries';
 import type {
@@ -19,7 +19,9 @@ interface SaveButtonProps {
 }
 
 export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
-	const { resumeData, updateResumeData } = useFileManager();
+	const { editorStore } = useStore();
+	const { resumeData } = editorStore;
+	const updateResumeData = editorStore.updateResumeData.bind(editorStore);
 	const [saveState, setSaveState] = useState<SaveState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string>('');
 

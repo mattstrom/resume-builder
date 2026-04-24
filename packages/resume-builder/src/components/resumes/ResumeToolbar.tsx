@@ -1,5 +1,4 @@
 import { Stack } from '@/components/common/Stack.tsx';
-import { useFileManager } from '@/components/FileManager';
 import { useSettings } from '@/components/Settings.provider.tsx';
 import { useSnackbar } from '@/components/SnackbarProvider.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -27,10 +26,9 @@ interface ResumeToolbarProps {}
 export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
 		useSettings();
-	const { uiStateStore } = useStore();
-
+	const { uiStateStore, editorStore } = useStore();
 	const { applicationId } = useParams({ strict: false });
-	const { resumeData } = useFileManager();
+	const { resumeData } = editorStore;
 	const { showSnackbar } = useSnackbar();
 	const [isExporting, setIsExporting] = useState(false);
 

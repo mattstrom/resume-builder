@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-
-import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from '../../components/layouts';
 import { GridLayout } from '../../components/layouts/GridLayout.tsx';
+
+import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
@@ -43,7 +43,8 @@ export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 				query: LIST_RESUMES,
 				variables: { filter: { applicationId } },
 			});
-			const resume = resumesResult.data.listResumes[0];
+
+			const resume = resumesResult.data?.listResumes[0];
 
 			if (!resume) {
 				throw new Error('Application has no linked resume');

@@ -35,7 +35,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { Application } from '@resume-builder/entities';
 import { useStore } from '../stores/store.provider';
-import { useFileManager } from './FileManager/FileManager.provider';
 import { CreateApplicationDialog } from './CreateResumeDialog';
 
 const SORT_OPTIONS = [
@@ -52,8 +51,10 @@ const actionButtonClass =
 	'flex aspect-square items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0';
 
 export const SidebarResumeTree: FC = observer(() => {
-	const { applicationStore, explorerSidebarStore } = useStore();
-	const { selectedApiApplicationId, selectApiApplication } = useFileManager();
+	const { applicationStore, explorerSidebarStore, editorStore } = useStore();
+	const { selectedApiApplicationId } = editorStore;
+	const selectApiApplication = (id: string) =>
+		void editorStore.selectApplication(id);
 
 	const applications = explorerSidebarStore.applications;
 	const groupedApplications = explorerSidebarStore.groupedApplications;

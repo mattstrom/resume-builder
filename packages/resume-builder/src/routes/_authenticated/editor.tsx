@@ -1,25 +1,37 @@
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
 import { AnalysisToolbar } from '@/components/analysis/AnalysisToolbar.tsx';
 import { ResumePrimaryNav } from '@/components/resumes/ResumePrimaryNav.tsx';
+import { ResumeSwitcher } from '@/components/resumes/ResumeSwitcher.tsx';
 import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
 import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { useEffect } from 'react';
-import { useFileManager } from '../../components/FileManager';
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 
 const EditorLayout = observer(function EditorLayout() {
-	const { resumeData } = useFileManager();
-	const { uiStateStore } = useStore();
-	const toolbar =
+	const { editorStore, uiStateStore } = useStore();
+	const { resumeData } = editorStore;
+
+	const modeToolbar =
 		uiStateStore.mode === Mode.Analysis ? (
 			<AnalysisToolbar />
 		) : (
 			<ResumeToolbar />
 		);
+
+	const toolbar = editorStore.selectedApiApplicationId ? (
+		<>
+			<ResumeSwitcher />
+			<Separator orientation="vertical" className="h-5 shrink-0" />
+			{modeToolbar}
+		</>
+	) : (
+		modeToolbar
+	);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {

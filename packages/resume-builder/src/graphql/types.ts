@@ -52,6 +52,20 @@ export interface CreateResumeData {
 	createResume: Resume;
 }
 
+export interface CreateBlankResumeData {
+	createBlankResume: Resume;
+}
+
+export interface CreateBlankResumeVariables {
+	resumeData: {
+		name: string;
+		company: string;
+		jobPostingUrl: string;
+		base: boolean;
+		applicationId?: string;
+	};
+}
+
 export interface UpdateResumeData {
 	updateResume: Resume;
 }

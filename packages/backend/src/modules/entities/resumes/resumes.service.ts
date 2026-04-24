@@ -20,7 +20,9 @@ import {
 	ResumeUpdateInput,
 	Volunteering,
 } from '@resume-builder/entities';
-import { Model, SortOrder, UpdateOneModel } from 'mongoose';
+import { Model, SortOrder, Types, UpdateOneModel } from 'mongoose';
+
+import ObjectId = Types.ObjectId;
 
 const ALLOWED_PATH_PREFIXES = [
 	'data.name',
@@ -66,7 +68,7 @@ export class ResumesService {
 			query['company'] = { $regex: filter.company, $options: 'i' };
 		}
 		if (filter?.applicationId) {
-			query['applicationId'] = filter.applicationId;
+			query['applicationId'] = new ObjectId(filter.applicationId);
 		}
 
 		const sortCriteria: Record<string, SortOrder> = {};

@@ -1,4 +1,4 @@
-import { ApolloClient, type NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 import type { Resume } from '@resume-builder/entities';
 import {
 	ADD_RESUME_COLLECTION_ITEM,
@@ -52,7 +52,7 @@ interface LocalResumeControllerOptions {
 }
 
 interface ApiResumeControllerOptions extends LocalResumeControllerOptions {
-	client: ApolloClient<NormalizedCacheObject>;
+	client: ApolloClient;
 	onError?: (error: Error) => void;
 }
 
