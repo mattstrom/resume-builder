@@ -14,7 +14,6 @@ function createApplication(
 		company: overrides.company ?? '',
 		jobPostingUrl: overrides.jobPostingUrl ?? '',
 		jobDescription: overrides.jobDescription ?? '',
-		resumeId: overrides.resumeId,
 		coverLetterId: overrides.coverLetterId,
 		notionId: overrides.notionId,
 		notes: overrides.notes ?? '',
@@ -22,6 +21,7 @@ function createApplication(
 		updatedAt: overrides.updatedAt ?? date,
 		jobSummary: overrides.jobSummary,
 		analysis: overrides.analysis,
+		resumes: overrides.resumes ?? [],
 	};
 }
 
@@ -61,7 +61,7 @@ describe('HomePageStore', () => {
 						_id: '1',
 						name: 'Frontend Engineer',
 						company: 'Acme',
-						resumeId: 'resume-1',
+						resumes: [{ _id: 'resume-1' }],
 					}),
 					createApplication({
 						_id: '2',
@@ -72,7 +72,7 @@ describe('HomePageStore', () => {
 						_id: '3',
 						name: 'Platform Engineer',
 						company: 'Beta',
-						resumeId: 'resume-3',
+						resumes: [{ _id: 'resume-3' }],
 					}),
 				],
 			},

@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { CREATE_APPLICATION } from '../graphql/mutations';
 import { useStore } from '../stores/store.provider';
-import { useFileManager } from './FileManager/FileManager.provider';
 import type {
 	CreateApplicationData,
 	CreateApplicationVariables,
@@ -28,8 +27,7 @@ export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({
 	children,
 }) => {
 	const navigate = useNavigate();
-	const { applicationStore, resumeStore } = useStore();
-	const { selectApiApplication } = useFileManager();
+	const { applicationStore, resumeStore, editorStore } = useStore();
 	const [open, setOpen] = useState(false);
 	const [createApplication, { loading }] = useMutation<
 		CreateApplicationData,
@@ -58,7 +56,7 @@ export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({
 
 		const newApplicationId = result.data?.createApplication?._id;
 		if (newApplicationId) {
-			await selectApiApplication(newApplicationId);
+			await editorStore.selectApplication(newApplicationId);
 			navigate({
 				to: '/editor/$applicationId',
 				params: { applicationId: newApplicationId },

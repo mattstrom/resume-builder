@@ -125,11 +125,13 @@ export const applicationFragment = gql`
 		jobPostingUrl
 		jobDescription
 		notionId
-		resumeId
 		coverLetterId
 		notes
 		createdAt
 		updatedAt
+		resumes {
+			_id
+		}
 		jobSummary {
 			requiredSkills
 			preferredSkills

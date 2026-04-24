@@ -1,6 +1,6 @@
 import { Save } from 'lucide-react';
 import { type FC, useEffect, useRef, useState } from 'react';
-import { useFileManager } from '../FileManager';
+import { useStore } from '@/stores/store.provider.tsx';
 import { BasicInfoSection } from './sections/BasicInfoSection';
 import { ContactInfoSection } from './sections/ContactInfoSection';
 import { EducationSection } from './sections/EducationSection';
@@ -70,7 +70,11 @@ const defaultBasicInfo: BasicInfo = {
 };
 
 export const FormEditor: FC = () => {
-	const { resumeData, updateResumeData } = useFileManager();
+	const { editorStore } = useStore();
+	const { resumeData } = editorStore;
+	const updateResumeData = (
+		r: Parameters<typeof editorStore.updateResumeData>[0],
+	) => editorStore.updateResumeData(r);
 	const [formData, setFormData] = useState<FormData>({
 		basicInfo: defaultBasicInfo,
 		contactInfo: defaultContactInfo,

@@ -46,19 +46,19 @@ export class ApplicationsService {
 			uid,
 		});
 
+		const saved = await created.save();
+
 		if (includeResume) {
-			const resume = await this.resumeService.createBlank(uid, {
+			await this.resumeService.createBlank(uid, {
 				id: '',
 				name: 'Untitled Resume',
 				company: applicationData.company,
 				jobPostingUrl: applicationData.jobPostingUrl,
 				base: false,
+				applicationId: saved._id.toString(),
 			});
-
-			created.resumeId = resume._id;
 		}
 
-		const saved = await created.save();
 		return saved.toObject();
 	}
 

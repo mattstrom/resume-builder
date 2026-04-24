@@ -15,7 +15,6 @@ import {
 	getResumeCollectionPath,
 	ResumeCollections,
 } from '@/graphql/resume-collections.ts';
-import { useFileManager } from '@/components/FileManager';
 import { useStore } from '@/stores/store.provider.tsx';
 import { useQuery } from '@apollo/client/react';
 import type {
@@ -779,7 +778,8 @@ const VolunteeringEntry: FC<{
 };
 
 export const SimpleResumeView: FC = observer(() => {
-	const { resumeData } = useFileManager();
+	const { editorStore } = useStore();
+	const { resumeData } = editorStore;
 
 	if (!resumeData) {
 		return (

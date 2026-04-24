@@ -98,6 +98,73 @@ type CoverLetter {
   content: String!
 }
 
+"""
+Content of the resume, as opposed to the Resume object which holds metadata.
+"""
+type ResumeContent {
+  _id: ID!
+  name: String!
+  title: String!
+  contactInformation: ContactInformationSubdoc!
+  summary: String!
+  workExperience: [Job!]!
+  education: [Education!]!
+  skills: [Skill!]
+  skillGroups: [SkillGroup!]
+  projects: [Project!]!
+  volunteering: [Volunteering!]!
+}
+
+"""Resume"""
+type Resume {
+  """Unique identifier"""
+  _id: ID!
+
+  """User identifier"""
+  uid: String!
+
+  """Resume identifier"""
+  id: String
+
+  """Name of the resume"""
+  name: String!
+
+  """Company name"""
+  company: String!
+
+  """Job level"""
+  level: String
+
+  """URL to the job posting"""
+  jobPostingUrl: String
+
+  """Whether the resume is read-only"""
+  readOnly: Boolean!
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean!
+
+  """Application this resume belongs to"""
+  applicationId: String
+
+  """Source resume for this version"""
+  sourceResume: Resume!
+
+  """Resume content data"""
+  data: ResumeContent!
+
+  """Date when the resume was created"""
+  createdAt: DateTime!
+
+  """Date when the resume was last updated"""
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 """Structured summary of job posting requirements"""
 type JobSummary {
   """Skills required by the job posting"""
@@ -193,9 +260,6 @@ type Application {
   """Notion database record ID linking to pipeline tracking"""
   notionId: String
 
-  """Reference to resume prepared for this application"""
-  resumeId: String
-
   """Reference to cover letter prepared for this application"""
   coverLetterId: String
 
@@ -209,15 +273,10 @@ type Application {
 
   """Freeform notes"""
   notes: String
+  resumes: [Resume!]
   createdAt: DateTime!
   updatedAt: DateTime!
-  resumes: [Resume!]
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type NarrativeWorkExperience {
   company: String!
@@ -278,65 +337,6 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-"""
-Content of the resume, as opposed to the Resume object which holds metadata.
-"""
-type ResumeContent {
-  _id: ID!
-  name: String!
-  title: String!
-  contactInformation: ContactInformationSubdoc!
-  summary: String!
-  workExperience: [Job!]!
-  education: [Education!]!
-  skills: [Skill!]
-  skillGroups: [SkillGroup!]
-  projects: [Project!]!
-  volunteering: [Volunteering!]!
-}
-
-"""Resume"""
-type Resume {
-  """Unique identifier"""
-  _id: ID!
-
-  """User identifier"""
-  uid: String!
-
-  """Resume identifier"""
-  id: String
-
-  """Name of the resume"""
-  name: String!
-
-  """Company name"""
-  company: String!
-
-  """Job level"""
-  level: String
-
-  """URL to the job posting"""
-  jobPostingUrl: String
-
-  """Whether the resume is read-only"""
-  readOnly: Boolean!
-
-  """Whether this is a base resume for targeted versions"""
-  base: Boolean!
-
-  """Source resume for this version"""
-  sourceResume: Resume!
-
-  """Resume content data"""
-  data: ResumeContent!
-
-  """Date when the resume was created"""
-  createdAt: DateTime!
-
-  """Date when the resume was last updated"""
-  updatedAt: DateTime!
-}
-
 type ChatModelSelectionModel {
   provider: String!
   model: String!
@@ -396,6 +396,9 @@ input ResumeFilterInput {
 
   """Filter by company name (case-insensitive substring match)"""
   company: String
+
+  """Filter by application ID"""
+  applicationId: String
 }
 
 type Mutation {
@@ -429,7 +432,6 @@ input ApplicationInput {
   jobPostingUrl: String!
   jobDescription: String
   notionId: String
-  resumeId: String
   coverLetterId: String
   jobSummary: JobSummaryInput
   analysis: AnalysisInput
@@ -463,7 +465,6 @@ input ApplicationUpdateInput {
   jobPostingUrl: String
   jobDescription: String
   notionId: String
-  resumeId: String
   coverLetterId: String
   jobSummary: JobSummaryInput
   analysis: AnalysisInput
@@ -488,6 +489,9 @@ input ResumeCreateInput {
 
   """Whether this is a base resume for targeted versions"""
   base: Boolean!
+
+  """Application this resume belongs to"""
+  applicationId: String
 
   """Resume content data"""
   data: ResumeContentInput!
@@ -579,6 +583,9 @@ input BlankResumeCreateInput {
 
   """Whether this is a base resume for targeted versions"""
   base: Boolean!
+
+  """Application this resume belongs to"""
+  applicationId: String
 }
 
 input ResumeUpdateInput {
@@ -599,6 +606,9 @@ input ResumeUpdateInput {
 
   """Whether this is a base resume for targeted versions"""
   base: Boolean
+
+  """Application this resume belongs to"""
+  applicationId: String
 
   """Resume content data"""
   data: ResumeContentInput

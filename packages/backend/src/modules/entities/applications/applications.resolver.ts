@@ -76,15 +76,8 @@ export class ApplicationsResolver {
 
 	@ResolveField(() => [Resume], { nullable: true })
 	async resumes(@Parent() application: Application): Promise<Resume[]> {
-		if (!application.resumeId) {
-			return [];
-		}
-
-		const resume = await this.resumesService.find(
-			application.uid,
-			application.resumeId,
-		);
-
-		return resume ? [resume] : [];
+		return this.resumesService.findAll(application.uid, undefined, {
+			applicationId: application._id,
+		});
 	}
 }

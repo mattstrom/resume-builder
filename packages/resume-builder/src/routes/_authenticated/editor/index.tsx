@@ -1,15 +1,13 @@
 import { Centered } from '@/components/common/Centered.tsx';
 import { createFileRoute } from '@tanstack/react-router';
+import { observer } from 'mobx-react';
 import { useEffect } from 'react';
 import { Workspace } from '../../../components/Workspace.tsx';
-import { useFileManager } from '../../../components/FileManager';
+import { useStore } from '../../../stores/store.provider.tsx';
 
-export const Route = createFileRoute('/_authenticated/editor/')({
-	component: EditorIndexComponent,
-});
-
-function EditorIndexComponent() {
-	const { resumeData, selectedApplication } = useFileManager();
+const EditorIndexComponent = observer(function EditorIndexComponent() {
+	const { editorStore } = useStore();
+	const { resumeData, selectedApplication } = editorStore;
 
 	useEffect(() => {
 		if (resumeData) {
@@ -36,11 +34,15 @@ function EditorIndexComponent() {
 					No Linked Resume
 				</h1>
 				<p className="text-muted-foreground">
-					Select an application from the explorer to get started
+					Select an application from the sidebar to get started
 				</p>
 			</Centered>
 		);
 	}
 
 	return <Workspace />;
-}
+});
+
+export const Route = createFileRoute('/_authenticated/editor/')({
+	component: EditorIndexComponent,
+});

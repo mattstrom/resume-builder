@@ -24,7 +24,6 @@ import { Route as AuthenticatedProfileBackgroundRouteImport } from './routes/_au
 import { Route as AuthenticatedPreviewApplicationIdRouteImport } from './routes/_authenticated/preview.$applicationId'
 import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_authenticated/export.$applicationId'
 import { Route as AuthenticatedEditorApplicationIdRouteImport } from './routes/_authenticated/editor/$applicationId'
-import { Route as AuthenticatedEditorLocalFilenameRouteImport } from './routes/_authenticated/editor/local/$filename'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -106,12 +105,6 @@ const AuthenticatedEditorApplicationIdRoute =
     path: '/$applicationId',
     getParentRoute: () => AuthenticatedEditorRoute,
   } as any)
-const AuthenticatedEditorLocalFilenameRoute =
-  AuthenticatedEditorLocalFilenameRouteImport.update({
-    id: '/local/$filename',
-    path: '/local/$filename',
-    getParentRoute: () => AuthenticatedEditorRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
@@ -127,7 +120,6 @@ export interface FileRoutesByFullPath {
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
-  '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof publicLoginRoute
@@ -141,7 +133,6 @@ export interface FileRoutesByTo {
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
-  '/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -160,7 +151,6 @@ export interface FileRoutesById {
   '/_authenticated/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
-  '/_authenticated/editor/local/$filename': typeof AuthenticatedEditorLocalFilenameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,7 +168,6 @@ export interface FileRouteTypes {
     | '/profile/preferences'
     | '/editor/'
     | '/profile/'
-    | '/editor/local/$filename'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -192,7 +181,6 @@ export interface FileRouteTypes {
     | '/profile/preferences'
     | '/editor'
     | '/profile'
-    | '/editor/local/$filename'
   id:
     | '__root__'
     | '/_authenticated'
@@ -210,7 +198,6 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/preferences'
     | '/_authenticated/editor/'
     | '/_authenticated/profile/'
-    | '/_authenticated/editor/local/$filename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -327,26 +314,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEditorApplicationIdRouteImport
       parentRoute: typeof AuthenticatedEditorRoute
     }
-    '/_authenticated/editor/local/$filename': {
-      id: '/_authenticated/editor/local/$filename'
-      path: '/local/$filename'
-      fullPath: '/editor/local/$filename'
-      preLoaderRoute: typeof AuthenticatedEditorLocalFilenameRouteImport
-      parentRoute: typeof AuthenticatedEditorRoute
-    }
   }
 }
 
 interface AuthenticatedEditorRouteChildren {
   AuthenticatedEditorApplicationIdRoute: typeof AuthenticatedEditorApplicationIdRoute
   AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
-  AuthenticatedEditorLocalFilenameRoute: typeof AuthenticatedEditorLocalFilenameRoute
 }
 
 const AuthenticatedEditorRouteChildren: AuthenticatedEditorRouteChildren = {
   AuthenticatedEditorApplicationIdRoute: AuthenticatedEditorApplicationIdRoute,
   AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
-  AuthenticatedEditorLocalFilenameRoute: AuthenticatedEditorLocalFilenameRoute,
 }
 
 const AuthenticatedEditorRouteWithChildren =

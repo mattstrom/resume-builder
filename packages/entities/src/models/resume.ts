@@ -65,6 +65,13 @@ export class Resume {
 	@Prop({ type: Boolean, default: false })
 	base: boolean;
 
+	@Field({
+		nullable: true,
+		description: 'Application this resume belongs to',
+	})
+	@Prop({ type: Types.ObjectId })
+	applicationId?: string;
+
 	@Field({ description: 'Source resume for this version' })
 	@Prop({ type: Types.ObjectId, ref: 'Resume', default: null })
 	sourceResume?: Resume;
@@ -158,6 +165,12 @@ export class ResumeCreateInput {
 	})
 	base: boolean;
 
+	@Field({
+		nullable: true,
+		description: 'Application this resume belongs to',
+	})
+	applicationId?: string;
+
 	@Field(() => ResumeContentInput, { description: 'Resume content data' })
 	data: ResumeContentInput;
 }
@@ -221,6 +234,12 @@ export class ResumeFilterInput {
 			'Filter by company name (case-insensitive substring match)',
 	})
 	company?: string;
+
+	@Field({
+		nullable: true,
+		description: 'Filter by application ID',
+	})
+	applicationId?: string;
 }
 
 @InputType()
@@ -256,6 +275,10 @@ export const resumeSchema = z.object({
 	base: z
 		.boolean()
 		.describe('Whether this is a base resume for targeted versions'),
+	applicationId: z
+		.string()
+		.optional()
+		.describe('Application this resume belongs to'),
 	data: resumeContentSchema.describe('Resume content data'),
 	createdAt: z.iso.datetime().describe('Date when the resume was created'),
 	updatedAt: z.iso

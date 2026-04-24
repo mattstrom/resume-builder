@@ -1,5 +1,4 @@
 import { CreateApplicationDialog } from '@/components/CreateResumeDialog.tsx';
-import { useFileManager } from '@/components/FileManager/FileManager.provider.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -22,15 +21,14 @@ const summaryCardClass =
 	'border-border/60 bg-card/70 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/80';
 
 export const HomePage = observer(function HomePage() {
-	const { authStore, applicationStore } = useStore();
-	const { selectApiApplication } = useFileManager();
+	const { authStore, applicationStore, editorStore } = useStore();
 	const homePageStore = useMemo(
 		() => new HomePageStore(authStore, applicationStore),
 		[authStore, applicationStore],
 	);
 
 	const handleSelectApplication = (applicationId: string) => {
-		void selectApiApplication(applicationId);
+		void editorStore.selectApplication(applicationId);
 	};
 
 	return (
@@ -192,9 +190,9 @@ export const HomePage = observer(function HomePage() {
 												Resume status
 											</p>
 											<p className="mt-2 text-sm font-medium text-foreground">
-												{homePageStore
+												{(homePageStore
 													.continueApplication
-													?.resumeId
+													?.resumes?.length ?? 0) > 0
 													? 'Resume linked'
 													: 'Resume not linked yet'}
 											</p>
@@ -282,7 +280,10 @@ export const HomePage = observer(function HomePage() {
 															)}
 														</p>
 														<p className="text-xs text-muted-foreground">
-															{application.resumeId
+															{(application
+																.resumes
+																?.length ?? 0) >
+															0
 																? 'Resume linked'
 																: 'No linked resume'}
 														</p>
