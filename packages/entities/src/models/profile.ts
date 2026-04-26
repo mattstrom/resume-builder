@@ -7,7 +7,7 @@ import {
 	PartialType,
 } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import GraphQLJSON from 'graphql-type-json';
+import { GraphQLJSON } from 'graphql-type-json';
 import { HydratedDocument } from 'mongoose';
 import { z } from 'zod';
 

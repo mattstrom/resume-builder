@@ -1,6 +1,7 @@
 {
   "name": "@resume-builder/entities",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
