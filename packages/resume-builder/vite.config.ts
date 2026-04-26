@@ -55,6 +55,10 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),
+			'@nestjs/graphql': path.resolve(
+				__dirname,
+				'../entities/src/shims/nestjs-graphql.ts',
+			),
 		},
 	},
 	test: {

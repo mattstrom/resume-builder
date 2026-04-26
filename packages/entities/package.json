@@ -2,6 +2,7 @@
   "name": "@resume-builder/entities",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -24,6 +25,10 @@
     "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
   },
   "private": true,
+  "browser": {
+    "@nestjs/mongoose": "./src/shims/nestjs-mongoose.ts",
+    "mongoose": "./src/shims/mongoose.ts"
+  },
   "dependencies": {
     "@nestjs/graphql": "^13.2.3",
     "@nestjs/mongoose": "^11.0.4",

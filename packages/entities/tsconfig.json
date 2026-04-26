@@ -16,5 +16,6 @@
     "strictPropertyInitialization": false,
     "noUnusedLocals": false
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/data/*.ts"]
 }
