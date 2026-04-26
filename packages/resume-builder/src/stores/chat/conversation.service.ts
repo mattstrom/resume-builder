@@ -2,6 +2,7 @@ import type {
 	ChatModelOption,
 	ChatModelSelection,
 	ChatModelsResponse,
+	ChatScope,
 } from '@resume-builder/entities';
 import { DefaultChatTransport } from 'ai';
 import { action, computed, makeObservable, observable } from 'mobx';
@@ -122,7 +123,7 @@ export class ConversationService {
 	}
 
 	@computed
-	get scope() {
+	get requestContext() {
 		const { selectedApplicationId } = this.rootStore.applicationStore;
 		const { selectedPaths } = this.rootStore.inspectStore;
 
@@ -132,19 +133,34 @@ export class ConversationService {
 		};
 	}
 
+	get chatScope(): ChatScope | null {
+		const p = this.rootStore.router?.state.location.pathname ?? '';
+		if (p.includes('/profile/background')) return 'background';
+		if (p.includes('/profile/preferences')) return 'preferences';
+		if (p.includes('/profile')) return 'narrative';
+		return null;
+	}
+
+	private getActiveStorageKey(): string | null {
+		const scope = this.chatScope;
+		if (scope) return `chat:lastConversation:scope:${scope}`;
+		const { applicationId } = this.requestContext;
+		return applicationId ? getStorageKey(applicationId) : null;
+	}
+
 	get transport() {
 		return new DefaultChatTransport({
 			api: `${API_BASE}/api/chat`,
-			body: { data: this.scope },
+			body: { data: this.requestContext },
 			fetch: async (url, init?) => {
-				const { applicationId } = this.scope;
 				const id = this.activeConversationId;
 
-				// Inject current conversationId into each request body
+				// Inject scope, conversationId, and model into each request body
 				if (init?.body && typeof init.body === 'string') {
 					const parsed = JSON.parse(init.body);
 					parsed.data = {
 						...parsed.data,
+						scope: this.chatScope,
 						conversationId: this.activeConversationId,
 						model: this.selectedModel,
 					};
@@ -157,8 +173,7 @@ export class ConversationService {
 				if (newConvId && newConvId !== id) {
 					this.activeConversationId = newConvId;
 
-					const key = getStorageKey(applicationId!);
-
+					const key = this.getActiveStorageKey();
 					if (key) {
 						localStorage.setItem(key, newConvId);
 					}
@@ -195,8 +210,8 @@ export class ConversationService {
 		this.activeConversationId = null;
 		this.selectedModel ??= this.defaultModelSelection;
 
-		if (this.scope?.applicationId) {
-			const key = getStorageKey(this.scope.applicationId);
+		const key = this.getActiveStorageKey();
+		if (key) {
 			this.persistence.remove(key);
 		}
 	}
@@ -227,7 +242,6 @@ export class ConversationService {
 	@action
 	async loadConversation(conversationId: string): Promise<void> {
 		const { persistence } = this.rootStore;
-		const { applicationId } = this.scope;
 
 		try {
 			const res = await authFetch(`${API_BASE}/api/conversations/${conversationId}`);
@@ -247,8 +261,8 @@ export class ConversationService {
 			this.activeConversationId = conversationId;
 			this.selectedModel = this.resolveModelSelection(conversation.model);
 
-			if (applicationId) {
-				const key = getStorageKey(applicationId);
+			const key = this.getActiveStorageKey();
+			if (key) {
 				persistence.store(key, conversationId);
 			}
 		} catch (error) {
@@ -260,13 +274,12 @@ export class ConversationService {
 	@action
 	async loadLastConversation(): Promise<boolean> {
 		const { persistence } = this.rootStore;
-		const { applicationId } = this.scope;
+		const key = this.getActiveStorageKey();
 
-		if (!applicationId) {
+		if (!key) {
 			return false;
 		}
 
-		const key = getStorageKey(applicationId);
 		const savedId = persistence.retrieve(key) as string;
 
 		if (savedId) {
