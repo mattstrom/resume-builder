@@ -6,11 +6,11 @@ import { z } from 'zod';
 import {
 	type ChatModelSelection,
 	chatModelSelectionSchema,
-} from '../chat-models';
+} from '../chat-models.js';
 import {
 	ChatModelSelectionModel,
 	ChatModelSelectionSchema,
-} from './chat-model';
+} from './chat-model.js';
 
 @ObjectType()
 @Schema({ _id: false, versionKey: false, timestamps: false })
