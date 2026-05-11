@@ -1,3 +1,5 @@
+import type { RootStore } from '@/stores/root.store.ts';
+import { authFetch } from '@/utils/auth.ts';
 import type {
 	ChatModelOption,
 	ChatModelSelection,
@@ -7,10 +9,8 @@ import type {
 import { DefaultChatTransport } from 'ai';
 import { action, computed, makeObservable, observable } from 'mobx';
 
-import type { RootStore } from '@/stores/root.store.ts';
-import { authFetch } from '@/utils/auth.ts';
-
 const API_BASE = 'http://localhost:3000';
+const MASTRA_API_BASE = 'http://localhost:4111';
 
 interface ConversationPayload {
 	_id: string;
@@ -150,7 +150,7 @@ export class ConversationService {
 
 	get transport() {
 		return new DefaultChatTransport({
-			api: `${API_BASE}/api/chat`,
+			api: `${MASTRA_API_BASE}/chat/chatAgent`,
 			body: { data: this.requestContext },
 			fetch: async (url, init?) => {
 				const id = this.activeConversationId;
@@ -230,7 +230,9 @@ export class ConversationService {
 	async loadModelCatalog(): Promise<void> {
 		const res = await authFetch(`${API_BASE}/api/chat/models`);
 		if (!res.ok) {
-			throw new Error(`Failed to load chat models: ${res.status} ${res.statusText}`);
+			throw new Error(
+				`Failed to load chat models: ${res.status} ${res.statusText}`,
+			);
 		}
 
 		const data = (await res.json()) as ChatModelsResponse;
@@ -244,10 +246,14 @@ export class ConversationService {
 		const { persistence } = this.rootStore;
 
 		try {
-			const res = await authFetch(`${API_BASE}/api/conversations/${conversationId}`);
+			const res = await authFetch(
+				`${MASTRA_API_BASE}/api/conversations/${conversationId}`,
+			);
 
 			if (!res.ok) {
-				throw new Error(`Failed to load conversation: ${res.status} ${res.statusText}`);
+				throw new Error(
+					`Failed to load conversation: ${res.status} ${res.statusText}`,
+				);
 			}
 
 			const data = await res.json();
@@ -299,7 +305,9 @@ export class ConversationService {
 		if (
 			model &&
 			this.models.some(
-				(option) => option.provider === model.provider && option.model === model.model,
+				(option) =>
+					option.provider === model.provider &&
+					option.model === model.model,
 			)
 		) {
 			return model;

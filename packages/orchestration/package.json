@@ -15,6 +15,8 @@
   },
   "dependencies": {
     "@mastra/agent-browser": "^0.2.0",
+    "@mastra/ai-sdk": "^1.4.1",
+    "@mastra/auth-auth0": "^1.0.1",
     "@mastra/core": "^1.26.0",
     "@mastra/duckdb": "1.1.2",
     "@mastra/editor": "^0.7.17",
@@ -25,6 +27,7 @@
     "@mastra/memory": "^1.16.0",
     "@mastra/observability": "^1.10.0",
     "@resume-builder/entities": "file:../entities",
+    "graphql": "^16.13.2",
     "outdent": "^0.8.0",
     "zod": "^4.3.6"
   },
