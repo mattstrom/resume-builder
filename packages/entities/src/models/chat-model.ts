@@ -14,6 +14,4 @@ export class ChatModelSelectionModel {
 	model: string;
 }
 
-export const ChatModelSelectionSchema = SchemaFactory.createForClass(
-	ChatModelSelectionModel,
-);
+export const ChatModelSelectionSchema = SchemaFactory.createForClass(ChatModelSelectionModel);

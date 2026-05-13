@@ -1,21 +1,17 @@
-import { Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Logger } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
-import {
-	analysisSchema,
-	jobSummarySchema,
-	NarrativeSummary,
-} from '@resume-builder/entities';
+import { analysisSchema, jobSummarySchema, NarrativeSummary } from '@resume-builder/entities';
 import { Job } from 'bullmq';
 import { outdent } from 'outdent';
 
 import configuration from '../../../configuration';
-import { FIT_ASSESSOR_SYSTEM_PROMPT } from './fit-assessor.rubric';
-import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
-import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
 import { ApplicationsService } from '../../entities/applications/applications.service';
 import { ProfilesService } from '../../entities/profiles/profiles.service';
+import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
+import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
 import { QUEUES } from '../queues';
+import { FIT_ASSESSOR_SYSTEM_PROMPT } from './fit-assessor.rubric';
 import { JobAssessmentCompletedEvent } from './job-assessment-completed.event';
 
 interface JobAssessmentJobData {
@@ -25,8 +21,7 @@ interface JobAssessmentJobData {
 
 const JOB_SUMMARY_TOOL: LlmToolDefinition = {
 	name: 'extract_job_summary',
-	description:
-		'Extract a structured summary of job requirements from the posting.',
+	description: 'Extract a structured summary of job requirements from the posting.',
 	inputSchema: {
 		type: 'object',
 		properties: {
@@ -54,8 +49,7 @@ const ANALYSIS_TOOL: LlmToolDefinition = {
 		properties: {
 			skillRelevance: {
 				type: 'number',
-				description:
-					'Score 0-1 per rubric: skill coverage of JD requirements',
+				description: 'Score 0-1 per rubric: skill coverage of JD requirements',
 			},
 			experienceRelevance: {
 				type: 'number',
@@ -63,23 +57,19 @@ const ANALYSIS_TOOL: LlmToolDefinition = {
 			},
 			roleLevelFit: {
 				type: 'number',
-				description:
-					'Score 0-1 per rubric: role level vs. candidate target level',
+				description: 'Score 0-1 per rubric: role level vs. candidate target level',
 			},
 			locationFit: {
 				type: 'number',
-				description:
-					'Score 0-1 per rubric: location policy vs. candidate preferences',
+				description: 'Score 0-1 per rubric: location policy vs. candidate preferences',
 			},
 			compensationFit: {
 				type: 'number',
-				description:
-					'Score 0-1 per rubric: compensation vs. candidate target range',
+				description: 'Score 0-1 per rubric: compensation vs. candidate target range',
 			},
 			companyFit: {
 				type: 'number',
-				description:
-					'Score 0-1 per rubric: company stage, domain, culture fit',
+				description: 'Score 0-1 per rubric: company stage, domain, culture fit',
 			},
 			logisticalFit: {
 				type: 'number',
@@ -149,10 +139,7 @@ function formatNarrativeSummary(summary: NarrativeSummary): string {
 	if (summary.projects.length > 0) {
 		lines.push('Projects:');
 		for (const proj of summary.projects) {
-			const tech =
-				proj.technologies.length > 0
-					? ` (${proj.technologies.join(', ')})`
-					: '';
+			const tech = proj.technologies.length > 0 ? ` (${proj.technologies.join(', ')})` : '';
 			lines.push(`${proj.name}: ${proj.description}${tech}`);
 		}
 	}
@@ -182,19 +169,12 @@ export class JobAssessmentProcessor extends WorkerHost {
 
 	async process(job: Job<JobAssessmentJobData>): Promise<void> {
 		const { applicationId, uid } = job.data;
-		this.logger.log(
-			`Processing job-assessment job ${job.id} for application ${applicationId}`,
-		);
+		this.logger.log(`Processing job-assessment job ${job.id} for application ${applicationId}`);
 
-		const application = await this.applicationsService.find(
-			uid,
-			applicationId,
-		);
+		const application = await this.applicationsService.find(uid, applicationId);
 
 		if (!application.jobDescription) {
-			throw new Error(
-				`Application ${applicationId} has no jobDescription`,
-			);
+			throw new Error(`Application ${applicationId} has no jobDescription`);
 		}
 
 		const profile = await this.profilesService.findOne(uid);
@@ -206,16 +186,13 @@ export class JobAssessmentProcessor extends WorkerHost {
 		const hasJobPreferences = jobPreferencesText.length > 0;
 
 		const candidateResumeText = profile?.narrativeSummary
-			? formatNarrativeSummary(
-					profile.narrativeSummary as NarrativeSummary,
-				)
+			? formatNarrativeSummary(profile.narrativeSummary as NarrativeSummary)
 			: profile?.narrative
 				? stripXmlTags(profile.narrative)
 				: '';
 		const hasCandidateResume = candidateResumeText.length > 0;
 
-		const { provider: providerName, model } =
-			configuration.llms.jobAssessment;
+		const { provider: providerName, model } = configuration.llms.jobAssessment;
 		const provider = this.llmRegistry.getProvider(providerName);
 		const toolResults: Record<string, Record<string, unknown>> = {};
 
@@ -262,8 +239,6 @@ export class JobAssessmentProcessor extends WorkerHost {
 			analysis,
 		} as any);
 
-		this.eventBus.publish(
-			new JobAssessmentCompletedEvent(String(job.id), applicationId, uid),
-		);
+		this.eventBus.publish(new JobAssessmentCompletedEvent(String(job.id), applicationId, uid));
 	}
 }

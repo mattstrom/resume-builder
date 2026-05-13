@@ -1,9 +1,6 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type SelectProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'select' }
->;
+export type SelectProperty = Extract<DatabasePropertyConfigResponse, { type: 'select' }>;
 
 export interface SelectOption {
 	id: string;
@@ -20,9 +17,7 @@ export class SelectAdapter extends Adapter<SelectProperty, SelectOption[]> {
 		return (this.property.select?.options as SelectOption[]) ?? [];
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is SelectProperty {
+	static is(property: DatabasePropertyConfigResponse): property is SelectProperty {
 		return property.type === 'select';
 	}
 }

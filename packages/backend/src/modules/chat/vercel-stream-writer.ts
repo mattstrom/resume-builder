@@ -3,10 +3,7 @@ import type { Response } from 'express';
 /**
  * Writes a Vercel AI SDK UI message stream chunk as an SSE event.
  */
-export function writeChunk(
-	res: Response,
-	chunk: Record<string, unknown>,
-): void {
+export function writeChunk(res: Response, chunk: Record<string, unknown>): void {
 	res.write(`data: ${JSON.stringify(chunk)}\n\n`);
 }
 

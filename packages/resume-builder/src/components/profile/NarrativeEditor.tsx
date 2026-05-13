@@ -1,15 +1,9 @@
-import { useStore } from '@/stores/store.provider.tsx';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
-import {
-	Table,
-	TableCell,
-	TableHeader,
-	TableRow,
-} from '@tiptap/extension-table';
+import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import TextAlign from '@tiptap/extension-text-align';
@@ -19,20 +13,19 @@ import { observer } from 'mobx-react';
 import { type FC, useEffect } from 'react';
 import type * as Y from 'yjs';
 
+import { useStore } from '@/stores/store.provider.tsx';
+
+import { Details } from './extensions/details.extension.tsx';
 import { NarrativeBubbleMenu } from './NarrativeBubbleMenu.tsx';
 import { NarrativeToolbar } from './NarrativeToolbar.tsx';
-import { Details } from './extensions/details.extension.tsx';
+
 import './tiptap.css';
 
 // NOTE: The extension set here must match the set used by the server's
 // narrative markdown serializer in
 // packages/crdt/src/modules/storage/narrative-serializer.ts. A mismatch
 // will corrupt the Yjs XmlFragment.
-const buildExtensions = (
-	doc: Y.Doc,
-	provider: HocuspocusProvider,
-	userName: string,
-) => [
+const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: string) => [
 	// Collaboration provides undo/redo via the Yjs undo manager, so disable
 	// StarterKit's history extension.
 	StarterKit.configure({ undoRedo: false }),
@@ -120,25 +113,16 @@ export const NarrativeEditor: FC = observer(() => {
 		<div className="flex h-full w-full flex-col gap-3 p-6">
 			<div className="flex items-baseline justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold text-foreground">
-						Narrative
-					</h1>
+					<h1 className="text-2xl font-semibold text-foreground">Narrative</h1>
 					<p className="text-sm text-muted-foreground">
-						Describe your work history in your own words. This will
-						be used to extract structured data later.
+						Describe your work history in your own words. This will be used to extract
+						structured data later.
 					</p>
 				</div>
-				<span className="text-xs text-muted-foreground">
-					{profileStore.status}
-				</span>
+				<span className="text-xs text-muted-foreground">{profileStore.status}</span>
 			</div>
 			{doc && provider ? (
-				<EditorShell
-					key={doc.guid}
-					doc={doc}
-					provider={provider}
-					userName={userName}
-				/>
+				<EditorShell key={doc.guid} doc={doc} provider={provider} userName={userName} />
 			) : (
 				<div className="flex flex-1 items-center justify-center rounded-md border border-input bg-background text-sm text-muted-foreground shadow-sm">
 					Connecting…

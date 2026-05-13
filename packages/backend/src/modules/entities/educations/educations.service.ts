@@ -16,29 +16,20 @@ export class EducationsService {
 	}
 
 	async find(uid: string, id: string): Promise<Education | null> {
-		const result = await this.educationModel
-			.findOne({ _id: id, uid })
-			.exec();
+		const result = await this.educationModel.findOne({ _id: id, uid }).exec();
 		if (!result) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}
 		return result.toObject();
 	}
 
-	async create(
-		uid: string,
-		educationData: EducationInput,
-	): Promise<Education> {
+	async create(uid: string, educationData: EducationInput): Promise<Education> {
 		const created = new this.educationModel({ ...educationData, uid });
 		const saved = await created.save();
 		return saved.toObject();
 	}
 
-	async update(
-		uid: string,
-		id: string,
-		educationData: EducationInput,
-	): Promise<Education> {
+	async update(uid: string, id: string, educationData: EducationInput): Promise<Education> {
 		const updated = await this.educationModel
 			.findOneAndUpdate({ _id: id, uid }, educationData, { new: true })
 			.exec();
@@ -51,9 +42,7 @@ export class EducationsService {
 	}
 
 	async delete(uid: string, id: string): Promise<void> {
-		const result = await this.educationModel
-			.findOneAndDelete({ _id: id, uid })
-			.exec();
+		const result = await this.educationModel.findOneAndDelete({ _id: id, uid }).exec();
 		if (!result) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}

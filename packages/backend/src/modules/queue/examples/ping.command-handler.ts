@@ -14,9 +14,7 @@ export class PingCommandHandler implements ICommandHandler<PingCommand> {
 
 	async execute(command: PingCommand): Promise<PingCommandResult> {
 		const job = await this.queue.add('ping', { message: command.message });
-		this.logger.log(
-			`Enqueued ping job ${job.id} with message="${command.message}"`,
-		);
+		this.logger.log(`Enqueued ping job ${job.id} with message="${command.message}"`);
 		return { jobId: String(job.id) };
 	}
 }

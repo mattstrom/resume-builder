@@ -1,7 +1,3 @@
-import { PromptInputProvider } from '@/components/ai-elements/prompt-input.tsx';
-import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
-import { Button } from '@/components/ui/button';
-import { useStore } from '@/stores/store.provider.tsx';
 import { useChat } from '@ai-sdk/react';
 import { useParams } from '@tanstack/react-router';
 import { X } from 'lucide-react';
@@ -9,24 +5,19 @@ import { autorun } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { type FC, useEffect, useRef, useState } from 'react';
 
+import { PromptInputProvider } from '@/components/ai-elements/prompt-input.tsx';
+import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
+import { Button } from '@/components/ui/button';
+import { useStore } from '@/stores/store.provider.tsx';
+
 import {
 	Conversation,
 	ConversationContent,
 	ConversationEmptyState,
 	ConversationScrollButton,
 } from '../ai-elements/conversation';
-import {
-	Message,
-	MessageContent,
-	MessageResponse,
-} from '../ai-elements/message';
-import {
-	Tool,
-	ToolContent,
-	ToolHeader,
-	ToolInput,
-	ToolOutput,
-} from '../ai-elements/tool';
+import { Message, MessageContent, MessageResponse } from '../ai-elements/message';
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from '../ai-elements/tool';
 import { ConversationList } from '../ConversationList';
 
 export const ChatPanel: FC = observer(() => {
@@ -52,8 +43,7 @@ export const ChatPanel: FC = observer(() => {
 	useEffect(
 		() =>
 			autorun(() => {
-				const { activeConversation, activeConversationId } =
-					conversationService;
+				const { activeConversation, activeConversationId } = conversationService;
 				if (!activeConversation) {
 					if (!activeConversationId) {
 						setMessages([]);
@@ -84,15 +74,11 @@ export const ChatPanel: FC = observer(() => {
 			<div className="flex items-center justify-between px-4 py-3 border-b border-border">
 				<div className="min-w-0 flex-1">
 					<h2 className="text-sm font-semibold text-foreground truncate">
-						{conversationInfo
-							? conversationInfo.title
-							: 'AI Assistant'}
+						{conversationInfo ? conversationInfo.title : 'AI Assistant'}
 					</h2>
 					{conversationInfo && (
 						<p className="text-[10px] text-muted-foreground">
-							{new Date(
-								conversationInfo.createdAt,
-							).toLocaleString()}
+							{new Date(conversationInfo.createdAt).toLocaleString()}
 						</p>
 					)}
 				</div>
@@ -135,45 +121,26 @@ export const ChatPanel: FC = observer(() => {
 											{message.parts.map((part, i) => {
 												if (part.type === 'text') {
 													return (
-														<MessageResponse
-															key={i}
-														>
+														<MessageResponse key={i}>
 															{part.text}
 														</MessageResponse>
 													);
 												}
-												if (
-													part.type.startsWith(
-														'tool-',
-													)
-												) {
-													const toolPart =
-														part as any;
-													const toolName =
-														part.type.slice(5);
+												if (part.type.startsWith('tool-')) {
+													const toolPart = part as any;
+													const toolName = part.type.slice(5);
 													return (
 														<Tool key={i}>
 															<ToolHeader
-																type={
-																	part.type as any
-																}
-																state={
-																	toolPart.state
-																}
+																type={part.type as any}
+																state={toolPart.state}
 																title={toolName}
 															/>
 															<ToolContent>
-																<ToolInput
-																	input={
-																		toolPart.input
-																	}
-																/>
-																{toolPart.output !==
-																	undefined && (
+																<ToolInput input={toolPart.input} />
+																{toolPart.output !== undefined && (
 																	<ToolOutput
-																		output={
-																			toolPart.output
-																		}
+																		output={toolPart.output}
 																		errorText={
 																			toolPart.errorText
 																		}

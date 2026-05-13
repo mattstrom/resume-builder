@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import { connectMongoose } from '../utils/database';
 
 const COLLECTIONS = [
@@ -23,9 +24,7 @@ async function main() {
 		process.exit(1);
 	}
 
-	console.log(
-		`Adding uid field to existing documents with uid=${DEFAULT_UID}`,
-	);
+	console.log(`Adding uid field to existing documents with uid=${DEFAULT_UID}`);
 
 	await using db = await connectMongoose({
 		url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
@@ -60,9 +59,7 @@ async function main() {
 				{ writeConcern: { w: 'majority' } },
 			);
 
-			console.log(
-				`Updated ${result.modifiedCount} of ${result.matchedCount} documents`,
-			);
+			console.log(`Updated ${result.modifiedCount} of ${result.matchedCount} documents`);
 		}
 
 		// Create index on uid

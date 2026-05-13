@@ -5,9 +5,7 @@ import { JobAssessmentCompletedEvent } from './job-assessment-completed.event';
 
 @EventsHandler(JobAssessmentCompletedEvent)
 export class JobAssessmentCompletedEventHandler implements IEventHandler<JobAssessmentCompletedEvent> {
-	private readonly logger = new Logger(
-		JobAssessmentCompletedEventHandler.name,
-	);
+	private readonly logger = new Logger(JobAssessmentCompletedEventHandler.name);
 
 	handle(event: JobAssessmentCompletedEvent): void {
 		this.logger.log(

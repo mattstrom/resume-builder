@@ -6,8 +6,7 @@ import type {
 
 import configuration from '../../configuration';
 
-type ConfiguredProvider = keyof typeof configuration.llms &
-	('anthropic' | 'ollama' | 'lmStudio');
+type ConfiguredProvider = keyof typeof configuration.llms & ('anthropic' | 'ollama' | 'lmStudio');
 
 const PROVIDER_METADATA: Record<
 	ConfiguredProvider,
@@ -62,8 +61,6 @@ export function getChatModelCatalog(): ChatModelsResponse {
 
 export function isConfiguredChatModel(selection: ChatModelSelection): boolean {
 	return getChatModelCatalog().models.some(
-		(model) =>
-			model.provider === selection.provider &&
-			model.model === selection.model,
+		(model) => model.provider === selection.provider && model.model === selection.model,
 	);
 }

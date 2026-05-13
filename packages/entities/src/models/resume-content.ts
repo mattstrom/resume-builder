@@ -1,6 +1,7 @@
 import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
+
 import {
 	ContactInformationInput,
 	contactInformationSchema,
@@ -10,18 +11,9 @@ import {
 } from './contact-information.js';
 import { Education, educationSchema, EducationSchema } from './education.js';
 import { Job, JobInput, JobSchema, jobSchema } from './job.js';
-import {
-	Project,
-	ProjectInput,
-	ProjectSchema,
-	projectSchema,
-} from './project.js';
+import { Project, ProjectInput, ProjectSchema, projectSchema } from './project.js';
+import { SkillGroup, SkillGroupInput, SkillGroupSchema } from './skill-group.js';
 import { Skill, SkillInput, SkillSchema, skillSchema } from './skill.js';
-import {
-	SkillGroup,
-	SkillGroupInput,
-	SkillGroupSchema,
-} from './skill-group.js';
 import {
 	Volunteering,
 	VolunteeringInput,
@@ -31,8 +23,7 @@ import {
 
 @Schema({ versionKey: false })
 @ObjectType({
-	description:
-		'Content of the resume, as opposed to the Resume object which holds metadata.',
+	description: 'Content of the resume, as opposed to the Resume object which holds metadata.',
 })
 export class ResumeContent {
 	@Field(() => ID)

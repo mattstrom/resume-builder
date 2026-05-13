@@ -1,5 +1,6 @@
 import type { Application } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
+
 import { HomePageStore } from './home-page.store.ts';
 
 function createApplication(
@@ -45,10 +46,7 @@ describe('HomePageStore', () => {
 			},
 		);
 
-		expect(store.sortedApplications.map((item) => item._id)).toEqual([
-			'newer',
-			'older',
-		]);
+		expect(store.sortedApplications.map((item) => item._id)).toEqual(['newer', 'older']);
 		expect(store.continueApplication?._id).toBe('newer');
 	});
 
@@ -87,16 +85,13 @@ describe('HomePageStore', () => {
 
 	it('derives the first name from the authenticated user', () => {
 		expect(
-			new HomePageStore(
-				{ user: { given_name: 'Matt', name: 'Matt Strom' } },
-				{ data: [] },
-			).firstName,
-		).toBe('Matt');
-
-		expect(
-			new HomePageStore({ user: { name: 'Matt Strom' } }, { data: [] })
+			new HomePageStore({ user: { given_name: 'Matt', name: 'Matt Strom' } }, { data: [] })
 				.firstName,
 		).toBe('Matt');
+
+		expect(new HomePageStore({ user: { name: 'Matt Strom' } }, { data: [] }).firstName).toBe(
+			'Matt',
+		);
 	});
 
 	it('normalizes company labels and formats dates', () => {
@@ -105,10 +100,8 @@ describe('HomePageStore', () => {
 		expect(store.normalizeCompany('')).toBe('No company');
 		expect(store.normalizeCompany('   ')).toBe('No company');
 		expect(store.normalizeCompany(undefined)).toBe('No company');
-		expect(
-			store.formatApplicationUpdatedAt(
-				new Date('2024-01-01T10:00:00.000Z'),
-			),
-		).toMatch(/2024|Jan|January/);
+		expect(store.formatApplicationUpdatedAt(new Date('2024-01-01T10:00:00.000Z'))).toMatch(
+			/2024|Jan|January/,
+		);
 	});
 });

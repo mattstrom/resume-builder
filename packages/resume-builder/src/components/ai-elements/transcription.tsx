@@ -1,11 +1,11 @@
 'use client';
 
+import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import type { Experimental_TranscriptionResult as TranscriptionResult } from 'ai';
 import type { ComponentProps, ReactNode } from 'react';
-
-import { useControllableState } from '@radix-ui/react-use-controllable-state';
-import { cn } from '@/lib/utils';
 import { createContext, useCallback, useContext, useMemo } from 'react';
+
+import { cn } from '@/lib/utils';
 
 type TranscriptionSegment = TranscriptionResult['segments'][number];
 
@@ -16,16 +16,12 @@ interface TranscriptionContextValue {
 	onSeek?: (time: number) => void;
 }
 
-const TranscriptionContext = createContext<TranscriptionContextValue | null>(
-	null,
-);
+const TranscriptionContext = createContext<TranscriptionContextValue | null>(null);
 
 const useTranscription = () => {
 	const context = useContext(TranscriptionContext);
 	if (!context) {
-		throw new Error(
-			'Transcription components must be used within Transcription',
-		);
+		throw new Error('Transcription components must be used within Transcription');
 	}
 	return context;
 };
@@ -59,10 +55,7 @@ export const Transcription = ({
 	return (
 		<TranscriptionContext.Provider value={contextValue}>
 			<div
-				className={cn(
-					'flex flex-wrap gap-1 text-sm leading-relaxed',
-					className,
-				)}
+				className={cn('flex flex-wrap gap-1 text-sm leading-relaxed', className)}
 				data-slot="transcription"
 				{...props}
 			>
@@ -88,8 +81,7 @@ export const TranscriptionSegment = ({
 }: TranscriptionSegmentProps) => {
 	const { currentTime, onSeek } = useTranscription();
 
-	const isActive =
-		currentTime >= segment.startSecond && currentTime < segment.endSecond;
+	const isActive = currentTime >= segment.startSecond && currentTime < segment.endSecond;
 	const isPast = currentTime >= segment.endSecond;
 
 	const handleClick = useCallback(

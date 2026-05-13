@@ -1,4 +1,3 @@
-import { TailorView } from '@/components/TailorView.tsx';
 import { useParams } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
@@ -7,9 +6,10 @@ import { AnalysisView } from '@/components/AnalysisView.tsx';
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
 import { TailorInsightsView } from '@/components/TailorInsightsView.tsx';
+import { TailorView } from '@/components/TailorView.tsx';
 import { ThreeColumnView } from '@/components/ThreeColumnView.tsx';
-import { Mode } from '@/stores/ui-state.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
+import { Mode } from '@/stores/ui-state.store.ts';
 
 import './Workspace.css';
 

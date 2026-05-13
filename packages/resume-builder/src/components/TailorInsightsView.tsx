@@ -1,13 +1,9 @@
-import { useStore } from '@/stores/store.provider.tsx';
 import Editor from '@monaco-editor/react';
 import { observer } from 'mobx-react';
 import { type FC, useMemo } from 'react';
-import {
-	Group,
-	Panel,
-	Separator,
-	useDefaultLayout,
-} from 'react-resizable-panels';
+import { Group, Panel, Separator, useDefaultLayout } from 'react-resizable-panels';
+
+import { useStore } from '@/stores/store.provider.tsx';
 
 interface ReadonlyJsonEditorProps {
 	value: unknown;
@@ -64,30 +60,14 @@ export const TailorInsightsView: FC = observer(() => {
 			defaultLayout={defaultLayout}
 			onLayoutChanged={onLayoutChanged}
 		>
-			<Panel
-				id="summary"
-				defaultSize="50%"
-				minSize="20%"
-				className="workspace-panel"
-			>
-				<TailorSection
-					title="Job Summary"
-					value={selectedApplication?.jobSummary}
-				/>
+			<Panel id="summary" defaultSize="50%" minSize="20%" className="workspace-panel">
+				<TailorSection title="Job Summary" value={selectedApplication?.jobSummary} />
 			</Panel>
 
 			<Separator className="resize-handle resize-handle-vertical" />
 
-			<Panel
-				id="analysis"
-				defaultSize="50%"
-				minSize="20%"
-				className="workspace-panel"
-			>
-				<TailorSection
-					title="Job Analysis"
-					value={selectedApplication?.analysis}
-				/>
+			<Panel id="analysis" defaultSize="50%" minSize="20%" className="workspace-panel">
+				<TailorSection title="Job Analysis" value={selectedApplication?.analysis} />
 			</Panel>
 		</Group>
 	);

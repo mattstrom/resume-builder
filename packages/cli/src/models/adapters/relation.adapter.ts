@@ -1,18 +1,12 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type RelationProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'relation' }
->;
+export type RelationProperty = Extract<DatabasePropertyConfigResponse, { type: 'relation' }>;
 
 export interface RelationReference {
 	id: string;
 }
 
-export class RelationAdapter extends Adapter<
-	RelationProperty,
-	RelationReference[]
-> {
+export class RelationAdapter extends Adapter<RelationProperty, RelationReference[]> {
 	constructor(private readonly property: RelationProperty) {
 		super();
 	}
@@ -29,9 +23,7 @@ export class RelationAdapter extends Adapter<
 		return this.get().map((r) => r.id);
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is RelationProperty {
+	static is(property: DatabasePropertyConfigResponse): property is RelationProperty {
 		return property.type === 'relation';
 	}
 }

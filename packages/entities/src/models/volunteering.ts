@@ -1,11 +1,4 @@
-import {
-	Field,
-	Float,
-	ID,
-	InputType,
-	ObjectType,
-	OmitType,
-} from '@nestjs/graphql';
+import { Field, Float, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
@@ -49,11 +42,7 @@ export class Volunteering {
 }
 
 @InputType()
-export class VolunteeringInput extends OmitType(
-	Volunteering,
-	['_id', 'uid'] as const,
-	InputType,
-) {
+export class VolunteeringInput extends OmitType(Volunteering, ['_id', 'uid'] as const, InputType) {
 	@Field(() => ID, { nullable: true })
 	_id?: string;
 }

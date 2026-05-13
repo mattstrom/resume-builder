@@ -1,5 +1,6 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { Job } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { JobsService } from './jobs.service';
 

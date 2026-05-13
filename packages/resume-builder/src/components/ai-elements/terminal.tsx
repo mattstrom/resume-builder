@@ -1,11 +1,8 @@
 'use client';
 
-import type { ComponentProps, HTMLAttributes } from 'react';
-
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import Ansi from 'ansi-to-react';
 import { CheckIcon, CopyIcon, TerminalIcon, Trash2Icon } from 'lucide-react';
+import type { ComponentProps, HTMLAttributes } from 'react';
 import {
 	createContext,
 	useCallback,
@@ -15,6 +12,9 @@ import {
 	useRef,
 	useState,
 } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 import { Shimmer } from './shimmer';
 
@@ -83,11 +83,7 @@ export const Terminal = ({
 
 export type TerminalHeaderProps = HTMLAttributes<HTMLDivElement>;
 
-export const TerminalHeader = ({
-	className,
-	children,
-	...props
-}: TerminalHeaderProps) => (
+export const TerminalHeader = ({ className, children, ...props }: TerminalHeaderProps) => (
 	<div
 		className={cn(
 			'flex items-center justify-between border-zinc-800 border-b px-4 py-2',
@@ -101,18 +97,8 @@ export const TerminalHeader = ({
 
 export type TerminalTitleProps = HTMLAttributes<HTMLDivElement>;
 
-export const TerminalTitle = ({
-	className,
-	children,
-	...props
-}: TerminalTitleProps) => (
-	<div
-		className={cn(
-			'flex items-center gap-2 text-sm text-zinc-400',
-			className,
-		)}
-		{...props}
-	>
+export const TerminalTitle = ({ className, children, ...props }: TerminalTitleProps) => (
+	<div className={cn('flex items-center gap-2 text-sm text-zinc-400', className)} {...props}>
 		<TerminalIcon className="size-4" />
 		{children ?? 'Terminal'}
 	</div>
@@ -120,11 +106,7 @@ export const TerminalTitle = ({
 
 export type TerminalStatusProps = HTMLAttributes<HTMLDivElement>;
 
-export const TerminalStatus = ({
-	className,
-	children,
-	...props
-}: TerminalStatusProps) => {
+export const TerminalStatus = ({ className, children, ...props }: TerminalStatusProps) => {
 	const { isStreaming } = useContext(TerminalContext);
 
 	if (!isStreaming) {
@@ -132,13 +114,7 @@ export const TerminalStatus = ({
 	}
 
 	return (
-		<div
-			className={cn(
-				'flex items-center gap-2 text-xs text-zinc-400',
-				className,
-			)}
-			{...props}
-		>
+		<div className={cn('flex items-center gap-2 text-xs text-zinc-400', className)} {...props}>
 			{children ?? <Shimmer className="w-16" />}
 		</div>
 	);
@@ -146,11 +122,7 @@ export const TerminalStatus = ({
 
 export type TerminalActionsProps = HTMLAttributes<HTMLDivElement>;
 
-export const TerminalActions = ({
-	className,
-	children,
-	...props
-}: TerminalActionsProps) => (
+export const TerminalActions = ({ className, children, ...props }: TerminalActionsProps) => (
 	<div className={cn('flex items-center gap-1', className)} {...props}>
 		{children}
 	</div>
@@ -184,10 +156,7 @@ export const TerminalCopyButton = ({
 			await navigator.clipboard.writeText(output);
 			setIsCopied(true);
 			onCopy?.();
-			timeoutRef.current = window.setTimeout(
-				() => setIsCopied(false),
-				timeout,
-			);
+			timeoutRef.current = window.setTimeout(() => setIsCopied(false), timeout);
 		} catch (error) {
 			onError?.(error as Error);
 		}
@@ -249,11 +218,7 @@ export const TerminalClearButton = ({
 
 export type TerminalContentProps = HTMLAttributes<HTMLDivElement>;
 
-export const TerminalContent = ({
-	className,
-	children,
-	...props
-}: TerminalContentProps) => {
+export const TerminalContent = ({ className, children, ...props }: TerminalContentProps) => {
 	const { output, isStreaming, autoScroll } = useContext(TerminalContext);
 	const containerRef = useRef<HTMLDivElement>(null);
 

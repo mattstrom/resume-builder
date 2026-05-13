@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import { connectMongoose } from '../utils/database.js';
 
 const RELEVANCE_COLLECTIONS = ['jobs', 'skills', 'volunteerings', 'projects'];
@@ -38,8 +39,7 @@ async function main() {
 	{
 		console.log(`\n--- Processing collection: ${PROJECT_COLLECTION} ---`);
 
-		const collection =
-			mongoose.connection.db!.collection(PROJECT_COLLECTION);
+		const collection = mongoose.connection.db!.collection(PROJECT_COLLECTION);
 		const missingCount = await collection.countDocuments({
 			type: { $exists: false },
 		});
@@ -63,13 +63,9 @@ async function main() {
 		.hasNext();
 
 	if (hasResumeContents) {
-		console.log(
-			`\n--- Processing embedded documents in ${RESUME_CONTENTS_COLLECTION} ---`,
-		);
+		console.log(`\n--- Processing embedded documents in ${RESUME_CONTENTS_COLLECTION} ---`);
 
-		const collection = mongoose.connection.db!.collection(
-			RESUME_CONTENTS_COLLECTION,
-		);
+		const collection = mongoose.connection.db!.collection(RESUME_CONTENTS_COLLECTION);
 
 		// Add relevance to embedded workExperience items
 		let result = await collection.updateMany(
@@ -80,9 +76,7 @@ async function main() {
 			{ $set: { 'workExperience.$[].relevance': null } },
 			{ writeConcern: { w: 'majority' } },
 		);
-		console.log(
-			`Updated workExperience in ${result.modifiedCount} documents`,
-		);
+		console.log(`Updated workExperience in ${result.modifiedCount} documents`);
 
 		// Add relevance to embedded skills items
 		result = await collection.updateMany(
@@ -104,9 +98,7 @@ async function main() {
 			{ $set: { 'volunteering.$[].relevance': null } },
 			{ writeConcern: { w: 'majority' } },
 		);
-		console.log(
-			`Updated volunteering in ${result.modifiedCount} documents`,
-		);
+		console.log(`Updated volunteering in ${result.modifiedCount} documents`);
 
 		// Add relevance to embedded projects items
 		result = await collection.updateMany(
@@ -117,9 +109,7 @@ async function main() {
 			{ $set: { 'projects.$[].relevance': null } },
 			{ writeConcern: { w: 'majority' } },
 		);
-		console.log(
-			`Updated projects relevance in ${result.modifiedCount} documents`,
-		);
+		console.log(`Updated projects relevance in ${result.modifiedCount} documents`);
 
 		// Add type to embedded projects items
 		result = await collection.updateMany(
@@ -130,9 +120,7 @@ async function main() {
 			{ $set: { 'projects.$[].type': null } },
 			{ writeConcern: { w: 'majority' } },
 		);
-		console.log(
-			`Updated projects type in ${result.modifiedCount} documents`,
-		);
+		console.log(`Updated projects type in ${result.modifiedCount} documents`);
 	}
 
 	console.log('\nMigration completed successfully!');

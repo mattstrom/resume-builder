@@ -1,5 +1,9 @@
 import type { Application, Resume } from '@resume-builder/entities';
 import { action, makeObservable, observable, runInAction } from 'mobx';
+
+import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
+import { ApiResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
+
 import { client as apolloClient } from '../apollo-client.ts';
 import { CREATE_BLANK_RESUME } from '../graphql/mutations.ts';
 import { GET_APPLICATION, LIST_RESUMES } from '../graphql/queries.ts';
@@ -11,11 +15,6 @@ import type {
 	ListResumesData,
 	ListResumesVariables,
 } from '../graphql/types.ts';
-import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
-import {
-	ApiResumeController,
-	LocalResumeController,
-} from '@/lib/resume-document-controller.ts';
 import type { RootStore } from './root.store.ts';
 
 export class EditorStore {
@@ -30,8 +29,7 @@ export class EditorStore {
 	@observable selectedFile: string | null = null;
 	readonly isSupported = 'showDirectoryPicker' in window;
 
-	private controller: ApiResumeController | LocalResumeController | null =
-		null;
+	private controller: ApiResumeController | LocalResumeController | null = null;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -91,10 +89,7 @@ export class EditorStore {
 				(err.name === 'AbortError' || err.message.includes('aborted'));
 			if (!isAbortError) {
 				runInAction(() => {
-					this.error =
-						err instanceof Error
-							? err.message
-							: 'Failed to load application';
+					this.error = err instanceof Error ? err.message : 'Failed to load application';
 					this.selectedApiApplicationId = null;
 					this.selectedApplication = null;
 				});
@@ -143,18 +138,12 @@ export class EditorStore {
 			if (!newResume) return;
 
 			runInAction(() => {
-				this.applicationResumes = [
-					...this.applicationResumes,
-					newResume,
-				];
+				this.applicationResumes = [...this.applicationResumes, newResume];
 			});
 			await this.selectResume(newResume._id);
 		} catch (err) {
 			runInAction(() => {
-				this.error =
-					err instanceof Error
-						? err.message
-						: 'Failed to create resume';
+				this.error = err instanceof Error ? err.message : 'Failed to create resume';
 			});
 		}
 	}

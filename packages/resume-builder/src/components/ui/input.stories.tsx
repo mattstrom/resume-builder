@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
+import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
-import { Button } from './button';
 
 const meta: Meta<typeof Input> = {
 	title: 'UI/Input',

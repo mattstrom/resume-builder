@@ -1,3 +1,8 @@
+import { Plus, Trash2, X } from 'lucide-react';
+import { observer } from 'mobx-react';
+import { type FC, type KeyboardEvent, useEffect, useReducer, useRef, useState } from 'react';
+import * as Y from 'yjs';
+
 import {
 	Accordion,
 	AccordionContent,
@@ -7,19 +12,8 @@ import {
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
-import { Plus, Trash2, X } from 'lucide-react';
-import { observer } from 'mobx-react';
-import {
-	type FC,
-	type KeyboardEvent,
-	useEffect,
-	useReducer,
-	useRef,
-	useState,
-} from 'react';
-import * as Y from 'yjs';
 import { formatKey } from '@/lib/format-key.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 // ─── Seed skeleton (matches scratch/preferences.yaml) ───────────────────────
 
@@ -147,11 +141,7 @@ const ArrayField: FC<ArrayFieldProps> = ({ arr }) => {
 		<div className="flex flex-col gap-1.5">
 			<div className="flex flex-wrap gap-1.5">
 				{items.map((item, i) => (
-					<Badge
-						key={i}
-						variant="secondary"
-						className="gap-1 pr-1 text-xs font-normal"
-					>
+					<Badge key={i} variant="secondary" className="gap-1 pr-1 text-xs font-normal">
 						{item}
 						<button
 							onClick={() => arr.delete(i, 1)}
@@ -172,12 +162,7 @@ const ArrayField: FC<ArrayFieldProps> = ({ arr }) => {
 					placeholder="Add item…"
 					className="h-7 flex-1 text-xs"
 				/>
-				<Button
-					size="sm"
-					variant="ghost"
-					className="h-7 px-2"
-					onClick={addItem}
-				>
+				<Button size="sm" variant="ghost" className="h-7 px-2" onClick={addItem}>
 					<Plus className="h-3.5 w-3.5" />
 				</Button>
 			</div>
@@ -217,10 +202,7 @@ const SectionContent: FC<SectionContentProps> = ({ map }) => {
 							<Trash2 className="h-3 w-3" />
 						</button>
 					</div>
-					<ValueRenderer
-						value={value}
-						onChange={(v) => map.set(key, v)}
-					/>
+					<ValueRenderer value={value} onChange={(v) => map.set(key, v)} />
 				</div>
 			))}
 			<div className="flex gap-1.5 pt-1 border-t border-dashed border-border">
@@ -233,12 +215,7 @@ const SectionContent: FC<SectionContentProps> = ({ map }) => {
 					placeholder="New field name…"
 					className="h-7 flex-1 text-xs"
 				/>
-				<Button
-					size="sm"
-					variant="ghost"
-					className="h-7 px-2"
-					onClick={addField}
-				>
+				<Button size="sm" variant="ghost" className="h-7 px-2" onClick={addField}>
 					<Plus className="h-3.5 w-3.5" />
 				</Button>
 			</div>
@@ -306,17 +283,13 @@ export const JobPreferencesEditor: FC = observer(() => {
 		<div className="flex h-full w-full flex-col gap-3 p-6">
 			<div className="flex items-baseline justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold text-foreground">
-						Job Preferences
-					</h1>
+					<h1 className="text-2xl font-semibold text-foreground">Job Preferences</h1>
 					<p className="text-sm text-muted-foreground">
-						Your job search criteria and career preferences. Used
-						for fit scoring and tailoring applications.
+						Your job search criteria and career preferences. Used for fit scoring and
+						tailoring applications.
 					</p>
 				</div>
-				<span className="text-xs text-muted-foreground">
-					{profileStore.status}
-				</span>
+				<span className="text-xs text-muted-foreground">{profileStore.status}</span>
 			</div>
 
 			{jobPreferencesMap ? (
@@ -328,52 +301,41 @@ export const JobPreferencesEditor: FC = observer(() => {
 							onValueChange={setOpenSections}
 							className="flex flex-col gap-1"
 						>
-							{Array.from(jobPreferencesMap.entries()).map(
-								([key, value]) => (
-									<AccordionItem
-										key={key}
-										value={key}
-										className="rounded-md border border-border px-3"
-									>
-										<AccordionTrigger className="py-2 text-sm font-medium hover:no-underline">
-											<div className="flex flex-1 items-center justify-between pr-2">
-												<span>{formatKey(key)}</span>
-												<button
-													onClick={(e) => {
-														e.stopPropagation();
-														jobPreferencesMap.delete(
-															key,
-														);
-													}}
-													className="opacity-40 hover:opacity-80 transition-opacity"
-												>
-													<Trash2 className="h-3.5 w-3.5" />
-												</button>
-											</div>
-										</AccordionTrigger>
-										<AccordionContent className="pb-3">
-											<ValueRenderer
-												value={value}
-												onChange={(v) =>
-													jobPreferencesMap.set(
-														key,
-														v,
-													)
-												}
-											/>
-										</AccordionContent>
-									</AccordionItem>
-								),
-							)}
+							{Array.from(jobPreferencesMap.entries()).map(([key, value]) => (
+								<AccordionItem
+									key={key}
+									value={key}
+									className="rounded-md border border-border px-3"
+								>
+									<AccordionTrigger className="py-2 text-sm font-medium hover:no-underline">
+										<div className="flex flex-1 items-center justify-between pr-2">
+											<span>{formatKey(key)}</span>
+											<button
+												onClick={(e) => {
+													e.stopPropagation();
+													jobPreferencesMap.delete(key);
+												}}
+												className="opacity-40 hover:opacity-80 transition-opacity"
+											>
+												<Trash2 className="h-3.5 w-3.5" />
+											</button>
+										</div>
+									</AccordionTrigger>
+									<AccordionContent className="pb-3">
+										<ValueRenderer
+											value={value}
+											onChange={(v) => jobPreferencesMap.set(key, v)}
+										/>
+									</AccordionContent>
+								</AccordionItem>
+							))}
 						</Accordion>
 
 						<div className="mt-3 flex gap-1.5">
 							<Input
 								value={newSection}
 								onChange={(e) => setNewSection(e.target.value)}
-								onKeyDown={(
-									e: KeyboardEvent<HTMLInputElement>,
-								) => {
+								onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
 									if (e.key === 'Enter') addSection();
 								}}
 								placeholder="Add section…"

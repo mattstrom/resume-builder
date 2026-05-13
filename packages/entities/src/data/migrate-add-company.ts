@@ -1,11 +1,10 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { connectMongoose } from '../utils/database';
+
 import { Resume } from '../models/resume';
+import { connectMongoose } from '../utils/database';
 
 async function main() {
-	console.log(
-		'Adding company and jobPostingUrl fields to existing resume documents...',
-	);
+	console.log('Adding company and jobPostingUrl fields to existing resume documents...');
 
 	await using db = await connectMongoose({
 		url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
@@ -26,10 +25,7 @@ async function main() {
 
 	// Count documents missing the fields
 	const missingFields = await collection.countDocuments({
-		$or: [
-			{ company: { $exists: false } },
-			{ jobPostingUrl: { $exists: false } },
-		],
+		$or: [{ company: { $exists: false } }, { jobPostingUrl: { $exists: false } }],
 	});
 
 	if (missingFields === 0) {
@@ -42,18 +38,13 @@ async function main() {
 	// Update documents using native MongoDB driver with write concern
 	const result = await collection.updateMany(
 		{
-			$or: [
-				{ company: { $exists: false } },
-				{ jobPostingUrl: { $exists: false } },
-			],
+			$or: [{ company: { $exists: false } }, { jobPostingUrl: { $exists: false } }],
 		},
 		{ $set: { company: '', jobPostingUrl: '' } },
 		{ writeConcern: { w: 'majority' } },
 	);
 
-	console.log(
-		`Updated ${result.modifiedCount} of ${result.matchedCount} documents`,
-	);
+	console.log(`Updated ${result.modifiedCount} of ${result.matchedCount} documents`);
 
 	// Verify the update
 	const finalCount = await collection.countDocuments({

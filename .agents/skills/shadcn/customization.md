@@ -112,8 +112,7 @@ module.exports = {
 		extend: {
 			colors: {
 				warning: 'oklch(var(--warning) / <alpha-value>)',
-				'warning-foreground':
-					'oklch(var(--warning-foreground) / <alpha-value>)',
+				'warning-foreground': 'oklch(var(--warning-foreground) / <alpha-value>)',
 			},
 		},
 	},
@@ -174,15 +173,11 @@ export function ConfirmDialog({ title, description, onConfirm, children }) {
 			<AlertDialogContent>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{title}</AlertDialogTitle>
-					<AlertDialogDescription>
-						{description}
-					</AlertDialogDescription>
+					<AlertDialogDescription>{description}</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={onConfirm}>
-						Confirm
-					</AlertDialogAction>
+					<AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>

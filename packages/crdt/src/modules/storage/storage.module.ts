@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Document, DocumentSchema } from './document.js';
-import { ProfileUpdate, ProfileUpdateSchema } from './profile-update.js';
 import {
 	ContactInformation,
 	ContactInformationSchema,
@@ -20,6 +18,9 @@ import {
 	Skill,
 	SkillSchema,
 } from '@resume-builder/entities';
+
+import { Document, DocumentSchema } from './document.js';
+import { ProfileUpdate, ProfileUpdateSchema } from './profile-update.js';
 import { StorageService } from './storage.service.js';
 
 @Module({

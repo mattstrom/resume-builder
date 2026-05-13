@@ -1,4 +1,5 @@
 import { Agent } from '@mastra/core/agent';
+
 import { browser } from '../browsers';
 
 export const webAgent = new Agent({

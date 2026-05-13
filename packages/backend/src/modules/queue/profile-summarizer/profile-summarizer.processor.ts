@@ -1,15 +1,15 @@
-import { Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { Logger } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { narrativeSummarySchema } from '@resume-builder/entities';
 import { Job } from 'bullmq';
 
 import configuration from '../../../configuration';
-import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric';
-import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
-import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
 import { ProfilesService } from '../../entities/profiles/profiles.service';
+import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
+import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
 import { QUEUES } from '../queues';
+import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric';
 import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event';
 
 interface ProfileNarrativeSummaryJobData {
@@ -18,15 +18,13 @@ interface ProfileNarrativeSummaryJobData {
 
 const EXTRACT_NARRATIVE_SUMMARY_TOOL: LlmToolDefinition = {
 	name: 'extract_narrative_summary',
-	description:
-		'Extract a structured, comprehensive resume summary from the candidate narrative.',
+	description: 'Extract a structured, comprehensive resume summary from the candidate narrative.',
 	inputSchema: {
 		type: 'object',
 		properties: {
 			headline: {
 				type: 'string',
-				description:
-					'Professional headline, e.g. "Senior Full-Stack Engineer"',
+				description: 'Professional headline, e.g. "Senior Full-Stack Engineer"',
 			},
 			summary: {
 				type: 'string',
@@ -85,14 +83,7 @@ const EXTRACT_NARRATIVE_SUMMARY_TOOL: LlmToolDefinition = {
 				},
 			},
 		},
-		required: [
-			'headline',
-			'summary',
-			'skills',
-			'workExperience',
-			'education',
-			'projects',
-		],
+		required: ['headline', 'summary', 'skills', 'workExperience', 'education', 'projects'],
 	},
 };
 
@@ -117,9 +108,7 @@ export class ProfileNarrativeSummaryProcessor extends WorkerHost {
 
 	async process(job: Job<ProfileNarrativeSummaryJobData>): Promise<void> {
 		const { uid } = job.data;
-		this.logger.log(
-			`Processing profile-narrative-summary job ${job.id} for uid ${uid}`,
-		);
+		this.logger.log(`Processing profile-narrative-summary job ${job.id} for uid ${uid}`);
 
 		const profile = await this.profilesService.findOne(uid);
 
@@ -129,8 +118,7 @@ export class ProfileNarrativeSummaryProcessor extends WorkerHost {
 
 		const narrativeText = stripXmlTags(profile.narrative);
 
-		const { provider: providerName, model } =
-			configuration.llms.narrativeSummarizer;
+		const { provider: providerName, model } = configuration.llms.narrativeSummarizer;
 		const provider = this.llmRegistry.getProvider(providerName);
 		const toolResults: Record<string, Record<string, unknown>> = {};
 
@@ -156,20 +144,13 @@ export class ProfileNarrativeSummaryProcessor extends WorkerHost {
 		const rawSummary = toolResults['extract_narrative_summary'];
 
 		if (!rawSummary) {
-			throw new Error(
-				`Claude did not return the extract_narrative_summary tool call`,
-			);
+			throw new Error(`Claude did not return the extract_narrative_summary tool call`);
 		}
 
 		const narrativeSummary = narrativeSummarySchema.parse(rawSummary);
 
-		await this.profilesService.updateNarrativeSummary(
-			uid,
-			narrativeSummary,
-		);
+		await this.profilesService.updateNarrativeSummary(uid, narrativeSummary);
 
-		this.eventBus.publish(
-			new ProfileNarrativeSummaryCompletedEvent(String(job.id), uid),
-		);
+		this.eventBus.publish(new ProfileNarrativeSummaryCompletedEvent(String(job.id), uid));
 	}
 }

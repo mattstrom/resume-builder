@@ -1,7 +1,8 @@
-import { WebView } from '@/components/WebView.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
+
+import { WebView } from '@/components/WebView.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 
 interface TailorViewProps {}
 

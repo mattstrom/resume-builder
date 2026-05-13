@@ -1,11 +1,4 @@
-import {
-	Field,
-	ID,
-	InputType,
-	ObjectType,
-	OmitType,
-	PartialType,
-} from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType, OmitType, PartialType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { GraphQLJSON } from 'graphql-type-json';
 import { HydratedDocument } from 'mongoose';
@@ -100,8 +93,7 @@ export class Profile {
 	uid: string;
 
 	@Field({
-		description:
-			'Narrative description of the user`s work history and background',
+		description: 'Narrative description of the user`s work history and background',
 	})
 	@Prop({ type: String, default: '' })
 	narrative: string;
@@ -163,20 +155,14 @@ export type NarrativeSummaryData = z.infer<typeof narrativeSummarySchema>;
 export const profileSchema = z.object({
 	_id: z.any().describe('Unique identifier'),
 	uid: z.string().describe('User identifier'),
-	narrative: z
-		.string()
-		.describe('Narrative description of the user`s work history'),
+	narrative: z.string().describe('Narrative description of the user`s work history'),
 	narrativeSummary: narrativeSummarySchema
 		.nullable()
 		.optional()
 		.describe('Structured summary extracted from the narrative'),
-	jobPreferences: z
-		.record(z.string(), z.unknown())
-		.describe('Structured job search preferences'),
+	jobPreferences: z.record(z.string(), z.unknown()).describe('Structured job search preferences'),
 	createdAt: z.iso.datetime().describe('Date when the profile was created'),
-	updatedAt: z.iso
-		.datetime()
-		.describe('Date when the profile was last updated'),
+	updatedAt: z.iso.datetime().describe('Date when the profile was last updated'),
 });
 
 @InputType()

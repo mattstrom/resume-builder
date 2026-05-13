@@ -1,8 +1,9 @@
+import type { Job } from '@resume-builder/entities';
+import { type FC, type PropsWithChildren, type ReactNode } from 'react';
+
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { useResumeId } from '@/components/Resume.provider.tsx';
-import { type FC, type PropsWithChildren, type ReactNode } from 'react';
-import type { Job } from '@resume-builder/entities';
 
 function formatDate(dateString: string): string {
 	if (!dateString) {
@@ -54,9 +55,7 @@ export const JobSection: FC<JobProps> = ({ job, index, actions }) => {
 				/>
 				<span>{' | '}</span>
 				<time>
-					<span className="start-date">
-						{formatDate(job.startDate)}
-					</span>
+					<span className="start-date">{formatDate(job.startDate)}</span>
 					{'–'}
 					<span className="end-date">
 						{job.endDate ? formatDate(job.endDate) : 'Present'}

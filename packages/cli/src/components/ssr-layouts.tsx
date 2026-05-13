@@ -1,9 +1,9 @@
+import { useResume } from '@resume-builder/web/providers';
 /**
  * SSR-safe layout components that don't import CSS files.
  * These re-implement the layout structure for server-side rendering.
  */
 import { createElement, type FC, type PropsWithChildren } from 'react';
-import { useResume } from '@resume-builder/web/providers';
 
 // Re-implement minimal versions of components for SSR
 
@@ -67,15 +67,12 @@ const WorkExperience: FC = () => {
 					{ className: 'dates' },
 					`${job.startDate} - ${job.endDate || 'Present'}`,
 				),
-				job.location &&
-					createElement('p', { className: 'location' }, job.location),
+				job.location && createElement('p', { className: 'location' }, job.location),
 				job.responsibilities?.length &&
 					createElement(
 						'ul',
 						null,
-						...job.responsibilities.map((r, j) =>
-							createElement('li', { key: j }, r),
-						),
+						...job.responsibilities.map((r, j) => createElement('li', { key: j }, r)),
 					),
 			),
 		),
@@ -96,8 +93,7 @@ const EducationSection: FC = () => {
 				{ key: i, className: 'education-item' },
 				createElement('h3', null, edu.degree),
 				createElement('p', null, `${edu.field} - ${edu.institution}`),
-				edu.graduated &&
-					createElement('p', null, `Graduated: ${edu.graduated}`),
+				edu.graduated && createElement('p', null, `Graduated: ${edu.graduated}`),
 			),
 		),
 	);
@@ -145,9 +141,7 @@ const ProjectsSection: FC = () => {
 					createElement(
 						'ul',
 						null,
-						...project.items.map((item, j) =>
-							createElement('li', { key: j }, item),
-						),
+						...project.items.map((item, j) => createElement('li', { key: j }, item)),
 					),
 			),
 		),
@@ -163,8 +157,7 @@ const ContactInfo: FC = () => {
 		'section',
 		{ className: 'contact-info' },
 		info.email && createElement('p', null, `Email: ${info.email}`),
-		info.phoneNumber &&
-			createElement('p', null, `Phone: ${info.phoneNumber}`),
+		info.phoneNumber && createElement('p', null, `Phone: ${info.phoneNumber}`),
 		info.location && createElement('p', null, `Location: ${info.location}`),
 		info.linkedInProfile &&
 			createElement(
@@ -173,11 +166,7 @@ const ContactInfo: FC = () => {
 				createElement('a', { href: info.linkedInProfile }, 'LinkedIn'),
 			),
 		info.githubProfile &&
-			createElement(
-				'p',
-				null,
-				createElement('a', { href: info.githubProfile }, 'GitHub'),
-			),
+			createElement('p', null, createElement('a', { href: info.githubProfile }, 'GitHub')),
 	);
 };
 

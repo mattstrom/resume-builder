@@ -1,3 +1,7 @@
+import type { SourceDocumentUIPart } from 'ai';
+import { GlobeIcon } from 'lucide-react';
+import { useCallback, type FC, memo } from 'react';
+
 import {
 	Attachment,
 	type AttachmentData,
@@ -5,9 +9,7 @@ import {
 	AttachmentPreview,
 	AttachmentRemove,
 } from '@/components/ai-elements/attachments.tsx';
-import type { SourceDocumentUIPart } from 'ai';
-import { GlobeIcon } from 'lucide-react';
-import { useCallback, type FC, memo } from 'react';
+
 import {
 	PromptInputCommand,
 	PromptInputCommandEmpty,
@@ -24,10 +26,7 @@ interface ChatFilesMenuProps {}
 export const ChatFilesMenu: FC<ChatFilesMenuProps> = () => {
 	const refs = usePromptInputReferencedSources();
 
-	const handleAdd = useCallback(
-		(source: SourceDocumentUIPart) => refs.add(source),
-		[refs],
-	);
+	const handleAdd = useCallback((source: SourceDocumentUIPart) => refs.add(source), [refs]);
 
 	return (
 		<PromptInputCommand>
@@ -53,8 +52,7 @@ export const ChatFilesMenu: FC<ChatFilesMenuProps> = () => {
 							(source) =>
 								!refs.sources.some(
 									(s) =>
-										s.title === source.title &&
-										s.filename === source.filename,
+										s.title === source.title && s.filename === source.filename,
 								),
 						)
 						.map((source) => (
@@ -76,10 +74,7 @@ interface SourceItemProps {
 }
 
 const SourceItem = memo(({ source, onRemove }: SourceItemProps) => {
-	const handleRemove = useCallback(
-		() => onRemove(source.id),
-		[onRemove, source.id],
-	);
+	const handleRemove = useCallback(() => onRemove(source.id), [onRemove, source.id]);
 	return (
 		<Attachment data={source} key={source.id} onRemove={handleRemove}>
 			<AttachmentPreview />
@@ -99,16 +94,11 @@ interface SourceCommandItemProps {
 const SourceCommandItem = memo(({ source, onAdd }: SourceCommandItemProps) => {
 	const handleSelect = useCallback(() => onAdd(source), [onAdd, source]);
 	return (
-		<PromptInputCommandItem
-			key={`${source.filename}-${source.title}`}
-			onSelect={handleSelect}
-		>
+		<PromptInputCommandItem key={`${source.filename}-${source.title}`} onSelect={handleSelect}>
 			<GlobeIcon className="text-primary" />
 			<div className="flex flex-col">
 				<span className="font-medium text-sm">{source.title}</span>
-				<span className="text-muted-foreground text-xs">
-					{source.filename}
-				</span>
+				<span className="text-muted-foreground text-xs">{source.filename}</span>
 			</div>
 		</PromptInputCommandItem>
 	);

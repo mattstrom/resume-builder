@@ -3,14 +3,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { z } from 'zod';
 
-import {
-	type ChatModelSelection,
-	chatModelSelectionSchema,
-} from '../chat-models.js';
-import {
-	ChatModelSelectionModel,
-	ChatModelSelectionSchema,
-} from './chat-model.js';
+import { type ChatModelSelection, chatModelSelectionSchema } from '../chat-models.js';
+import { ChatModelSelectionModel, ChatModelSelectionSchema } from './chat-model.js';
 
 @ObjectType()
 @Schema({ _id: false, versionKey: false, timestamps: false })
@@ -28,8 +22,7 @@ export class ConversationMessage {
 	createdAt: Date;
 }
 
-export const ConversationMessageSchema =
-	SchemaFactory.createForClass(ConversationMessage);
+export const ConversationMessageSchema = SchemaFactory.createForClass(ConversationMessage);
 
 export type ConversationDocument = HydratedDocument<Conversation>;
 

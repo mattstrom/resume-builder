@@ -1,29 +1,14 @@
 'use client';
 
+import { ChevronDownIcon } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { ChevronDownIcon } from 'lucide-react';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
 
 export interface WebPreviewContextValue {
 	url: string;
@@ -37,9 +22,7 @@ const WebPreviewContext = createContext<WebPreviewContextValue | null>(null);
 const useWebPreview = () => {
 	const context = useContext(WebPreviewContext);
 	if (!context) {
-		throw new Error(
-			'WebPreview components must be used within a WebPreview',
-		);
+		throw new Error('WebPreview components must be used within a WebPreview');
 	}
 	return context;
 };
@@ -80,10 +63,7 @@ export const WebPreview = ({
 	return (
 		<WebPreviewContext.Provider value={contextValue}>
 			<div
-				className={cn(
-					'flex size-full flex-col rounded-lg border bg-card',
-					className,
-				)}
+				className={cn('flex size-full flex-col rounded-lg border bg-card', className)}
 				{...props}
 			>
 				{children}
@@ -99,10 +79,7 @@ export const WebPreviewNavigation = ({
 	children,
 	...props
 }: WebPreviewNavigationProps) => (
-	<div
-		className={cn('flex items-center gap-1 border-b p-2', className)}
-		{...props}
-	>
+	<div className={cn('flex items-center gap-1 border-b p-2', className)} {...props}>
 		{children}
 	</div>
 );
@@ -141,12 +118,7 @@ export const WebPreviewNavigationButton = ({
 
 export type WebPreviewUrlProps = ComponentProps<typeof Input>;
 
-export const WebPreviewUrl = ({
-	value,
-	onChange,
-	onKeyDown,
-	...props
-}: WebPreviewUrlProps) => {
+export const WebPreviewUrl = ({ value, onChange, onKeyDown, ...props }: WebPreviewUrlProps) => {
 	const { url, setUrl } = useWebPreview();
 	const [prevUrl, setPrevUrl] = useState(url);
 	const [inputValue, setInputValue] = useState(url);
@@ -189,12 +161,7 @@ export type WebPreviewBodyProps = ComponentProps<'iframe'> & {
 	loading?: ReactNode;
 };
 
-export const WebPreviewBody = ({
-	className,
-	loading,
-	src,
-	...props
-}: WebPreviewBodyProps) => {
+export const WebPreviewBody = ({ className, loading, src, ...props }: WebPreviewBodyProps) => {
 	const { url } = useWebPreview();
 
 	return (
@@ -257,9 +224,7 @@ export const WebPreviewConsole = ({
 			>
 				<div className="max-h-48 space-y-1 overflow-y-auto">
 					{logs.length === 0 ? (
-						<p className="text-muted-foreground">
-							No console output
-						</p>
+						<p className="text-muted-foreground">No console output</p>
 					) : (
 						logs.map((log, index) => (
 							<div

@@ -1,10 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-	type Client,
-	isFullDatabase,
-	iteratePaginatedAPI,
-} from '@notionhq/client';
+import { type Client, isFullDatabase, iteratePaginatedAPI } from '@notionhq/client';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints.js';
 
 import { NotionClient } from '../tokens.ts';

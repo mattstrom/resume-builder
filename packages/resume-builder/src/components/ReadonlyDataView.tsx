@@ -1,3 +1,5 @@
+import { type FC, useState, useEffect } from 'react';
+
 import {
 	Accordion,
 	AccordionContent,
@@ -6,7 +8,6 @@ import {
 } from '@/components/ui/accordion.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { formatKey } from '@/lib/format-key.ts';
-import { type FC, useState, useEffect } from 'react';
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
@@ -25,9 +26,7 @@ const ReadonlyStringValue: FC<{ value: string }> = ({ value }) => (
 );
 
 const ReadonlyPercentage: FC<{ value: number }> = ({ value }) => (
-	<span className="text-sm font-medium text-foreground">
-		{Math.round(value * 100)}%
-	</span>
+	<span className="text-sm font-medium text-foreground">{Math.round(value * 100)}%</span>
 );
 
 // ─── Polymorphic renderer ─────────────────────────────────────────────────────
@@ -70,14 +69,8 @@ export const ReadonlyDataView: FC<ReadonlyDataViewProps> = ({
 	return (
 		<div className="flex h-full w-full flex-col gap-3 p-6">
 			<div>
-				<h2 className="text-2xl font-semibold text-foreground">
-					{title}
-				</h2>
-				{description && (
-					<p className="text-sm text-muted-foreground">
-						{description}
-					</p>
-				)}
+				<h2 className="text-2xl font-semibold text-foreground">{title}</h2>
+				{description && <p className="text-sm text-muted-foreground">{description}</p>}
 			</div>
 
 			{entries.length > 0 ? (

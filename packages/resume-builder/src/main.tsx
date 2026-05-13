@@ -1,14 +1,15 @@
+import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { configure } from 'mobx';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RouterProvider, createRouter } from '@tanstack/react-router';
-import { RootStore } from './stores/root.store.ts';
-import { StoreProvider } from './stores/store.provider.tsx';
-
-import './index.css';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
+import { RootStore } from './stores/root.store.ts';
+
+import './index.css';
+
+import { StoreProvider } from './stores/store.provider.tsx';
 
 configure({
 	enforceActions: 'never',

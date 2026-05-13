@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
-import { cn } from '@/lib/utils';
 import { type Editor, useEditorState } from '@tiptap/react';
 import {
 	AlignCenter,
@@ -29,6 +26,10 @@ import {
 	Undo,
 } from 'lucide-react';
 import type { FC, ReactNode } from 'react';
+
+import { Button } from '@/components/ui/button.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
+import { cn } from '@/lib/utils';
 
 interface NarrativeToolbarProps {
 	editor: Editor | null;
@@ -111,54 +112,42 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 			<ToolbarButton
 				label="Heading 1"
 				active={state.isH1}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 1 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
 			>
 				<Heading1 className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Heading 2"
 				active={state.isH2}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 2 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
 			>
 				<Heading2 className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Heading 3"
 				active={state.isH3}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 3 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
 			>
 				<Heading3 className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Heading 4"
 				active={state.isH4}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 4 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
 			>
 				<Heading4 className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Heading 5"
 				active={state.isH5}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 5 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
 			>
 				<Heading5 className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Heading 6"
 				active={state.isH6}
-				onClick={() =>
-					editor.chain().focus().toggleHeading({ level: 6 }).run()
-				}
+				onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
 			>
 				<Heading6 className="size-4" />
 			</ToolbarButton>
@@ -168,36 +157,28 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 			<ToolbarButton
 				label="Align left"
 				active={state.isAlignLeft}
-				onClick={() =>
-					editor.chain().focus().setTextAlign('left').run()
-				}
+				onClick={() => editor.chain().focus().setTextAlign('left').run()}
 			>
 				<AlignLeft className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Align center"
 				active={state.isAlignCenter}
-				onClick={() =>
-					editor.chain().focus().setTextAlign('center').run()
-				}
+				onClick={() => editor.chain().focus().setTextAlign('center').run()}
 			>
 				<AlignCenter className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Align right"
 				active={state.isAlignRight}
-				onClick={() =>
-					editor.chain().focus().setTextAlign('right').run()
-				}
+				onClick={() => editor.chain().focus().setTextAlign('right').run()}
 			>
 				<AlignRight className="size-4" />
 			</ToolbarButton>
 			<ToolbarButton
 				label="Justify"
 				active={state.isAlignJustify}
-				onClick={() =>
-					editor.chain().focus().setTextAlign('justify').run()
-				}
+				onClick={() => editor.chain().focus().setTextAlign('justify').run()}
 			>
 				<AlignJustify className="size-4" />
 			</ToolbarButton>
@@ -259,41 +240,31 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 				<>
 					<ToolbarButton
 						label="Add column before"
-						onClick={() =>
-							editor.chain().focus().addColumnBefore().run()
-						}
+						onClick={() => editor.chain().focus().addColumnBefore().run()}
 					>
 						<span className="text-[10px] font-medium">+Col←</span>
 					</ToolbarButton>
 					<ToolbarButton
 						label="Add column after"
-						onClick={() =>
-							editor.chain().focus().addColumnAfter().run()
-						}
+						onClick={() => editor.chain().focus().addColumnAfter().run()}
 					>
 						<span className="text-[10px] font-medium">+Col→</span>
 					</ToolbarButton>
 					<ToolbarButton
 						label="Delete column"
-						onClick={() =>
-							editor.chain().focus().deleteColumn().run()
-						}
+						onClick={() => editor.chain().focus().deleteColumn().run()}
 					>
 						<span className="text-[10px] font-medium">−Col</span>
 					</ToolbarButton>
 					<ToolbarButton
 						label="Add row before"
-						onClick={() =>
-							editor.chain().focus().addRowBefore().run()
-						}
+						onClick={() => editor.chain().focus().addRowBefore().run()}
 					>
 						<span className="text-[10px] font-medium">+Row↑</span>
 					</ToolbarButton>
 					<ToolbarButton
 						label="Add row after"
-						onClick={() =>
-							editor.chain().focus().addRowAfter().run()
-						}
+						onClick={() => editor.chain().focus().addRowAfter().run()}
 					>
 						<span className="text-[10px] font-medium">+Row↓</span>
 					</ToolbarButton>
@@ -305,9 +276,7 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 					</ToolbarButton>
 					<ToolbarButton
 						label="Delete table"
-						onClick={() =>
-							editor.chain().focus().deleteTable().run()
-						}
+						onClick={() => editor.chain().focus().deleteTable().run()}
 					>
 						<span className="text-[10px] font-medium">✕Tbl</span>
 					</ToolbarButton>
@@ -358,13 +327,7 @@ interface ToolbarButtonProps {
 	children: ReactNode;
 }
 
-const ToolbarButton: FC<ToolbarButtonProps> = ({
-	label,
-	active,
-	disabled,
-	onClick,
-	children,
-}) => (
+const ToolbarButton: FC<ToolbarButtonProps> = ({ label, active, disabled, onClick, children }) => (
 	<Button
 		type="button"
 		variant="ghost"
@@ -374,15 +337,10 @@ const ToolbarButton: FC<ToolbarButtonProps> = ({
 		aria-pressed={active}
 		disabled={disabled}
 		onClick={onClick}
-		className={cn(
-			'h-8 min-w-8 px-1',
-			active && 'bg-accent text-accent-foreground',
-		)}
+		className={cn('h-8 min-w-8 px-1', active && 'bg-accent text-accent-foreground')}
 	>
 		{children}
 	</Button>
 );
 
-const ToolbarSeparator: FC = () => (
-	<Separator orientation="vertical" className="mx-1 h-6" />
-);
+const ToolbarSeparator: FC = () => <Separator orientation="vertical" className="mx-1 h-6" />;

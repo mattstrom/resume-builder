@@ -1,5 +1,6 @@
-import { type ChangeEvent, type FC, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { type ChangeEvent, type FC, useState } from 'react';
+
 import {
 	Accordion,
 	AccordionContent,
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
 import { ExpandableCard } from '../components/ExpandableCard';
 
 interface Job {
@@ -26,10 +28,7 @@ interface WorkExperienceSectionProps {
 	onChange: (jobs: Job[]) => void;
 }
 
-export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
-	jobs,
-	onChange,
-}) => {
+export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({ jobs, onChange }) => {
 	const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
 	const handleAdd = () => {
@@ -59,9 +58,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 		(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 			const newJobs = [...jobs];
 			if (field === 'responsibilities') {
-				newJobs[index][field] = e.target.value
-					.split('\n')
-					.filter((line) => line.trim());
+				newJobs[index][field] = e.target.value.split('\n').filter((line) => line.trim());
 			} else {
 				newJobs[index][field] = e.target.value as any;
 			}
@@ -79,10 +76,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem
-				value="work-experience"
-				className="bg-card/5 border-border/50 px-4"
-			>
+			<AccordionItem value="work-experience" className="bg-card/5 border-border/50 px-4">
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Work Experience
 				</AccordionTrigger>
@@ -93,16 +87,12 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 							title={formatJobTitle(job)}
 							expanded={expandedIndex === index}
 							onExpandChange={() =>
-								setExpandedIndex(
-									expandedIndex === index ? null : index,
-								)
+								setExpandedIndex(expandedIndex === index ? null : index)
 							}
 							onDelete={() => handleDelete(index)}
 						>
 							<div className="space-y-2">
-								<Label htmlFor={`company-${index}`}>
-									Company
-								</Label>
+								<Label htmlFor={`company-${index}`}>Company</Label>
 								<Input
 									id={`company-${index}`}
 									value={job.company}
@@ -110,9 +100,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`position-${index}`}>
-									Position
-								</Label>
+								<Label htmlFor={`position-${index}`}>Position</Label>
 								<Input
 									id={`position-${index}`}
 									value={job.position}
@@ -120,9 +108,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`location-${index}`}>
-									Location
-								</Label>
+								<Label htmlFor={`location-${index}`}>Location</Label>
 								<Input
 									id={`location-${index}`}
 									value={job.location}
@@ -130,9 +116,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`startDate-${index}`}>
-									Start Date
-								</Label>
+								<Label htmlFor={`startDate-${index}`}>Start Date</Label>
 								<Input
 									id={`startDate-${index}`}
 									value={job.startDate}
@@ -140,9 +124,7 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`endDate-${index}`}>
-									End Date
-								</Label>
+								<Label htmlFor={`endDate-${index}`}>End Date</Label>
 								<Input
 									id={`endDate-${index}`}
 									value={job.endDate || ''}
@@ -156,21 +138,13 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({
 								<Textarea
 									id={`responsibilities-${index}`}
 									value={job.responsibilities.join('\n')}
-									onChange={handleChange(
-										index,
-										'responsibilities',
-									)}
+									onChange={handleChange(index, 'responsibilities')}
 									rows={5}
 								/>
 							</div>
 						</ExpandableCard>
 					))}
-					<Button
-						onClick={handleAdd}
-						variant="outline"
-						size="sm"
-						className="mt-4"
-					>
+					<Button onClick={handleAdd} variant="outline" size="sm" className="mt-4">
 						<Plus className="w-4 h-4 mr-2" />
 						Add Job
 					</Button>

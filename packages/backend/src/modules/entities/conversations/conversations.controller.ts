@@ -1,13 +1,6 @@
-import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	Param,
-	Post,
-	Query,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import type { ChatModelSelection } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { ConversationsService } from './conversations.service';
 
@@ -16,14 +9,8 @@ export class ConversationsController {
 	constructor(private readonly conversationsService: ConversationsService) {}
 
 	@Get()
-	async findAll(
-		@CurrentUser('sub') uid: string,
-		@Query('applicationId') applicationId: string,
-	) {
-		return this.conversationsService.findAllByApplicationId(
-			uid,
-			applicationId,
-		);
+	async findAll(@CurrentUser('sub') uid: string, @Query('applicationId') applicationId: string) {
+		return this.conversationsService.findAllByApplicationId(uid, applicationId);
 	}
 
 	@Get(':id')

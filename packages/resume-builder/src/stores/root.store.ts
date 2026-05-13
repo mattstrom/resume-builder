@@ -1,21 +1,23 @@
+import { ApolloClient } from '@apollo/client';
+import type { AnyRoute, Router } from '@tanstack/react-router';
+
 import { ConversationService } from '@/stores/chat/conversation.service.ts';
+import { ExplorerSidebarStore } from '@/stores/explorer-sidebar.store.ts';
 import { InlineEditStore } from '@/stores/inline-edit.store.ts';
 import { InspectStore } from '@/stores/inspect.store.ts';
 import { ListEditStore } from '@/stores/list-edit.store.ts';
+import { PersistenceService } from '@/stores/services/persistence.service.ts';
 import { ThemeStore } from '@/stores/theme.store.ts';
 import { UiStateStore } from '@/stores/ui-state.store.ts';
-import { ExplorerSidebarStore } from '@/stores/explorer-sidebar.store.ts';
-import { ApolloClient } from '@apollo/client';
-import type { AnyRoute, Router } from '@tanstack/react-router';
+
 import { client as apolloClient } from '../apollo-client.ts';
-import { AuthStore } from './auth.store.ts';
 import { ApplicationStore } from './application.store.ts';
+import { AuthStore } from './auth.store.ts';
 import { ContactInformationStore } from './contact-information.store.ts';
 import { EditorStore } from './editor.store.ts';
 import { EducationStore } from './education.store.ts';
 import { ProfileStore } from './profile.store.ts';
 import { ResumeStore } from './resume.store.ts';
-import { PersistenceService } from '@/stores/services/persistence.service.ts';
 
 let singleton: RootStore;
 

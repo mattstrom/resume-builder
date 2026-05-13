@@ -1,6 +1,7 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { connectMongoose } from '../utils/database';
+
 import { Profile } from '../models/profile';
+import { connectMongoose } from '../utils/database';
 
 async function main() {
 	console.log('Adding jobPreferences field to existing Profile documents...');
@@ -38,9 +39,7 @@ async function main() {
 		{ writeConcern: { w: 'majority' } },
 	);
 
-	console.log(
-		`Updated ${result.modifiedCount} of ${result.matchedCount} documents`,
-	);
+	console.log(`Updated ${result.modifiedCount} of ${result.matchedCount} documents`);
 
 	console.log('Migration completed successfully!');
 }

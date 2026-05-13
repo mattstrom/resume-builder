@@ -1,5 +1,5 @@
-import { CanActivate, Injectable } from '@nestjs/common';
 import { McpExecutionContext, SessionManager } from '@nestjs-mcp/server';
+import { CanActivate, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class McpGuard implements CanActivate {

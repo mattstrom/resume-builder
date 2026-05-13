@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 type FlexDirection = 'row' | 'row-reverse' | 'column' | 'column-reverse';
@@ -73,9 +74,7 @@ export const Stack = React.forwardRef<HTMLDivElement, StackProps>(
 			<div
 				ref={ref}
 				className={cn('flex', directionClass[direction], className)}
-				style={
-					Object.keys(inlineStyle).length ? inlineStyle : undefined
-				}
+				style={Object.keys(inlineStyle).length ? inlineStyle : undefined}
 				{...props}
 			>
 				{content}

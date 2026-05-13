@@ -1,6 +1,6 @@
-import { observer } from 'mobx-react';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
+import { observer } from 'mobx-react';
 
 import type { RootStore } from '../stores/root.store.ts';
 import { useStore } from '../stores/store.provider.tsx';
@@ -15,9 +15,7 @@ const RootComponent = observer(() => {
 	// Auth0 is initializing or processing the callback redirect
 	const queryString = window.location.search;
 	const isProcessingCallback =
-		!authStore.isInitialized ||
-		queryString.includes('code=') ||
-		queryString.includes('state=');
+		!authStore.isInitialized || queryString.includes('code=') || queryString.includes('state=');
 
 	if (isProcessingCallback) {
 		return (

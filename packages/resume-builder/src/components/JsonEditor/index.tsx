@@ -1,4 +1,5 @@
 import { type FC } from 'react';
+
 import { JsonEditor as Editor } from './JsonEditor';
 
 export const JsonEditor: FC = () => {

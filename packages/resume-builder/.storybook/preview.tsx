@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-vite';
 import { sb } from 'storybook/test';
+
 import { StoreProvider } from '../src/stores/store.provider.tsx';
 
 import '../src/index.css';

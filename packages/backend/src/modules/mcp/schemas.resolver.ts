@@ -1,12 +1,7 @@
 import { Resolver, Tool } from '@nestjs-mcp/server';
 import { outdent } from 'outdent';
 
-import {
-	lookupSchemaByName,
-	SchemaNames,
-	SchemaNamesEnum,
-	SchemasAsJson,
-} from '../entities';
+import { lookupSchemaByName, SchemaNames, SchemaNamesEnum, SchemasAsJson } from '../entities';
 
 @Resolver()
 export class SchemasResolver {

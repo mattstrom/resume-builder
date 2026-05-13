@@ -1,3 +1,7 @@
+import { AtSignIcon, BriefcaseIcon, HighlighterIcon, RulerIcon } from 'lucide-react';
+import { observer } from 'mobx-react-lite';
+import { type FC } from 'react';
+
 import {
 	PromptInputButton,
 	PromptInputHeader,
@@ -7,14 +11,6 @@ import {
 } from '@/components/ai-elements/prompt-input.tsx';
 import { ChatFilesMenu } from '@/components/chat/ChatFilesMenu.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
-import {
-	AtSignIcon,
-	BriefcaseIcon,
-	HighlighterIcon,
-	RulerIcon,
-} from 'lucide-react';
-import { observer } from 'mobx-react-lite';
-import { type FC } from 'react';
 
 interface ChatPromptHeaderProps {}
 
@@ -28,10 +24,7 @@ export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
 			<PromptInputHeader>
 				{application && (
 					<PromptInputButton size="sm" variant="outline">
-						<BriefcaseIcon
-							className="text-muted-foreground"
-							size={12}
-						/>
+						<BriefcaseIcon className="text-muted-foreground" size={12} />
 						<span className="max-w-[200px] truncate">
 							{application.name || application.company}
 						</span>
@@ -44,22 +37,14 @@ export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
 						variant="outline"
 						onClick={() => inspectStore.toggleSelected(region.path)}
 					>
-						<HighlighterIcon
-							className="text-muted-foreground"
-							size={12}
-						/>
-						<span className="max-w-[200px] truncate">
-							{region.label}
-						</span>
+						<HighlighterIcon className="text-muted-foreground" size={12} />
+						<span className="max-w-[200px] truncate">{region.label}</span>
 					</PromptInputButton>
 				))}
 				<PromptInputHoverCard>
 					<PromptInputHoverCardTrigger>
 						<PromptInputButton variant="outline">
-							<AtSignIcon
-								className="text-muted-foreground"
-								size={12}
-							/>
+							<AtSignIcon className="text-muted-foreground" size={12} />
 						</PromptInputButton>
 						<PromptInputHoverCardContent className="w-[400px] p-0">
 							<ChatFilesMenu />
@@ -69,10 +54,7 @@ export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
 				<PromptInputHoverCard>
 					<PromptInputHoverCardTrigger>
 						<PromptInputButton size="sm" variant="outline">
-							<RulerIcon
-								className="text-muted-foreground"
-								size={12}
-							/>
+							<RulerIcon className="text-muted-foreground" size={12} />
 							<span>1</span>
 						</PromptInputButton>
 					</PromptInputHoverCardTrigger>
@@ -81,9 +63,7 @@ export const ChatPromptHeader: FC<ChatPromptHeaderProps> = observer(() => {
 							<p className="font-medium text-muted-foreground text-sm">
 								Attached Project Rules
 							</p>
-							<p className="ml-4 text-muted-foreground text-sm">
-								Always Apply:
-							</p>
+							<p className="ml-4 text-muted-foreground text-sm">Always Apply:</p>
 							<p className="ml-8 text-sm">ultracite.mdc</p>
 						</div>
 						<p className="bg-sidebar px-4 py-3 text-muted-foreground text-sm">

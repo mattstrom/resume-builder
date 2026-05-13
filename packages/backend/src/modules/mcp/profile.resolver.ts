@@ -12,8 +12,7 @@ export class ProfileResolver {
 
 	@Tool({
 		name: 'get_profile',
-		description:
-			"Retrieve the current user's profile, including their narrative description",
+		description: "Retrieve the current user's profile, including their narrative description",
 		annotations: {
 			destructureHint: false,
 			idempotentHint: true,

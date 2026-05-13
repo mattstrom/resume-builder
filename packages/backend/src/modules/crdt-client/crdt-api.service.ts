@@ -14,10 +14,7 @@ export type InsertItem = {
 	content: TextRun[];
 };
 
-export type DeltaOp =
-	| { retain: number }
-	| { delete: number }
-	| { insert: InsertItem[] };
+export type DeltaOp = { retain: number } | { delete: number } | { insert: InsertItem[] };
 
 export type NarrativeNode = {
 	index: number;
@@ -33,9 +30,7 @@ export class CrdtApiService {
 
 	constructor(private readonly signing: RequestSigningService) {}
 
-	async readDocument(
-		documentName: string,
-	): Promise<{ nodes: NarrativeNode[] }> {
+	async readDocument(documentName: string): Promise<{ nodes: NarrativeNode[] }> {
 		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}`;
 		const res = await fetch(url, {
 			headers: this.signing.getSigningHeaders(),
@@ -64,9 +59,7 @@ export class CrdtApiService {
 
 		if (!res.ok) {
 			const body = await res.text();
-			this.logger.error(
-				`CRDT API apply-delta failed: ${res.status} ${body}`,
-			);
+			this.logger.error(`CRDT API apply-delta failed: ${res.status} ${body}`);
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
 

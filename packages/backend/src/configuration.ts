@@ -189,8 +189,6 @@ const schema = convict<Config>({
 	},
 });
 
-export const configuration = schema
-	.load(config.util.toObject())
-	.validate({ allowed: 'strict' });
+export const configuration = schema.load(config.util.toObject()).validate({ allowed: 'strict' });
 
 export default configuration.getProperties() as Config;

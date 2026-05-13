@@ -11,9 +11,7 @@ const textRunSchema = z.object({
 	marks: z
 		.record(z.string(), z.unknown())
 		.optional()
-		.describe(
-			'Inline marks on this run, e.g. { "bold": true, "italic": true }',
-		),
+		.describe('Inline marks on this run, e.g. { "bold": true, "italic": true }'),
 });
 
 const insertItemSchema = z.object({
@@ -34,9 +32,7 @@ const deltaOpSchema = z.union([
 	z.object({ retain: z.number().int().describe('Skip N nodes') }),
 	z.object({ delete: z.number().int().describe('Delete N nodes') }),
 	z.object({
-		insert: z
-			.array(insertItemSchema)
-			.describe('Nodes to insert at current position'),
+		insert: z.array(insertItemSchema).describe('Nodes to insert at current position'),
 	}),
 ]);
 
@@ -97,10 +93,7 @@ export class NarrativeEditorResolver {
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
-		const result = await this.crdtApiService.applyDelta(
-			documentName,
-			delta as DeltaOp[],
-		);
+		const result = await this.crdtApiService.applyDelta(documentName, delta as DeltaOp[]);
 		return {
 			content: [
 				{

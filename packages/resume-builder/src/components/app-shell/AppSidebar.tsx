@@ -1,25 +1,4 @@
 import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from '@/components/ui/avatar.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useStore } from '@/stores/store.provider.tsx';
-import type { Theme } from '@/stores/theme.store.ts';
-import {
 	ChevronsUpDown,
 	Home,
 	LogOut,
@@ -33,6 +12,22 @@ import {
 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren, useEffect, useRef } from 'react';
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input.tsx';
 import {
 	Sidebar as ShadcnSidebar,
 	SidebarContent,
@@ -45,6 +40,9 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useStore } from '@/stores/store.provider.tsx';
+import type { Theme } from '@/stores/theme.store.ts';
+
 import { SidebarResumeTree } from '../SidebarResumeTree';
 
 export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
@@ -74,9 +72,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 						placeholder="Search…"
 						className="h-7 pl-8 pr-8 text-xs bg-muted/40 border-sidebar-border focus-visible:ring-1"
 						value={explorerSidebarStore.searchQuery}
-						onChange={(e) =>
-							explorerSidebarStore.setSearchQuery(e.target.value)
-						}
+						onChange={(e) => explorerSidebarStore.setSearchQuery(e.target.value)}
 						onKeyDown={(e) => {
 							if (e.key === 'Escape') {
 								explorerSidebarStore.setSearchQuery('');
@@ -87,9 +83,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 					{explorerSidebarStore.searchQuery ? (
 						<button
 							className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground"
-							onClick={() =>
-								explorerSidebarStore.setSearchQuery('')
-							}
+							onClick={() => explorerSidebarStore.setSearchQuery('')}
 						>
 							<X className="h-3 w-3" />
 						</button>
@@ -117,12 +111,8 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 				<SidebarGroup>
 					<SidebarGroupLabel>Profile</SidebarGroupLabel>
 					<SidebarGroupContent>
-						<SidebarMenuButton to="/profile/background">
-							Background
-						</SidebarMenuButton>
-						<SidebarMenuButton to="/profile">
-							Narrative
-						</SidebarMenuButton>
+						<SidebarMenuButton to="/profile/background">Background</SidebarMenuButton>
+						<SidebarMenuButton to="/profile">Narrative</SidebarMenuButton>
 						<SidebarMenuButton to="/profile/preferences">
 							Job Preferences
 						</SidebarMenuButton>
@@ -142,18 +132,13 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 									className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								>
 									<Avatar className="h-8 w-8 rounded-lg">
-										<AvatarImage
-											src={user?.picture}
-											alt={user?.name}
-										/>
+										<AvatarImage src={user?.picture} alt={user?.name} />
 										<AvatarFallback className="rounded-lg bg-muted text-muted-foreground text-xs">
 											{authStore.userInitial}
 										</AvatarFallback>
 									</Avatar>
 									<div className="grid flex-1 text-left text-sm leading-tight">
-										<span className="truncate font-semibold">
-											{user?.name}
-										</span>
+										<span className="truncate font-semibold">{user?.name}</span>
 										<span className="truncate text-xs text-sidebar-foreground/70">
 											{user?.email}
 										</span>
@@ -191,9 +176,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 										<DropdownMenuRadioGroup
 											value={themeStore.theme}
 											onValueChange={(value) =>
-												themeStore.setTheme(
-													value as Theme,
-												)
+												themeStore.setTheme(value as Theme)
 											}
 										>
 											<DropdownMenuRadioItem value="light">
@@ -212,9 +195,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 									</DropdownMenuSubContent>
 								</DropdownMenuSub>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem
-									onSelect={() => void authStore.logout()}
-								>
+								<DropdownMenuItem onSelect={() => void authStore.logout()}>
 									<LogOut />
 									Log out
 								</DropdownMenuItem>

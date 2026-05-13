@@ -1,5 +1,6 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { Skill } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { SkillsService } from './skills.service';
 

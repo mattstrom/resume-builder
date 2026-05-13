@@ -74,9 +74,7 @@ This applies to all group-based components:
 			<FolderIcon />
 		</EmptyMedia>
 		<EmptyTitle>No projects yet</EmptyTitle>
-		<EmptyDescription>
-			Get started by creating a new project.
-		</EmptyDescription>
+		<EmptyDescription>Get started by creating a new project.</EmptyDescription>
 	</EmptyHeader>
 	<EmptyContent>
 		<Button>Create Project</Button>

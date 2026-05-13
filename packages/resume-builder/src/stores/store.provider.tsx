@@ -1,9 +1,5 @@
-import {
-	createContext,
-	type FC,
-	type PropsWithChildren,
-	useContext,
-} from 'react';
+import { createContext, type FC, type PropsWithChildren, useContext } from 'react';
+
 import { RootStore } from './root.store.ts';
 
 const StoreContext = createContext<RootStore | null>(null);
@@ -16,11 +12,7 @@ interface StoreProviderProps extends PropsWithChildren {
 export const StoreProvider: FC<StoreProviderProps> = ({ children, store }) => {
 	singleton ??= store ?? RootStore.getInstance();
 
-	return (
-		<StoreContext.Provider value={singleton}>
-			{children}
-		</StoreContext.Provider>
-	);
+	return <StoreContext.Provider value={singleton}>{children}</StoreContext.Provider>;
 };
 
 export function useStore() {

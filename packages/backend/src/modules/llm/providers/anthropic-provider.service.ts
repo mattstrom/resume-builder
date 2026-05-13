@@ -1,10 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import Anthropic from '@anthropic-ai/sdk';
-import type {
-	ContentBlock,
-	MessageParam,
-} from '@anthropic-ai/sdk/resources/messages';
 import { randomUUID } from 'crypto';
+
+import Anthropic from '@anthropic-ai/sdk';
+import type { ContentBlock, MessageParam } from '@anthropic-ai/sdk/resources/messages';
+import { Injectable } from '@nestjs/common';
 
 import type { LlmProvider } from '../interfaces/llm-provider.interface';
 import type {
@@ -76,10 +74,7 @@ export class AnthropicProviderService implements LlmProvider {
 
 		yield {
 			type: 'message-complete',
-			stopReason: finalMessage.stop_reason as
-				| 'end_turn'
-				| 'tool_use'
-				| 'max_tokens',
+			stopReason: finalMessage.stop_reason as 'end_turn' | 'tool_use' | 'max_tokens',
 			content: fromAnthropicContent(finalMessage.content),
 		};
 	}
@@ -96,28 +91,26 @@ function toAnthropicMessages(messages: LlmMessage[]): MessageParam[] {
 				};
 			}
 
-			const content: MessageParam['content'] = msg.content.map(
-				(block) => {
-					switch (block.type) {
-						case 'text':
-							return { type: 'text' as const, text: block.text };
-						case 'tool_use':
-							return {
-								type: 'tool_use' as const,
-								id: block.id,
-								name: block.name,
-								input: block.input,
-							};
-						case 'tool_result':
-							return {
-								type: 'tool_result' as const,
-								tool_use_id: block.toolUseId,
-								content: block.content,
-								...(block.isError ? { is_error: true } : {}),
-							};
-					}
-				},
-			);
+			const content: MessageParam['content'] = msg.content.map((block) => {
+				switch (block.type) {
+					case 'text':
+						return { type: 'text' as const, text: block.text };
+					case 'tool_use':
+						return {
+							type: 'tool_use' as const,
+							id: block.id,
+							name: block.name,
+							input: block.input,
+						};
+					case 'tool_result':
+						return {
+							type: 'tool_result' as const,
+							tool_use_id: block.toolUseId,
+							content: block.content,
+							...(block.isError ? { is_error: true } : {}),
+						};
+				}
+			});
 
 			return {
 				role: msg.role as 'user' | 'assistant',
@@ -147,8 +140,6 @@ function fromAnthropicContent(content: ContentBlock[]): LlmContentBlock[] {
 				input: block.input as Record<string, unknown>,
 			};
 		}
-		throw new Error(
-			`Unexpected Anthropic content block type: ${block.type}`,
-		);
+		throw new Error(`Unexpected Anthropic content block type: ${block.type}`);
 	});
 }

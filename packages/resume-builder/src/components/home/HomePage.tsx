@@ -1,3 +1,8 @@
+import { Link } from '@tanstack/react-router';
+import { ArrowRight, BriefcaseBusiness, FileText } from 'lucide-react';
+import { observer } from 'mobx-react';
+import { useMemo } from 'react';
+
 import { CreateApplicationDialog } from '@/components/CreateResumeDialog.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -11,10 +16,7 @@ import {
 } from '@/components/ui/card.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
-import { Link } from '@tanstack/react-router';
-import { ArrowRight, BriefcaseBusiness, FileText } from 'lucide-react';
-import { observer } from 'mobx-react';
-import { useMemo } from 'react';
+
 import { HomePageStore } from './home-page.store.ts';
 
 const summaryCardClass =
@@ -43,9 +45,8 @@ export const HomePage = observer(function HomePage() {
 									Welcome back, {homePageStore.firstName}.
 								</h1>
 								<p className="max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-									Pick up the application you touched most
-									recently, start a new one, or refine the
-									profile details that power every resume you
+									Pick up the application you touched most recently, start a new
+									one, or refine the profile details that power every resume you
 									ship.
 								</p>
 							</div>
@@ -75,10 +76,9 @@ export const HomePage = observer(function HomePage() {
 									Start your first application
 								</h2>
 								<p className="text-sm leading-6 text-muted-foreground">
-									This home page becomes your fastest route
-									back into work once you have applications in
-									motion. Begin with a role, then shape your
-									profile and resume from there.
+									This home page becomes your fastest route back into work once
+									you have applications in motion. Begin with a role, then shape
+									your profile and resume from there.
 								</p>
 							</div>
 							<div className="flex flex-wrap items-center justify-center gap-3">
@@ -89,9 +89,7 @@ export const HomePage = observer(function HomePage() {
 									</Button>
 								</CreateApplicationDialog>
 								<Button variant="outline" asChild>
-									<Link to="/profile/preferences">
-										Review job preferences
-									</Link>
+									<Link to="/profile/preferences">Review job preferences</Link>
 								</Button>
 							</div>
 						</div>
@@ -101,40 +99,25 @@ export const HomePage = observer(function HomePage() {
 						<section className="grid gap-4 md:grid-cols-3">
 							<Card className={summaryCardClass}>
 								<CardHeader className="gap-1">
-									<CardDescription>
-										Total applications
-									</CardDescription>
+									<CardDescription>Total applications</CardDescription>
 									<CardTitle className="text-3xl">
-										{
-											homePageStore.summary
-												.totalApplications
-										}
+										{homePageStore.summary.totalApplications}
 									</CardTitle>
 								</CardHeader>
 							</Card>
 							<Card className={summaryCardClass}>
 								<CardHeader className="gap-1">
-									<CardDescription>
-										Linked resumes
-									</CardDescription>
+									<CardDescription>Linked resumes</CardDescription>
 									<CardTitle className="text-3xl">
-										{
-											homePageStore.summary
-												.applicationsWithResume
-										}
+										{homePageStore.summary.applicationsWithResume}
 									</CardTitle>
 								</CardHeader>
 							</Card>
 							<Card className={summaryCardClass}>
 								<CardHeader className="gap-1">
-									<CardDescription>
-										Companies tracked
-									</CardDescription>
+									<CardDescription>Companies tracked</CardDescription>
 									<CardTitle className="text-3xl">
-										{
-											homePageStore.summary
-												.distinctCompanies
-										}
+										{homePageStore.summary.distinctCompanies}
 									</CardTitle>
 								</CardHeader>
 							</Card>
@@ -145,28 +128,20 @@ export const HomePage = observer(function HomePage() {
 								<CardHeader className="gap-3">
 									<div className="flex items-center justify-between gap-3">
 										<div>
-											<CardDescription>
-												Continue working
-											</CardDescription>
+											<CardDescription>Continue working</CardDescription>
 											<CardTitle className="text-2xl">
-												{
-													homePageStore
-														.continueApplication
-														?.name
-												}
+												{homePageStore.continueApplication?.name}
 											</CardTitle>
 										</div>
 										<Badge variant="outline">
 											{homePageStore.normalizeCompany(
-												homePageStore
-													.continueApplication
-													?.company,
+												homePageStore.continueApplication?.company,
 											)}
 										</Badge>
 									</div>
 									<p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-										Resume the most recent application
-										without digging through the sidebar.
+										Resume the most recent application without digging through
+										the sidebar.
 									</p>
 								</CardHeader>
 								<CardContent className="flex flex-col gap-5">
@@ -178,8 +153,7 @@ export const HomePage = observer(function HomePage() {
 											<p className="mt-2 text-sm font-medium text-foreground">
 												{homePageStore.continueApplication
 													? homePageStore.formatApplicationUpdatedAt(
-															homePageStore
-																.continueApplication
+															homePageStore.continueApplication
 																.updatedAt,
 														)
 													: null}
@@ -190,9 +164,8 @@ export const HomePage = observer(function HomePage() {
 												Resume status
 											</p>
 											<p className="mt-2 text-sm font-medium text-foreground">
-												{(homePageStore
-													.continueApplication
-													?.resumes?.length ?? 0) > 0
+												{(homePageStore.continueApplication?.resumes
+													?.length ?? 0) > 0
 													? 'Resume linked'
 													: 'Resume not linked yet'}
 											</p>
@@ -205,20 +178,12 @@ export const HomePage = observer(function HomePage() {
 											to="/editor/$applicationId"
 											params={{
 												applicationId:
-													homePageStore
-														.continueApplication
-														?._id ?? '',
+													homePageStore.continueApplication?._id ?? '',
 											}}
 											onClick={() => {
-												if (
-													homePageStore
-														.continueApplication
-														?._id
-												) {
+												if (homePageStore.continueApplication?._id) {
 													handleSelectApplication(
-														homePageStore
-															.continueApplication
-															._id,
+														homePageStore.continueApplication._id,
 													);
 												}
 											}}
@@ -232,72 +197,59 @@ export const HomePage = observer(function HomePage() {
 
 							<Card className={summaryCardClass}>
 								<CardHeader>
-									<CardDescription>
-										Recent applications
-									</CardDescription>
+									<CardDescription>Recent applications</CardDescription>
 									<CardTitle>Latest activity</CardTitle>
 								</CardHeader>
 								<CardContent className="flex flex-col">
-									{homePageStore.recentApplications.map(
-										(application, index) => (
-											<div key={application._id}>
-												<div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-3">
-													<div className="flex min-w-0 flex-col gap-1">
-														<Button
-															variant="link"
-															className="h-auto justify-start p-0 text-left text-base font-medium text-foreground no-underline hover:no-underline"
-															asChild
+									{homePageStore.recentApplications.map((application, index) => (
+										<div key={application._id}>
+											<div className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 py-3">
+												<div className="flex min-w-0 flex-col gap-1">
+													<Button
+														variant="link"
+														className="h-auto justify-start p-0 text-left text-base font-medium text-foreground no-underline hover:no-underline"
+														asChild
+													>
+														<Link
+															to="/editor/$applicationId"
+															params={{
+																applicationId: application._id,
+															}}
+															onClick={() =>
+																handleSelectApplication(
+																	application._id,
+																)
+															}
 														>
-															<Link
-																to="/editor/$applicationId"
-																params={{
-																	applicationId:
-																		application._id,
-																}}
-																onClick={() =>
-																	handleSelectApplication(
-																		application._id,
-																	)
-																}
-															>
-																<span className="block truncate">
-																	{
-																		application.name
-																	}
-																</span>
-															</Link>
-														</Button>
-														<p className="truncate text-sm text-muted-foreground">
-															{homePageStore.normalizeCompany(
-																application.company,
-															)}
-														</p>
-													</div>
-													<div className="flex min-w-[11rem] flex-col items-end text-right">
-														<p className="text-sm text-foreground">
-															{homePageStore.formatApplicationUpdatedAt(
-																application.updatedAt,
-															)}
-														</p>
-														<p className="text-xs text-muted-foreground">
-															{(application
-																.resumes
-																?.length ?? 0) >
-															0
-																? 'Resume linked'
-																: 'No linked resume'}
-														</p>
-													</div>
+															<span className="block truncate">
+																{application.name}
+															</span>
+														</Link>
+													</Button>
+													<p className="truncate text-sm text-muted-foreground">
+														{homePageStore.normalizeCompany(
+															application.company,
+														)}
+													</p>
 												</div>
-												{index <
-												homePageStore.recentApplications
-													.length -
-													1 ? (
-													<Separator />
-												) : null}
+												<div className="flex min-w-[11rem] flex-col items-end text-right">
+													<p className="text-sm text-foreground">
+														{homePageStore.formatApplicationUpdatedAt(
+															application.updatedAt,
+														)}
+													</p>
+													<p className="text-xs text-muted-foreground">
+														{(application.resumes?.length ?? 0) > 0
+															? 'Resume linked'
+															: 'No linked resume'}
+													</p>
+												</div>
 											</div>
-										),
-									)}
+											{index < homePageStore.recentApplications.length - 1 ? (
+												<Separator />
+											) : null}
+										</div>
+									))}
 								</CardContent>
 							</Card>
 						</section>

@@ -1,14 +1,14 @@
-import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 
-import { LlmModule } from '../../llm/llm.module';
 import { ApplicationsModule } from '../../entities/applications/applications.module';
 import { ProfilesModule } from '../../entities/profiles/profiles.module';
+import { LlmModule } from '../../llm/llm.module';
 import { QUEUES } from '../queues';
-import { JobAssessmentCommandHandler } from './job-assessment.command-handler';
 import { JobAssessmentCompletedEventHandler } from './job-assessment-completed.event-handler';
+import { JobAssessmentCommandHandler } from './job-assessment.command-handler';
 import { JobAssessmentProcessor } from './job-assessment.processor';
 
 const isProd = process.env.NODE_ENV === 'production';

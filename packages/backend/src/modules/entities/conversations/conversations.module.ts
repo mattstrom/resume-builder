@@ -9,9 +9,7 @@ import { ConversationsService } from './conversations.service';
 @Module({
 	imports: [
 		MongodbModule,
-		MongooseModule.forFeature([
-			{ name: Conversation.name, schema: ConversationSchema },
-		]),
+		MongooseModule.forFeature([{ name: Conversation.name, schema: ConversationSchema }]),
 	],
 	controllers: [ConversationsController],
 	providers: [ConversationsService],

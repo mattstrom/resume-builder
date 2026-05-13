@@ -1,13 +1,18 @@
+import type { Application } from '@resume-builder/entities';
+import { ArrowUpDown, ChevronsUpDown, ChevronRight, FileIcon, Plus, RotateCw } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useCallback } from 'react';
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
-	ArrowUpDown,
-	ChevronsUpDown,
-	ChevronRight,
-	FileIcon,
-	Plus,
-	RotateCw,
-} from 'lucide-react';
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
 	SidebarGroup,
 	SidebarGroupAction,
@@ -19,21 +24,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuLabel,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import type { Application } from '@resume-builder/entities';
+
 import { useStore } from '../stores/store.provider';
 import { CreateApplicationDialog } from './CreateResumeDialog';
 
@@ -53,8 +44,7 @@ const actionButtonClass =
 export const SidebarResumeTree: FC = observer(() => {
 	const { applicationStore, explorerSidebarStore, editorStore } = useStore();
 	const { selectedApiApplicationId } = editorStore;
-	const selectApiApplication = (id: string) =>
-		void editorStore.selectApplication(id);
+	const selectApiApplication = (id: string) => void editorStore.selectApplication(id);
 
 	const applications = explorerSidebarStore.applications;
 	const groupedApplications = explorerSidebarStore.groupedApplications;
@@ -73,9 +63,7 @@ export const SidebarResumeTree: FC = observer(() => {
 	const handleGroupSortChange = useCallback(
 		(value: string) => {
 			if (!value.startsWith('GROUP_SORT_')) return;
-			explorerSidebarStore.setGroupSort(
-				value === 'GROUP_SORT_NAME' ? 'NAME' : 'DATE',
-			);
+			explorerSidebarStore.setGroupSort(value === 'GROUP_SORT_NAME' ? 'NAME' : 'DATE');
 		},
 		[explorerSidebarStore],
 	);
@@ -135,25 +123,15 @@ export const SidebarResumeTree: FC = observer(() => {
 					<CollapsibleContent>
 						<SidebarMenuSub className="border-l-0">
 							{groupApplications.map((application) => (
-								<SidebarMenuSubItem
-									key={application._id}
-									className="list-none"
-								>
+								<SidebarMenuSubItem key={application._id} className="list-none">
 									<SidebarMenuButton
 										size="sm"
 										to="/editor/$applicationId"
 										params={{
 											applicationId: application._id,
 										}}
-										isActive={
-											selectedApiApplicationId ===
-											application._id
-										}
-										onClick={() =>
-											void selectApiApplication(
-												application._id,
-											)
-										}
+										isActive={selectedApiApplicationId === application._id}
+										onClick={() => void selectApiApplication(application._id)}
 										tooltip={application.name}
 									>
 										<FileIcon />
@@ -172,26 +150,18 @@ export const SidebarResumeTree: FC = observer(() => {
 			<SidebarGroupLabel>Applications</SidebarGroupLabel>
 			<div className="flex items-center gap-0.5 absolute right-2 top-2">
 				<CreateApplicationDialog>
-					<button
-						title="New application"
-						className={actionButtonClass}
-					>
+					<button title="New application" className={actionButtonClass}>
 						<Plus />
 					</button>
 				</CreateApplicationDialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<button
-							title="Sort & group applications"
-							className={actionButtonClass}
-						>
+						<button title="Sort & group applications" className={actionButtonClass}>
 							<ArrowUpDown />
 						</button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>
-							Sort applications by
-						</DropdownMenuLabel>
+						<DropdownMenuLabel>Sort applications by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
 							value={`APPLICATION_SORT_${explorerSidebarStore.applicationSortField}`}
 							onValueChange={handleSortChange}
@@ -206,9 +176,7 @@ export const SidebarResumeTree: FC = observer(() => {
 							))}
 						</DropdownMenuRadioGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuLabel>
-							Sort company groups by
-						</DropdownMenuLabel>
+						<DropdownMenuLabel>Sort company groups by</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
 							value={`GROUP_SORT_${explorerSidebarStore.groupSortField}`}
 							onValueChange={handleGroupSortChange}
@@ -233,10 +201,7 @@ export const SidebarResumeTree: FC = observer(() => {
 							onValueChange={handleGroupChange}
 						>
 							{GROUP_OPTIONS.map((option) => (
-								<DropdownMenuRadioItem
-									key={option.value}
-									value={option.value}
-								>
+								<DropdownMenuRadioItem key={option.value} value={option.value}>
 									{option.label}
 								</DropdownMenuRadioItem>
 							))}
@@ -245,11 +210,7 @@ export const SidebarResumeTree: FC = observer(() => {
 				</DropdownMenu>
 				{groupedApplications && (
 					<button
-						title={
-							allGroupsCollapsed
-								? 'Expand all groups'
-								: 'Collapse all groups'
-						}
+						title={allGroupsCollapsed ? 'Expand all groups' : 'Collapse all groups'}
 						className={actionButtonClass}
 						onClick={toggleAllGroups}
 					>

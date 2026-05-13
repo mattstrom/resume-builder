@@ -1,12 +1,10 @@
-import { Button } from '@/components/ui/button';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquare, Plus, Trash2 } from 'lucide-react';
 import { type FC, useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { authFetch } from '../utils/auth';
 
 interface ConversationSummary {
@@ -28,9 +26,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 	onSelect,
 	onNewChat,
 }) => {
-	const [conversations, setConversations] = useState<ConversationSummary[]>(
-		[],
-	);
+	const [conversations, setConversations] = useState<ConversationSummary[]>([]);
 	const [open, setOpen] = useState(false);
 
 	const fetchConversations = async () => {
@@ -89,9 +85,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 				</PopoverTrigger>
 				<PopoverContent className="w-72 p-0" align="start">
 					<div className="px-3 py-2 border-b border-border">
-						<p className="text-xs font-medium text-foreground">
-							Past Conversations
-						</p>
+						<p className="text-xs font-medium text-foreground">Past Conversations</p>
 					</div>
 					<ScrollArea className="max-h-64">
 						{conversations.length === 0 ? (
@@ -114,10 +108,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 										setOpen(false);
 									}}
 									onKeyDown={(e) => {
-										if (
-											e.key === 'Enter' ||
-											e.key === ' '
-										) {
+										if (e.key === 'Enter' || e.key === ' ') {
 											e.preventDefault();
 											onSelect(conv);
 											setOpen(false);
@@ -125,22 +116,16 @@ export const ConversationList: FC<ConversationListProps> = ({
 									}}
 								>
 									<div className="min-w-0 flex-1">
-										<p className="truncate text-xs">
-											{conv.title}
-										</p>
+										<p className="truncate text-xs">{conv.title}</p>
 										<p className="text-[10px] text-muted-foreground">
-											{new Date(
-												conv.updatedAt,
-											).toLocaleDateString()}
+											{new Date(conv.updatedAt).toLocaleDateString()}
 										</p>
 									</div>
 									<Button
 										variant="ghost"
 										size="icon"
 										className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive hover:bg-transparent"
-										onClick={(e) =>
-											handleDelete(e, conv._id)
-										}
+										onClick={(e) => handleDelete(e, conv._id)}
 									>
 										<Trash2 className="h-3 w-3" />
 									</Button>

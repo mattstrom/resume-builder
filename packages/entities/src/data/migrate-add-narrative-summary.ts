@@ -1,11 +1,10 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { connectMongoose } from '../utils/database';
+
 import { Profile } from '../models/profile';
+import { connectMongoose } from '../utils/database';
 
 async function main() {
-	console.log(
-		'Adding narrativeSummary field to existing Profile documents...',
-	);
+	console.log('Adding narrativeSummary field to existing Profile documents...');
 
 	await using db = await connectMongoose({
 		url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
@@ -40,9 +39,7 @@ async function main() {
 		{ writeConcern: { w: 'majority' } },
 	);
 
-	console.log(
-		`Updated ${result.modifiedCount} of ${result.matchedCount} documents`,
-	);
+	console.log(`Updated ${result.modifiedCount} of ${result.matchedCount} documents`);
 
 	console.log('Migration completed successfully!');
 }

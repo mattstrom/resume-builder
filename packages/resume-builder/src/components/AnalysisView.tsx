@@ -1,13 +1,9 @@
-import { ReadonlyDataView } from '@/components/ReadonlyDataView.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
-import {
-	Group,
-	Panel,
-	Separator,
-	useDefaultLayout,
-} from 'react-resizable-panels';
+import { Group, Panel, Separator, useDefaultLayout } from 'react-resizable-panels';
+
+import { ReadonlyDataView } from '@/components/ReadonlyDataView.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 
 export const AnalysisView: FC = observer(() => {
 	const { applicationStore } = useStore();
@@ -32,39 +28,22 @@ export const AnalysisView: FC = observer(() => {
 			defaultLayout={defaultLayout}
 			onLayoutChanged={onLayoutChanged}
 		>
-			<Panel
-				id="summary"
-				defaultSize="50%"
-				minSize="20%"
-				className="workspace-panel"
-			>
+			<Panel id="summary" defaultSize="50%" minSize="20%" className="workspace-panel">
 				<ReadonlyDataView
 					title="Job Summary"
 					description="Structured requirements extracted from the job posting."
-					data={
-						selectedApplication.jobSummary as Record<
-							string,
-							unknown
-						>
-					}
+					data={selectedApplication.jobSummary as Record<string, unknown>}
 					emptyMessage="No job summary yet. Run analysis to populate."
 				/>
 			</Panel>
 
 			<Separator className="resize-handle resize-handle-horizontal" />
 
-			<Panel
-				id="assessment"
-				defaultSize="50%"
-				minSize="20%"
-				className="workspace-panel"
-			>
+			<Panel id="assessment" defaultSize="50%" minSize="20%" className="workspace-panel">
 				<ReadonlyDataView
 					title="Job Assessment"
 					description="Fit analysis between your profile and the job requirements."
-					data={
-						selectedApplication.analysis as Record<string, unknown>
-					}
+					data={selectedApplication.analysis as Record<string, unknown>}
 					emptyMessage="No assessment yet. Run analysis to populate."
 				/>
 			</Panel>

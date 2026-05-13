@@ -1,6 +1,6 @@
-import { observer } from 'mobx-react';
 import { createFileRoute, Navigate, redirect } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
+import { observer } from 'mobx-react';
 
 import { App } from '../App.tsx';
 import { useStore } from '../stores/store.provider.tsx';

@@ -6,6 +6,7 @@ import {
 	type SetStateAction,
 	useContext,
 } from 'react';
+
 import { useLocalStorage } from '../hooks/useLocalStorage.ts';
 
 interface Settings {
@@ -31,11 +32,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
 		setShowMarginPattern,
 	};
 
-	return (
-		<SettingsContext.Provider value={settings as any}>
-			{children}
-		</SettingsContext.Provider>
-	);
+	return <SettingsContext.Provider value={settings as any}>{children}</SettingsContext.Provider>;
 };
 
 export function useSettings() {

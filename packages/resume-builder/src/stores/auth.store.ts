@@ -1,15 +1,8 @@
-import {
-	Auth0Client,
-	createAuth0Client,
-	type Auth0ClientOptions,
-} from '@auth0/auth0-spa-js';
-import type {
-	GetTokenSilentlyOptions,
-	RedirectLoginOptions,
-	User,
-} from '@auth0/auth0-react';
+import type { GetTokenSilentlyOptions, RedirectLoginOptions, User } from '@auth0/auth0-react';
+import { Auth0Client, createAuth0Client, type Auth0ClientOptions } from '@auth0/auth0-spa-js';
 import { action, computed, makeObservable, observable, when } from 'mobx';
 import { BehaviorSubject } from 'rxjs';
+
 import type { RootStore } from './root.store.ts';
 
 const authOptions: Auth0ClientOptions = {
@@ -44,9 +37,7 @@ export class AuthStore {
 		if (window.location.search.includes('code=')) {
 			try {
 				const result = await this.auth0Client.handleRedirectCallback();
-				await this.onRedirectCallback(result.appState).catch(() =>
-					this.logout(),
-				);
+				await this.onRedirectCallback(result.appState).catch(() => this.logout());
 			} catch (error) {
 				console.error('Error handling redirect callback:', error);
 				throw error;

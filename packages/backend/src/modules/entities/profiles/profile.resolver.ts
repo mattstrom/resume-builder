@@ -1,16 +1,10 @@
-import {
-	Field,
-	Mutation,
-	ObjectType,
-	Args,
-	Query,
-	Resolver,
-} from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
+import { Field, Mutation, ObjectType, Args, Query, Resolver } from '@nestjs/graphql';
 import { Profile, ProfileUpdateInput } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
-import { ProfilesService } from './profiles.service';
 import { ProfileNarrativeSummaryCommand } from '../../queue/profile-summarizer/profile-summarizer.command';
+import { ProfilesService } from './profiles.service';
 
 @ObjectType()
 class GenerateNarrativeSummaryResult {

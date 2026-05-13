@@ -1,9 +1,5 @@
 import { Command } from '@cliffy/command';
-import {
-	Client,
-	isFullPageOrDatabase,
-	iteratePaginatedAPI,
-} from '@notionhq/client';
+import { Client, isFullPageOrDatabase, iteratePaginatedAPI } from '@notionhq/client';
 import { DatabaseObjectResponse } from '@notionhq/client';
 import { assert } from '@std/assert';
 
@@ -34,27 +30,22 @@ export function makeNotionCommand(): Command {
 	return new Command()
 		.name('resume-builder')
 		.description('Notion commands')
-		.globalEnv(
-			'NOTION_API_TOKEN=<notionApiToken:string>',
-			'Notion API token',
-			{ required: true },
-		)
+		.globalEnv('NOTION_API_TOKEN=<notionApiToken:string>', 'Notion API token', {
+			required: true,
+		})
 		.globalOption('-d, --database-id <databaseId:string>', 'Database ID', {
 			required: false,
 		})
 		.command('build', makeBuildCommand()) as any;
 }
 
-type DatabasePropertyConfigResponse =
-	DatabaseObjectResponse['properties'][string];
+type DatabasePropertyConfigResponse = DatabaseObjectResponse['properties'][string];
 type FilesDatabasePropertyConfigResponse = Extract<
 	DatabasePropertyConfigResponse,
 	{ type: 'files' }
 >;
 
-function isFilePropertyType(
-	property: any,
-): property is FilesDatabasePropertyConfigResponse {
+function isFilePropertyType(property: any): property is FilesDatabasePropertyConfigResponse {
 	return property.type === 'files';
 }
 

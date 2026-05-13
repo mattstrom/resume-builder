@@ -1,16 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useSidebar } from '@/components/ui/sidebar';
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { useStore } from '@/stores/store.provider';
 import { MessageCircle, PanelLeft } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type ReactNode } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { useSidebar } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useStore } from '@/stores/store.provider';
 
 export interface AppBarProps {
 	primaryNav?: ReactNode;
@@ -34,18 +30,12 @@ export const AppBar: FC<AppBarProps> = observer(({ primaryNav, toolbar }) => {
 								size="icon"
 								className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
 								onClick={toggleSidebar}
-								aria-label={
-									sidebarOpen
-										? 'Close sidebar'
-										: 'Open sidebar'
-								}
+								aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
 							>
 								<PanelLeft className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent side="bottom">
-							Toggle sidebar (&#8984;B)
-						</TooltipContent>
+						<TooltipContent side="bottom">Toggle sidebar (&#8984;B)</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 
@@ -62,10 +52,7 @@ export const AppBar: FC<AppBarProps> = observer(({ primaryNav, toolbar }) => {
 
 				{primaryNav && (
 					<>
-						<Separator
-							orientation="vertical"
-							className="h-5 mx-1"
-						/>
+						<Separator orientation="vertical" className="h-5 mx-1" />
 						{primaryNav}
 					</>
 				)}
@@ -80,32 +67,20 @@ export const AppBar: FC<AppBarProps> = observer(({ primaryNav, toolbar }) => {
 								size="icon"
 								className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
 								onClick={() => uiStateStore.setChatOpen()}
-								aria-label={
-									chatOpen ? 'Close chat' : 'Open chat'
-								}
+								aria-label={chatOpen ? 'Close chat' : 'Open chat'}
 							>
 								<MessageCircle
-									className={
-										chatOpen
-											? 'h-4 w-4 text-foreground'
-											: 'h-4 w-4'
-									}
+									className={chatOpen ? 'h-4 w-4 text-foreground' : 'h-4 w-4'}
 								/>
 							</Button>
 						</TooltipTrigger>
-						<TooltipContent side="bottom">
-							Toggle AI chat
-						</TooltipContent>
+						<TooltipContent side="bottom">Toggle AI chat</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			</div>
 
 			{/* Row 2: contextual toolbar (only when toolbar content provided) */}
-			{toolbar && (
-				<div className="flex items-center gap-2 px-3 h-9">
-					{toolbar}
-				</div>
-			)}
+			{toolbar && <div className="flex items-center gap-2 px-3 h-9">{toolbar}</div>}
 		</header>
 	);
 });

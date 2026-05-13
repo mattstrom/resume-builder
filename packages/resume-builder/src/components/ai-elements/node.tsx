@@ -1,3 +1,4 @@
+import { Handle, Position } from '@xyflow/react';
 import type { ComponentProps } from 'react';
 
 import {
@@ -10,7 +11,6 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Handle, Position } from '@xyflow/react';
 
 export type NodeProps = ComponentProps<typeof Card> & {
 	handles: {
@@ -37,10 +37,7 @@ export type NodeHeaderProps = ComponentProps<typeof CardHeader>;
 
 export const NodeHeader = ({ className, ...props }: NodeHeaderProps) => (
 	<CardHeader
-		className={cn(
-			'gap-0.5 rounded-t-md border-b bg-secondary p-3!',
-			className,
-		)}
+		className={cn('gap-0.5 rounded-t-md border-b bg-secondary p-3!', className)}
 		{...props}
 	/>
 );
@@ -51,9 +48,7 @@ export const NodeTitle = (props: NodeTitleProps) => <CardTitle {...props} />;
 
 export type NodeDescriptionProps = ComponentProps<typeof CardDescription>;
 
-export const NodeDescription = (props: NodeDescriptionProps) => (
-	<CardDescription {...props} />
-);
+export const NodeDescription = (props: NodeDescriptionProps) => <CardDescription {...props} />;
 
 export type NodeActionProps = ComponentProps<typeof CardAction>;
 
@@ -68,8 +63,5 @@ export const NodeContent = ({ className, ...props }: NodeContentProps) => (
 export type NodeFooterProps = ComponentProps<typeof CardFooter>;
 
 export const NodeFooter = ({ className, ...props }: NodeFooterProps) => (
-	<CardFooter
-		className={cn('rounded-b-md border-t bg-secondary p-3!', className)}
-		{...props}
-	/>
+	<CardFooter className={cn('rounded-b-md border-t bg-secondary p-3!', className)} {...props} />
 );

@@ -2,6 +2,7 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import { computedFn } from 'mobx-utils';
 import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
+
 import type { RootStore } from '@/stores/root.store.ts';
 
 export class InspectStore implements Disposable {
@@ -56,12 +57,10 @@ export class InspectStore implements Disposable {
 
 	@computed
 	get selectedRegions() {
-		return Array.from(this.selectedPaths.entries()).map(
-			([path, label]) => ({
-				path,
-				label,
-			}),
-		);
+		return Array.from(this.selectedPaths.entries()).map(([path, label]) => ({
+			path,
+			label,
+		}));
 	}
 
 	isHighlighted = computedFn((path: string) => {

@@ -49,8 +49,7 @@ export class ContactInformation {
 	}
 }
 
-export const ContactInformationSchema =
-	SchemaFactory.createForClass(ContactInformation);
+export const ContactInformationSchema = SchemaFactory.createForClass(ContactInformation);
 
 export const contactInformationSchema = z.object({
 	_id: z.any(),
@@ -73,14 +72,10 @@ export class ContactInformationInput extends OmitType(
 	_id?: string;
 }
 
-export const ContactInformationSubdocSchema = ContactInformationSchema.omit([
-	'uid',
-]);
+export const ContactInformationSubdocSchema = ContactInformationSchema.omit(['uid']);
 
 @ObjectType()
-export class ContactInformationSubdoc extends OmitType(ContactInformation, [
-	'uid',
-]) {}
+export class ContactInformationSubdoc extends OmitType(ContactInformation, ['uid']) {}
 
 export const contactInformationSubdocSchema = contactInformationSchema.omit({
 	uid: true,

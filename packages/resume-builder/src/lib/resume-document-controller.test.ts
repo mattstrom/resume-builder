@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import type { Resume } from '@resume-builder/entities';
-import { LocalResumeController } from './resume-document-controller.ts';
+import { describe, expect, it } from 'vitest';
+
 import { reorderItems } from './reorder.ts';
+import { LocalResumeController } from './resume-document-controller.ts';
 
 function createResume(): Resume {
 	const createdAt = new Date('2024-01-01T00:00:00.000Z');
@@ -92,27 +93,24 @@ describe('LocalResumeController.moveArrayItem', () => {
 
 		controller.moveArrayItem('data.workExperience', 0, 1);
 
-		expect(
-			controller
-				.getSnapshot()
-				?.data.workExperience.map((job) => job.position),
-		).toEqual(['Second', 'First']);
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'Second',
+			'First',
+		]);
 
 		controller.undo();
 
-		expect(
-			controller
-				.getSnapshot()
-				?.data.workExperience.map((job) => job.position),
-		).toEqual(['First', 'Second']);
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'First',
+			'Second',
+		]);
 
 		controller.redo();
 
-		expect(
-			controller
-				.getSnapshot()
-				?.data.workExperience.map((job) => job.position),
-		).toEqual(['Second', 'First']);
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'Second',
+			'First',
+		]);
 	});
 
 	it('reorders nested string arrays', () => {

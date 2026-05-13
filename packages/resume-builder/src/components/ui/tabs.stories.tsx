@@ -1,16 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from './card';
+
 import { Button } from './button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
 import { Input } from './input';
 import { Label } from './label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 
 const meta: Meta<typeof Tabs> = {
 	title: 'UI/Tabs',
@@ -34,8 +28,7 @@ export const Default: Story = {
 						<CardHeader>
 							<CardTitle>Account</CardTitle>
 							<CardDescription>
-								Make changes to your account here. Click save
-								when you're done.
+								Make changes to your account here. Click save when you're done.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-2">
@@ -58,15 +51,12 @@ export const Default: Story = {
 						<CardHeader>
 							<CardTitle>Password</CardTitle>
 							<CardDescription>
-								Change your password here. After saving, you'll
-								be logged out.
+								Change your password here. After saving, you'll be logged out.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<div className="space-y-1">
-								<Label htmlFor="current">
-									Current password
-								</Label>
+								<Label htmlFor="current">Current password</Label>
 								<Input id="current" type="password" />
 							</div>
 							<div className="space-y-1">

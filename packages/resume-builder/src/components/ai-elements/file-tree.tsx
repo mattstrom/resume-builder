@@ -1,26 +1,11 @@
 'use client';
 
+import { ChevronRightIcon, FileIcon, FolderIcon, FolderOpenIcon } from 'lucide-react';
 import type { HTMLAttributes, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
-import {
-	ChevronRightIcon,
-	FileIcon,
-	FolderIcon,
-	FolderOpenIcon,
-} from 'lucide-react';
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-} from 'react';
 
 interface FileTreeContextType {
 	expandedPaths: Set<string>;
@@ -82,10 +67,7 @@ export const FileTree = ({
 	return (
 		<FileTreeContext.Provider value={contextValue}>
 			<div
-				className={cn(
-					'rounded-lg border bg-background font-mono text-sm',
-					className,
-				)}
+				className={cn('rounded-lg border bg-background font-mono text-sm', className)}
 				role="tree"
 				{...props}
 			>
@@ -119,8 +101,7 @@ export const FileTreeFolder = ({
 	children,
 	...props
 }: FileTreeFolderProps) => {
-	const { expandedPaths, togglePath, selectedPath, onSelect } =
-		useContext(FileTreeContext);
+	const { expandedPaths, togglePath, selectedPath, onSelect } = useContext(FileTreeContext);
 	const isExpanded = expandedPaths.has(path);
 	const isSelected = selectedPath === path;
 
@@ -140,12 +121,7 @@ export const FileTreeFolder = ({
 	return (
 		<FileTreeFolderContext.Provider value={folderContextValue}>
 			<Collapsible onOpenChange={handleOpenChange} open={isExpanded}>
-				<div
-					className={cn('', className)}
-					role="treeitem"
-					tabIndex={0}
-					{...props}
-				>
+				<div className={cn('', className)} role="treeitem" tabIndex={0} {...props}>
 					<CollapsibleTrigger asChild>
 						<button
 							className={cn(
@@ -241,9 +217,7 @@ export const FileTreeFile = ({
 						{/* Spacer for alignment */}
 						<span className="size-4" />
 						<FileTreeIcon>
-							{icon ?? (
-								<FileIcon className="size-4 text-muted-foreground" />
-							)}
+							{icon ?? <FileIcon className="size-4 text-muted-foreground" />}
 						</FileTreeIcon>
 						<FileTreeName>{name}</FileTreeName>
 					</>
@@ -255,11 +229,7 @@ export const FileTreeFile = ({
 
 export type FileTreeIconProps = HTMLAttributes<HTMLSpanElement>;
 
-export const FileTreeIcon = ({
-	className,
-	children,
-	...props
-}: FileTreeIconProps) => (
+export const FileTreeIcon = ({ className, children, ...props }: FileTreeIconProps) => (
 	<span className={cn('shrink-0', className)} {...props}>
 		{children}
 	</span>
@@ -267,11 +237,7 @@ export const FileTreeIcon = ({
 
 export type FileTreeNameProps = HTMLAttributes<HTMLSpanElement>;
 
-export const FileTreeName = ({
-	className,
-	children,
-	...props
-}: FileTreeNameProps) => (
+export const FileTreeName = ({ className, children, ...props }: FileTreeNameProps) => (
 	<span className={cn('truncate', className)} {...props}>
 		{children}
 	</span>
@@ -281,11 +247,7 @@ export type FileTreeActionsProps = HTMLAttributes<HTMLDivElement>;
 
 const stopPropagation = (e: React.SyntheticEvent) => e.stopPropagation();
 
-export const FileTreeActions = ({
-	className,
-	children,
-	...props
-}: FileTreeActionsProps) => (
+export const FileTreeActions = ({ className, children, ...props }: FileTreeActionsProps) => (
 	// biome-ignore lint/a11y/noNoninteractiveElementInteractions: stopPropagation required for nested interactions
 	// biome-ignore lint/a11y/useSemanticElements: fieldset doesn't fit this UI pattern
 	<div

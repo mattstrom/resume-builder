@@ -1,14 +1,12 @@
 import { ApolloClient } from '@apollo/client';
 import type { Resume } from '@resume-builder/entities';
+
 import {
 	ADD_RESUME_COLLECTION_ITEM,
 	REMOVE_RESUME_COLLECTION_ITEM,
 	SET_RESUME_FIELD,
 } from '../graphql/mutations.ts';
-import {
-	getResumeCollectionPath,
-	ResumeCollections,
-} from '../graphql/resume-collections.ts';
+import { getResumeCollectionPath, ResumeCollections } from '../graphql/resume-collections.ts';
 import type {
 	AddResumeCollectionItemData,
 	AddResumeCollectionItemVariables,
@@ -19,28 +17,16 @@ import type {
 } from '../graphql/types.ts';
 import { reorderItems } from './reorder.ts';
 
-export type ResumeConnectionStatus =
-	| 'idle'
-	| 'connecting'
-	| 'connected'
-	| 'disconnected'
-	| 'error';
+export type ResumeConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error';
 
 export interface ResumeDocumentController {
 	readonly resumeId: string;
 	getSnapshot(): Resume | null;
 	replaceResume(resume: Resume): void;
 	setField(path: string, value: unknown): void | Promise<void>;
-	moveArrayItem(
-		path: string,
-		fromIndex: number,
-		toIndex: number,
-	): void | Promise<void>;
+	moveArrayItem(path: string, fromIndex: number, toIndex: number): void | Promise<void>;
 	addCollectionItem(collection: ResumeCollectionValue): void | Promise<void>;
-	removeCollectionItem(
-		collection: ResumeCollectionValue,
-		index: number,
-	): void | Promise<void>;
+	removeCollectionItem(collection: ResumeCollectionValue, index: number): void | Promise<void>;
 	undo(): void | Promise<void>;
 	redo(): void | Promise<void>;
 	destroy(): Promise<void>;
@@ -56,8 +42,7 @@ interface ApiResumeControllerOptions extends LocalResumeControllerOptions {
 	onError?: (error: Error) => void;
 }
 
-type ResumeCollectionValue =
-	(typeof ResumeCollections)[keyof typeof ResumeCollections];
+type ResumeCollectionValue = (typeof ResumeCollections)[keyof typeof ResumeCollections];
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -83,9 +68,7 @@ function cloneWithPathValue<T>(source: T, path: string, value: unknown): T {
 			(typeof nextSegment === 'number' ? [] : {});
 
 		(current as Record<string, unknown>)[key] = structuredClone(nextValue);
-		current = (current as Record<string, unknown>)[key] as
-			| Record<string, unknown>
-			| unknown[];
+		current = (current as Record<string, unknown>)[key] as Record<string, unknown> | unknown[];
 	}
 
 	if (segments.length === 0) {
@@ -103,10 +86,7 @@ function cloneWithPathValue<T>(source: T, path: string, value: unknown): T {
 	return clone as T;
 }
 
-function createDefaultCollectionItem(
-	collection: ResumeCollectionValue,
-	resume: Resume,
-) {
+function createDefaultCollectionItem(collection: ResumeCollectionValue, resume: Resume) {
 	const base = {
 		uid: resume.uid,
 	};
@@ -197,8 +177,7 @@ export class LocalResumeController implements ResumeDocumentController {
 		}
 
 		const path = getResumeCollectionPath(collection);
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const currentItems = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
 		this.pushUndoSnapshot();
 		this.snapshot = cloneWithPathValue(this.snapshot, path, [
@@ -214,8 +193,7 @@ export class LocalResumeController implements ResumeDocumentController {
 		}
 
 		const path = getResumeCollectionPath(collection);
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const currentItems = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 
 		this.pushUndoSnapshot();
 		this.snapshot = cloneWithPathValue(
@@ -231,8 +209,7 @@ export class LocalResumeController implements ResumeDocumentController {
 			return;
 		}
 
-		const currentItems =
-			(this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const currentItems = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 		const nextItems = reorderItems(currentItems, fromIndex, toIndex);
 
 		if (
@@ -368,10 +345,7 @@ export class ApiResumeController extends LocalResumeController {
 		});
 	}
 
-	override removeCollectionItem(
-		collection: ResumeCollectionValue,
-		index: number,
-	) {
+	override removeCollectionItem(collection: ResumeCollectionValue, index: number) {
 		const previousSnapshot = this.getSnapshot();
 		super.removeCollectionItem(collection, index);
 
@@ -450,10 +424,7 @@ export class ApiResumeController extends LocalResumeController {
 
 		const currentSnapshot = structuredClone(this.snapshot);
 		this.enqueueWrite(previousSnapshot, async () => {
-			const changes = this.collectChangedFields(
-				previousSnapshot,
-				currentSnapshot,
-			);
+			const changes = this.collectChangedFields(previousSnapshot, currentSnapshot);
 
 			if (changes.length === 0) {
 				return currentSnapshot;
@@ -481,10 +452,7 @@ export class ApiResumeController extends LocalResumeController {
 		});
 	}
 
-	private enqueueWrite(
-		previousSnapshot: Resume,
-		write: () => Promise<Resume | null>,
-	) {
+	private enqueueWrite(previousSnapshot: Resume, write: () => Promise<Resume | null>) {
 		this.writeQueue = this.writeQueue.then(async () => {
 			if (this.destroyed) {
 				return;
@@ -506,9 +474,7 @@ export class ApiResumeController extends LocalResumeController {
 				this.redoStack = [];
 				this.emitSnapshot();
 				this.apiOptions.onError?.(
-					error instanceof Error
-						? error
-						: new Error('Failed to persist resume changes'),
+					error instanceof Error ? error : new Error('Failed to persist resume changes'),
 				);
 				throw error;
 			}
@@ -519,10 +485,7 @@ export class ApiResumeController extends LocalResumeController {
 		});
 	}
 
-	private collectChangedFields(
-		previousSnapshot: Resume,
-		nextSnapshot: Resume,
-	) {
+	private collectChangedFields(previousSnapshot: Resume, nextSnapshot: Resume) {
 		const fields = [
 			'data.name',
 			'data.title',

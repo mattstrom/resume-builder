@@ -1,19 +1,18 @@
 import { getModelForClass } from '@typegoose/typegoose';
-import { connectMongoose } from '../utils/database';
-import { ContactInformation } from '../models/contact-information';
-import { Job } from '../models/job';
 
+import { ContactInformation } from '../models/contact-information';
+import { Education } from '../models/education';
+import { Job } from '../models/job';
+import { Project } from '../models/project';
+import { ResumeContent } from '../models/resume-content';
+import { Skill } from '../models/skill';
+import { connectMongoose } from '../utils/database';
 import contactInformation from './contact-information.json';
 import education from './education.json';
 import jobs from './jobs.json';
-import skills from './skills.json';
 import projects from './projects.json';
 import resumeContent from './resume-content.json';
-
-import { Education } from '../models/education';
-import { Skill } from '../models/skill';
-import { Project } from '../models/project';
-import { ResumeContent } from '../models/resume-content';
+import skills from './skills.json';
 
 const data = [
 	{

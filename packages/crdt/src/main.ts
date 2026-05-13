@@ -1,8 +1,9 @@
-import { INestApplicationContext } from '@nestjs/common';
 import { Server } from '@hocuspocus/server';
+import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
+
 import { AppModule } from './app.module.js';
 import { ApiService } from './modules/api/api.service.js';
 import { AuthService } from './modules/auth/auth.service.js';

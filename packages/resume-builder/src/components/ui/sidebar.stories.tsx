@@ -1,4 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Home, Inbox, Calendar, Search, Settings, ChevronUp, User2 } from 'lucide-react';
+
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from './dropdown-menu';
 import {
 	Sidebar,
 	SidebarContent,
@@ -15,21 +23,6 @@ import {
 	SidebarTrigger,
 	SidebarInset,
 } from './sidebar';
-import {
-	Home,
-	Inbox,
-	Calendar,
-	Search,
-	Settings,
-	ChevronUp,
-	User2,
-} from 'lucide-react';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from './dropdown-menu';
 
 const meta = {
 	title: 'UI/Sidebar',
@@ -162,9 +155,7 @@ export const Floating: Story = {
 									<Home className="size-4" />
 								</div>
 								<div className="flex flex-col gap-0.5 leading-none">
-									<span className="font-semibold">
-										Acme Inc
-									</span>
+									<span className="font-semibold">Acme Inc</span>
 									<span className="">v1.0.0</span>
 								</div>
 							</SidebarMenuButton>

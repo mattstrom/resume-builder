@@ -1,13 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import {
-	Card,
-	CardHeader,
-	CardFooter,
-	CardTitle,
-	CardDescription,
-	CardContent,
-} from './card';
+
 import { Button } from './button';
+import { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 import { Input } from './input';
 import { Label } from './label';
 
@@ -26,19 +20,14 @@ export const Default: Story = {
 		<Card {...args} className="w-[350px]">
 			<CardHeader>
 				<CardTitle>Create project</CardTitle>
-				<CardDescription>
-					Deploy your new project in one-click.
-				</CardDescription>
+				<CardDescription>Deploy your new project in one-click.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<form>
 					<div className="grid w-full items-center gap-4">
 						<div className="flex flex-col space-y-1.5">
 							<Label htmlFor="name">Name</Label>
-							<Input
-								id="name"
-								placeholder="Name of your project"
-							/>
+							<Input id="name" placeholder="Name of your project" />
 						</div>
 					</div>
 				</form>
@@ -62,9 +51,7 @@ export const Simple: Story = {
 				<div className="grid gap-4">
 					<div className="flex items-center space-x-4 rounded-md border p-4">
 						<div className="flex-1 space-y-1">
-							<p className="text-sm font-medium leading-none">
-								Push Notifications
-							</p>
+							<p className="text-sm font-medium leading-none">Push Notifications</p>
 							<p className="text-sm text-muted-foreground">
 								Send notifications to device.
 							</p>

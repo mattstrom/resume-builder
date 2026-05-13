@@ -1,6 +1,8 @@
 import { useMutation } from '@apollo/client/react';
-import { type FC, type FormEvent, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { type FC, type FormEvent, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
@@ -11,21 +13,16 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+
 import { CREATE_APPLICATION } from '../graphql/mutations';
+import type { CreateApplicationData, CreateApplicationVariables } from '../graphql/types';
 import { useStore } from '../stores/store.provider';
-import type {
-	CreateApplicationData,
-	CreateApplicationVariables,
-} from '../graphql/types';
 
 interface CreateApplicationDialogProps {
 	children: React.ReactNode;
 }
 
-export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({
-	children,
-}) => {
+export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({ children }) => {
 	const navigate = useNavigate();
 	const { applicationStore, resumeStore, editorStore } = useStore();
 	const [open, setOpen] = useState(false);
@@ -74,21 +71,11 @@ export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({
 				<form onSubmit={handleSubmit} className="grid gap-4">
 					<div className="grid gap-2">
 						<Label htmlFor="name">Name</Label>
-						<Input
-							id="name"
-							name="name"
-							placeholder="Frontend Engineer"
-							required
-						/>
+						<Input id="name" name="name" placeholder="Frontend Engineer" required />
 					</div>
 					<div className="grid gap-2">
 						<Label htmlFor="company">Company</Label>
-						<Input
-							id="company"
-							name="company"
-							placeholder="Acme Corp"
-							required
-						/>
+						<Input id="company" name="company" placeholder="Acme Corp" required />
 					</div>
 					<div className="grid gap-2">
 						<Label htmlFor="jobPostingUrl">Job Posting URL</Label>

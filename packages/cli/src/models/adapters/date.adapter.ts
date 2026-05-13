@@ -1,9 +1,6 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type DateProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'date' }
->;
+export type DateProperty = Extract<DatabasePropertyConfigResponse, { type: 'date' }>;
 
 export interface DateRange {
 	start: string;
@@ -20,9 +17,7 @@ export class DateAdapter extends Adapter<DateProperty, DateRange | null> {
 		return (this.property.date as any) ?? null;
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is DateProperty {
+	static is(property: DatabasePropertyConfigResponse): property is DateProperty {
 		return property.type === 'date';
 	}
 }

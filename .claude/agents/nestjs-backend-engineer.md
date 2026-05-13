@@ -171,12 +171,7 @@ Saving a memory is a two-step process:
 ---
 name: { { memory name } }
 description:
-    {
-        {
-            one-line description — used to decide relevance in future conversations,
-            so be specific,
-        },
-    }
+    { { one-line description — used to decide relevance in future conversations, so be specific } }
 type: { { user, feedback, project, reference } }
 ---
 

@@ -4,11 +4,7 @@ import * as Y from 'yjs';
 
 import type { RootStore } from './root.store.ts';
 
-export type ProfileConnectionStatus =
-	| 'idle'
-	| 'connecting'
-	| 'connected'
-	| 'disconnected';
+export type ProfileConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected';
 
 const NARRATIVE_FIELD = 'narrative';
 const JOB_PREFERENCES_FIELD = 'jobPreferences';

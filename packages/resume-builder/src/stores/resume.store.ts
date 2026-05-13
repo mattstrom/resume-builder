@@ -1,5 +1,6 @@
 import type { Resume } from '@resume-builder/entities';
 import { action, computed, makeObservable, observable } from 'mobx';
+
 import { LIST_RESUMES } from '../graphql/queries.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
@@ -21,28 +22,20 @@ const STORAGE_KEY_SORT_ASCENDING = 'resumeList.sortAscending';
 const STORAGE_KEY_GROUP_BY = 'resumeList.groupBy';
 
 export class ResumeStore {
-	private query: ApolloMobxWrapper<
-		{ listResumes: Resume[] },
-		ListResumesVariables
-	>;
+	private query: ApolloMobxWrapper<{ listResumes: Resume[] }, ListResumesVariables>;
 
 	@observable
 	selectedResumeId: string | null = null;
 
 	@observable
-	sortField: string | null =
-		localStorage.getItem(STORAGE_KEY_SORT_FIELD) ?? null;
+	sortField: string | null = localStorage.getItem(STORAGE_KEY_SORT_FIELD) ?? null;
 
 	@observable
-	sortAscending: boolean =
-		localStorage.getItem(STORAGE_KEY_SORT_ASCENDING) !== 'false';
+	sortAscending: boolean = localStorage.getItem(STORAGE_KEY_SORT_ASCENDING) !== 'false';
 
 	@observable
 	groupBy: 'company' | 'level' | null =
-		(localStorage.getItem(STORAGE_KEY_GROUP_BY) as
-			| 'company'
-			| 'level'
-			| null) ?? null;
+		(localStorage.getItem(STORAGE_KEY_GROUP_BY) as 'company' | 'level' | null) ?? null;
 
 	@observable
 	filterBase: boolean | null = null;
@@ -52,10 +45,7 @@ export class ResumeStore {
 
 	@computed
 	get selectedResume() {
-		return (
-			this.data.find((resume) => resume._id === this.selectedResumeId) ??
-			null
-		);
+		return this.data.find((resume) => resume._id === this.selectedResumeId) ?? null;
 	}
 
 	get data() {
@@ -129,20 +119,16 @@ export class ResumeStore {
 		makeObservable(this);
 
 		const { persistence } = rootStore;
-		this.filterBase = persistence.retrieve<boolean>(
-			StorageKey.ResumeListFilterBase,
-		);
-		this.filterCompany = persistence.retrieve<string>(
-			StorageKey.ResumeListFilterCompany,
-		);
+		this.filterBase = persistence.retrieve<boolean>(StorageKey.ResumeListFilterBase);
+		this.filterCompany = persistence.retrieve<string>(StorageKey.ResumeListFilterCompany);
 
-		this.query = ApolloMobxWrapper.create<
-			{ listResumes: Resume[] },
-			ListResumesVariables
-		>(rootStore.client, {
-			query: LIST_RESUMES,
-			variables: this.buildVariables(),
-		});
+		this.query = ApolloMobxWrapper.create<{ listResumes: Resume[] }, ListResumesVariables>(
+			rootStore.client,
+			{
+				query: LIST_RESUMES,
+				variables: this.buildVariables(),
+			},
+		);
 	}
 
 	private buildVariables(): ListResumesVariables {
