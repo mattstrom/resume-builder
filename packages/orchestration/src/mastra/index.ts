@@ -1,6 +1,5 @@
-import { MastraAuthAuth0 } from '@mastra/auth-auth0';
+import { Auth0JwtProvider } from './auth';
 import { Mastra } from '@mastra/core/mastra';
-import { CompositeAuth, SimpleAuth } from '@mastra/core/server';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
@@ -32,30 +31,15 @@ import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 import { chatRoute } from '@mastra/ai-sdk';
 
-const simpleAuth = new SimpleAuth({
-	tokens: {
-		'my-api-key': {
-			id: 'user-1',
-			name: 'Alice',
-			role: 'admin',
-		},
-		'sk-admin-token-123': {
-			id: 'user-1',
-			name: 'Admin User',
-			role: 'admin',
-		},
-	},
-});
-
-const auth0Provider = new MastraAuthAuth0({
+const auth0Provider = new Auth0JwtProvider({
 	domain: 'login.mattstrom.com',
 	audience: 'https://resume-builder.mattstrom.com',
+	clientId: process.env['AUTH0_CLIENT_ID']!,
 });
 
 export const mastra = new Mastra({
 	server: {
-		auth: new CompositeAuth([simpleAuth, auth0Provider]),
-		// auth: simpleAuth,
+		auth: auth0Provider,
 		apiRoutes: [
 			chatRoute({
 				path: '/chat/:agentId',

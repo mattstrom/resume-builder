@@ -28,6 +28,7 @@
     "@mastra/observability": "^1.11.1",
     "@resume-builder/entities": "file:../entities",
     "graphql": "^16.13.2",
+    "jose": "^6.2.3",
     "outdent": "^0.8.0",
     "zod": "^4.3.6"
   },
