@@ -102,6 +102,7 @@ export class ConversationService {
 			group.push(model);
 			groups.set(model.providerLabel, group);
 		}
+
 		return Array.from(groups.entries()).map(([providerLabel, models]) => ({
 			providerLabel,
 			models,
@@ -136,16 +137,28 @@ export class ConversationService {
 
 	get chatScope(): ChatScope | null {
 		const p = this.rootStore.router?.state.location.pathname ?? '';
-		if (p.includes('/profile/background')) return 'background';
-		if (p.includes('/profile/preferences')) return 'preferences';
-		if (p.includes('/profile')) return 'narrative';
+		if (p.includes('/profile/background')) {
+			return 'background';
+		}
+
+		if (p.includes('/profile/preferences')) {
+			return 'preferences';
+		}
+
+		if (p.includes('/profile')) {
+			return 'narrative';
+		}
+
 		return null;
 	}
 
 	private getActiveStorageKey(): string | null {
 		const scope = this.chatScope;
-		if (scope) return `chat:lastConversation:scope:${scope}`;
+		if (scope) {
+			return `chat:lastConversation:scope:${scope}`;
+		}
 		const { applicationId } = this.requestContext;
+
 		return applicationId ? getStorageKey(applicationId) : null;
 	}
 
@@ -286,6 +299,7 @@ export class ConversationService {
 		if (savedId) {
 			this.activeConversationId = savedId;
 			await this.loadConversation(savedId);
+
 			return true;
 		}
 
