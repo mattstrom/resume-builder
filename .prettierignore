@@ -1,8 +1,0 @@
-# Ignore artifacts:
-build
-coverage
-
-# Helm templates contain Go template syntax that isn't valid YAML
-charts
-
-schema.gql
