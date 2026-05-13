@@ -86,9 +86,7 @@ export class ChatController {
 		const scope = data?.scope;
 
 		const isProfileScope =
-			scope === 'narrative' ||
-			scope === 'background' ||
-			scope === 'preferences';
+			scope === 'narrative' || scope === 'background' || scope === 'preferences';
 
 		if (!applicationId && !isProfileScope) {
 			throw new BadRequestException('Application ID is required');
@@ -104,10 +102,7 @@ export class ChatController {
 
 		if (applicationId) {
 			// Fetch application and its linked resume for context injection
-			const application = await this.applicationsService.find(
-				uid,
-				applicationId,
-			);
+			const application = await this.applicationsService.find(uid, applicationId);
 
 			const resumes = await this.resumesService.findAll(uid, undefined, {
 				applicationId: application._id,
@@ -150,18 +145,13 @@ export class ChatController {
 				const sections: Record<string, unknown> = {};
 				for (const path of highlightedPaths) {
 					// Paths are like "data.summary" — strip "data." prefix since resume.data is the root
-					const resolvedPath = path.startsWith('data.')
-						? path.slice(5)
-						: path;
+					const resolvedPath = path.startsWith('data.') ? path.slice(5) : path;
 					const value =
 						resolvedPath === 'data' || resolvedPath === ''
 							? resume.data
 							: resolvedPath
 									.split('.')
-									.reduce(
-										(obj: any, key) => obj?.[key],
-										resume.data,
-									);
+									.reduce((obj: any, key) => obj?.[key], resume.data);
 					if (value !== undefined) {
 						sections[path] = value;
 					}
@@ -270,15 +260,11 @@ export class ChatController {
 						.map((p: any) => p.text)
 						.join('') ?? '');
 
-		const conversation = await this.conversationsService.findOrCreate(
-			uid,
-			conversationId,
-			{
-				applicationId: applicationId ?? undefined,
-				title: userText.slice(0, 50) || 'New Conversation',
-				model: requestedModel,
-			},
-		);
+		const conversation = await this.conversationsService.findOrCreate(uid, conversationId, {
+			applicationId: applicationId ?? undefined,
+			title: userText.slice(0, 50) || 'New Conversation',
+			model: requestedModel,
+		});
 		conversationId = conversation._id;
 
 		const persistedModel =

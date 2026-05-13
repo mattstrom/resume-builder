@@ -1,3 +1,5 @@
+import { createHash, randomBytes } from 'node:crypto';
+
 import type {
 	ISessionProvider,
 	ISSOProvider,
@@ -5,12 +7,8 @@ import type {
 	SSOCallbackResult,
 	SSOLoginConfig,
 } from '@mastra/core/auth';
-import {
-	MastraAuthProvider,
-	type MastraAuthProviderOptions,
-} from '@mastra/core/server';
+import { MastraAuthProvider, type MastraAuthProviderOptions } from '@mastra/core/server';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
-import { createHash, randomBytes } from 'node:crypto';
 
 export type Auth0JwtUser = JWTPayload;
 
@@ -38,28 +36,21 @@ export class Auth0JwtProvider
 	readonly #issuer: string;
 
 	// Keyed by OAuth state param; created in getLoginUrl, consumed in getLoginCookies
-	readonly #pkceCache = new Map<
-		string,
-		{ codeVerifier: string; codeChallenge: string }
-	>();
+	readonly #pkceCache = new Map<string, { codeVerifier: string; codeChallenge: string }>();
 	// Written by setCallbackCookieHeader, read by handleCallback (same request)
 	#pkceData: { codeVerifier: string; redirectUri: string } | null = null;
 
 	constructor(options: Auth0JwtProviderOptions) {
 		super({ name: options.name ?? 'auth0-jwt', ...options });
 		if (!options.domain || !options.audience || !options.clientId) {
-			throw new Error(
-				'Auth0JwtProvider: domain, audience, and clientId are required',
-			);
+			throw new Error('Auth0JwtProvider: domain, audience, and clientId are required');
 		}
 		this.#domain = options.domain;
 		this.#audience = options.audience;
 		this.#clientId = options.clientId;
 		this.#clientSecret = options.clientSecret;
 		this.#issuer = `https://${options.domain}/`;
-		this.#jwks = createRemoteJWKSet(
-			new URL(`https://${options.domain}/.well-known/jwks.json`),
-		);
+		this.#jwks = createRemoteJWKSet(new URL(`https://${options.domain}/.well-known/jwks.json`));
 	}
 
 	// ============================================================================
@@ -67,12 +58,15 @@ export class Auth0JwtProvider
 	// ============================================================================
 
 	async authenticateToken(token: string): Promise<Auth0JwtUser | null> {
-		if (!token || typeof token !== 'string') return null;
+		if (!token || typeof token !== 'string') {
+			return null;
+		}
 		try {
 			const { payload } = await jwtVerify(token, this.#jwks, {
 				issuer: this.#issuer,
 				audience: this.#audience,
 			});
+
 			return payload;
 		} catch {
 			return null;
@@ -80,8 +74,13 @@ export class Auth0JwtProvider
 	}
 
 	authorizeUser(user: Auth0JwtUser): boolean {
-		if (!user?.sub) return false;
-		if (user.exp && user.exp * 1000 < Date.now()) return false;
+		if (!user?.sub) {
+			return false;
+		}
+		if (user.exp && user.exp * 1000 < Date.now()) {
+			return false;
+		}
+
 		return true;
 	}
 
@@ -105,36 +104,38 @@ export class Auth0JwtProvider
 			code_challenge: codeChallenge,
 			code_challenge_method: 'S256',
 		});
+
 		return `https://${this.#domain}/authorize?${params}`;
 	}
 
 	getLoginCookies(redirectUri: string, state: string): string[] {
 		const { codeVerifier } = this.#getOrCreatePkce(state);
 		this.#pkceCache.delete(state);
-		const value = Buffer.from(
-			JSON.stringify({ codeVerifier, redirectUri }),
-		).toString('base64');
+		const value = Buffer.from(JSON.stringify({ codeVerifier, redirectUri })).toString('base64');
+
 		return [`auth0_pkce=${value}; HttpOnly; SameSite=Lax; Path=/`];
 	}
 
 	// Called by Mastra's callback handler before handleCallback()
 	setCallbackCookieHeader(cookieHeader: string | null): void {
-		if (!cookieHeader) return;
+		if (!cookieHeader) {
+			return;
+		}
 		const match = cookieHeader.match(/(?:^|;\s*)auth0_pkce=([^;]+)/);
-		if (!match) return;
+		if (!match) {
+			return;
+		}
 		try {
-			this.#pkceData = JSON.parse(
-				Buffer.from(match[1], 'base64').toString(),
-			) as { codeVerifier: string; redirectUri: string };
+			this.#pkceData = JSON.parse(Buffer.from(match[1], 'base64').toString()) as {
+				codeVerifier: string;
+				redirectUri: string;
+			};
 		} catch {
 			// malformed cookie — handleCallback will throw
 		}
 	}
 
-	async handleCallback(
-		code: string,
-		_state: string,
-	): Promise<SSOCallbackResult<Auth0JwtUser>> {
+	async handleCallback(code: string, _state: string): Promise<SSOCallbackResult<Auth0JwtUser>> {
 		const pkce = this.#pkceData;
 		this.#pkceData = null;
 
@@ -151,7 +152,9 @@ export class Auth0JwtProvider
 			redirect_uri: pkce.redirectUri,
 			code_verifier: pkce.codeVerifier,
 		};
-		if (this.#clientSecret) body['client_secret'] = this.#clientSecret;
+		if (this.#clientSecret) {
+			body['client_secret'] = this.#clientSecret;
+		}
 
 		const response = await fetch(`https://${this.#domain}/oauth/token`, {
 			method: 'POST',
@@ -172,10 +175,9 @@ export class Auth0JwtProvider
 		};
 
 		const user = await this.authenticateToken(data.access_token);
-		if (!user)
-			throw new Error(
-				'Access token failed JWKS verification after exchange',
-			);
+		if (!user) {
+			throw new Error('Access token failed JWKS verification after exchange');
+		}
 
 		return {
 			user,
@@ -200,6 +202,7 @@ export class Auth0JwtProvider
 			client_id: this.#clientId,
 			returnTo: redirectUri,
 		});
+
 		return `https://${this.#domain}/v2/logout?${params}`;
 	}
 
@@ -210,37 +213,34 @@ export class Auth0JwtProvider
 	// and passes it back to authenticateToken on each request.
 	// ============================================================================
 
-	async createSession(
-		userId: string,
-		metadata?: Record<string, unknown>,
-	): Promise<Auth0Session> {
+	async createSession(userId: string, metadata?: Record<string, unknown>): Promise<Auth0Session> {
 		const accessToken = (metadata?.['accessToken'] as string) ?? '';
 		const user = await this.authenticateToken(accessToken);
 		const sub = user?.sub ?? userId ?? 'unknown';
 		const exp = typeof user?.exp === 'number' ? user.exp : undefined;
+
 		return {
 			id: accessToken,
 			userId: sub,
 			accessToken,
 			idToken: metadata?.['idToken'] as string | undefined,
-			expiresAt: exp
-				? new Date(exp * 1000)
-				: new Date(Date.now() + 3600 * 1000),
+			expiresAt: exp ? new Date(exp * 1000) : new Date(Date.now() + 3600 * 1000),
 			createdAt: new Date(),
 		};
 	}
 
 	async validateSession(sessionId: string): Promise<Auth0Session | null> {
 		const user = await this.authenticateToken(sessionId);
-		if (!user) return null;
+		if (!user) {
+			return null;
+		}
 		const exp = typeof user.exp === 'number' ? user.exp : undefined;
+
 		return {
 			id: sessionId,
 			userId: user.sub ?? 'unknown',
 			accessToken: sessionId,
-			expiresAt: exp
-				? new Date(exp * 1000)
-				: new Date(Date.now() + 3600 * 1000),
+			expiresAt: exp ? new Date(exp * 1000) : new Date(Date.now() + 3600 * 1000),
 			createdAt: new Date(),
 		};
 	}
@@ -255,15 +255,17 @@ export class Auth0JwtProvider
 
 	getSessionIdFromRequest(request: Request): string | null {
 		const cookie = request.headers.get('Cookie');
-		if (!cookie) return null;
+		if (!cookie) {
+			return null;
+		}
 		const match = cookie.match(/(?:^|;\s*)auth0_session=([^;]+)/);
+
 		return match?.[1] ?? null;
 	}
 
 	getSessionHeaders(session: Auth0Session): Record<string, string> {
-		const expires = session.expiresAt
-			? `; Expires=${session.expiresAt.toUTCString()}`
-			: '';
+		const expires = session.expiresAt ? `; Expires=${session.expiresAt.toUTCString()}` : '';
+
 		return {
 			'Set-Cookie': `auth0_session=${session.accessToken}; HttpOnly; SameSite=Lax; Path=/${expires}`,
 		};
@@ -271,8 +273,7 @@ export class Auth0JwtProvider
 
 	getClearSessionHeaders(): Record<string, string> {
 		return {
-			'Set-Cookie':
-				'auth0_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0',
+			'Set-Cookie': 'auth0_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0',
 		};
 	}
 
@@ -284,10 +285,15 @@ export class Auth0JwtProvider
 		const authHeader = request.headers.get('Authorization');
 		if (authHeader) {
 			const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-			if (token) return this.authenticateToken(token);
+			if (token) {
+				return this.authenticateToken(token);
+			}
 		}
 		const sessionId = this.getSessionIdFromRequest(request);
-		if (sessionId) return this.authenticateToken(sessionId);
+		if (sessionId) {
+			return this.authenticateToken(sessionId);
+		}
+
 		return null;
 	}
 
@@ -305,11 +311,10 @@ export class Auth0JwtProvider
 	} {
 		if (!this.#pkceCache.has(state)) {
 			const codeVerifier = randomBytes(32).toString('base64url');
-			const codeChallenge = createHash('sha256')
-				.update(codeVerifier)
-				.digest('base64url');
+			const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url');
 			this.#pkceCache.set(state, { codeVerifier, codeChallenge });
 		}
+
 		return this.#pkceCache.get(state)!;
 	}
 }

@@ -1,7 +1,8 @@
-import type { Extension, onRequestPayload } from '@hocuspocus/server';
-import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+
+import type { Extension, onRequestPayload } from '@hocuspocus/server';
+import { Injectable } from '@nestjs/common';
 import * as Y from 'yjs';
 
 const NARRATIVE_FIELD = 'narrative';
@@ -17,10 +18,7 @@ type InsertItem = {
 	content: TextRun[];
 };
 
-type DeltaOp =
-	| { retain: number }
-	| { delete: number }
-	| { insert: InsertItem[] };
+type DeltaOp = { retain: number } | { delete: number } | { insert: InsertItem[] };
 
 type StructuredNode = {
 	index: number;
@@ -51,10 +49,7 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 	res.end(JSON.stringify(body));
 }
 
-function elementToStructured(
-	element: Y.XmlElement,
-	index: number,
-): StructuredNode {
+function elementToStructured(element: Y.XmlElement, index: number): StructuredNode {
 	const content: TextRun[] = [];
 	for (const child of element.toArray()) {
 		if (child instanceof Y.XmlText) {
@@ -135,10 +130,7 @@ export class ApiService implements Extension {
 			.update(`${nonce}:${ts}`)
 			.digest('hex');
 
-		return crypto.timingSafeEqual(
-			Buffer.from(sig, 'hex'),
-			Buffer.from(expected, 'hex'),
-		);
+		return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'));
 	}
 
 	async onRequest({ request, response, instance }: onRequestPayload) {
@@ -158,22 +150,14 @@ export class ApiService implements Extension {
 
 			if (getMatch && request.method === 'GET') {
 				const name = decodeURIComponent(getMatch[1]);
-				const conn = await instance.openDirectConnection(
-					name,
-					contextForDocument(name),
-				);
+				const conn = await instance.openDirectConnection(name, contextForDocument(name));
 
 				try {
 					let nodes: StructuredNode[] = [];
 					await conn.transact((doc) => {
 						const fragment = doc.getXmlFragment(NARRATIVE_FIELD);
-						nodes = Array.from(
-							{ length: fragment.length },
-							(_, i) =>
-								elementToStructured(
-									fragment.get(i) as Y.XmlElement,
-									i,
-								),
+						nodes = Array.from({ length: fragment.length }, (_, i) =>
+							elementToStructured(fragment.get(i) as Y.XmlElement, i),
 						);
 					});
 					sendJson(response, 200, { nodes });
@@ -184,9 +168,7 @@ export class ApiService implements Extension {
 				return;
 			}
 
-			const deltaMatch = url.pathname.match(
-				/^\/api\/documents\/([^/]+)\/apply-delta$/,
-			);
+			const deltaMatch = url.pathname.match(/^\/api\/documents\/([^/]+)\/apply-delta$/);
 
 			if (deltaMatch && request.method === 'POST') {
 				const name = decodeURIComponent(deltaMatch[1]);
@@ -194,10 +176,7 @@ export class ApiService implements Extension {
 					delta: DeltaOp[];
 				};
 
-				const conn = await instance.openDirectConnection(
-					name,
-					contextForDocument(name),
-				);
+				const conn = await instance.openDirectConnection(name, contextForDocument(name));
 				let length = 0;
 				try {
 					await conn.transact((doc) => {
@@ -214,8 +193,7 @@ export class ApiService implements Extension {
 
 			sendJson(response, 404, { error: 'Not found' });
 		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : 'Internal server error';
+			const message = err instanceof Error ? err.message : 'Internal server error';
 			sendJson(response, 500, { error: message });
 		}
 	}

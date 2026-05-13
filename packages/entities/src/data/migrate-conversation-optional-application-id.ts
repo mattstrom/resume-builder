@@ -6,9 +6,7 @@
 import { connectMongoose } from '../utils/database';
 
 async function main() {
-	console.log(
-		'Verifying Conversation documents for optional applicationId migration...',
-	);
+	console.log('Verifying Conversation documents for optional applicationId migration...');
 
 	await using _ = await connectMongoose({
 		url: process.env.MONGODB_URL || 'mongodb://localhost:27017',
@@ -23,9 +21,7 @@ async function main() {
 	});
 
 	console.log(`Total Conversation documents: ${total}`);
-	console.log(
-		`Documents without applicationId (expected 0 before this migration): ${missing}`,
-	);
+	console.log(`Documents without applicationId (expected 0 before this migration): ${missing}`);
 	console.log('No data transformation needed. Migration complete.');
 }
 

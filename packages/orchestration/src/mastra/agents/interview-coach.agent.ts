@@ -2,14 +2,14 @@ import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 import { z } from 'zod';
+
 import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import { scorers } from '../scorers/weather-scorer';
 
 export const interviewCoachAgent = new Agent({
 	id: 'interview-coach',
 	name: 'Interview Coach',
-	description:
-		'Coach the user in preparing for and debriefing from interviews',
+	description: 'Coach the user in preparing for and debriefing from interviews',
 	model: 'anthropic/claude-sonnet-4-5',
 	requestContextSchema: z.object({
 		scope: z.string().optional(),

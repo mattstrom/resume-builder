@@ -22,7 +22,9 @@ type Tools =
 	| 'save_cover_letter'
 	| 'get_schemas'
 	| 'get_schema_names'
-	| 'lookup_schema';
+	| 'lookup_schema'
+	| 'read_preferences'
+	| 'edit_preferences';
 
 type ResumeBuilderMCPTools = {
 	[key in `resumeBuilder_${Tools}`]: Tool<any, any, any, any>;

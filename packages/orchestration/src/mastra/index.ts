@@ -1,9 +1,8 @@
-import { Auth0JwtProvider } from './auth';
+import { chatRoute } from '@mastra/ai-sdk';
 import { Mastra } from '@mastra/core/mastra';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
-import { PostgresStore } from '@mastra/pg';
 import { PinoLogger } from '@mastra/loggers';
 import {
 	CloudExporter,
@@ -11,6 +10,8 @@ import {
 	Observability,
 	SensitiveDataFilter,
 } from '@mastra/observability';
+import { PostgresStore } from '@mastra/pg';
+
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
 import { chatAgent } from './agents/chat.agent';
@@ -20,6 +21,7 @@ import { narrativeCoachAgent } from './agents/narrative-coach.agent';
 import { resumeWriterAgent } from './agents/resume-writer.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
+import { Auth0JwtProvider } from './auth';
 import {
 	completenessScorer,
 	toolCallAppropriatenessScorer,
@@ -28,7 +30,6 @@ import {
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
-import { chatRoute } from '@mastra/ai-sdk';
 
 const auth0Provider = new Auth0JwtProvider({
 	domain: 'login.mattstrom.com',

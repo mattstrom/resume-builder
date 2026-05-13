@@ -1,5 +1,6 @@
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { z } from 'zod';
+
 import { narrativeCoachAgent } from '../agents/narrative-coach.agent';
 
 const narrativeCoachStep = createStep(narrativeCoachAgent);
@@ -12,12 +13,7 @@ const handoffWorkflow = createWorkflow({
 	outputSchema: z.object({
 		scope: z.string().describe('The scope of the handoff'),
 	}),
-}).branch([
-	[
-		async ({ inputData }) => inputData.scope === 'narrativeCoach',
-		narrativeCoachStep,
-	],
-]);
+}).branch([[async ({ inputData }) => inputData.scope === 'narrativeCoach', narrativeCoachStep]]);
 
 handoffWorkflow.commit();
 
