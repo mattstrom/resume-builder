@@ -1,18 +1,17 @@
-import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
+import type { Job } from '@resume-builder/entities';
+import { observer } from 'mobx-react';
+import { type FC, type PropsWithChildren } from 'react';
+
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import {
-	getResumeCollectionPath,
-	ResumeCollections,
-} from '@/graphql/resume-collections.ts';
+import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { Button } from '@/components/ui/button.tsx';
+import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import type { Job } from '@resume-builder/entities';
-import { type FC, type PropsWithChildren } from 'react';
-import { observer } from 'mobx-react';
-import { Section } from './Section.tsx';
+
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { JobSection } from './JobSection.tsx';
+import { Section } from './Section.tsx';
 
 interface WorkExperienceProps extends PropsWithChildren {}
 
@@ -30,15 +29,10 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {
-				controller?.addCollectionItem(
-					ResumeCollections.WORK_EXPERIENCE,
-				);
+				controller?.addCollectionItem(ResumeCollections.WORK_EXPERIENCE);
 			}}
 			onRemove={async (index) => {
-				controller?.removeCollectionItem(
-					ResumeCollections.WORK_EXPERIENCE,
-					index,
-				);
+				controller?.removeCollectionItem(ResumeCollections.WORK_EXPERIENCE, index);
 			}}
 			onMove={async (fromIndex, toIndex) => {
 				controller?.moveArrayItem(
@@ -73,9 +67,7 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 							length={items.length}
 							label="job"
 							isEditable={isEditable}
-							onMove={(fromIndex, toIndex) =>
-								void moveItem(fromIndex, toIndex)
-							}
+							onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 							actions={
 								isEditable ? (
 									<Button

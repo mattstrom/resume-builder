@@ -1,20 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuPortal,
-	DropdownMenuSeparator,
-	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
-	DropdownMenuTrigger,
-} from './dropdown-menu';
-import { Button } from './button';
-import {
 	Cloud,
 	CreditCard,
 	Github,
@@ -30,6 +15,22 @@ import {
 	UserPlus,
 	Users,
 } from 'lucide-react';
+
+import { Button } from './button';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuPortal,
+	DropdownMenuSeparator,
+	DropdownMenuShortcut,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from './dropdown-menu';
 
 const meta: Meta<typeof DropdownMenu> = {
 	title: 'UI/DropdownMenu',

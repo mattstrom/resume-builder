@@ -4,10 +4,7 @@ import { logger } from './logger.js';
 import { LoggingService } from './logging.service.js';
 import { Logger } from './tokens.js';
 
-const providers: Provider[] = [
-	LoggingService,
-	{ provide: Logger, useValue: logger },
-];
+const providers: Provider[] = [LoggingService, { provide: Logger, useValue: logger }];
 
 @Global()
 @Module({

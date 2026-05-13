@@ -1,3 +1,7 @@
+import { Plus } from 'lucide-react';
+import { observer } from 'mobx-react';
+import { type FC, type FormEvent, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
@@ -16,18 +20,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { useStore } from '@/stores/store.provider.tsx';
-import { Plus } from 'lucide-react';
-import { observer } from 'mobx-react';
-import { type FC, type FormEvent, useState } from 'react';
 
 export const ResumeSwitcher: FC = observer(() => {
 	const { editorStore } = useStore();
-	const {
-		selectedApiApplicationId,
-		selectedApplication,
-		applicationResumes,
-		resumeData,
-	} = editorStore;
+	const { selectedApiApplicationId, selectedApplication, applicationResumes, resumeData } =
+		editorStore;
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [creating, setCreating] = useState(false);
 
@@ -35,15 +32,11 @@ export const ResumeSwitcher: FC = observer(() => {
 		return null;
 	}
 
-	const defaultName = selectedApplication
-		? `${selectedApplication.name} Resume`
-		: 'Resume';
+	const defaultName = selectedApplication ? `${selectedApplication.name} Resume` : 'Resume';
 
 	const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		const name = (
-			new FormData(e.currentTarget).get('name') as string
-		).trim();
+		const name = (new FormData(e.currentTarget).get('name') as string).trim();
 		if (!name) return;
 		setCreating(true);
 		try {
@@ -66,11 +59,7 @@ export const ResumeSwitcher: FC = observer(() => {
 					</SelectTrigger>
 					<SelectContent>
 						{applicationResumes.map((r) => (
-							<SelectItem
-								key={r._id}
-								value={r._id}
-								className="text-xs"
-							>
+							<SelectItem key={r._id} value={r._id} className="text-xs">
 								{r.name}
 							</SelectItem>
 						))}

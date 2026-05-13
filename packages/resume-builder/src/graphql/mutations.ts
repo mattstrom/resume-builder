@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+
 import { applicationFragment, resumeContentFragment } from './queries.ts';
 
 export const UPSERT_CONTACT_INFORMATION = gql`
@@ -56,10 +57,7 @@ export const CREATE_APPLICATION = gql`
 `;
 
 export const UPDATE_APPLICATION = gql`
-	mutation UpdateApplication(
-		$id: String!
-		$applicationData: ApplicationUpdateInput!
-	) {
+	mutation UpdateApplication($id: String!, $applicationData: ApplicationUpdateInput!) {
 		updateApplication(id: $id, applicationData: $applicationData) {
 			...ApplicationFields
 		}
@@ -297,11 +295,7 @@ export const UPDATE_RESUME = gql`
 `;
 
 export const SET_RESUME_FIELD = gql`
-	mutation SetResumeField(
-		$id: String!
-		$input: ResumeSetFieldInput!
-		$value: JSON!
-	) {
+	mutation SetResumeField($id: String!, $input: ResumeSetFieldInput!, $value: JSON!) {
 		setResumeField(id: $id, input: $input, value: $value) {
 			_id
 			data {
@@ -314,10 +308,7 @@ export const SET_RESUME_FIELD = gql`
 `;
 
 export const ADD_RESUME_COLLECTION_ITEM = gql`
-	mutation AddResumeCollectionItem(
-		$id: String!
-		$input: ResumeAddCollectionItemInput!
-	) {
+	mutation AddResumeCollectionItem($id: String!, $input: ResumeAddCollectionItemInput!) {
 		addResumeCollectionItem(id: $id, input: $input) {
 			_id
 			data {
@@ -330,10 +321,7 @@ export const ADD_RESUME_COLLECTION_ITEM = gql`
 `;
 
 export const REMOVE_RESUME_COLLECTION_ITEM = gql`
-	mutation RemoveResumeCollectionItem(
-		$id: String!
-		$input: ResumeRemoveCollectionItemInput!
-	) {
+	mutation RemoveResumeCollectionItem($id: String!, $input: ResumeRemoveCollectionItemInput!) {
 		removeResumeCollectionItem(id: $id, input: $input) {
 			_id
 			data {

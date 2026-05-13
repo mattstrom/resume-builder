@@ -1,6 +1,12 @@
 import { type FC } from 'react';
-import { Layout } from './Layout.tsx';
+
+import { CornerCap } from '../CornerCap.tsx';
 import { Page } from '../Page.tsx';
+import { useResume } from '../Resume.provider.tsx';
+
+import './ColumnLayout.css';
+import { CandidateName } from '../sections/CandidateName.tsx';
+import { ContactInformationSection } from '../sections/ContactInformationSection.tsx';
 import {
 	EducationSection,
 	ProjectsSection,
@@ -8,13 +14,8 @@ import {
 	SummarySection,
 	WorkExperience,
 } from '../sections/index.ts';
-
-import './ColumnLayout.css';
 import { Column } from './Column.tsx';
-import { ContactInformationSection } from '../sections/ContactInformationSection.tsx';
-import { CornerCap } from '../CornerCap.tsx';
-import { CandidateName } from '../sections/CandidateName.tsx';
-import { useResume } from '../Resume.provider.tsx';
+import { Layout } from './Layout.tsx';
 
 interface ColumnLayoutProps {}
 

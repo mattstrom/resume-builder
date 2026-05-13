@@ -2,26 +2,20 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 
-import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { BasicLayout, ColumnLayout } from '../../components/layouts';
 import { GridLayout } from '../../components/layouts/GridLayout.tsx';
+import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
+import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
 import { generatePDFFromHTML } from '../../utils/pdfExport';
-import type {
-	ListResumesData,
-	ListResumesVariables,
-} from '../../graphql/types.ts';
 
 import '../../App.css';
 
 const exportSearchSchema = z
 	.object({
-		template: z
-			.enum(['basic', 'column', 'grid'])
-			.optional()
-			.default('basic'),
+		template: z.enum(['basic', 'column', 'grid']).optional().default('basic'),
 	})
 	.catch({ template: 'basic' });
 
@@ -33,10 +27,7 @@ export const Route = createFileRoute('/_authenticated/export/$applicationId')({
 		const { applicationId } = params;
 
 		try {
-			const resumesResult = await client.query<
-				ListResumesData,
-				ListResumesVariables
-			>({
+			const resumesResult = await client.query<ListResumesData, ListResumesVariables>({
 				query: LIST_RESUMES,
 				variables: { filter: { applicationId } },
 			});
@@ -68,9 +59,7 @@ function ExportComponent() {
 	const { template } = Route.useSearch();
 	const resumeData = Route.useLoaderData();
 	const hasExported = useRef(false);
-	const [status, setStatus] = useState<'exporting' | 'done' | 'error'>(
-		'exporting',
-	);
+	const [status, setStatus] = useState<'exporting' | 'done' | 'error'>('exporting');
 	const [errorMessage, setErrorMessage] = useState('');
 
 	useEffect(() => {
@@ -80,9 +69,7 @@ function ExportComponent() {
 		// Defer to next frame so the resume content renders first,
 		// then snapshot the HTML before the overlay can interfere.
 		requestAnimationFrame(() => {
-			const clone = document.documentElement.cloneNode(
-				true,
-			) as HTMLElement;
+			const clone = document.documentElement.cloneNode(true) as HTMLElement;
 			// Remove the overlay from the cloned document
 			const overlay = clone.querySelector('[data-export-overlay]');
 			overlay?.remove();
@@ -92,11 +79,7 @@ function ExportComponent() {
 			generatePDFFromHTML(html, resumeData)
 				.then(() => setStatus('done'))
 				.catch((err) => {
-					setErrorMessage(
-						err instanceof Error
-							? err.message
-							: 'Failed to export PDF',
-					);
+					setErrorMessage(err instanceof Error ? err.message : 'Failed to export PDF');
 					setStatus('error');
 				});
 		});
@@ -116,9 +99,7 @@ function ExportComponent() {
 
 	return (
 		<div className="preview-frame">
-			<ResumeProvider data={resumeData}>
-				{templateComponent}
-			</ResumeProvider>
+			<ResumeProvider data={resumeData}>{templateComponent}</ResumeProvider>
 
 			<div
 				data-export-overlay
@@ -149,15 +130,11 @@ function ExportComponent() {
 							>
 								Generating PDF…
 							</p>
-							<p style={{ opacity: 0.6, fontSize: '0.875rem' }}>
-								Please wait
-							</p>
+							<p style={{ opacity: 0.6, fontSize: '0.875rem' }}>Please wait</p>
 						</>
 					)}
 					{status === 'done' && (
-						<p style={{ fontSize: '1.25rem' }}>
-							PDF downloaded successfully!
-						</p>
+						<p style={{ fontSize: '1.25rem' }}>PDF downloaded successfully!</p>
 					)}
 					{status === 'error' && (
 						<>
@@ -169,9 +146,7 @@ function ExportComponent() {
 							>
 								Export failed
 							</p>
-							<p style={{ opacity: 0.6, fontSize: '0.875rem' }}>
-								{errorMessage}
-							</p>
+							<p style={{ opacity: 0.6, fontSize: '0.875rem' }}>{errorMessage}</p>
 						</>
 					)}
 				</div>

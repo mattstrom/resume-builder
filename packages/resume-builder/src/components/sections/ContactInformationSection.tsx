@@ -1,14 +1,9 @@
-import {
-	Envelope,
-	GithubLogo,
-	Globe,
-	LinkedinLogo,
-	MapPin,
-	Phone,
-} from '@phosphor-icons/react';
+import { Envelope, GithubLogo, Globe, LinkedinLogo, MapPin, Phone } from '@phosphor-icons/react';
 import clsx from 'clsx';
 import { type FC } from 'react';
+
 import { InlineEditor } from '@/components/InlineEditor.tsx';
+
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Url } from '../Url.tsx';
 
@@ -16,9 +11,7 @@ interface ContactInformationSectionProps {
 	className?: string;
 }
 
-export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
-	className,
-}) => {
+export const ContactInformationSection: FC<ContactInformationSectionProps> = ({ className }) => {
 	const { contactInformation } = useResume();
 	const resumeId = useResumeId();
 	const emailHref = `mailto:${contactInformation.email}`;
@@ -26,10 +19,7 @@ export const ContactInformationSection: FC<ContactInformationSectionProps> = ({
 
 	return (
 		<address
-			className={clsx(
-				'contact-information flex flex-col gap-[0.1rem]',
-				className,
-			)}
+			className={clsx('contact-information flex flex-col gap-[0.1rem]', className)}
 			style={{
 				fontStyle: 'normal',
 			}}

@@ -1,11 +1,12 @@
 import { Extension } from '@hocuspocus/server';
-import { Document as StoredDocument } from './document.js';
-import { ProfileUpdate } from './profile-update.js';
-import { Profile, Resume } from '@resume-builder/entities';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Profile, Resume } from '@resume-builder/entities';
 import { Model } from 'mongoose';
 import * as Y from 'yjs';
+
+import { Document as StoredDocument } from './document.js';
+import { ProfileUpdate } from './profile-update.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -58,9 +59,7 @@ function syncYMap(target: Y.Map<unknown>, values: Record<string, unknown>) {
 	}
 }
 
-type ParsedDocumentName =
-	| { kind: 'resume'; resumeId: string }
-	| { kind: 'profile'; uid: string };
+type ParsedDocumentName = { kind: 'resume'; resumeId: string } | { kind: 'profile'; uid: string };
 
 @Injectable()
 export class StorageService implements Extension {
@@ -79,11 +78,7 @@ export class StorageService implements Extension {
 	}
 
 	async onStoreDocument({ context, documentName, document }) {
-		await this.storeDocument(
-			context.user.sub as string,
-			documentName,
-			document,
-		);
+		await this.storeDocument(context.user.sub as string, documentName, document);
 	}
 
 	private parseDocumentName(documentName: string): ParsedDocumentName {
@@ -109,16 +104,11 @@ export class StorageService implements Extension {
 	}
 
 	private writeResumeDocument(document: Y.Doc, resume: Resume) {
-		syncYMap(
-			document.getMap('resume'),
-			resume as unknown as Record<string, unknown>,
-		);
+		syncYMap(document.getMap('resume'), resume as unknown as Record<string, unknown>);
 	}
 
 	async assertResumeAccess(uid: string, resumeId: string) {
-		const resume = await this.resumeModel
-			.findOne({ _id: resumeId, uid })
-			.exec();
+		const resume = await this.resumeModel.findOne({ _id: resumeId, uid }).exec();
 
 		if (!resume) {
 			throw new Error(`Resume "${resumeId}" not found`);
@@ -141,32 +131,16 @@ export class StorageService implements Extension {
 		const parsed = this.parseDocumentName(documentName);
 
 		if (parsed.kind === 'resume') {
-			await this.storeResumeDocument(
-				uid,
-				documentName,
-				parsed.resumeId,
-				document,
-			);
+			await this.storeResumeDocument(uid, documentName, parsed.resumeId, document);
 			return;
 		}
 
-		await this.storeProfileDocument(
-			uid,
-			documentName,
-			parsed.uid,
-			document,
-		);
+		await this.storeProfileDocument(uid, documentName, parsed.uid, document);
 	}
 
-	private async loadResumeDocument(
-		uid: string,
-		documentName: string,
-		resumeId: string,
-	) {
+	private async loadResumeDocument(uid: string, documentName: string, resumeId: string) {
 		const resume = await this.assertResumeAccess(uid, resumeId);
-		const stored = await this.documentModel
-			.findOne({ name: documentName, uid })
-			.exec();
+		const stored = await this.documentModel.findOne({ name: documentName, uid }).exec();
 		const document = new Y.Doc();
 
 		if (stored?.update) {
@@ -201,30 +175,21 @@ export class StorageService implements Extension {
 			return;
 		}
 
-		const { _id, createdAt, updatedAt, ...resumeUpdate } =
-			snapshot as Resume & {
-				createdAt?: Date;
-				updatedAt?: Date;
-			};
+		const { _id, createdAt, updatedAt, ...resumeUpdate } = snapshot as Resume & {
+			createdAt?: Date;
+			updatedAt?: Date;
+		};
 
-		await this.resumeModel
-			.findOneAndUpdate({ _id: resumeId, uid }, resumeUpdate)
-			.exec();
+		await this.resumeModel.findOneAndUpdate({ _id: resumeId, uid }, resumeUpdate).exec();
 	}
 
 	private assertProfileAccess(uid: string, profileUid: string) {
 		if (uid !== profileUid) {
-			throw new Error(
-				`Profile "${profileUid}" is not accessible to user "${uid}"`,
-			);
+			throw new Error(`Profile "${profileUid}" is not accessible to user "${uid}"`);
 		}
 	}
 
-	private async loadProfileDocument(
-		uid: string,
-		documentName: string,
-		profileUid: string,
-	) {
+	private async loadProfileDocument(uid: string, documentName: string, profileUid: string) {
 		this.assertProfileAccess(uid, profileUid);
 
 		const document = new Y.Doc();
@@ -277,9 +242,10 @@ export class StorageService implements Extension {
 		// the Tiptap/ProseMirror doc serialized as XML without needing a
 		// schema on the server.
 		const narrative = document.getXmlFragment('narrative').toString();
-		const jobPreferences = fromYValue(
-			document.getMap('jobPreferences'),
-		) as Record<string, unknown>;
+		const jobPreferences = fromYValue(document.getMap('jobPreferences')) as Record<
+			string,
+			unknown
+		>;
 
 		await this.profileModel
 			.findOneAndUpdate(

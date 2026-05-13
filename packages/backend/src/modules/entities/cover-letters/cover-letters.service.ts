@@ -1,10 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-	CoverLetter,
-	CoverLetterInput,
-	CoverLetterUpdateInput,
-} from '@resume-builder/entities';
+import { CoverLetter, CoverLetterInput, CoverLetterUpdateInput } from '@resume-builder/entities';
 import { Model, UpdateOneModel } from 'mongoose';
 
 @Injectable()
@@ -20,9 +16,7 @@ export class CoverLettersService {
 	}
 
 	async find(uid: string, id: string): Promise<CoverLetter | null> {
-		const result = await this.coverLetterModel
-			.findOne({ _id: id, uid })
-			.exec();
+		const result = await this.coverLetterModel.findOne({ _id: id, uid }).exec();
 
 		if (!result) {
 			throw new NotFoundException();
@@ -31,10 +25,7 @@ export class CoverLettersService {
 		return result?.toObject() ?? null;
 	}
 
-	async create(
-		uid: string,
-		coverLetterData: CoverLetterInput,
-	): Promise<CoverLetter> {
+	async create(uid: string, coverLetterData: CoverLetterInput): Promise<CoverLetter> {
 		const created = new this.coverLetterModel({
 			...coverLetterData,
 			uid,
@@ -59,13 +50,7 @@ export class CoverLettersService {
 		return updated.toObject();
 	}
 
-	async patch(
-		uid: string,
-		id: string,
-		update: UpdateOneModel<CoverLetter>,
-	): Promise<void> {
-		const result = await this.coverLetterModel
-			.updateOne({ _id: id, uid }, update)
-			.exec();
+	async patch(uid: string, id: string, update: UpdateOneModel<CoverLetter>): Promise<void> {
+		const result = await this.coverLetterModel.updateOne({ _id: id, uid }, update).exec();
 	}
 }

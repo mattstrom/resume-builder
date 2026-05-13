@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { Calculator, Calendar, CreditCard, Settings, Smile, User } from 'lucide-react';
+
 import {
 	Command,
 	CommandEmpty,
@@ -9,14 +11,6 @@ import {
 	CommandSeparator,
 	CommandShortcut,
 } from './command';
-import {
-	Calculator,
-	Calendar,
-	CreditCard,
-	Settings,
-	Smile,
-	User,
-} from 'lucide-react';
 
 const meta: Meta<typeof Command> = {
 	title: 'UI/Command',
@@ -30,10 +24,7 @@ type Story = StoryObj<typeof Command>;
 export const Default: Story = {
 	render: (args) => (
 		<div className="flex justify-center p-4">
-			<Command
-				{...args}
-				className="max-w-[450px] rounded-lg border shadow-md"
-			>
+			<Command {...args} className="max-w-[450px] rounded-lg border shadow-md">
 				<CommandInput placeholder="Type a command or search..." />
 				<CommandList>
 					<CommandEmpty>No results found.</CommandEmpty>

@@ -99,10 +99,7 @@ export class ApplicationsResolver {
 		{ application }: types.McpToolParams<{ application: Application }>,
 		{ user }: types.McpExtra,
 	) {
-		const savedApplication = await this.applicationsService.create(
-			user.sub,
-			application,
-		);
+		const savedApplication = await this.applicationsService.create(user.sub, application);
 
 		return {
 			content: [

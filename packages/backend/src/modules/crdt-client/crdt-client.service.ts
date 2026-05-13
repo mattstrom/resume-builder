@@ -1,8 +1,5 @@
+import { HocuspocusProvider, HocuspocusProviderWebsocket } from '@hocuspocus/provider';
 import { Injectable, Logger } from '@nestjs/common';
-import {
-	HocuspocusProvider,
-	HocuspocusProviderWebsocket,
-} from '@hocuspocus/provider';
 import WebSocket from 'ws';
 import * as Y from 'yjs';
 
@@ -76,11 +73,7 @@ export class CrdtClientService {
 			const timeout = setTimeout(() => {
 				if (settled) return;
 				settled = true;
-				reject(
-					new Error(
-						`Timed out connecting to CRDT server for ${documentName}`,
-					),
-				);
+				reject(new Error(`Timed out connecting to CRDT server for ${documentName}`));
 			}, CONNECT_TIMEOUT_MS);
 
 			// Node lacks a global WebSocket; create a dedicated websocket
@@ -106,9 +99,7 @@ export class CrdtClientService {
 					if (settled) return;
 					settled = true;
 					clearTimeout(timeout);
-					this.logger.warn(
-						`CRDT auth failed for ${documentName}: ${reason}`,
-					);
+					this.logger.warn(`CRDT auth failed for ${documentName}: ${reason}`);
 					reject(new Error(`CRDT authentication failed: ${reason}`));
 				},
 			});

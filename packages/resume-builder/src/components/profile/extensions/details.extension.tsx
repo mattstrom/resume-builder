@@ -1,10 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import type { NodeViewProps } from '@tiptap/react';
-import {
-	NodeViewContent,
-	NodeViewWrapper,
-	ReactNodeViewRenderer,
-} from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import { type FC, useRef } from 'react';
 
 declare module '@tiptap/core' {
@@ -33,9 +29,7 @@ const DetailsView: FC<NodeViewProps> = ({ node, updateAttributes }) => {
 					<input
 						type="text"
 						value={(node.attrs.summary as string) ?? ''}
-						onChange={(e) =>
-							updateAttributes({ summary: e.target.value })
-						}
+						onChange={(e) => updateAttributes({ summary: e.target.value })}
 						placeholder="Summary"
 						className="details-summary-input"
 					/>
@@ -57,8 +51,7 @@ export const Details = Node.create({
 			summary: {
 				default: 'Summary',
 				parseHTML: (element) =>
-					element.querySelector('summary')?.textContent?.trim() ??
-					'Summary',
+					element.querySelector('summary')?.textContent?.trim() ?? 'Summary',
 			},
 		};
 	},

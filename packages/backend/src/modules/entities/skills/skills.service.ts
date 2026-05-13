@@ -5,15 +5,10 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class SkillsService {
-	constructor(
-		@InjectModel(Skill.name) private readonly skillModel: Model<Skill>,
-	) {}
+	constructor(@InjectModel(Skill.name) private readonly skillModel: Model<Skill>) {}
 
 	async findAll(uid: string, categories?: string[]) {
-		const query =
-			categories && categories.length > 0
-				? { category: { $in: categories } }
-				: {};
+		const query = categories && categories.length > 0 ? { category: { $in: categories } } : {};
 
 		return this.skillModel
 			.find({ ...query, uid })

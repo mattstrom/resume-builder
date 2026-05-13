@@ -1,7 +1,8 @@
 import type { ContactInformation } from '@resume-builder/entities';
 import { computed, makeObservable } from 'mobx';
-import { GET_CONTACT_INFORMATION } from '../graphql/queries.ts';
+
 import { UPSERT_CONTACT_INFORMATION } from '../graphql/mutations.ts';
+import { GET_CONTACT_INFORMATION } from '../graphql/queries.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
 

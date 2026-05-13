@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
+import { Settings2 } from 'lucide-react';
+
 import { Button } from './button';
 import { Input } from './input';
 import { Label } from './label';
-import { Settings2 } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 const meta: Meta<typeof Popover> = {
 	title: 'UI/Popover',
@@ -27,9 +28,7 @@ export const Default: Story = {
 				<PopoverContent className="w-80">
 					<div className="grid gap-4">
 						<div className="space-y-2">
-							<h4 className="font-medium leading-none">
-								Dimensions
-							</h4>
+							<h4 className="font-medium leading-none">Dimensions</h4>
 							<p className="text-sm text-muted-foreground">
 								Set the dimensions for the layer.
 							</p>
@@ -37,11 +36,7 @@ export const Default: Story = {
 						<div className="grid gap-2">
 							<div className="grid grid-cols-3 items-center gap-4">
 								<Label htmlFor="width">Width</Label>
-								<Input
-									id="width"
-									defaultValue="100%"
-									className="col-span-2 h-8"
-								/>
+								<Input id="width" defaultValue="100%" className="col-span-2 h-8" />
 							</div>
 							<div className="grid grid-cols-3 items-center gap-4">
 								<Label htmlFor="maxWidth">Max. width</Label>
@@ -53,11 +48,7 @@ export const Default: Story = {
 							</div>
 							<div className="grid grid-cols-3 items-center gap-4">
 								<Label htmlFor="height">Height</Label>
-								<Input
-									id="height"
-									defaultValue="25px"
-									className="col-span-2 h-8"
-								/>
+								<Input id="height" defaultValue="25px" className="col-span-2 h-8" />
 							</div>
 							<div className="grid grid-cols-3 items-center gap-4">
 								<Label htmlFor="maxHeight">Max. height</Label>

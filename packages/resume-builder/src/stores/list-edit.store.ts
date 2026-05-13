@@ -1,10 +1,5 @@
-import {
-	action,
-	computed,
-	makeObservable,
-	observable,
-	runInAction,
-} from 'mobx';
+import { action, computed, makeObservable, observable, runInAction } from 'mobx';
+
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { reorderItems } from '@/lib/reorder.ts';
 import type { RootStore } from '@/stores/root.store.ts';
@@ -86,10 +81,7 @@ export class ListEditStore {
 
 	@action
 	commitEditItem() {
-		if (
-			this.editingIndex !== null &&
-			this.editingIndex < this.items.length
-		) {
+		if (this.editingIndex !== null && this.editingIndex < this.items.length) {
 			this.items[this.editingIndex] = this.editValue;
 		}
 		this.editingIndex = null;

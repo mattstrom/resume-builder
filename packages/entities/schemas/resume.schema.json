@@ -147,14 +147,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "_id",
-              "uid",
-              "degree",
-              "field",
-              "institution",
-              "graduated"
-            ],
+            "required": ["_id", "uid", "degree", "field", "institution", "graduated"],
             "additionalProperties": false
           }
         },
@@ -260,13 +253,7 @@
                 "maximum": 1
               }
             },
-            "required": [
-              "_id",
-              "uid",
-              "position",
-              "startDate",
-              "responsibilities"
-            ],
+            "required": ["_id", "uid", "position", "startDate", "responsibilities"],
             "additionalProperties": false
           }
         }

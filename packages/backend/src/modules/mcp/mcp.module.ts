@@ -1,13 +1,13 @@
+import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { Module } from '@nestjs/common';
 
-import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { CrdtClientModule } from '../crdt-client/crdt-client.module';
 import { EntitiesModule } from '../entities';
 import { ApplicationsResolver } from './applications.resolver';
 import { HealthResolver } from './health.resolver';
 import { NarrativeEditorResolver } from './narrative-editor.resolver';
-import { FitAssessorPromptResolver } from './prompts/fit-assessor.resolver';
 import { ProfileResolver } from './profile.resolver';
+import { FitAssessorPromptResolver } from './prompts/fit-assessor.resolver';
 import { ResumesResolver } from './resumes.resolver';
 import { SchemasResolver } from './schemas.resolver';
 

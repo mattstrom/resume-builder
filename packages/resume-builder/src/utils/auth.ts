@@ -9,10 +9,7 @@ export async function ensureAuthToken(): Promise<string> {
 	return authStore.ensureToken();
 }
 
-export async function authFetch(
-	input: RequestInfo | URL,
-	init?: RequestInit,
-): Promise<Response> {
+export async function authFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
 	const headers = new Headers(init?.headers);
 	try {
 		const token = await ensureAuthToken();

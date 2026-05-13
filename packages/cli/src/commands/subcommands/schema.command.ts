@@ -2,6 +2,7 @@ import { Command } from '@cliffy/command';
 import { Select } from '@cliffy/prompt';
 import { Table } from '@cliffy/table';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from '../../app.module.ts';
 import { DatabaseName, SchemaService } from '../../services/schema.service.ts';
 
@@ -14,10 +15,7 @@ export class SchemaCommand extends Command {
 			.option('-d, --database <database>', 'The database to inspect', {
 				required: false,
 			})
-			.option(
-				'-g, --generate',
-				'Generate TypeScript types for all databases',
-			)
+			.option('-g, --generate', 'Generate TypeScript types for all databases')
 			.action(async (opts) => {
 				const app = await NestFactory.createApplicationContext(
 					AppModule.register({
@@ -47,25 +45,17 @@ export class SchemaCommand extends Command {
 
 				if (!databases.includes(dbName as DatabaseName)) {
 					console.error(
-						`Unknown database: ${dbName}. Available: ${databases.join(
-							', ',
-						)}`,
+						`Unknown database: ${dbName}. Available: ${databases.join(', ')}`,
 					);
 					return;
 				}
 
-				const schema = await schemaService.getSchema(
-					dbName as DatabaseName,
-				);
+				const schema = await schemaService.getSchema(dbName as DatabaseName);
 
 				console.log(`\nDatabase: ${schema.name}`);
 				console.log(`ID: ${schema.id}\n`);
 
-				const rows = schema.properties.map((p) => [
-					p.name,
-					p.type,
-					p.details,
-				]);
+				const rows = schema.properties.map((p) => [p.name, p.type, p.details]);
 
 				const table = new Table()
 					.header(['Property', 'Type', 'Details'])

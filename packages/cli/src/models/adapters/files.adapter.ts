@@ -1,9 +1,6 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type FilesProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'files' }
->;
+export type FilesProperty = Extract<DatabasePropertyConfigResponse, { type: 'files' }>;
 
 export interface FileObject {
 	name: string;
@@ -26,9 +23,7 @@ export class FilesAdapter extends Adapter<FilesProperty, FileObject[]> {
 		return (this.property.files as any) ?? [];
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is FilesProperty {
+	static is(property: DatabasePropertyConfigResponse): property is FilesProperty {
 		return property.type === 'files';
 	}
 }

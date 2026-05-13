@@ -1,9 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Client } from '@notionhq/client';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-
-import { NotionClient } from '../tokens.ts';
-import { NotionService } from './notion.service.ts';
 import type {
 	ContactInformation,
 	Education,
@@ -12,7 +9,10 @@ import type {
 	Resume,
 	SKillGroup,
 } from '@resume-builder/web/types';
+
 import { RelationReference } from '../models/adapters/relation.adapter.ts';
+import { NotionClient } from '../tokens.ts';
+import { NotionService } from './notion.service.ts';
 
 type PageProperties = PageObjectResponse['properties'];
 type PageProperty = PageProperties[string];
@@ -41,9 +41,7 @@ export class ResumeBuilder {
 
 	async build(): Promise<Resume> {
 		if (!this.name && !this.id) {
-			throw new Error(
-				'Resume name or ID is required. Call setName() or setId() first.',
-			);
+			throw new Error('Resume name or ID is required. Call setName() or setId() first.');
 		}
 
 		const resumePage = this.id
@@ -89,8 +87,7 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const jobProps = jobPage.properties;
 
-			const responsibilities =
-				await this.resolveResponsibilities(jobProps);
+			const responsibilities = await this.resolveResponsibilities(jobProps);
 			const startDate = this.getDate(jobProps['Start Date']);
 			const endDate = this.getDate(jobProps['End Date']);
 
@@ -107,9 +104,7 @@ export class ResumeBuilder {
 		return jobs;
 	}
 
-	private async resolveResponsibilities(
-		jobProps: PageProperties,
-	): Promise<string[]> {
+	private async resolveResponsibilities(jobProps: PageProperties): Promise<string[]> {
 		const respRelations = this.getRelation(jobProps['Responsibilities']);
 		if (!respRelations?.length) return [];
 
@@ -130,9 +125,7 @@ export class ResumeBuilder {
 		return responsibilities;
 	}
 
-	private async resolveEducation(
-		props: PageProperties,
-	): Promise<Education[]> {
+	private async resolveEducation(props: PageProperties): Promise<Education[]> {
 		const eduRelations = this.getRelation(props['Education']);
 		if (!eduRelations?.length) return [];
 
@@ -205,8 +198,7 @@ export class ResumeBuilder {
 			})) as PageObjectResponse;
 			const projProps = projPage.properties;
 
-			const technologies =
-				await this.resolveProjectTechnologies(projProps);
+			const technologies = await this.resolveProjectTechnologies(projProps);
 			const items = await this.resolveProjectItems(ref.id);
 
 			projects.push({
@@ -241,9 +233,7 @@ export class ResumeBuilder {
 		return items;
 	}
 
-	private async resolveProjectTechnologies(
-		projProps: PageProperties,
-	): Promise<string[]> {
+	private async resolveProjectTechnologies(projProps: PageProperties): Promise<string[]> {
 		const skillRelations = this.getRelation(projProps['Skills']);
 		if (!skillRelations?.length) return [];
 
@@ -293,9 +283,7 @@ export class ResumeBuilder {
 		return (prop as any).url ?? '';
 	}
 
-	private getDate(
-		prop: PageProperty | undefined,
-	): { start: string; end?: string } | null {
+	private getDate(prop: PageProperty | undefined): { start: string; end?: string } | null {
 		if (!prop || prop.type !== 'date') return null;
 		const date = (prop as any).date;
 		if (!date) return null;

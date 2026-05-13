@@ -17,10 +17,7 @@ export interface LlmToolResultBlock {
 	isError?: boolean;
 }
 
-export type LlmContentBlock =
-	| LlmTextBlock
-	| LlmToolUseBlock
-	| LlmToolResultBlock;
+export type LlmContentBlock = LlmTextBlock | LlmToolUseBlock | LlmToolResultBlock;
 
 export interface LlmMessage {
 	role: 'user' | 'assistant' | 'system';

@@ -8,12 +8,11 @@ import {
 	Res,
 	UnauthorizedException,
 } from '@nestjs/common';
-import type {
-	ChatModelSelection,
-	ChatModelsResponse,
-} from '@resume-builder/entities';
+import type { ChatModelSelection, ChatModelsResponse } from '@resume-builder/entities';
 import type { Request, Response } from 'express';
+import { outdent } from 'outdent';
 
+import configuration from '../../configuration';
 import { CurrentUser } from '../auth';
 import { CrdtClientService } from '../crdt-client/crdt-client.service';
 import { ApplicationsService } from '../entities/applications/applications.service';
@@ -27,13 +26,9 @@ import { ResumesService } from '../entities/resumes/resumes.service';
 import { SkillsService } from '../entities/skills/skills.service';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service';
 import type { LlmMessage } from '../llm/interfaces/llm-types';
-import { chatTools, executeTool } from './chat-tools';
 import { getChatModelCatalog, isConfiguredChatModel } from './chat-models';
+import { chatTools, executeTool } from './chat-tools';
 import { ChatService } from './chat.service';
-
-import { outdent } from 'outdent';
-
-import configuration from '../../configuration';
 
 @Controller('api/chat')
 export class ChatController {
@@ -95,10 +90,7 @@ export class ChatController {
 		}
 
 		// Fetch application and its linked resume for context injection
-		const application = await this.applicationsService.find(
-			uid,
-			applicationId,
-		);
+		const application = await this.applicationsService.find(uid, applicationId);
 
 		const resumes = await this.resumesService.findAll(uid, undefined, {
 			applicationId: application._id,
@@ -144,18 +136,13 @@ export class ChatController {
 			const sections: Record<string, unknown> = {};
 			for (const path of highlightedPaths) {
 				// Paths are like "data.summary" — strip "data." prefix since resume.data is the root
-				const resolvedPath = path.startsWith('data.')
-					? path.slice(5)
-					: path;
+				const resolvedPath = path.startsWith('data.') ? path.slice(5) : path;
 				const value =
 					resolvedPath === 'data' || resolvedPath === ''
 						? resume.data
 						: resolvedPath
 								.split('.')
-								.reduce(
-									(obj: any, key) => obj?.[key],
-									resume.data,
-								);
+								.reduce((obj: any, key) => obj?.[key], resume.data);
 				if (value !== undefined) {
 					sections[path] = value;
 				}
@@ -199,9 +186,7 @@ export class ChatController {
 		}));
 
 		// Get the latest user message text for persistence
-		const lastUserMsg = [...messages]
-			.reverse()
-			.find((m) => m.role === 'user');
+		const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
 		const userText =
 			typeof lastUserMsg?.content === 'string'
 				? lastUserMsg.content
@@ -210,15 +195,11 @@ export class ChatController {
 						.map((p: any) => p.text)
 						.join('') ?? '');
 
-		const conversation = await this.conversationsService.findOrCreate(
-			uid,
-			conversationId,
-			{
-				applicationId: applicationId,
-				title: userText.slice(0, 50) || 'New Conversation',
-				model: requestedModel,
-			},
-		);
+		const conversation = await this.conversationsService.findOrCreate(uid, conversationId, {
+			applicationId: applicationId,
+			title: userText.slice(0, 50) || 'New Conversation',
+			model: requestedModel,
+		});
 		conversationId = conversation._id;
 
 		const persistedModel =
@@ -237,24 +218,16 @@ export class ChatController {
 				storedModel?.provider !== requestedModel.provider ||
 				storedModel?.model !== requestedModel.model;
 			if (changed) {
-				await this.conversationsService.setModel(
-					uid,
-					conversation._id,
-					requestedModel,
-				);
+				await this.conversationsService.setModel(uid, conversation._id, requestedModel);
 			}
 		}
 
 		// Persist user message
 		if (conversation._id) {
-			await this.conversationsService.appendMessage(
-				uid,
-				conversation._id,
-				{
-					role: 'user',
-					content: userText,
-				},
-			);
+			await this.conversationsService.appendMessage(uid, conversation._id, {
+				role: 'user',
+				content: userText,
+			});
 		}
 
 		const services = {
@@ -275,21 +248,16 @@ export class ChatController {
 			system: systemPrompt,
 			messages: llmMessages,
 			tools: chatTools,
-			executeTool: (name, input) =>
-				executeTool(name, input, services, uid, accessToken),
+			executeTool: (name, input) => executeTool(name, input, services, uid, accessToken),
 			conversationId,
 		});
 
 		// Persist assistant response
 		if (conversation._id && assistantText) {
-			await this.conversationsService.appendMessage(
-				uid,
-				conversation._id,
-				{
-					role: 'assistant',
-					content: assistantText,
-				},
-			);
+			await this.conversationsService.appendMessage(uid, conversation._id, {
+				role: 'assistant',
+				content: assistantText,
+			});
 		}
 	}
 }

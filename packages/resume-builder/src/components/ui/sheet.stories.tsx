@@ -1,4 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
+import { Button } from './button';
+import { Input } from './input';
+import { Label } from './label';
 import {
 	Sheet,
 	SheetClose,
@@ -9,9 +13,6 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from './sheet';
-import { Button } from './button';
-import { Input } from './input';
-import { Label } from './label';
 
 const meta: Meta<typeof Sheet> = {
 	title: 'UI/Sheet',
@@ -33,8 +34,7 @@ export const Default: Story = {
 					<SheetHeader>
 						<SheetTitle>Edit profile</SheetTitle>
 						<SheetDescription>
-							Make changes to your profile here. Click save when
-							you're done.
+							Make changes to your profile here. Click save when you're done.
 						</SheetDescription>
 					</SheetHeader>
 					<div className="grid gap-4 py-4">
@@ -42,21 +42,13 @@ export const Default: Story = {
 							<Label htmlFor="name" className="text-right">
 								Name
 							</Label>
-							<Input
-								id="name"
-								value="Pedro Duarte"
-								className="col-span-3"
-							/>
+							<Input id="name" value="Pedro Duarte" className="col-span-3" />
 						</div>
 						<div className="grid grid-cols-4 items-center gap-4">
 							<Label htmlFor="username" className="text-right">
 								Username
 							</Label>
-							<Input
-								id="username"
-								value="@peduarte"
-								className="col-span-3"
-							/>
+							<Input id="username" value="@peduarte" className="col-span-3" />
 						</div>
 					</div>
 					<SheetFooter>
@@ -82,8 +74,7 @@ export const Sides: Story = {
 						<SheetHeader>
 							<SheetTitle>Edit profile</SheetTitle>
 							<SheetDescription>
-								Make changes to your profile here. Click save
-								when you're done.
+								Make changes to your profile here. Click save when you're done.
 							</SheetDescription>
 						</SheetHeader>
 						<div className="grid gap-4 py-4">
@@ -91,24 +82,13 @@ export const Sides: Story = {
 								<Label htmlFor="name" className="text-right">
 									Name
 								</Label>
-								<Input
-									id="name"
-									value="Pedro Duarte"
-									className="col-span-3"
-								/>
+								<Input id="name" value="Pedro Duarte" className="col-span-3" />
 							</div>
 							<div className="grid grid-cols-4 items-center gap-4">
-								<Label
-									htmlFor="username"
-									className="text-right"
-								>
+								<Label htmlFor="username" className="text-right">
 									Username
 								</Label>
-								<Input
-									id="username"
-									value="@peduarte"
-									className="col-span-3"
-								/>
+								<Input id="username" value="@peduarte" className="col-span-3" />
 							</div>
 						</div>
 						<SheetFooter>

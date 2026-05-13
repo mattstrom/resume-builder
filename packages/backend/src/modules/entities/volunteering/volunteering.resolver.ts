@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Volunteering, VolunteeringInput } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { VolunteeringService } from './volunteering.service';
 
@@ -8,9 +9,7 @@ export class VolunteeringResolver {
 	constructor(private readonly volunteeringService: VolunteeringService) {}
 
 	@Query(() => [Volunteering])
-	async listVolunteering(
-		@CurrentUser('sub') uid: string,
-	): Promise<Volunteering[]> {
+	async listVolunteering(@CurrentUser('sub') uid: string): Promise<Volunteering[]> {
 		return this.volunteeringService.findAll(uid);
 	}
 

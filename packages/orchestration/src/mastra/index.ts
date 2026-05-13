@@ -10,6 +10,7 @@ import {
 	Observability,
 	SensitiveDataFilter,
 } from '@mastra/observability';
+
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';

@@ -1,3 +1,5 @@
+import { type ChangeEvent, type FC } from 'react';
+
 import {
 	Accordion,
 	AccordionContent,
@@ -6,7 +8,6 @@ import {
 } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type ChangeEvent, type FC } from 'react';
 
 interface ContactInfo {
 	location: string;
@@ -22,21 +23,14 @@ interface ContactInfoSectionProps {
 	onChange: (data: ContactInfo) => void;
 }
 
-export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
-	data,
-	onChange,
-}) => {
-	const handleChange =
-		(field: keyof ContactInfo) => (e: ChangeEvent<HTMLInputElement>) => {
-			onChange({ ...data, [field]: e.target.value });
-		};
+export const ContactInfoSection: FC<ContactInfoSectionProps> = ({ data, onChange }) => {
+	const handleChange = (field: keyof ContactInfo) => (e: ChangeEvent<HTMLInputElement>) => {
+		onChange({ ...data, [field]: e.target.value });
+	};
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem
-				value="contact-info"
-				className="bg-card/5 border-border/50 px-4"
-			>
+			<AccordionItem value="contact-info" className="bg-card/5 border-border/50 px-4">
 				<AccordionTrigger className="text-sm hover:no-underline">
 					Contact Information
 				</AccordionTrigger>
@@ -67,9 +61,7 @@ export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="linkedInProfile">
-							LinkedIn Profile
-						</Label>
+						<Label htmlFor="linkedInProfile">LinkedIn Profile</Label>
 						<Input
 							id="linkedInProfile"
 							value={data.linkedInProfile}
@@ -85,9 +77,7 @@ export const ContactInfoSection: FC<ContactInfoSectionProps> = ({
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label htmlFor="personalWebsite">
-							Personal Website
-						</Label>
+						<Label htmlFor="personalWebsite">Personal Website</Label>
 						<Input
 							id="personalWebsite"
 							value={data.personalWebsite}

@@ -1,6 +1,6 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
 import { ProfilesService } from '../../entities/profiles/profiles.service';
@@ -12,9 +12,7 @@ import {
 
 @CommandHandler(ProfileNarrativeSummaryCommand)
 export class ProfileNarrativeSummaryCommandHandler implements ICommandHandler<ProfileNarrativeSummaryCommand> {
-	private readonly logger = new Logger(
-		ProfileNarrativeSummaryCommandHandler.name,
-	);
+	private readonly logger = new Logger(ProfileNarrativeSummaryCommandHandler.name);
 
 	constructor(
 		@InjectQueue(QUEUES.PROFILE_NARRATIVE_SUMMARY)
@@ -28,9 +26,7 @@ export class ProfileNarrativeSummaryCommandHandler implements ICommandHandler<Pr
 		const profile = await this.profilesService.findOne(command.uid);
 
 		if (!profile?.narrative?.trim()) {
-			throw new BadRequestException(
-				'Profile does not have a narrative to summarize',
-			);
+			throw new BadRequestException('Profile does not have a narrative to summarize');
 		}
 
 		const job = await this.queue.add(
@@ -42,9 +38,7 @@ export class ProfileNarrativeSummaryCommandHandler implements ICommandHandler<Pr
 			},
 		);
 
-		this.logger.log(
-			`Enqueued profile-narrative-summary job ${job.id} for uid ${command.uid}`,
-		);
+		this.logger.log(`Enqueued profile-narrative-summary job ${job.id} for uid ${command.uid}`);
 
 		return { jobId: String(job.id) };
 	}

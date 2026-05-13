@@ -1,5 +1,3 @@
-import type { LlmToolDefinition } from '../llm/interfaces/llm-types';
-
 import type { CrdtClientService } from '../crdt-client/crdt-client.service';
 import type { JsonPatchOp } from '../crdt-client/json-patch';
 import type { ContactInformationService } from '../entities/contact-information/contact-information.service';
@@ -10,6 +8,7 @@ import type { ProjectsService } from '../entities/projects/projects.service';
 import type { ResumesService } from '../entities/resumes/resumes.service';
 import type { SkillsService } from '../entities/skills/skills.service';
 import type { VolunteeringService } from '../entities/volunteering/volunteering.service';
+import type { LlmToolDefinition } from '../llm/interfaces/llm-types';
 
 export interface ChatToolServices {
 	resumesService: ResumesService;
@@ -56,16 +55,14 @@ export const chatTools: LlmToolDefinition[] = [
 	},
 	{
 		name: 'get_skills',
-		description:
-			'Retrieve skills from the database, optionally filtered by categories',
+		description: 'Retrieve skills from the database, optionally filtered by categories',
 		inputSchema: {
 			type: 'object',
 			properties: {
 				categories: {
 					type: 'array',
 					items: { type: 'string' },
-					description:
-						'Optional list of skill categories to filter by',
+					description: 'Optional list of skill categories to filter by',
 				},
 			},
 		},
@@ -109,12 +106,10 @@ export const chatTools: LlmToolDefinition[] = [
 							},
 							index: {
 								type: 'number',
-								description:
-									'Array index (required for insert/remove)',
+								description: 'Array index (required for insert/remove)',
 							},
 							value: {
-								description:
-									'Value to write (required for set/insert)',
+								description: 'Value to write (required for set/insert)',
 							},
 						},
 						required: ['op', 'path'],
@@ -157,8 +152,7 @@ export async function executeTool(
 			return JSON.stringify(resumes);
 		}
 		case 'get_contact_information': {
-			const contactInfo =
-				await services.contactInformationService.findAll(uid);
+			const contactInfo = await services.contactInformationService.findAll(uid);
 			return JSON.stringify(contactInfo);
 		}
 		case 'get_jobs': {
@@ -178,15 +172,12 @@ export async function executeTool(
 			const categories = input.categories as string[] | undefined;
 			const skills =
 				categories && categories.length > 0
-					? allSkills.filter((s: any) =>
-							categories.includes(s.category),
-						)
+					? allSkills.filter((s: any) => categories.includes(s.category))
 					: allSkills;
 			return JSON.stringify(skills);
 		}
 		case 'get_cover_letters': {
-			const coverLetters =
-				await services.coverLettersService.findAll(uid);
+			const coverLetters = await services.coverLettersService.findAll(uid);
 			return JSON.stringify(coverLetters);
 		}
 		case 'patch_resume': {
@@ -198,11 +189,7 @@ export async function executeTool(
 			// Confirm access before opening a WS session — gives a clean
 			// error path if the LLM hallucinates an id.
 			await services.resumesService.find(uid, resumeId);
-			const result = await services.crdtClientService.patchResume(
-				resumeId,
-				ops,
-				accessToken,
-			);
+			const result = await services.crdtClientService.patchResume(resumeId, ops, accessToken);
 			return JSON.stringify(result);
 		}
 		case 'save_cover_letter': {

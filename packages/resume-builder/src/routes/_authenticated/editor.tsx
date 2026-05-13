@@ -1,5 +1,9 @@
-import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { observer } from 'mobx-react';
+import { useEffect } from 'react';
+
 import { AnalysisToolbar } from '@/components/analysis/AnalysisToolbar.tsx';
+import { AppShell } from '@/components/app-shell/AppShell.tsx';
 import { ResumePrimaryNav } from '@/components/resumes/ResumePrimaryNav.tsx';
 import { ResumeSwitcher } from '@/components/resumes/ResumeSwitcher.tsx';
 import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
@@ -7,9 +11,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
-import { observer } from 'mobx-react';
-import { useEffect } from 'react';
+
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 
 const EditorLayout = observer(function EditorLayout() {
@@ -17,11 +19,7 @@ const EditorLayout = observer(function EditorLayout() {
 	const { resumeData } = editorStore;
 
 	const modeToolbar =
-		uiStateStore.mode === Mode.Analysis ? (
-			<AnalysisToolbar />
-		) : (
-			<ResumeToolbar />
-		);
+		uiStateStore.mode === Mode.Analysis ? <AnalysisToolbar /> : <ResumeToolbar />;
 
 	const toolbar = editorStore.selectedApiApplicationId ? (
 		<>
@@ -48,9 +46,7 @@ const EditorLayout = observer(function EditorLayout() {
 			if (
 				target instanceof HTMLElement &&
 				(target.isContentEditable ||
-					target.closest(
-						'input, textarea, select, [contenteditable="true"]',
-					))
+					target.closest('input, textarea, select, [contenteditable="true"]'))
 			) {
 				return;
 			}

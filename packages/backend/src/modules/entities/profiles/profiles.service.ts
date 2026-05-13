@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-	NarrativeSummaryData,
-	Profile,
-	ProfileUpdateInput,
-} from '@resume-builder/entities';
+import { NarrativeSummaryData, Profile, ProfileUpdateInput } from '@resume-builder/entities';
 import { Model } from 'mongoose';
 
 @Injectable()

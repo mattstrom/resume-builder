@@ -1,6 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { RequestSigningKey } from './tokens';
 import * as crypto from 'crypto';
+
+import { Injectable, Inject } from '@nestjs/common';
+
+import { RequestSigningKey } from './tokens';
 
 interface HeaderValues {
 	nonce: string;
@@ -17,9 +19,7 @@ interface HeaderValues {
  */
 @Injectable()
 export class RequestSigningService {
-	constructor(
-		@Inject(RequestSigningKey) private readonly signingKey: string,
-	) {}
+	constructor(@Inject(RequestSigningKey) private readonly signingKey: string) {}
 
 	/**
 	 * Generate a random nonce and sign it using the signing key.
@@ -51,8 +51,7 @@ export class RequestSigningService {
 	}
 
 	private generateRandomString(length: number): string {
-		const characters =
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		const charactersLength = characters.length;
 		const bytes = crypto.randomBytes(length);
 		let result = '';

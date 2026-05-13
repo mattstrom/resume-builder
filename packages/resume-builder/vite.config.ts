@@ -1,12 +1,13 @@
-/// <reference types="vitest/config" />
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
-import config from 'config';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
+import config from 'config';
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite';
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -34,10 +35,7 @@ export default defineConfig({
 		}),
 		TanStackRouterVite({
 			routesDirectory: path.resolve(__dirname, './src/routes'),
-			generatedRouteTree: path.resolve(
-				__dirname,
-				'./src/routeTree.gen.ts',
-			),
+			generatedRouteTree: path.resolve(__dirname, './src/routeTree.gen.ts'),
 		}),
 	],
 	server: {
@@ -55,10 +53,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			'@': path.resolve(__dirname, './src'),
-			'@nestjs/graphql': path.resolve(
-				__dirname,
-				'../entities/src/shims/nestjs-graphql.ts',
-			),
+			'@nestjs/graphql': path.resolve(__dirname, '../entities/src/shims/nestjs-graphql.ts'),
 		},
 	},
 	test: {

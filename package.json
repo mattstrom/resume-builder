@@ -1,8 +1,14 @@
 {
   "name": "@mattstrom/resume-builder",
-  "private": true,
   "version": "0.1.0",
+  "private": true,
   "license": "BUSL-1.1",
+  "workspaces": [
+    "packages/backend",
+    "packages/entities",
+    "packages/orchestration",
+    "packages/resume-builder"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,12 +21,10 @@
     "docker:push": "nx run-many -t docker-push",
     "deploy": "op run --env-file=.env -- sh -c 'helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set mongodb.password=${MONGODB_PASSWORD} --install'"
   },
-  "workspaces": [
-    "packages/backend",
-    "packages/entities",
-    "packages/orchestration",
-    "packages/resume-builder"
-  ],
+  "dependencies": {
+    "lightningcss": "^1.30.2",
+    "zod": "^4.3.6"
+  },
   "devDependencies": {
     "@nestjs/cli": "^11.0.14",
     "@nx/js": "22.6.4",
@@ -51,10 +55,6 @@
     "typescript": "~5.9.2",
     "vite": "^5.2.0",
     "vitest": "^4.0.17"
-  },
-  "dependencies": {
-    "lightningcss": "^1.30.2",
-    "zod": "^4.3.6"
   },
   "overrides": {
     "zod": "^4.3.6"

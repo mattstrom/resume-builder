@@ -1,18 +1,13 @@
-import { Input } from '@/components/ui/input.tsx';
-import { Label } from '@/components/ui/label.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { ExpandableCard } from '@/components/FormEditor/components/ExpandableCard.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
 import type { ContactInformation, Education } from '@resume-builder/entities';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react';
-import {
-	type FC,
-	type KeyboardEvent,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import { type FC, type KeyboardEvent, useEffect, useRef, useState } from 'react';
+
+import { ExpandableCard } from '@/components/FormEditor/components/ExpandableCard.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { Label } from '@/components/ui/label.tsx';
+import { useStore } from '@/stores/store.provider.tsx';
 
 // ─── Auto-save field ─────────────────────────────────────────────────────────
 
@@ -80,9 +75,7 @@ const ContactSection: FC = observer(() => {
 		<section className="flex flex-col gap-4">
 			<div>
 				<h2 className="text-lg font-medium">Contact Information</h2>
-				<p className="text-sm text-muted-foreground">
-					How recruiters can reach you.
-				</p>
+				<p className="text-sm text-muted-foreground">How recruiters can reach you.</p>
 			</div>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<Field
@@ -130,56 +123,52 @@ interface EducationCardProps {
 	onExpandChange: () => void;
 }
 
-const EducationCard: FC<EducationCardProps> = observer(
-	({ entry, expanded, onExpandChange }) => {
-		const { educationStore } = useStore();
+const EducationCard: FC<EducationCardProps> = observer(({ entry, expanded, onExpandChange }) => {
+	const { educationStore } = useStore();
 
-		const title =
-			[entry.institution, entry.degree].filter(Boolean).join(' · ') ||
-			'New entry';
+	const title = [entry.institution, entry.degree].filter(Boolean).join(' · ') || 'New entry';
 
-		const commit = (patch: Partial<Omit<Education, '_id' | 'uid'>>) =>
-			void educationStore.update(entry._id, {
-				degree: entry.degree,
-				field: entry.field,
-				institution: entry.institution,
-				graduated: entry.graduated,
-				...patch,
-			});
+	const commit = (patch: Partial<Omit<Education, '_id' | 'uid'>>) =>
+		void educationStore.update(entry._id, {
+			degree: entry.degree,
+			field: entry.field,
+			institution: entry.institution,
+			graduated: entry.graduated,
+			...patch,
+		});
 
-		return (
-			<ExpandableCard
-				title={title}
-				expanded={expanded}
-				onExpandChange={onExpandChange}
-				onDelete={() => void educationStore.delete(entry._id)}
-			>
-				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-					<Field
-						label="Institution"
-						value={entry.institution}
-						onCommit={(v) => commit({ institution: v })}
-					/>
-					<Field
-						label="Degree"
-						value={entry.degree}
-						onCommit={(v) => commit({ degree: v })}
-					/>
-					<Field
-						label="Field of Study"
-						value={entry.field}
-						onCommit={(v) => commit({ field: v })}
-					/>
-					<Field
-						label="Graduation Date"
-						value={entry.graduated}
-						onCommit={(v) => commit({ graduated: v })}
-					/>
-				</div>
-			</ExpandableCard>
-		);
-	},
-);
+	return (
+		<ExpandableCard
+			title={title}
+			expanded={expanded}
+			onExpandChange={onExpandChange}
+			onDelete={() => void educationStore.delete(entry._id)}
+		>
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+				<Field
+					label="Institution"
+					value={entry.institution}
+					onCommit={(v) => commit({ institution: v })}
+				/>
+				<Field
+					label="Degree"
+					value={entry.degree}
+					onCommit={(v) => commit({ degree: v })}
+				/>
+				<Field
+					label="Field of Study"
+					value={entry.field}
+					onCommit={(v) => commit({ field: v })}
+				/>
+				<Field
+					label="Graduation Date"
+					value={entry.graduated}
+					onCommit={(v) => commit({ graduated: v })}
+				/>
+			</div>
+		</ExpandableCard>
+	);
+});
 
 // ─── Education section ────────────────────────────────────────────────────────
 
@@ -201,8 +190,7 @@ const EducationSection: FC = observer(() => {
 			field: '',
 			graduated: '',
 		});
-		const latest =
-			educationStore.educations[educationStore.educations.length - 1];
+		const latest = educationStore.educations[educationStore.educations.length - 1];
 		if (latest) {
 			setExpandedIds((prev) => new Set([...prev, latest._id]));
 		}
@@ -212,9 +200,7 @@ const EducationSection: FC = observer(() => {
 		<section className="flex flex-col gap-4">
 			<div>
 				<h2 className="text-lg font-medium">Education</h2>
-				<p className="text-sm text-muted-foreground">
-					Degrees and academic credentials.
-				</p>
+				<p className="text-sm text-muted-foreground">Degrees and academic credentials.</p>
 			</div>
 			<div>
 				{educationStore.educations.map((entry) => (
@@ -225,12 +211,7 @@ const EducationSection: FC = observer(() => {
 						onExpandChange={() => toggleExpanded(entry._id)}
 					/>
 				))}
-				<Button
-					variant="outline"
-					size="sm"
-					className="h-8"
-					onClick={() => void addEntry()}
-				>
+				<Button variant="outline" size="sm" className="h-8" onClick={() => void addEntry()}>
 					<Plus className="mr-1.5 h-3.5 w-3.5" />
 					Add entry
 				</Button>
@@ -245,12 +226,9 @@ export const BackgroundEditor: FC = observer(() => {
 	return (
 		<div className="flex h-full w-full flex-col gap-8 p-6">
 			<div>
-				<h1 className="text-2xl font-semibold text-foreground">
-					Background
-				</h1>
+				<h1 className="text-2xl font-semibold text-foreground">Background</h1>
 				<p className="text-sm text-muted-foreground">
-					Your contact details and education history. Changes save
-					automatically.
+					Your contact details and education history. Changes save automatically.
 				</p>
 			</div>
 			<ContactSection />

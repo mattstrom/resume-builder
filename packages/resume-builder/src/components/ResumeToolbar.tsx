@@ -1,9 +1,10 @@
-import { observer } from 'mobx-react';
 import { ScanSearch } from 'lucide-react';
+import { observer } from 'mobx-react';
 import { type FC } from 'react';
-import { useStore } from '@/stores/store.provider.tsx';
+
 import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 export const ResumeToolbar: FC = observer(() => {
 	const { inspectStore } = useStore();
@@ -15,8 +16,7 @@ export const ResumeToolbar: FC = observer(() => {
 				size="sm"
 				className={cn(
 					'h-7 gap-1.5 text-xs',
-					inspectStore.isInspectMode &&
-						'bg-blue-500 hover:bg-blue-600 text-white',
+					inspectStore.isInspectMode && 'bg-blue-500 hover:bg-blue-600 text-white',
 				)}
 				onClick={() => inspectStore.toggleInspectMode()}
 				aria-pressed={inspectStore.isInspectMode}

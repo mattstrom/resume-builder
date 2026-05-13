@@ -1,19 +1,18 @@
-import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
+import type { Project, ResumeContent } from '@resume-builder/entities';
+import { observer } from 'mobx-react';
+import { type FC } from 'react';
+
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
+import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
-import {
-	getResumeCollectionPath,
-	ResumeCollections,
-} from '@/graphql/resume-collections.ts';
 import { Button } from '@/components/ui/button.tsx';
+import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { type FC } from 'react';
-import { observer } from 'mobx-react';
+
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { Section } from './Section.tsx';
-import type { Project, ResumeContent } from '@resume-builder/entities';
 
 interface ProjectsSectionProps {}
 
@@ -34,10 +33,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 				controller?.addCollectionItem(ResumeCollections.PROJECTS);
 			}}
 			onRemove={async (index) => {
-				controller?.removeCollectionItem(
-					ResumeCollections.PROJECTS,
-					index,
-				);
+				controller?.removeCollectionItem(ResumeCollections.PROJECTS, index);
 			}}
 			onMove={async (fromIndex, toIndex) => {
 				controller?.moveArrayItem(
@@ -72,9 +68,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 							length={items.length}
 							label="project"
 							isEditable={isEditable}
-							onMove={(fromIndex, toIndex) =>
-								void moveItem(fromIndex, toIndex)
-							}
+							onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 							actions={
 								isEditable ? (
 									<Button

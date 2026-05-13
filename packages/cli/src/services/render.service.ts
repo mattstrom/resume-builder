@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { createElement } from 'react';
-import type { Resume } from '@resume-builder/web/types';
 import { ResumeProvider } from '@resume-builder/web/providers';
-import {
-	BasicLayout,
-	ColumnLayout,
-	GridLayout,
-} from '../components/ssr-layouts.tsx';
+import type { Resume } from '@resume-builder/web/types';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+
+import { BasicLayout, ColumnLayout, GridLayout } from '../components/ssr-layouts.tsx';
 
 export type TemplateType = 'basic' | 'column' | 'grid';
 

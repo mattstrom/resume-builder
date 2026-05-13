@@ -1,25 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { useEffect } from 'react';
-import { Workspace } from '../../../components/Workspace.tsx';
+
 import { RouteLoading } from '../../../components/RouteLoading.tsx';
+import { Workspace } from '../../../components/Workspace.tsx';
 import { GET_APPLICATION } from '../../../graphql/queries.ts';
-import type {
-	GetApplicationData,
-	GetApplicationVariables,
-} from '../../../graphql/types.ts';
+import type { GetApplicationData, GetApplicationVariables } from '../../../graphql/types.ts';
 import { useStore } from '../../../stores/store.provider.tsx';
 
 const ApiApplicationEditor = observer(function ApiApplicationEditor() {
 	const { applicationId } = Route.useParams();
 	const { editorStore } = useStore();
-	const {
-		selectedApiApplicationId,
-		isLoading,
-		error,
-		resumeData,
-		selectedApplication,
-	} = editorStore;
+	const { selectedApiApplicationId, isLoading, error, resumeData, selectedApplication } =
+		editorStore;
 
 	useEffect(() => {
 		if (applicationId !== selectedApiApplicationId) {
@@ -62,10 +55,7 @@ export const Route = createFileRoute('/_authenticated/editor/$applicationId')({
 			store: { applicationStore, client },
 		} = context;
 
-		const applicationResult = await client.query<
-			GetApplicationData,
-			GetApplicationVariables
-		>({
+		const applicationResult = await client.query<GetApplicationData, GetApplicationVariables>({
 			query: GET_APPLICATION,
 			variables: { id: applicationId },
 		});

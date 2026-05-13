@@ -1,5 +1,5 @@
-import { outdent } from 'outdent';
 import type { Resume } from '@resume-builder/entities';
+import { outdent } from 'outdent';
 
 export const resume: Resume = {
 	_id: 'RES-4',
@@ -93,13 +93,7 @@ export const resume: Resume = {
 			{
 				_id: 'sg-3',
 				name: 'Backend',
-				items: [
-					'Node.js',
-					'NestJS',
-					'GraphQL',
-					'REST APIs',
-					'WebSockets',
-				],
+				items: ['Node.js', 'NestJS', 'GraphQL', 'REST APIs', 'WebSockets'],
 			},
 			{
 				_id: 'sg-4',
@@ -109,13 +103,7 @@ export const resume: Resume = {
 			{
 				_id: 'sg-5',
 				name: 'Infrastructure',
-				items: [
-					'AWS',
-					'GitHub Actions',
-					'CI/CD',
-					'Docker',
-					'Kubernetes',
-				],
+				items: ['AWS', 'GitHub Actions', 'CI/CD', 'Docker', 'Kubernetes'],
 			},
 		],
 		projects: [
@@ -132,13 +120,7 @@ export const resume: Resume = {
 			{
 				_id: 'proj-2',
 				name: 'E-commerce Platform',
-				technologies: [
-					'React',
-					'Node.js',
-					'GraphQL',
-					'Stripe',
-					'PostgreSQL',
-				],
+				technologies: ['React', 'Node.js', 'GraphQL', 'Stripe', 'PostgreSQL'],
 				items: [
 					'Architected and built a multi-tenant e-commerce platform',
 					'Integrated payment processing with Stripe',
@@ -187,12 +169,7 @@ export const resume: Resume = {
 			{
 				_id: 'proj-7',
 				name: 'Component Library',
-				technologies: [
-					'React',
-					'TypeScript',
-					'Storybook',
-					'Tailwind CSS',
-				],
+				technologies: ['React', 'TypeScript', 'Storybook', 'Tailwind CSS'],
 				items: [
 					'Created shared component library used across multiple applications',
 					'Built interactive documentation with Storybook',

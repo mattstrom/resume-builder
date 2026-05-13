@@ -1,9 +1,6 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type StatusProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'status' }
->;
+export type StatusProperty = Extract<DatabasePropertyConfigResponse, { type: 'status' }>;
 
 export interface StatusOption {
 	id: string;
@@ -31,9 +28,7 @@ export class StatusAdapter extends Adapter<StatusProperty, StatusOption[]> {
 		return (this.property.status?.groups as StatusGroup[]) ?? [];
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is StatusProperty {
+	static is(property: DatabasePropertyConfigResponse): property is StatusProperty {
 		return property.type === 'status';
 	}
 }

@@ -23,17 +23,12 @@ export function getResumeAttachmentKey(uid: string, resumeId: string): string {
 	return `${uid}:${resumeId}`;
 }
 
-export function getAttachedResumeKeys(
-	applications: ApplicationLike[],
-): Set<string> {
+export function getAttachedResumeKeys(applications: ApplicationLike[]): Set<string> {
 	return new Set(
 		applications
 			.filter((application) => application.resumeId != null)
 			.map((application) =>
-				getResumeAttachmentKey(
-					application.uid,
-					application.resumeId!.toString(),
-				),
+				getResumeAttachmentKey(application.uid, application.resumeId!.toString()),
 			),
 	);
 }
@@ -47,9 +42,7 @@ export function buildApplicationBackfillInserts(
 	return resumes
 		.filter((resume) => {
 			const resumeId = resume._id.toString();
-			return !attachedResumeKeys.has(
-				getResumeAttachmentKey(resume.uid, resumeId),
-			);
+			return !attachedResumeKeys.has(getResumeAttachmentKey(resume.uid, resumeId));
 		})
 		.map((resume) => ({
 			uid: resume.uid,

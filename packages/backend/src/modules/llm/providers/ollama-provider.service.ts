@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { Ollama, type Message, type Tool } from 'ollama';
 import { randomUUID } from 'crypto';
 
+import { Injectable } from '@nestjs/common';
+import { Ollama, type Message, type Tool } from 'ollama';
+
+import configuration from '../../../configuration';
 import type { LlmProvider } from '../interfaces/llm-provider.interface';
 import type {
 	LlmContentBlock,
@@ -10,8 +12,6 @@ import type {
 	LlmStreamEvent,
 	LlmToolDefinition,
 } from '../interfaces/llm-types';
-
-import configuration from '../../../configuration';
 
 @Injectable()
 export class OllamaProviderService implements LlmProvider {
@@ -43,19 +43,13 @@ export class OllamaProviderService implements LlmProvider {
 
 		for await (const chunk of response) {
 			// Handle tool calls
-			if (
-				chunk.message.tool_calls &&
-				chunk.message.tool_calls.length > 0
-			) {
+			if (chunk.message.tool_calls && chunk.message.tool_calls.length > 0) {
 				for (const toolCall of chunk.message.tool_calls) {
 					const id = randomUUID();
 					toolCalls.push({
 						id,
 						name: toolCall.function.name,
-						input: toolCall.function.arguments as Record<
-							string,
-							unknown
-						>,
+						input: toolCall.function.arguments as Record<string, unknown>,
 					});
 				}
 				continue;
@@ -129,9 +123,7 @@ function toOllamaMessages(system: string, messages: LlmMessage[]): Message[] {
 				.filter((b) => b.type === 'text')
 				.map((b) => (b as { text: string }).text)
 				.join('');
-			const toolUseBlocks = msg.content.filter(
-				(b) => b.type === 'tool_use',
-			);
+			const toolUseBlocks = msg.content.filter((b) => b.type === 'tool_use');
 
 			result.push({
 				role: 'assistant',
@@ -139,8 +131,7 @@ function toOllamaMessages(system: string, messages: LlmMessage[]): Message[] {
 				tool_calls: toolUseBlocks.map((b) => ({
 					function: {
 						name: (b as { name: string }).name,
-						arguments: (b as { input: Record<string, unknown> })
-							.input,
+						arguments: (b as { input: Record<string, unknown> }).input,
 					},
 				})),
 			});

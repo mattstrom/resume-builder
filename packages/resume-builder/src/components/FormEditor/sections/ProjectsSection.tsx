@@ -1,5 +1,6 @@
-import { type ChangeEvent, type FC, useState } from 'react';
 import { Plus } from 'lucide-react';
+import { type ChangeEvent, type FC, useState } from 'react';
+
 import {
 	Accordion,
 	AccordionContent,
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
 import { ExpandableCard } from '../components/ExpandableCard';
 
 interface Project {
@@ -23,10 +25,7 @@ interface ProjectsSectionProps {
 	onChange: (projects: Project[]) => void;
 }
 
-export const ProjectsSection: FC<ProjectsSectionProps> = ({
-	projects,
-	onChange,
-}) => {
+export const ProjectsSection: FC<ProjectsSectionProps> = ({ projects, onChange }) => {
 	const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
 	const handleAdd = () => {
@@ -60,18 +59,12 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 			onChange(newProjects);
 		};
 
-	const formatProjectTitle = (project: Project) =>
-		project.name || 'New Project';
+	const formatProjectTitle = (project: Project) => project.name || 'New Project';
 
 	return (
 		<Accordion type="single" collapsible>
-			<AccordionItem
-				value="projects"
-				className="bg-card/5 border-border/50 px-4"
-			>
-				<AccordionTrigger className="text-sm hover:no-underline">
-					Projects
-				</AccordionTrigger>
+			<AccordionItem value="projects" className="bg-card/5 border-border/50 px-4">
+				<AccordionTrigger className="text-sm hover:no-underline">Projects</AccordionTrigger>
 				<AccordionContent className="pt-4 space-y-4">
 					{projects.map((project, index) => (
 						<ExpandableCard
@@ -79,9 +72,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 							title={formatProjectTitle(project)}
 							expanded={expandedIndex === index}
 							onExpandChange={() =>
-								setExpandedIndex(
-									expandedIndex === index ? null : index,
-								)
+								setExpandedIndex(expandedIndex === index ? null : index)
 							}
 							onDelete={() => handleDelete(index)}
 						>
@@ -100,16 +91,11 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 								<Input
 									id={`technologies-${index}`}
 									value={project.technologies.join(', ')}
-									onChange={handleChange(
-										index,
-										'technologies',
-									)}
+									onChange={handleChange(index, 'technologies')}
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor={`items-${index}`}>
-									Items (one per line)
-								</Label>
+								<Label htmlFor={`items-${index}`}>Items (one per line)</Label>
 								<Textarea
 									id={`items-${index}`}
 									value={project.items.join('\n')}
@@ -119,12 +105,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({
 							</div>
 						</ExpandableCard>
 					))}
-					<Button
-						onClick={handleAdd}
-						variant="outline"
-						size="sm"
-						className="mt-4"
-					>
+					<Button onClick={handleAdd} variant="outline" size="sm" className="mt-4">
 						<Plus className="w-4 h-4 mr-2" />
 						Add Project
 					</Button>

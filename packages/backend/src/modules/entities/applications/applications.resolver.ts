@@ -1,11 +1,4 @@
-import {
-	Args,
-	Mutation,
-	Parent,
-	Query,
-	ResolveField,
-	Resolver,
-} from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
 	Application,
 	ApplicationInput,
@@ -14,6 +7,7 @@ import {
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
+
 import { CurrentUser } from '../../auth';
 import { ResumesService } from '../resumes/resumes.service';
 import { ApplicationsService } from './applications.service';
@@ -31,10 +25,7 @@ export class ApplicationsResolver {
 	}
 
 	@Query(() => Application)
-	async getApplication(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-	) {
+	async getApplication(@CurrentUser('sub') uid: string, @Args('id') id: string) {
 		return this.applicationsService.find(uid, id);
 	}
 

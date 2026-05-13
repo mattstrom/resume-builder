@@ -1,10 +1,14 @@
 {
   "name": "@resume-builder/entities",
   "version": "1.0.0",
-  "type": "module",
+  "private": true,
   "description": "",
   "type": "module",
   "main": "dist/index.js",
+  "browser": {
+    "@nestjs/mongoose": "./src/shims/nestjs-mongoose.ts",
+    "mongoose": "./src/shims/mongoose.ts"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "del-cli dist",
@@ -24,11 +28,6 @@
     "migrate:add-job-preferences": "node dist/data/migrate-add-job-preferences.js",
     "migrate:add-resume-application-id": "node dist/data/migrate-resume-application-id.js",
     "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
-  },
-  "private": true,
-  "browser": {
-    "@nestjs/mongoose": "./src/shims/nestjs-mongoose.ts",
-    "mongoose": "./src/shims/mongoose.ts"
   },
   "dependencies": {
     "@nestjs/graphql": "^13.2.3",

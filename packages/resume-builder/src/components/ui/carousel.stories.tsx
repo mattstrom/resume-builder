@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
+import { Card, CardContent } from './card';
 import {
 	Carousel,
 	CarouselContent,
@@ -6,7 +8,6 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from './carousel';
-import { Card, CardContent } from './card';
 
 const meta: Meta<typeof Carousel> = {
 	title: 'UI/Carousel',
@@ -33,9 +34,7 @@ export const Default: Story = {
 							<div className="p-1">
 								<Card>
 									<CardContent className="flex aspect-square items-center justify-center p-6">
-										<span className="text-4xl font-semibold">
-											{index + 1}
-										</span>
+										<span className="text-4xl font-semibold">{index + 1}</span>
 									</CardContent>
 								</Card>
 							</div>
@@ -61,16 +60,11 @@ export const Sizes: Story = {
 			>
 				<CarouselContent>
 					{Array.from({ length: 5 }).map((_, index) => (
-						<CarouselItem
-							key={index}
-							className="md:basis-1/2 lg:basis-1/3"
-						>
+						<CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
 							<div className="p-1">
 								<Card>
 									<CardContent className="flex aspect-square items-center justify-center p-6">
-										<span className="text-3xl font-semibold">
-											{index + 1}
-										</span>
+										<span className="text-3xl font-semibold">{index + 1}</span>
 									</CardContent>
 								</Card>
 							</div>
@@ -103,9 +97,7 @@ export const Vertical: Story = {
 							<div className="p-1">
 								<Card>
 									<CardContent className="flex items-center justify-center p-6">
-										<span className="text-3xl font-semibold">
-											{index + 1}
-										</span>
+										<span className="text-3xl font-semibold">{index + 1}</span>
 									</CardContent>
 								</Card>
 							</div>

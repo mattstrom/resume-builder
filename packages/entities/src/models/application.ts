@@ -1,14 +1,8 @@
-import {
-	Field,
-	Float,
-	ID,
-	InputType,
-	ObjectType,
-	PartialType,
-} from '@nestjs/graphql';
+import { Field, Float, ID, InputType, ObjectType, PartialType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { z } from 'zod';
+
 import { Resume } from './resume.js';
 
 @ObjectType({ description: 'Structured summary of job posting requirements' })
@@ -32,8 +26,7 @@ export class JobSummary {
 
 	@Field({
 		nullable: true,
-		description:
-			'Experience requirements (e.g. "5+ years in distributed systems")',
+		description: 'Experience requirements (e.g. "5+ years in distributed systems")',
 	})
 	@Prop({ type: String })
 	requiredExperience?: string;
@@ -75,8 +68,7 @@ export class JobSummary {
 export const JobSummarySchema = SchemaFactory.createForClass(JobSummary);
 
 @ObjectType({
-	description:
-		'Analysis of fit between user skills/experience and job posting',
+	description: 'Analysis of fit between user skills/experience and job posting',
 })
 @Schema({ _id: false, versionKey: false })
 export class Analysis {
@@ -199,16 +191,14 @@ export class Application {
 
 	@Field(() => JobSummary, {
 		nullable: true,
-		description:
-			'Key skills, education, and experience the job posting is looking for',
+		description: 'Key skills, education, and experience the job posting is looking for',
 	})
 	@Prop({ type: JobSummarySchema })
 	jobSummary?: JobSummary;
 
 	@Field(() => Analysis, {
 		nullable: true,
-		description:
-			'Analysis of strengths, weaknesses, and relevance of skills and experience',
+		description: 'Analysis of strengths, weaknesses, and relevance of skills and experience',
 	})
 	@Prop({ type: AnalysisSchema })
 	analysis?: Analysis;
@@ -344,18 +334,14 @@ export const applicationSchema = z.object({
 	_id: z.any(),
 	uid: z
 		.string()
-		.describe(
-			'User ID that will be used to associate the application with a specific user',
-		),
+		.describe('User ID that will be used to associate the application with a specific user'),
 	name: z
 		.string()
 		.describe(
 			'Name to use for the application. This might be something like "Software Engineer at Acme Inc."',
 		),
 	company: z.string().describe('Company name for the application'),
-	jobPostingUrl: z
-		.string()
-		.describe('URL where the job posting can be found'),
+	jobPostingUrl: z.string().describe('URL where the job posting can be found'),
 	jobDescription: z.string().optional(),
 	notionId: z.string().optional(),
 	coverLetterId: z.string().optional(),

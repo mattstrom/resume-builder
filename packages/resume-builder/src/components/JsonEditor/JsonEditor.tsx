@@ -1,17 +1,10 @@
-import {
-	type FC,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
-import Editor, { type Monaco } from '@monaco-editor/react';
 import { useMutation } from '@apollo/client/react';
-import { observer } from 'mobx-react';
-import { useStore } from '../../stores/store.provider.tsx';
-import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
+import Editor, { type Monaco } from '@monaco-editor/react';
 import { Resume } from '@resume-builder/entities';
+import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
+import { observer } from 'mobx-react';
+import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
 import { LIST_RESUMES } from '../../graphql/queries';
 import type {
@@ -20,6 +13,7 @@ import type {
 	UpdateResumeData,
 	UpdateResumeVariables,
 } from '../../graphql/types';
+import { useStore } from '../../stores/store.provider.tsx';
 
 // Debounce utility
 function debounce<T extends (...args: any[]) => any>(
@@ -53,19 +47,19 @@ export const JsonEditor: FC = observer(() => {
 	const isSaving = useRef(false); // Track if currently saving
 
 	// @ts-expect-error - Mutations prepared for future use
-	const [createResumeMutation] = useMutation<
-		CreateResumeData,
-		CreateResumeVariables
-	>(CREATE_RESUME, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
+		CREATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 	// @ts-expect-error - Mutations prepared for future use
-	const [updateResumeMutation] = useMutation<
-		UpdateResumeData,
-		UpdateResumeVariables
-	>(UPDATE_RESUME, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
+		UPDATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
@@ -109,9 +103,7 @@ export const JsonEditor: FC = observer(() => {
 					const validation = Resume.validate(parsed);
 
 					if (validation.valid) {
-						console.log(
-							'✓ Validation passed, updating resume data',
-						);
+						console.log('✓ Validation passed, updating resume data');
 						isInternalUpdate.current = true;
 						isDirty.current = true; // Mark as dirty when user makes valid changes
 						updateResumeData(parsed as Resume);
@@ -123,9 +115,7 @@ export const JsonEditor: FC = observer(() => {
 				} catch (error) {
 					if (error instanceof Error) {
 						console.error('✗ JSON Parse Error:', error.message);
-						setValidationErrors([
-							`JSON Parse Error: ${error.message}`,
-						]);
+						setValidationErrors([`JSON Parse Error: ${error.message}`]);
 					} else {
 						setValidationErrors(['Failed to parse JSON']);
 					}
@@ -149,9 +139,7 @@ export const JsonEditor: FC = observer(() => {
 				<Editor
 					height="100%"
 					defaultLanguage="json"
-					theme={
-						themeStore.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'
-					}
+					theme={themeStore.resolvedTheme === 'dark' ? 'vs-dark' : 'vs'}
 					value={jsonString}
 					onChange={handleEditorChange}
 					options={{

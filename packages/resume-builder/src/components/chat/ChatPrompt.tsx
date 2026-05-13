@@ -1,3 +1,6 @@
+import { type UseChatHelpers } from '@ai-sdk/react';
+import { type FC } from 'react';
+
 import {
 	PromptInput,
 	PromptInputActionAddAttachments,
@@ -14,8 +17,6 @@ import {
 } from '@/components/ai-elements/prompt-input.tsx';
 import { ChatModelSelector } from '@/components/chat/ChatModelSelector.tsx';
 import { ChatPromptHeader } from '@/components/chat/ChatPromptHeader.tsx';
-import { type UseChatHelpers } from '@ai-sdk/react';
-import { type FC } from 'react';
 
 interface ChatPromptProps {
 	onSubmit: (message: PromptInputMessage) => void;

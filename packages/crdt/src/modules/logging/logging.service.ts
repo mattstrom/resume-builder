@@ -14,6 +14,7 @@ import type {
 } from '@hocuspocus/server';
 import { Inject, Injectable } from '@nestjs/common';
 import type winston from 'winston';
+
 import { Logger } from './tokens.js';
 
 @Injectable()
@@ -68,10 +69,7 @@ export class LoggingService implements Extension {
 		this.logger.debug('Document stored', { docId: documentName });
 	}
 
-	async onAwarenessUpdate({
-		documentName,
-		context,
-	}: onAwarenessUpdatePayload) {
+	async onAwarenessUpdate({ documentName, context }: onAwarenessUpdatePayload) {
 		this.logger.debug('Awareness update', {
 			docId: documentName,
 			context,

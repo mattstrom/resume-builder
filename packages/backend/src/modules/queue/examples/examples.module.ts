@@ -1,11 +1,11 @@
-import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 
 import { QUEUES } from '../queues';
-import { PingCommandHandler } from './ping.command-handler';
 import { PingCompletedEventHandler } from './ping-completed.event-handler';
+import { PingCommandHandler } from './ping.command-handler';
 import { PingController } from './ping.controller';
 import { PingProcessor } from './ping.processor';
 

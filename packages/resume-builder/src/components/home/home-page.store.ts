@@ -32,10 +32,7 @@ export class HomePageStore {
 	@computed
 	get sortedApplications(): Application[] {
 		return [...this.applicationStore.data].sort((left, right) => {
-			return (
-				new Date(right.updatedAt).getTime() -
-				new Date(left.updatedAt).getTime()
-			);
+			return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
 		});
 	}
 

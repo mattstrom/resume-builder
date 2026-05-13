@@ -1,8 +1,10 @@
-import { ListEditor } from '@/components/ListEditor.tsx';
-import { type FC, Fragment } from 'react';
-import { Section } from './Section.tsx';
-import { useResume, useResumeId } from '../Resume.provider.tsx';
 import type { Skill, SkillGroup } from '@resume-builder/entities';
+import { type FC, Fragment } from 'react';
+
+import { ListEditor } from '@/components/ListEditor.tsx';
+
+import { useResume, useResumeId } from '../Resume.provider.tsx';
+import { Section } from './Section.tsx';
 
 interface SkillsSectionProps {}
 
@@ -52,10 +54,7 @@ export const SkillsSection: FC<SkillsSectionProps> = () => {
 			<Section heading="Skills" className="skills">
 				<dfn>
 					{Object.entries(groupedSkills).map(
-						(
-							[category, names]: [string, string[]],
-							index: number,
-						) => (
+						([category, names]: [string, string[]], index: number) => (
 							<Fragment key={index}>
 								<dt>{category}: </dt>
 								<dd>{names.join(', ')}</dd>

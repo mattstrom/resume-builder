@@ -1,26 +1,20 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
+
 import { BasicLayout, ColumnLayout } from '../../components/layouts';
 import { GridLayout } from '../../components/layouts/GridLayout.tsx';
-
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
-import type {
-	ListResumesData,
-	ListResumesVariables,
-} from '../../graphql/types.ts';
+import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
 
 // Import CSS for proper styling
 import '../../App.css';
 
 const previewSearchSchema = z
 	.object({
-		template: z
-			.enum(['basic', 'column', 'grid'])
-			.optional()
-			.default('basic'),
+		template: z.enum(['basic', 'column', 'grid']).optional().default('basic'),
 		showMarginPattern: z.coerce.boolean().optional().default(true),
 	})
 	.catch({
@@ -36,10 +30,7 @@ export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 		const { applicationId } = params;
 
 		try {
-			const resumesResult = await client.query<
-				ListResumesData,
-				ListResumesVariables
-			>({
+			const resumesResult = await client.query<ListResumesData, ListResumesVariables>({
 				query: LIST_RESUMES,
 				variables: { filter: { applicationId } },
 			});

@@ -1,5 +1,3 @@
-import type { RootStore } from '@/stores/root.store.ts';
-import { authFetch } from '@/utils/auth.ts';
 import type {
 	ChatModelOption,
 	ChatModelSelection,
@@ -7,6 +5,9 @@ import type {
 } from '@resume-builder/entities';
 import { DefaultChatTransport } from 'ai';
 import { action, computed, makeObservable, observable } from 'mobx';
+
+import type { RootStore } from '@/stores/root.store.ts';
+import { authFetch } from '@/utils/auth.ts';
 
 const API_BASE = 'http://localhost:3000';
 
@@ -214,9 +215,7 @@ export class ConversationService {
 	async loadModelCatalog(): Promise<void> {
 		const res = await authFetch(`${API_BASE}/api/chat/models`);
 		if (!res.ok) {
-			throw new Error(
-				`Failed to load chat models: ${res.status} ${res.statusText}`,
-			);
+			throw new Error(`Failed to load chat models: ${res.status} ${res.statusText}`);
 		}
 
 		const data = (await res.json()) as ChatModelsResponse;
@@ -231,14 +230,10 @@ export class ConversationService {
 		const { applicationId } = this.scope;
 
 		try {
-			const res = await authFetch(
-				`${API_BASE}/api/conversations/${conversationId}`,
-			);
+			const res = await authFetch(`${API_BASE}/api/conversations/${conversationId}`);
 
 			if (!res.ok) {
-				throw new Error(
-					`Failed to load conversation: ${res.status} ${res.statusText}`,
-				);
+				throw new Error(`Failed to load conversation: ${res.status} ${res.statusText}`);
 			}
 
 			const data = await res.json();
@@ -291,9 +286,7 @@ export class ConversationService {
 		if (
 			model &&
 			this.models.some(
-				(option) =>
-					option.provider === model.provider &&
-					option.model === model.model,
+				(option) => option.provider === model.provider && option.model === model.model,
 			)
 		) {
 			return model;

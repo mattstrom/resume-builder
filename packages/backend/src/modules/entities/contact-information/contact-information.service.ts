@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-	ContactInformation,
-	ContactInformationInput,
-} from '@resume-builder/entities';
+import { ContactInformation, ContactInformationInput } from '@resume-builder/entities';
 import { Model } from 'mongoose';
 
 @Injectable()

@@ -1,8 +1,9 @@
+import { observer } from 'mobx-react';
+import { type FC } from 'react';
+
 import { cn } from '@/lib/utils';
 import { useStore } from '@/stores/store.provider';
 import { Mode } from '@/stores/ui-state.store';
-import { observer } from 'mobx-react';
-import { type FC } from 'react';
 
 const MODES: { value: Mode; label: string; num: string }[] = [
 	{ value: Mode.Analysis, label: 'Analysis', num: '01' },

@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+
 import { CurrentUser } from '../../auth';
 import { EducationsService } from './educations.service';
 

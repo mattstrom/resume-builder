@@ -42,9 +42,7 @@ export class ApolloMobxWrapper<
 
 	private subscription: Subscription | null = null;
 
-	constructor(
-		private readonly observableQuery: ObservableQuery<TData, TVariables>,
-	) {
+	constructor(private readonly observableQuery: ObservableQuery<TData, TVariables>) {
 		makeObservable(this);
 
 		this.subscription = this.observableQuery.subscribe((result) => {
@@ -57,16 +55,11 @@ export class ApolloMobxWrapper<
 		this.subscription = null;
 	}
 
-	async refetch(
-		...args: Parameters<ObservableQuery<TData, TVariables>['refetch']>
-	) {
+	async refetch(...args: Parameters<ObservableQuery<TData, TVariables>['refetch']>) {
 		return this.observableQuery.refetch(...args);
 	}
 
-	static create<
-		TData,
-		TVariables extends OperationVariables = OperationVariables,
-	>(
+	static create<TData, TVariables extends OperationVariables = OperationVariables>(
 		client: ApolloClient,
 		options: ApolloClient.WatchQueryOptions<TData, TVariables>,
 	): ApolloMobxWrapper<TData, TVariables> {

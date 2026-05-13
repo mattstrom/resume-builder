@@ -1,4 +1,5 @@
 import { DatabaseObjectResponse } from '@notionhq/client';
+
 import {
 	Adapter,
 	CheckboxAdapter,

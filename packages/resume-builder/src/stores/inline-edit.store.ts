@@ -1,10 +1,5 @@
-import {
-	action,
-	computed,
-	makeObservable,
-	observable,
-	runInAction,
-} from 'mobx';
+import { action, computed, makeObservable, observable, runInAction } from 'mobx';
+
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import type { RootStore } from '@/stores/root.store.ts';
 

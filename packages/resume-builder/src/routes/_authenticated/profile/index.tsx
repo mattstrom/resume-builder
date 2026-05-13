@@ -1,5 +1,6 @@
-import { NarrativeEditor } from '@/components/profile/NarrativeEditor.tsx';
 import { createFileRoute } from '@tanstack/react-router';
+
+import { NarrativeEditor } from '@/components/profile/NarrativeEditor.tsx';
 
 export const Route = createFileRoute('/_authenticated/profile/')({
 	component: ProfileIndexComponent,

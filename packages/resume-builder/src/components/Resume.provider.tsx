@@ -1,12 +1,7 @@
 'use client';
 
-import {
-	createContext,
-	type FC,
-	type PropsWithChildren,
-	useContext,
-} from 'react';
 import type { Resume } from '@resume-builder/entities';
+import { createContext, type FC, type PropsWithChildren, useContext } from 'react';
 
 interface ResumeProviderProps extends PropsWithChildren {
 	data: Resume;
@@ -18,9 +13,7 @@ const ResumeIdContext = createContext<string | null>(null);
 export const ResumeProvider: FC<ResumeProviderProps> = ({ data, children }) => {
 	return (
 		<ResumeIdContext.Provider value={data._id}>
-			<ResumeContext.Provider value={data.data}>
-				{children}
-			</ResumeContext.Provider>
+			<ResumeContext.Provider value={data.data}>{children}</ResumeContext.Provider>
 		</ResumeIdContext.Provider>
 	);
 };

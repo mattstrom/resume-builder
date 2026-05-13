@@ -1,16 +1,15 @@
 import clsx from 'clsx';
-import { type FC, type MouseEvent, type ReactNode, createElement } from 'react';
 import { observer } from 'mobx-react';
-import { useStore } from '@/stores/store.provider.tsx';
+import { type FC, type MouseEvent, type ReactNode, createElement } from 'react';
+
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
-import { cn } from '@/lib/utils.ts';
 import { useInspectRegion } from '@/hooks/useInspectRegion.ts';
+import { cn } from '@/lib/utils.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 function pathToLabel(path: string): string {
 	const segment = path.split('.').findLast((s) => !/^\d+$/.test(s)) ?? path;
-	return segment
-		.replace(/([A-Z])/g, ' $1')
-		.replace(/^./, (s) => s.toUpperCase());
+	return segment.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
 }
 
 interface InlineEditorProps {
@@ -46,8 +45,10 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		const { inlineEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
-		const { isInspectMode, isHovered, isSelected, handlers } =
-			useInspectRegion(path, pathToLabel(path));
+		const { isInspectMode, isHovered, isSelected, handlers } = useInspectRegion(
+			path,
+			pathToLabel(path),
+		);
 
 		const handleClick = (e: MouseEvent) => {
 			if (isInspectMode) {
@@ -68,18 +69,14 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 					{
 						className: clsx(
 							className,
-							isSelected &&
-								'outline outline-2 outline-blue-500 outline-offset-1',
+							isSelected && 'outline outline-2 outline-blue-500 outline-offset-1',
 							isHovered &&
 								!isSelected &&
 								'outline outline-2 outline-blue-400/70 outline-offset-1',
 						),
 						onClick: handleClick,
 						style: {
-							cursor:
-								isInspectMode || isEditable
-									? 'pointer'
-									: undefined,
+							cursor: isInspectMode || isEditable ? 'pointer' : undefined,
 							...(isEditing ? { opacity: 0.5 } : {}),
 						},
 						...(isInspectMode && {

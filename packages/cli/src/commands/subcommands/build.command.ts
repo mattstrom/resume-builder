@@ -1,8 +1,10 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import { Command } from '@cliffy/command';
 import { Input } from '@cliffy/prompt';
 import { NestFactory } from '@nestjs/core';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+
 import { AppModule } from '../../app.module.ts';
 import { BuildService } from '../../services/build.service.ts';
 import { ResumeBuilder } from '../../services/resume.builder.ts';
@@ -16,13 +18,9 @@ export class BuildCommand extends Command {
 			.option('-n, --name <name>', 'The name of the resume to build.', {
 				required: false,
 			})
-			.option(
-				'-i, --id <id>',
-				'The ID of the resume (e.g., "RES-4" or "4").',
-				{
-					required: false,
-				},
-			)
+			.option('-i, --id <id>', 'The ID of the resume (e.g., "RES-4" or "4").', {
+				required: false,
+			})
 			.option(
 				'-o, --output [path:string]',
 				'Output to a JSON file. If no path is provided, uses the resume ID. If a directory is provided, places the file there.',
@@ -41,9 +39,7 @@ export class BuildCommand extends Command {
 				const builder = app.get(ResumeBuilder);
 
 				if (!opts.name && !opts.id) {
-					const resumes = await Array.fromAsync(
-						service.listResumes(),
-					);
+					const resumes = await Array.fromAsync(service.listResumes());
 
 					const selection = await Input.prompt({
 						message: 'Which resume?',
@@ -54,9 +50,7 @@ export class BuildCommand extends Command {
 					});
 
 					// Check if selection matches a page ID
-					const matchById = resumes.find(
-						(page: any) => page.id === selection,
-					);
+					const matchById = resumes.find((page: any) => page.id === selection);
 					if (matchById) {
 						opts.id = selection;
 					} else {
@@ -95,28 +89,19 @@ export class BuildCommand extends Command {
 								const stat = fs.statSync(providedPath);
 								if (stat.isDirectory()) {
 									// Path is an existing directory
-									outputPath = path.join(
-										providedPath,
-										`${resumeId}.json`,
-									);
+									outputPath = path.join(providedPath, `${resumeId}.json`);
 								} else {
 									// Path is an existing file
 									outputPath = providedPath;
 								}
 							} catch {
 								// Path doesn't exist, check if it looks like a file or directory
-								if (
-									providedPath.endsWith('/') ||
-									providedPath.endsWith(path.sep)
-								) {
+								if (providedPath.endsWith('/') || providedPath.endsWith(path.sep)) {
 									// Treat as directory
 									fs.mkdirSync(providedPath, {
 										recursive: true,
 									});
-									outputPath = path.join(
-										providedPath,
-										`${resumeId}.json`,
-									);
+									outputPath = path.join(providedPath, `${resumeId}.json`);
 								} else if (path.extname(providedPath)) {
 									// Has extension, treat as file
 									const dir = path.dirname(providedPath);
@@ -129,10 +114,7 @@ export class BuildCommand extends Command {
 									fs.mkdirSync(providedPath, {
 										recursive: true,
 									});
-									outputPath = path.join(
-										providedPath,
-										`${resumeId}.json`,
-									);
+									outputPath = path.join(providedPath, `${resumeId}.json`);
 								}
 							}
 						}

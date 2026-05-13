@@ -1,4 +1,5 @@
 import type { Application, Resume } from '@resume-builder/entities';
+
 import type { ResumeCollectionValue } from './resume-collections.ts';
 
 export interface ListApplicationsData {
@@ -22,17 +23,12 @@ export interface GetApplicationVariables {
 }
 
 export interface CreateApplicationVariables {
-	applicationData: Omit<
-		Application,
-		'_id' | 'uid' | 'createdAt' | 'updatedAt'
-	>;
+	applicationData: Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>;
 }
 
 export interface UpdateApplicationVariables {
 	id: string;
-	applicationData: Partial<
-		Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>
-	>;
+	applicationData: Partial<Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>>;
 }
 
 export interface ListResumesData {

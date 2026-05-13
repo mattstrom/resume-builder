@@ -9,9 +9,7 @@ import { ProfilesService } from './profiles.service';
 @Module({
 	imports: [
 		MongodbModule,
-		MongooseModule.forFeature([
-			{ name: Profile.name, schema: ProfileSchema },
-		]),
+		MongooseModule.forFeature([{ name: Profile.name, schema: ProfileSchema }]),
 	],
 	providers: [ProfileResolver, ProfilesService],
 	exports: [ProfilesService],

@@ -1,6 +1,7 @@
 {
   "name": "@resume-builder/crdt",
   "version": "1.0.0",
+  "private": true,
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -10,7 +11,6 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "private": true,
   "dependencies": {
     "@hocuspocus/server": "^3.4.3",
     "@nestjs/common": "^11.1.12",

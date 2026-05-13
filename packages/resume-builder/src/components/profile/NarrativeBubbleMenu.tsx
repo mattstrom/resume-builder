@@ -1,17 +1,16 @@
-import { Button } from '@/components/ui/button.tsx';
-import { cn } from '@/lib/utils';
 import { type Editor, useEditorState } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import { Bold, Code, Highlighter, Italic } from 'lucide-react';
 import type { FC } from 'react';
 
+import { Button } from '@/components/ui/button.tsx';
+import { cn } from '@/lib/utils';
+
 interface NarrativeBubbleMenuProps {
 	editor: Editor | null;
 }
 
-export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({
-	editor,
-}) => {
+export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({ editor }) => {
 	const state = useEditorState({
 		editor,
 		selector: ({ editor: e }) =>
@@ -73,12 +72,7 @@ interface BubbleButtonProps {
 	children: React.ReactNode;
 }
 
-const BubbleButton: FC<BubbleButtonProps> = ({
-	label,
-	active,
-	onClick,
-	children,
-}) => (
+const BubbleButton: FC<BubbleButtonProps> = ({ label, active, onClick, children }) => (
 	<Button
 		type="button"
 		variant="ghost"
@@ -87,10 +81,7 @@ const BubbleButton: FC<BubbleButtonProps> = ({
 		title={label}
 		aria-pressed={active}
 		onClick={onClick}
-		className={cn(
-			'h-8 w-8 p-0',
-			active && 'bg-accent text-accent-foreground',
-		)}
+		className={cn('h-8 w-8 p-0', active && 'bg-accent text-accent-foreground')}
 	>
 		{children}
 	</Button>

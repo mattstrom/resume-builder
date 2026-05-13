@@ -1,11 +1,6 @@
-import {
-	type FC,
-	type KeyboardEvent,
-	type ReactNode,
-	useEffect,
-	useRef,
-} from 'react';
 import { observer } from 'mobx-react';
+import { type FC, type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
+
 import { ReorderControls } from '@/components/ReorderControls.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -84,21 +79,13 @@ export const ListEditor: FC<ListEditorProps> = observer(
 			}
 
 			return variant === 'block' ? (
-				<ul
-					className={className}
-					onClick={handleClick}
-					style={{ cursor: 'pointer' }}
-				>
+				<ul className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
 					{items.map((item, i) => (
 						<li key={i}>{item}</li>
 					))}
 				</ul>
 			) : (
-				<span
-					className={className}
-					onClick={handleClick}
-					style={{ cursor: 'pointer' }}
-				>
+				<span className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
 					{items.join(', ')}
 				</span>
 			);
@@ -126,11 +113,7 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 	return (
 		<WrapperTag>
 			<ContentTag
-				className={
-					inline
-						? 'inline-flex items-start gap-2'
-						: 'flex items-start gap-2'
-				}
+				className={inline ? 'inline-flex items-start gap-2' : 'flex items-start gap-2'}
 			>
 				<ReorderControls
 					direction={direction}
@@ -156,16 +139,12 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 							index={index}
 							length={store.items.length}
 							direction="vertical"
-							onMove={(fromIndex, toIndex) =>
-								store.moveItem(fromIndex, toIndex)
-							}
+							onMove={(fromIndex, toIndex) => store.moveItem(fromIndex, toIndex)}
 						>
 							{store.editingIndex === index ? (
 								<ItemInput
 									value={store.editValue}
-									onChange={(value) =>
-										store.updateEditValue(value)
-									}
+									onChange={(value) => store.updateEditValue(value)}
 									onCommit={() => store.commitEditItem()}
 									onCancel={() => store.cancelEditItem()}
 								/>
@@ -173,9 +152,7 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 								<div className="group flex items-start gap-1">
 									<span
 										className="flex-1 cursor-pointer"
-										onClick={() =>
-											store.beginEditItem(index)
-										}
+										onClick={() => store.beginEditItem(index)}
 									>
 										{item}
 									</span>
@@ -235,26 +212,19 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 		<span className={className}>
 			<span className="inline-flex flex-wrap items-center gap-2">
 				{store.items.map((item, index) => (
-					<span
-						key={`${index}:${item}`}
-						className="inline-flex items-center"
-					>
+					<span key={`${index}:${item}`} className="inline-flex items-center">
 						{index > 0 && <span className="mr-2">, </span>}
 						<DraggableListItem
 							index={index}
 							length={store.items.length}
 							direction="horizontal"
 							inline
-							onMove={(fromIndex, toIndex) =>
-								store.moveItem(fromIndex, toIndex)
-							}
+							onMove={(fromIndex, toIndex) => store.moveItem(fromIndex, toIndex)}
 						>
 							{store.editingIndex === index ? (
 								<ItemInput
 									value={store.editValue}
-									onChange={(value) =>
-										store.updateEditValue(value)
-									}
+									onChange={(value) => store.updateEditValue(value)}
 									onCommit={() => store.commitEditItem()}
 									onCancel={() => store.cancelEditItem()}
 									inline
@@ -263,9 +233,7 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 								<span className="group/item inline">
 									<span
 										className="cursor-pointer"
-										onClick={() =>
-											store.beginEditItem(index)
-										}
+										onClick={() => store.beginEditItem(index)}
 									>
 										{item}
 									</span>

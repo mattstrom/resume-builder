@@ -9,8 +9,8 @@ import {
 } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-
 import { z } from 'zod';
+
 import { ContactInformation } from './contact-information.js';
 import { Education } from './education.js';
 import { Job } from './job.js';
@@ -101,12 +101,9 @@ export class Resume {
 
 		const obj = resume.data as Record<string, unknown>;
 
-		if (typeof obj.name !== 'string')
-			errors.push('Missing or invalid "name" field');
-		if (typeof obj.title !== 'string')
-			errors.push('Missing or invalid "title" field');
-		if (typeof obj.summary !== 'string')
-			errors.push('Missing or invalid "summary" field');
+		if (typeof obj.name !== 'string') errors.push('Missing or invalid "name" field');
+		if (typeof obj.title !== 'string') errors.push('Missing or invalid "title" field');
+		if (typeof obj.summary !== 'string') errors.push('Missing or invalid "summary" field');
 		if (!ContactInformation.isValid(obj.contactInformation))
 			errors.push('Missing or invalid "contactInformation" object');
 		if (!Array.isArray(obj.workExperience)) {
@@ -176,9 +173,7 @@ export class ResumeCreateInput {
 }
 
 @InputType()
-export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, [
-	'data',
-] as const) {}
+export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, ['data'] as const) {}
 
 @InputType()
 export class ResumeUpdateInput extends PartialType(ResumeCreateInput) {}
@@ -230,8 +225,7 @@ export class ResumeFilterInput {
 
 	@Field({
 		nullable: true,
-		description:
-			'Filter by company name (case-insensitive substring match)',
+		description: 'Filter by company name (case-insensitive substring match)',
 	})
 	company?: string;
 
@@ -272,18 +266,11 @@ export const resumeSchema = z.object({
 	level: z.string().optional().describe('Job level'),
 	jobPostingUrl: z.string().describe('URL to the job posting'),
 	readOnly: z.boolean().describe('Whether the resume is read-only'),
-	base: z
-		.boolean()
-		.describe('Whether this is a base resume for targeted versions'),
-	applicationId: z
-		.string()
-		.optional()
-		.describe('Application this resume belongs to'),
+	base: z.boolean().describe('Whether this is a base resume for targeted versions'),
+	applicationId: z.string().optional().describe('Application this resume belongs to'),
 	data: resumeContentSchema.describe('Resume content data'),
 	createdAt: z.iso.datetime().describe('Date when the resume was created'),
-	updatedAt: z.iso
-		.datetime()
-		.describe('Date when the resume was last updated'),
+	updatedAt: z.iso.datetime().describe('Date when the resume was last updated'),
 });
 
 export const resumeInputSchema = resumeSchema.omit({

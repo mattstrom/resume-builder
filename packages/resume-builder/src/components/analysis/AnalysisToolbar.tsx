@@ -1,11 +1,12 @@
-import { CreateApplicationDialog } from '@/components/CreateResumeDialog';
-import { useSnackbar } from '@/components/SnackbarProvider';
-import { Button } from '@/components/ui/button';
-import { useStore } from '@/stores/store.provider';
 import { useParams } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useState } from 'react';
+
+import { CreateApplicationDialog } from '@/components/CreateResumeDialog';
+import { useSnackbar } from '@/components/SnackbarProvider';
+import { Button } from '@/components/ui/button';
+import { useStore } from '@/stores/store.provider';
 
 export const AnalysisToolbar: FC = observer(() => {
 	const { applicationStore } = useStore();
@@ -18,10 +19,7 @@ export const AnalysisToolbar: FC = observer(() => {
 		setIsAssessing(true);
 		try {
 			await applicationStore.assess(applicationId);
-			showSnackbar(
-				'Assessment started. Results will appear shortly.',
-				'success',
-			);
+			showSnackbar('Assessment started. Results will appear shortly.', 'success');
 		} catch {
 			showSnackbar('Assessment failed. Please try again.', 'error');
 		} finally {

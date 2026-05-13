@@ -1,11 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-	Application,
-	ApplicationInput,
-	ApplicationUpdateInput,
-} from '@resume-builder/entities';
+import { Application, ApplicationInput, ApplicationUpdateInput } from '@resume-builder/entities';
 import { Model, UpdateOneModel } from 'mongoose';
+
 import { ResumesService } from '../resumes/resumes.service';
 
 @Injectable()
@@ -17,17 +14,12 @@ export class ApplicationsService {
 	) {}
 
 	async findAll(uid: string): Promise<Application[]> {
-		const results = await this.applicationModel
-			.find({ uid })
-			.sort({ updatedAt: -1 })
-			.exec();
+		const results = await this.applicationModel.find({ uid }).sort({ updatedAt: -1 }).exec();
 		return results.map((item) => item.toObject());
 	}
 
 	async find(uid: string, id: string): Promise<Application> {
-		const result = await this.applicationModel
-			.findOne({ _id: id, uid })
-			.exec();
+		const result = await this.applicationModel.findOne({ _id: id, uid }).exec();
 
 		if (!result) {
 			throw new NotFoundException();
@@ -121,20 +113,14 @@ export class ApplicationsService {
 	}
 
 	async delete(uid: string, id: string): Promise<void> {
-		const result = await this.applicationModel
-			.deleteOne({ _id: id, uid })
-			.exec();
+		const result = await this.applicationModel.deleteOne({ _id: id, uid }).exec();
 
 		if (result.deletedCount === 0) {
 			throw new NotFoundException(`Application with id ${id} not found`);
 		}
 	}
 
-	async patch(
-		uid: string,
-		id: string,
-		update: UpdateOneModel<Application>,
-	): Promise<void> {
+	async patch(uid: string, id: string, update: UpdateOneModel<Application>): Promise<void> {
 		await this.applicationModel.updateOne({ _id: id, uid }, update).exec();
 	}
 }

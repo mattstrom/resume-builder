@@ -5,10 +5,7 @@ interface FileSystemHandlePermissionDescriptor {
 interface FileSystemDirectoryHandle {
 	readonly kind: 'directory';
 	readonly name: string;
-	getFileHandle(
-		name: string,
-		options?: { create?: boolean },
-	): Promise<FileSystemFileHandle>;
+	getFileHandle(name: string, options?: { create?: boolean }): Promise<FileSystemFileHandle>;
 	getDirectoryHandle(
 		name: string,
 		options?: { create?: boolean },
@@ -16,33 +13,19 @@ interface FileSystemDirectoryHandle {
 	removeEntry(name: string, options?: { recursive?: boolean }): Promise<void>;
 	resolve(possibleDescendant: FileSystemHandle): Promise<string[] | null>;
 	keys(): AsyncIterableIterator<string>;
-	values(): AsyncIterableIterator<
-		FileSystemFileHandle | FileSystemDirectoryHandle
-	>;
-	entries(): AsyncIterableIterator<
-		[string, FileSystemFileHandle | FileSystemDirectoryHandle]
-	>;
-	queryPermission(
-		descriptor?: FileSystemHandlePermissionDescriptor,
-	): Promise<PermissionState>;
-	requestPermission(
-		descriptor?: FileSystemHandlePermissionDescriptor,
-	): Promise<PermissionState>;
+	values(): AsyncIterableIterator<FileSystemFileHandle | FileSystemDirectoryHandle>;
+	entries(): AsyncIterableIterator<[string, FileSystemFileHandle | FileSystemDirectoryHandle]>;
+	queryPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>;
+	requestPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>;
 }
 
 interface FileSystemFileHandle {
 	readonly kind: 'file';
 	readonly name: string;
 	getFile(): Promise<File>;
-	createWritable(options?: {
-		keepExistingData?: boolean;
-	}): Promise<FileSystemWritableFileStream>;
-	queryPermission(
-		descriptor?: FileSystemHandlePermissionDescriptor,
-	): Promise<PermissionState>;
-	requestPermission(
-		descriptor?: FileSystemHandlePermissionDescriptor,
-	): Promise<PermissionState>;
+	createWritable(options?: { keepExistingData?: boolean }): Promise<FileSystemWritableFileStream>;
+	queryPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>;
+	requestPermission(descriptor?: FileSystemHandlePermissionDescriptor): Promise<PermissionState>;
 }
 
 interface ShowDirectoryPickerOptions {
@@ -59,9 +42,7 @@ interface ShowDirectoryPickerOptions {
 }
 
 interface Window {
-	showDirectoryPicker(
-		options?: ShowDirectoryPickerOptions,
-	): Promise<FileSystemDirectoryHandle>;
+	showDirectoryPicker(options?: ShowDirectoryPickerOptions): Promise<FileSystemDirectoryHandle>;
 	showOpenFilePicker(options?: unknown): Promise<FileSystemFileHandle[]>;
 	showSaveFilePicker(options?: unknown): Promise<FileSystemFileHandle>;
 }

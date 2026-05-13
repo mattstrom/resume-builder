@@ -74,9 +74,7 @@ function getChild(container: Container, segment: string): unknown {
 	if (container instanceof Y.Array) {
 		const index = Number(segment);
 		if (!Number.isInteger(index)) {
-			throw new Error(
-				`Expected numeric index for array segment, got "${segment}"`,
-			);
+			throw new Error(`Expected numeric index for array segment, got "${segment}"`);
 		}
 		return container.get(index);
 	}
@@ -105,9 +103,7 @@ function walkToParent(
 
 		if (next === undefined || next === null) {
 			if (!createMissing) {
-				throw new Error(
-					`Path segment "${segment}" not found at index ${i}`,
-				);
+				throw new Error(`Path segment "${segment}" not found at index ${i}`);
 			}
 			if (current instanceof Y.Array) {
 				throw new Error(
@@ -120,9 +116,7 @@ function walkToParent(
 		}
 
 		if (!(next instanceof Y.Map) && !(next instanceof Y.Array)) {
-			throw new Error(
-				`Path segment "${segment}" is a leaf value, not a container`,
-			);
+			throw new Error(`Path segment "${segment}" is a leaf value, not a container`);
 		}
 
 		current = next;
@@ -153,11 +147,7 @@ export function applyJsonPatch(root: Y.Map<unknown>, ops: JsonPatchOp[]): void {
 			continue;
 		}
 
-		const { parent, lastSegment } = walkToParent(
-			root,
-			segments,
-			op.op === 'set',
-		);
+		const { parent, lastSegment } = walkToParent(root, segments, op.op === 'set');
 
 		switch (op.op) {
 			case 'set': {
@@ -195,9 +185,7 @@ export function applyJsonPatch(root: Y.Map<unknown>, ops: JsonPatchOp[]): void {
 			case 'insert': {
 				const target = getChild(parent, lastSegment);
 				if (!(target instanceof Y.Array)) {
-					throw new Error(
-						`insert target at "${op.path}" is not a Y.Array`,
-					);
+					throw new Error(`insert target at "${op.path}" is not a Y.Array`);
 				}
 				target.insert(op.index, [toYValue(op.value)]);
 				break;
@@ -205,9 +193,7 @@ export function applyJsonPatch(root: Y.Map<unknown>, ops: JsonPatchOp[]): void {
 			case 'remove': {
 				const target = getChild(parent, lastSegment);
 				if (!(target instanceof Y.Array)) {
-					throw new Error(
-						`remove target at "${op.path}" is not a Y.Array`,
-					);
+					throw new Error(`remove target at "${op.path}" is not a Y.Array`);
 				}
 				target.delete(op.index, 1);
 				break;

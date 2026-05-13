@@ -1,6 +1,7 @@
 import { type FC, type KeyboardEvent, useEffect, useState } from 'react';
-import { useStore } from '@/stores/store.provider.tsx';
+
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 interface TextFieldEditorProps {
 	path: string;

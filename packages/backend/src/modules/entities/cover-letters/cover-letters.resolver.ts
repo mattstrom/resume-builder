@@ -1,11 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import {
-	CoverLetter,
-	CoverLetterInput,
-	CoverLetterUpdateInput,
-} from '@resume-builder/entities';
+import { CoverLetter, CoverLetterInput, CoverLetterUpdateInput } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
+
 import { CurrentUser } from '../../auth';
 import { CoverLettersService } from './cover-letters.service';
 
@@ -19,10 +16,7 @@ export class CoverLettersResolver {
 	}
 
 	@Query(() => CoverLetter)
-	async getCoverLetter(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-	) {
+	async getCoverLetter(@CurrentUser('sub') uid: string, @Args('id') id: string) {
 		return this.coverLettersService.find(uid, id);
 	}
 

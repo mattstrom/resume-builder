@@ -1,5 +1,5 @@
-import type { FC } from 'react';
 import { Loader2 } from 'lucide-react';
+import type { FC } from 'react';
 
 export const RouteLoading: FC = () => {
 	return (
