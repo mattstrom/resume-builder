@@ -1,5 +1,7 @@
-import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { type FC } from 'react';
+
+import { InlineEditor } from '@/components/InlineEditor.tsx';
+
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 
 interface CandidateNameProps {}

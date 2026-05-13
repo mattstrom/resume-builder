@@ -1,6 +1,7 @@
 import { action, computed, makeObservable, observable, reaction } from 'mobx';
-import { StorageKey } from '@/stores/services/persistence.service.ts';
+
 import type { RootStore } from '@/stores/root.store.ts';
+import { StorageKey } from '@/stores/services/persistence.service.ts';
 
 export enum Mode {
 	Analysis = 'analysis',
@@ -31,9 +32,7 @@ export class UiStateStore {
 
 	@computed
 	get isResumeEditable() {
-		return (
-			[Mode.Tailor, Mode.Edit].includes(this.mode) && !this.isPreviewRoute
-		);
+		return [Mode.Tailor, Mode.Edit].includes(this.mode) && !this.isPreviewRoute;
 	}
 
 	@computed
@@ -85,11 +84,7 @@ export class UiStateStore {
 		this.sidebarOpen = open === undefined ? !this.sidebarOpen : open;
 	}
 
-	watch<P extends keyof this>(
-		property: P,
-		storageKey: StorageKey,
-		defaultValue: this[P],
-	) {
+	watch<P extends keyof this>(property: P, storageKey: StorageKey, defaultValue: this[P]) {
 		const { persistence } = this.rootStore;
 
 		this[property] = persistence.retrieveSession(storageKey, defaultValue)!;

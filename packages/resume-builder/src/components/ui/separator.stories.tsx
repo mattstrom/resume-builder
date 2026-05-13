@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
 import { Separator } from './separator';
 
 const meta: Meta<typeof Separator> = {
@@ -28,9 +29,7 @@ export const Horizontal: Story = {
 	render: (args) => (
 		<div>
 			<div className="space-y-1">
-				<h4 className="text-sm font-medium leading-none">
-					Radix Primitives
-				</h4>
+				<h4 className="text-sm font-medium leading-none">Radix Primitives</h4>
 				<p className="text-sm text-muted-foreground">
 					An open-source UI component library.
 				</p>

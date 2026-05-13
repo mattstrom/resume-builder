@@ -1,7 +1,10 @@
-import { type FC, useCallback, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { useMutation } from '@apollo/client/react';
+import { Loader2 } from 'lucide-react';
+import { type FC, useCallback, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import { useStore } from '@/stores/store.provider.tsx';
+
 import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
 import { LIST_RESUMES } from '../../graphql/queries';
 import type {
@@ -10,7 +13,6 @@ import type {
 	UpdateResumeData,
 	UpdateResumeVariables,
 } from '../../graphql/types';
-import { Button } from '@/components/ui/button';
 
 type SaveState = 'idle' | 'saving' | 'success' | 'error';
 
@@ -25,18 +27,18 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 	const [saveState, setSaveState] = useState<SaveState>('idle');
 	const [errorMessage, setErrorMessage] = useState<string>('');
 
-	const [createResumeMutation] = useMutation<
-		CreateResumeData,
-		CreateResumeVariables
-	>(CREATE_RESUME, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
-	const [updateResumeMutation] = useMutation<
-		UpdateResumeData,
-		UpdateResumeVariables
-	>(UPDATE_RESUME, {
-		refetchQueries: [{ query: LIST_RESUMES }],
-	});
+	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
+		CREATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
+	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
+		UPDATE_RESUME,
+		{
+			refetchQueries: [{ query: LIST_RESUMES }],
+		},
+	);
 
 	const handleSave = useCallback(async () => {
 		if (!resumeData) {
@@ -56,10 +58,7 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 
 			let savedResume;
 			if (hasMongoId) {
-				console.log(
-					'📝 Updating existing resume with _id:',
-					resumeData._id,
-				);
+				console.log('📝 Updating existing resume with _id:', resumeData._id);
 				// Update existing resume
 				const { _id, ...resumeDataWithoutId } = resumeData;
 				const result = await updateResumeMutation({
@@ -101,12 +100,7 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 				setErrorMessage('Failed to save resume');
 			}
 		}
-	}, [
-		resumeData,
-		updateResumeData,
-		createResumeMutation,
-		updateResumeMutation,
-	]);
+	}, [resumeData, updateResumeData, createResumeMutation, updateResumeMutation]);
 
 	const getButtonText = () => {
 		switch (saveState) {
@@ -140,9 +134,7 @@ export const SaveButton: FC<SaveButtonProps> = ({ disabled = false }) => {
 				disabled={isDisabled}
 				className={`w-full ${saveState === 'success' ? 'bg-green-600 hover:bg-green-700' : ''}`}
 			>
-				{saveState === 'saving' && (
-					<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-				)}
+				{saveState === 'saving' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 				{getButtonText()}
 			</Button>
 			{saveState === 'error' && errorMessage && (

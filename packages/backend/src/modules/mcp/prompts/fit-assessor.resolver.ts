@@ -15,9 +15,7 @@ export class FitAssessorPromptResolver {
 		argsSchema: {
 			jobDescription: z
 				.string()
-				.describe(
-					'Job description text, or the URL of the job posting',
-				),
+				.describe('Job description text, or the URL of the job posting'),
 		},
 	})
 	fitAssessor({ args }: PromptHandlerArgs) {

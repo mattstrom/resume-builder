@@ -14,10 +14,7 @@ export class VolunteeringService {
 		return this.volunteeringModel.find({ uid }).exec();
 	}
 
-	async create(
-		uid: string,
-		volunteering: VolunteeringInput,
-	): Promise<Volunteering> {
+	async create(uid: string, volunteering: VolunteeringInput): Promise<Volunteering> {
 		const created = new this.volunteeringModel({ ...volunteering, uid });
 		const saved = await created.save();
 		return saved.toObject();

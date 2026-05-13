@@ -1,7 +1,9 @@
-import { Centered } from '@/components/common/Centered.tsx';
 import { createFileRoute } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { useEffect } from 'react';
+
+import { Centered } from '@/components/common/Centered.tsx';
+
 import { Workspace } from '../../../components/Workspace.tsx';
 import { useStore } from '../../../stores/store.provider.tsx';
 
@@ -30,9 +32,7 @@ const EditorIndexComponent = observer(function EditorIndexComponent() {
 	if (!resumeData) {
 		return (
 			<Centered>
-				<h1 className="text-3xl font-bold mb-4 text-foreground">
-					No Linked Resume
-				</h1>
+				<h1 className="text-3xl font-bold mb-4 text-foreground">No Linked Resume</h1>
 				<p className="text-muted-foreground">
 					Select an application from the sidebar to get started
 				</p>

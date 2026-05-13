@@ -7,9 +7,7 @@ interface SnackbarContextType {
 	showSnackbar: (message: string, severity?: Severity) => void;
 }
 
-const SnackbarContext = createContext<SnackbarContextType | undefined>(
-	undefined,
-);
+const SnackbarContext = createContext<SnackbarContextType | undefined>(undefined);
 
 export function useSnackbar(): SnackbarContextType {
 	const context = useContext(SnackbarContext);
@@ -20,32 +18,25 @@ export function useSnackbar(): SnackbarContextType {
 }
 
 export function SnackbarProvider({ children }: { children: React.ReactNode }) {
-	const showSnackbar = useCallback(
-		(message: string, severity: Severity = 'info') => {
-			switch (severity) {
-				case 'success':
-					toast.success(message);
-					break;
-				case 'error':
-					toast.error(message, {
-						duration: Infinity, // Don't auto-dismiss errors
-					});
-					break;
-				case 'warning':
-					toast.warning(message);
-					break;
-				case 'info':
-				default:
-					toast.info(message);
-					break;
-			}
-		},
-		[],
-	);
+	const showSnackbar = useCallback((message: string, severity: Severity = 'info') => {
+		switch (severity) {
+			case 'success':
+				toast.success(message);
+				break;
+			case 'error':
+				toast.error(message, {
+					duration: Infinity, // Don't auto-dismiss errors
+				});
+				break;
+			case 'warning':
+				toast.warning(message);
+				break;
+			case 'info':
+			default:
+				toast.info(message);
+				break;
+		}
+	}, []);
 
-	return (
-		<SnackbarContext.Provider value={{ showSnackbar }}>
-			{children}
-		</SnackbarContext.Provider>
-	);
+	return <SnackbarContext.Provider value={{ showSnackbar }}>{children}</SnackbarContext.Provider>;
 }

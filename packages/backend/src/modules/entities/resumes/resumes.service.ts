@@ -85,10 +85,7 @@ export class ResumesService {
 
 		sortCriteria['name'] = 1;
 
-		const results = await this.resumeModel
-			.find(query)
-			.sort(sortCriteria)
-			.exec();
+		const results = await this.resumeModel.find(query).sort(sortCriteria).exec();
 
 		return results.map((item) => item.toObject());
 	}
@@ -109,10 +106,7 @@ export class ResumesService {
 		return saved.toObject();
 	}
 
-	async createBlank(
-		uid: string,
-		resumeData: BlankResumeCreateInput,
-	): Promise<Resume> {
+	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<Resume> {
 		const contactInfo = await this.contactInfoModel.findOne({}).exec();
 
 		if (!contactInfo) {
@@ -131,11 +125,7 @@ export class ResumesService {
 		return saved.toObject();
 	}
 
-	async update(
-		uid: string,
-		id: string,
-		updateData: ResumeUpdateInput,
-	): Promise<Resume> {
+	async update(uid: string, id: string, updateData: ResumeUpdateInput): Promise<Resume> {
 		const updated = await this.resumeModel
 			.findOneAndUpdate({ _id: id, uid }, updateData, { new: true })
 			.exec();
@@ -147,11 +137,7 @@ export class ResumesService {
 		return updated.toObject();
 	}
 
-	async patch(
-		uid: string,
-		id: string,
-		update: UpdateOneModel<Resume>,
-	): Promise<Resume> {
+	async patch(uid: string, id: string, update: UpdateOneModel<Resume>): Promise<Resume> {
 		const resume = await this.getResumeModel(id, uid);
 
 		if (!resume) {
@@ -178,12 +164,7 @@ export class ResumesService {
 		return result;
 	}
 
-	async setField(
-		uid: string,
-		id: string,
-		path: string,
-		value: unknown,
-	): Promise<Resume> {
+	async setField(uid: string, id: string, path: string, value: unknown): Promise<Resume> {
 		const isAllowed = ALLOWED_PATH_PREFIXES.some(
 			(prefix) => path === prefix || path.startsWith(prefix + '.'),
 		);
@@ -242,9 +223,7 @@ export class ResumesService {
 				);
 				break;
 			default:
-				throw new BadRequestException(
-					`Collection "${collection}" is not supported`,
-				);
+				throw new BadRequestException(`Collection "${collection}" is not supported`);
 		}
 
 		this.ensureEmbeddedUids(resume, uid);
@@ -290,10 +269,7 @@ export class ResumesService {
 		this.ensureCollectionItemUids(data.volunteering, uid);
 	}
 
-	private ensureCollectionItemUids(
-		items: Array<{ uid?: string }> | undefined,
-		uid: string,
-	) {
+	private ensureCollectionItemUids(items: Array<{ uid?: string }> | undefined, uid: string) {
 		items?.forEach((item) => {
 			if (!item.uid) {
 				item.uid = uid;
@@ -316,9 +292,7 @@ export class ResumesService {
 				}
 				return resume.data.volunteering;
 			default:
-				throw new BadRequestException(
-					`Collection "${collection}" is not supported`,
-				);
+				throw new BadRequestException(`Collection "${collection}" is not supported`);
 		}
 	}
 
@@ -329,20 +303,14 @@ export class ResumesService {
 		}).toObject();
 	}
 
-	private createProject(
-		uid: string,
-		overrides: Partial<Project> = {},
-	): Project {
+	private createProject(uid: string, overrides: Partial<Project> = {}): Project {
 		return new this.projectModel({
 			uid,
 			...overrides,
 		}).toObject();
 	}
 
-	private createVolunteering(
-		uid: string,
-		overrides: Partial<Volunteering> = {},
-	): Volunteering {
+	private createVolunteering(uid: string, overrides: Partial<Volunteering> = {}): Volunteering {
 		return new this.volunteeringModel({
 			uid,
 			...overrides,

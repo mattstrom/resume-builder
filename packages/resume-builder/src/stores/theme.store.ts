@@ -1,6 +1,7 @@
 import { action, computed, makeObservable, observable, reaction } from 'mobx';
-import { StorageKey } from '@/stores/services/persistence.service.ts';
+
 import type { RootStore } from '@/stores/root.store.ts';
+import { StorageKey } from '@/stores/services/persistence.service.ts';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -72,9 +73,7 @@ export class ThemeStore {
 	private handleStorageChange = (event: StorageEvent) => {
 		if (event.key !== StorageKey.Theme) return;
 		try {
-			const next = event.newValue
-				? (JSON.parse(event.newValue) as Theme)
-				: 'system';
+			const next = event.newValue ? (JSON.parse(event.newValue) as Theme) : 'system';
 			if (next !== this.theme) {
 				this.theme = next;
 			}

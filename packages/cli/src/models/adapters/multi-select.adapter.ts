@@ -1,9 +1,6 @@
 import { Adapter, type DatabasePropertyConfigResponse } from './adapter.ts';
 
-export type MultiSelectProperty = Extract<
-	DatabasePropertyConfigResponse,
-	{ type: 'multi_select' }
->;
+export type MultiSelectProperty = Extract<DatabasePropertyConfigResponse, { type: 'multi_select' }>;
 
 export interface MultiSelectOption {
 	id: string;
@@ -11,23 +8,16 @@ export interface MultiSelectOption {
 	color: string;
 }
 
-export class MultiSelectAdapter extends Adapter<
-	MultiSelectProperty,
-	MultiSelectOption[]
-> {
+export class MultiSelectAdapter extends Adapter<MultiSelectProperty, MultiSelectOption[]> {
 	constructor(private readonly property: MultiSelectProperty) {
 		super();
 	}
 
 	get(): MultiSelectOption[] {
-		return (
-			(this.property.multi_select?.options as MultiSelectOption[]) ?? []
-		);
+		return (this.property.multi_select?.options as MultiSelectOption[]) ?? [];
 	}
 
-	static is(
-		property: DatabasePropertyConfigResponse,
-	): property is MultiSelectProperty {
+	static is(property: DatabasePropertyConfigResponse): property is MultiSelectProperty {
 		return property.type === 'multi_select';
 	}
 }

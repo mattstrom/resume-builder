@@ -1,8 +1,4 @@
-export function reorderItems<T>(
-	items: readonly T[],
-	fromIndex: number,
-	toIndex: number,
-): T[] {
+export function reorderItems<T>(items: readonly T[], fromIndex: number, toIndex: number): T[] {
 	if (
 		fromIndex < 0 ||
 		toIndex < 0 ||

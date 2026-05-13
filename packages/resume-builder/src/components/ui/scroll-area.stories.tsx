@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
 import { ScrollArea } from './scroll-area';
 import { Separator } from './separator';
 
@@ -11,9 +12,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const tags = Array.from({ length: 50 }).map(
-	(_, i, a) => `v1.2.0-beta.${a.length - i}`,
-);
+const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`);
 
 export const Default: Story = {
 	render: () => (

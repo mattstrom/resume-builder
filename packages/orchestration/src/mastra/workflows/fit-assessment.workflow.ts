@@ -2,14 +2,13 @@ import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
+import { fitAssessmentAgent } from '../agents/fit-assessment.agent';
+import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import {
 	analysisSchema,
 	jobSummarySchema,
 	type NarrativeSummary,
 } from '../schemas/fit-assessment.schemas';
-
-import { fitAssessmentAgent } from '../agents/fit-assessment.agent';
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
 function formatNarrativeSummary(summary: NarrativeSummary): string {
 	const lines: string[] = [];
@@ -49,10 +48,7 @@ function formatNarrativeSummary(summary: NarrativeSummary): string {
 	if (summary.projects.length > 0) {
 		lines.push('Projects:');
 		for (const proj of summary.projects) {
-			const tech =
-				proj.technologies.length > 0
-					? ` (${proj.technologies.join(', ')})`
-					: '';
+			const tech = proj.technologies.length > 0 ? ` (${proj.technologies.join(', ')})` : '';
 			lines.push(`${proj.name}: ${proj.description}${tech}`);
 		}
 	}
@@ -83,8 +79,7 @@ function stripXmlTags(xml: string): string {
 
 const fetchAssessmentData = createStep({
 	id: 'fetch-assessment-data',
-	description:
-		'Fetches job description and candidate profile via the backend MCP tools',
+	description: 'Fetches job description and candidate profile via the backend MCP tools',
 	inputSchema: z.object({ applicationId: z.string() }),
 	outputSchema: z.object({
 		applicationId: z.string(),
@@ -106,9 +101,7 @@ const fetchAssessmentData = createStep({
 		const profile = (profileResult as any)?.profile;
 
 		if (!application?.jobDescription) {
-			throw new Error(
-				`Application ${applicationId} has no jobDescription`,
-			);
+			throw new Error(`Application ${applicationId} has no jobDescription`);
 		}
 
 		const jobPreferencesText =
@@ -117,9 +110,7 @@ const fetchAssessmentData = createStep({
 				: '';
 
 		const candidateText = profile?.narrativeSummary
-			? formatNarrativeSummary(
-					profile.narrativeSummary as NarrativeSummary,
-				)
+			? formatNarrativeSummary(profile.narrativeSummary as NarrativeSummary)
 			: profile?.narrative
 				? stripXmlTags(profile.narrative as string)
 				: '';
@@ -135,8 +126,7 @@ const fetchAssessmentData = createStep({
 
 const runFitAssessment = createStep({
 	id: 'run-fit-assessment',
-	description:
-		'Runs the fit assessment agent to extract job summary and analysis scores',
+	description: 'Runs the fit assessment agent to extract job summary and analysis scores',
 	inputSchema: z.object({
 		applicationId: z.string(),
 		jobDescription: z.string(),
@@ -149,15 +139,9 @@ const runFitAssessment = createStep({
 		analysis: analysisSchema,
 	}),
 	execute: async ({ inputData, mastra }) => {
-		const {
-			applicationId,
-			jobDescription,
-			candidateText,
-			jobPreferencesText,
-		} = inputData;
+		const { applicationId, jobDescription, candidateText, jobPreferencesText } = inputData;
 
-		const agent =
-			mastra?.getAgent('fitAssessmentAgent') ?? fitAssessmentAgent;
+		const agent = mastra?.getAgent('fitAssessmentAgent') ?? fitAssessmentAgent;
 
 		const prompt = outdent`
 			Job Description:
@@ -168,14 +152,9 @@ const runFitAssessment = createStep({
 			${jobPreferencesText ? `Candidate Job Preferences:\n${jobPreferencesText}` : ''}
 		`;
 
-		const result = await agent.generate(
-			[{ role: 'user', content: prompt }],
-			{ maxSteps: 5 },
-		);
+		const result = await agent.generate([{ role: 'user', content: prompt }], { maxSteps: 5 });
 
-		const allToolResults = (result.steps ?? []).flatMap(
-			(step) => step.toolResults ?? [],
-		);
+		const allToolResults = (result.steps ?? []).flatMap((step) => step.toolResults ?? []);
 
 		const jobSummaryResult = allToolResults.find(
 			(r) => r.payload.toolName === 'extract_job_summary',
@@ -190,9 +169,7 @@ const runFitAssessment = createStep({
 			);
 		}
 
-		const jobSummary = jobSummarySchema.parse(
-			jobSummaryResult.payload.result,
-		);
+		const jobSummary = jobSummarySchema.parse(jobSummaryResult.payload.result);
 		const analysis = analysisSchema.parse(analysisResult.payload.result);
 
 		return { applicationId, jobSummary, analysis };
@@ -201,8 +178,7 @@ const runFitAssessment = createStep({
 
 const saveAssessmentResults = createStep({
 	id: 'save-assessment-results',
-	description:
-		'Saves the fit analysis back to the application via the backend MCP tool',
+	description: 'Saves the fit analysis back to the application via the backend MCP tool',
 	inputSchema: z.object({
 		applicationId: z.string(),
 		jobSummary: jobSummarySchema,
@@ -217,10 +193,7 @@ const saveAssessmentResults = createStep({
 		const toolsets = await resumeBuilderMcpClient.listToolsets();
 		const tools = toolsets['resumeBuilder'];
 
-		await tools['update_analysis'].execute!(
-			{ applicationId, analysis },
-			{} as any,
-		);
+		await tools['update_analysis'].execute!({ applicationId, analysis }, {} as any);
 
 		return { jobSummary, analysis };
 	},

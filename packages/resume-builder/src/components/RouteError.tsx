@@ -1,14 +1,13 @@
-import type { FC } from 'react';
 import { Link, type ErrorComponentProps } from '@tanstack/react-router';
 import { AlertCircle } from 'lucide-react';
+import type { FC } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const RouteError: FC<ErrorComponentProps> = ({ error }) => {
-	const errorMessage =
-		error instanceof Error ? error.message : 'An unexpected error occurred';
-	const isNotFound =
-		errorMessage.includes('404') || errorMessage.includes('not found');
+	const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+	const isNotFound = errorMessage.includes('404') || errorMessage.includes('not found');
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-background p-6">

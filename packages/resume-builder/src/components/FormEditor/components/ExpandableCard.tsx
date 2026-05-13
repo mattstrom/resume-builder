@@ -1,8 +1,9 @@
 import { ChevronDown, Trash2 } from 'lucide-react';
 import { type FC, type PropsWithChildren } from 'react';
+
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface ExpandableCardProps extends PropsWithChildren {
@@ -24,9 +25,7 @@ export const ExpandableCard: FC<ExpandableCardProps> = ({
 			<Collapsible open={expanded} onOpenChange={onExpandChange}>
 				<CardHeader className="py-3">
 					<div className="flex items-center justify-between">
-						<h3 className="text-sm font-medium text-foreground">
-							{title}
-						</h3>
+						<h3 className="text-sm font-medium text-foreground">{title}</h3>
 						<div className="flex items-center gap-1">
 							<Button
 								variant="ghost"

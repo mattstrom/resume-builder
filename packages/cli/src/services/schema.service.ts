@@ -1,9 +1,11 @@
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+
 import { Inject, Injectable } from '@nestjs/common';
 import { Client } from '@notionhq/client';
-import * as path from 'node:path';
-import * as fs from 'node:fs/promises';
-import { LookupService } from './lookup.service.ts';
+
 import { NotionClient } from '../tokens.ts';
+import { LookupService } from './lookup.service.ts';
 
 const NOTION_TYPE_MAP: Record<string, string> = {
 	title: 'string',
@@ -28,12 +30,7 @@ const NOTION_TYPE_MAP: Record<string, string> = {
 	last_edited_by: 'string',
 };
 
-const OUTPUT_PATH = path.join(
-	import.meta.dirname ?? '.',
-	'..',
-	'generated',
-	'notion-types.ts',
-);
+const OUTPUT_PATH = path.join(import.meta.dirname ?? '.', '..', 'generated', 'notion-types.ts');
 
 export type DatabaseName = keyof LookupService['ids'];
 
@@ -77,9 +74,7 @@ export class SchemaService {
 				details = `→ ${rel.relation?.database_id ?? 'unknown'}`;
 			} else if (type === 'select' || type === 'multi_select') {
 				const sel = property as any;
-				const options = sel[type]?.options
-					?.map((o: any) => o.name)
-					.slice(0, 5);
+				const options = sel[type]?.options?.map((o: any) => o.name).slice(0, 5);
 
 				if (options?.length) {
 					details = `[${options.join(', ')}${
@@ -109,9 +104,7 @@ export class SchemaService {
 			.filter((word) => word.length > 0)
 			.map((word, index) => {
 				const lower = word.toLowerCase();
-				return index === 0
-					? lower
-					: lower.charAt(0).toUpperCase() + lower.slice(1);
+				return index === 0 ? lower : lower.charAt(0).toUpperCase() + lower.slice(1);
 			})
 			.join('');
 	}

@@ -1,13 +1,16 @@
 import { Save } from 'lucide-react';
 import { type FC, useEffect, useRef, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import { useStore } from '@/stores/store.provider.tsx';
+
 import { BasicInfoSection } from './sections/BasicInfoSection';
 import { ContactInfoSection } from './sections/ContactInfoSection';
 import { EducationSection } from './sections/EducationSection';
-import { WorkExperienceSection } from './sections/WorkExperienceSection';
-import { SkillsSection } from './sections/SkillsSection';
 import { ProjectsSection } from './sections/ProjectsSection';
-import { Button } from '@/components/ui/button';
+import { SkillsSection } from './sections/SkillsSection';
+import { WorkExperienceSection } from './sections/WorkExperienceSection';
+
 import './FormEditor.css';
 
 interface ContactInfo {
@@ -72,9 +75,8 @@ const defaultBasicInfo: BasicInfo = {
 export const FormEditor: FC = () => {
 	const { editorStore } = useStore();
 	const { resumeData } = editorStore;
-	const updateResumeData = (
-		r: Parameters<typeof editorStore.updateResumeData>[0],
-	) => editorStore.updateResumeData(r);
+	const updateResumeData = (r: Parameters<typeof editorStore.updateResumeData>[0]) =>
+		editorStore.updateResumeData(r);
 	const [formData, setFormData] = useState<FormData>({
 		basicInfo: defaultBasicInfo,
 		contactInfo: defaultContactInfo,
@@ -83,9 +85,7 @@ export const FormEditor: FC = () => {
 		skills: [],
 		projects: [],
 	});
-	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>(
-		'idle',
-	);
+	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 	const isInternalUpdate = useRef(false);
 
 	// Sync resumeData to form when it changes externally
@@ -99,8 +99,7 @@ export const FormEditor: FC = () => {
 					summary: data.summary || '',
 				},
 				contactInfo: data.contactInformation || defaultContactInfo,
-				educationIds:
-					data.education?.map((edu: any) => edu._id || edu) || [],
+				educationIds: data.education?.map((edu: any) => edu._id || edu) || [],
 				workExperience: data.workExperience || [],
 				skills: data.skills || [],
 				projects: data.projects || [],
@@ -141,11 +140,7 @@ export const FormEditor: FC = () => {
 		<div className="form-editor h-full bg-editor text-editor-foreground overflow-auto p-4">
 			<div className="space-y-4">
 				<div className="flex justify-end mb-4">
-					<Button
-						onClick={handleSave}
-						size="sm"
-						disabled={saveStatus === 'saving'}
-					>
+					<Button onClick={handleSave} size="sm" disabled={saveStatus === 'saving'}>
 						<Save className="mr-2 h-4 w-4" />
 						{saveStatus === 'saving'
 							? 'Saving...'
@@ -157,30 +152,22 @@ export const FormEditor: FC = () => {
 
 				<BasicInfoSection
 					data={formData.basicInfo}
-					onChange={(data) =>
-						setFormData({ ...formData, basicInfo: data })
-					}
+					onChange={(data) => setFormData({ ...formData, basicInfo: data })}
 				/>
 
 				<ContactInfoSection
 					data={formData.contactInfo}
-					onChange={(data) =>
-						setFormData({ ...formData, contactInfo: data })
-					}
+					onChange={(data) => setFormData({ ...formData, contactInfo: data })}
 				/>
 
 				<EducationSection
 					selectedIds={formData.educationIds}
-					onChange={(ids) =>
-						setFormData({ ...formData, educationIds: ids })
-					}
+					onChange={(ids) => setFormData({ ...formData, educationIds: ids })}
 				/>
 
 				<WorkExperienceSection
 					jobs={formData.workExperience}
-					onChange={(jobs) =>
-						setFormData({ ...formData, workExperience: jobs })
-					}
+					onChange={(jobs) => setFormData({ ...formData, workExperience: jobs })}
 				/>
 
 				<SkillsSection
@@ -190,9 +177,7 @@ export const FormEditor: FC = () => {
 
 				<ProjectsSection
 					projects={formData.projects}
-					onChange={(projects) =>
-						setFormData({ ...formData, projects })
-					}
+					onChange={(projects) => setFormData({ ...formData, projects })}
 				/>
 			</div>
 		</div>

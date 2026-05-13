@@ -1,10 +1,6 @@
 'use client';
 
 import type { RiveParameters } from '@rive-app/react-webgl2';
-import type { FC, ReactNode } from 'react';
-
-import { cn } from '@/lib/utils';
-import { useStore } from '@/stores/store.provider.tsx';
 import {
 	useRive,
 	useStateMachineInput,
@@ -13,14 +9,13 @@ import {
 	useViewModelInstanceColor,
 } from '@rive-app/react-webgl2';
 import { observer } from 'mobx-react';
+import type { FC, ReactNode } from 'react';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
-export type PersonaState =
-	| 'idle'
-	| 'listening'
-	| 'thinking'
-	| 'speaking'
-	| 'asleep';
+import { cn } from '@/lib/utils';
+import { useStore } from '@/stores/store.provider.tsx';
+
+export type PersonaState = 'idle' | 'listening' | 'thinking' | 'speaking' | 'asleep';
 
 interface PersonaProps {
 	state: PersonaState;
@@ -76,40 +71,33 @@ interface PersonaWithModelProps {
 	children: React.ReactNode;
 }
 
-const PersonaWithModel = observer(
-	({ rive, source, children }: PersonaWithModelProps) => {
-		const { themeStore } = useStore();
-		const theme = themeStore.resolvedTheme;
-		const viewModel = useViewModel(rive, { useDefault: true });
-		const viewModelInstance = useViewModelInstance(viewModel, {
-			rive,
-			useDefault: true,
-		});
-		const viewModelInstanceColor = useViewModelInstanceColor(
-			'color',
-			viewModelInstance,
-		);
+const PersonaWithModel = observer(({ rive, source, children }: PersonaWithModelProps) => {
+	const { themeStore } = useStore();
+	const theme = themeStore.resolvedTheme;
+	const viewModel = useViewModel(rive, { useDefault: true });
+	const viewModelInstance = useViewModelInstance(viewModel, {
+		rive,
+		useDefault: true,
+	});
+	const viewModelInstanceColor = useViewModelInstanceColor('color', viewModelInstance);
 
-		useEffect(() => {
-			if (!(viewModelInstanceColor && source.dynamicColor)) {
-				return;
-			}
+	useEffect(() => {
+		if (!(viewModelInstanceColor && source.dynamicColor)) {
+			return;
+		}
 
-			const [r, g, b] = theme === 'dark' ? [255, 255, 255] : [0, 0, 0];
-			viewModelInstanceColor.setRgb(r, g, b);
-		}, [viewModelInstanceColor, theme, source.dynamicColor]);
+		const [r, g, b] = theme === 'dark' ? [255, 255, 255] : [0, 0, 0];
+		viewModelInstanceColor.setRgb(r, g, b);
+	}, [viewModelInstanceColor, theme, source.dynamicColor]);
 
-		return children;
-	},
-);
+	return children;
+});
 
 interface PersonaWithoutModelProps {
 	children: ReactNode;
 }
 
-const PersonaWithoutModel = memo(
-	({ children }: PersonaWithoutModelProps) => children,
-);
+const PersonaWithoutModel = memo(({ children }: PersonaWithoutModelProps) => children);
 
 PersonaWithoutModel.displayName = 'PersonaWithoutModel';
 
@@ -155,26 +143,16 @@ export const Persona: FC<PersonaProps> = memo(
 		const stableCallbacks = useMemo(
 			() => ({
 				onLoad: ((loadedRive) =>
-					callbacksRef.current.onLoad?.(
-						loadedRive,
-					)) as RiveParameters['onLoad'],
+					callbacksRef.current.onLoad?.(loadedRive)) as RiveParameters['onLoad'],
 				onLoadError: ((err) =>
-					callbacksRef.current.onLoadError?.(
-						err,
-					)) as RiveParameters['onLoadError'],
+					callbacksRef.current.onLoadError?.(err)) as RiveParameters['onLoadError'],
 				onPause: ((event) =>
-					callbacksRef.current.onPause?.(
-						event,
-					)) as RiveParameters['onPause'],
+					callbacksRef.current.onPause?.(event)) as RiveParameters['onPause'],
 				onPlay: ((event) =>
-					callbacksRef.current.onPlay?.(
-						event,
-					)) as RiveParameters['onPlay'],
+					callbacksRef.current.onPlay?.(event)) as RiveParameters['onPlay'],
 				onReady: () => callbacksRef.current.onReady?.(),
 				onStop: ((event) =>
-					callbacksRef.current.onStop?.(
-						event,
-					)) as RiveParameters['onStop'],
+					callbacksRef.current.onStop?.(event)) as RiveParameters['onStop'],
 			}),
 			[],
 		);
@@ -191,21 +169,9 @@ export const Persona: FC<PersonaProps> = memo(
 			stateMachines: stateMachine,
 		});
 
-		const listeningInput = useStateMachineInput(
-			rive,
-			stateMachine,
-			'listening',
-		);
-		const thinkingInput = useStateMachineInput(
-			rive,
-			stateMachine,
-			'thinking',
-		);
-		const speakingInput = useStateMachineInput(
-			rive,
-			stateMachine,
-			'speaking',
-		);
+		const listeningInput = useStateMachineInput(rive, stateMachine, 'listening');
+		const thinkingInput = useStateMachineInput(rive, stateMachine, 'thinking');
+		const speakingInput = useStateMachineInput(rive, stateMachine, 'speaking');
 		const asleepInput = useStateMachineInput(rive, stateMachine, 'asleep');
 
 		useEffect(() => {
@@ -223,9 +189,7 @@ export const Persona: FC<PersonaProps> = memo(
 			}
 		}, [state, listeningInput, thinkingInput, speakingInput, asleepInput]);
 
-		const Component = source.hasModel
-			? PersonaWithModel
-			: PersonaWithoutModel;
+		const Component = source.hasModel ? PersonaWithModel : PersonaWithoutModel;
 
 		return (
 			<Component rive={rive} source={source}>

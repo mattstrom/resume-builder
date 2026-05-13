@@ -1,3 +1,8 @@
+import { useParams } from '@tanstack/react-router';
+import { Loader2 } from 'lucide-react';
+import { observer } from 'mobx-react';
+import { type FC, useState } from 'react';
+
 import { Stack } from '@/components/common/Stack.tsx';
 import { useSettings } from '@/components/Settings.provider.tsx';
 import { useSnackbar } from '@/components/SnackbarProvider.tsx';
@@ -16,16 +21,11 @@ import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { ViewMode } from '@/stores/ui-state.store.ts';
 import { generatePDF } from '@/utils/pdfExport.ts';
-import { useParams } from '@tanstack/react-router';
-import { Loader2 } from 'lucide-react';
-import { observer } from 'mobx-react';
-import { type FC, useState } from 'react';
 
 interface ResumeToolbarProps {}
 
 export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
-	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
-		useSettings();
+	const { template, setTemplate, showMarginPattern, setShowMarginPattern } = useSettings();
 	const { uiStateStore, editorStore } = useStore();
 	const { applicationId } = useParams({ strict: false });
 	const { resumeData } = editorStore;
@@ -33,9 +33,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	const [isExporting, setIsExporting] = useState(false);
 
 	const onPrint = () => {
-		const iframe = document.getElementById(
-			'resume-preview-iframe',
-		) as HTMLIFrameElement;
+		const iframe = document.getElementById('resume-preview-iframe') as HTMLIFrameElement;
 		if (iframe?.contentWindow) {
 			iframe.contentWindow.print();
 		} else {
@@ -50,9 +48,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 			showSnackbar('PDF exported successfully!', 'success');
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: 'Failed to export PDF. Please try again.';
+				error instanceof Error ? error.message : 'Failed to export PDF. Please try again.';
 			showSnackbar(message, 'error');
 		} finally {
 			setIsExporting(false);
@@ -85,17 +81,11 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 			<Separator orientation="vertical" className="h-5" />
 
 			<div className="flex items-center gap-2">
-				<Label
-					htmlFor="template"
-					className="text-xs text-muted-foreground"
-				>
+				<Label htmlFor="template" className="text-xs text-muted-foreground">
 					Template
 				</Label>
 				<Select value={template} onValueChange={setTemplate}>
-					<SelectTrigger
-						id="template"
-						className="w-[110px] h-7 text-xs"
-					>
+					<SelectTrigger id="template" className="w-[110px] h-7 text-xs">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
@@ -110,9 +100,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				<Checkbox
 					id="marginPattern"
 					checked={showMarginPattern}
-					onCheckedChange={(checked) =>
-						setShowMarginPattern(checked === true)
-					}
+					onCheckedChange={(checked) => setShowMarginPattern(checked === true)}
 					className="h-3.5 w-3.5"
 				/>
 				<Label
@@ -125,12 +113,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 
 			<div className="flex-1" />
 
-			<Button
-				onClick={onPrint}
-				variant="ghost"
-				size="sm"
-				className="h-7 text-xs"
-			>
+			<Button onClick={onPrint} variant="ghost" size="sm" className="h-7 text-xs">
 				Print
 			</Button>
 
@@ -151,12 +134,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				)}
 			</Button>
 
-			<Button
-				onClick={onPreview}
-				variant="ghost"
-				size="sm"
-				className="h-7 text-xs"
-			>
+			<Button onClick={onPreview} variant="ghost" size="sm" className="h-7 text-xs">
 				Preview
 			</Button>
 
@@ -164,9 +142,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				<>
 					<Separator orientation="vertical" className="h-5" />
 					<Button
-						onClick={() =>
-							window.open(resumeData.jobPostingUrl, '_blank')
-						}
+						onClick={() => window.open(resumeData.jobPostingUrl, '_blank')}
 						size="sm"
 						className="h-7 text-xs"
 					>

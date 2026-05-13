@@ -12,6 +12,7 @@ import {
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
+
 import { CurrentUser } from '../../auth';
 import { ResumesService } from './resumes.service';
 
@@ -95,11 +96,6 @@ export class ResumeResolver {
 		@Args('id') id: string,
 		@Args('input') input: ResumeRemoveCollectionItemInput,
 	) {
-		return this.resumesService.removeCollectionItem(
-			uid,
-			id,
-			input.collection,
-			input.index,
-		);
+		return this.resumesService.removeCollectionItem(uid, id, input.collection, input.index);
 	}
 }

@@ -1,23 +1,7 @@
 'use client';
 
-import type { ComponentProps, CSSProperties, HTMLAttributes } from 'react';
-import type {
-	BundledLanguage,
-	BundledTheme,
-	HighlighterGeneric,
-	ThemedToken,
-} from 'shiki';
-
-import { Button } from '@/components/ui/button';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { CheckIcon, CopyIcon } from 'lucide-react';
+import type { ComponentProps, CSSProperties, HTMLAttributes } from 'react';
 import {
 	createContext,
 	memo,
@@ -28,7 +12,18 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import type { BundledLanguage, BundledTheme, HighlighterGeneric, ThemedToken } from 'shiki';
 import { createHighlighter } from 'shiki';
+
+import { Button } from '@/components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 // Shiki uses bitflags for font styles: 1=italic, 2=bold, 4=underline
 // biome-ignore lint/suspicious/noBitwiseOperators: shiki bitflag check
@@ -72,9 +67,7 @@ const TokenSpan = ({ token }: { token: ThemedToken }) => (
 				color: token.color,
 				fontStyle: isItalic(token.fontStyle) ? 'italic' : undefined,
 				fontWeight: isBold(token.fontStyle) ? 'bold' : undefined,
-				textDecoration: isUnderline(token.fontStyle)
-					? 'underline'
-					: undefined,
+				textDecoration: isUnderline(token.fontStyle) ? 'underline' : undefined,
 				...token.htmlStyle,
 			} as CSSProperties
 		}
@@ -94,9 +87,7 @@ const LineSpan = ({
 	<span className={showLineNumbers ? LINE_NUMBER_CLASSES : 'block'}>
 		{keyedLine.tokens.length === 0
 			? '\n'
-			: keyedLine.tokens.map(({ token, key }) => (
-					<TokenSpan key={key} token={token} />
-				))}
+			: keyedLine.tokens.map(({ token, key }) => <TokenSpan key={key} token={token} />)}
 	</span>
 );
 
@@ -201,9 +192,7 @@ export const highlightCode = (
 		// oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-then)
 		.then((highlighter) => {
 			const availableLangs = highlighter.getLoadedLanguages();
-			const langToUse = availableLangs.includes(language)
-				? language
-				: 'text';
+			const langToUse = availableLangs.includes(language) ? language : 'text';
 
 			const result = highlighter.codeToTokens(code, {
 				lang: langToUse,
@@ -272,10 +261,7 @@ const CodeBlockBody = memo(
 			[tokenized.bg, tokenized.fg],
 		);
 
-		const keyedLines = useMemo(
-			() => addKeysToTokens(tokenized.tokens),
-			[tokenized.tokens],
-		);
+		const keyedLines = useMemo(() => addKeysToTokens(tokenized.tokens), [tokenized.tokens]);
 
 		return (
 			<pre
@@ -288,8 +274,7 @@ const CodeBlockBody = memo(
 				<code
 					className={cn(
 						'font-mono text-sm',
-						showLineNumbers &&
-							'[counter-increment:line_0] [counter-reset:line]',
+						showLineNumbers && '[counter-increment:line_0] [counter-reset:line]',
 					)}
 				>
 					{keyedLines.map((keyedLine) => (
@@ -373,10 +358,7 @@ export const CodeBlockActions = ({
 	className,
 	...props
 }: HTMLAttributes<HTMLDivElement>) => (
-	<div
-		className={cn('-my-1 -mr-1 flex items-center gap-2', className)}
-		{...props}
-	>
+	<div className={cn('-my-1 -mr-1 flex items-center gap-2', className)} {...props}>
 		{children}
 	</div>
 );
@@ -418,10 +400,7 @@ export const CodeBlockContent = ({
 
 	return (
 		<div className="relative overflow-auto">
-			<CodeBlockBody
-				showLineNumbers={showLineNumbers}
-				tokenized={tokenized}
-			/>
+			<CodeBlockBody showLineNumbers={showLineNumbers} tokenized={tokenized} />
 		</div>
 	);
 };
@@ -438,11 +417,7 @@ export const CodeBlock = ({
 
 	return (
 		<CodeBlockContext.Provider value={contextValue}>
-			<CodeBlockContainer
-				className={className}
-				language={language}
-				{...props}
-			>
+			<CodeBlockContainer className={className} language={language} {...props}>
 				{children}
 				<CodeBlockContent
 					code={code}
@@ -483,10 +458,7 @@ export const CodeBlockCopyButton = ({
 				await navigator.clipboard.writeText(code);
 				setIsCopied(true);
 				onCopy?.();
-				timeoutRef.current = window.setTimeout(
-					() => setIsCopied(false),
-					timeout,
-				);
+				timeoutRef.current = window.setTimeout(() => setIsCopied(false), timeout);
 			}
 		} catch (error) {
 			onError?.(error as Error);
@@ -517,51 +489,38 @@ export const CodeBlockCopyButton = ({
 
 export type CodeBlockLanguageSelectorProps = ComponentProps<typeof Select>;
 
-export const CodeBlockLanguageSelector = (
-	props: CodeBlockLanguageSelectorProps,
-) => <Select {...props} />;
+export const CodeBlockLanguageSelector = (props: CodeBlockLanguageSelectorProps) => (
+	<Select {...props} />
+);
 
-export type CodeBlockLanguageSelectorTriggerProps = ComponentProps<
-	typeof SelectTrigger
->;
+export type CodeBlockLanguageSelectorTriggerProps = ComponentProps<typeof SelectTrigger>;
 
 export const CodeBlockLanguageSelectorTrigger = ({
 	className,
 	...props
 }: CodeBlockLanguageSelectorTriggerProps) => (
 	<SelectTrigger
-		className={cn(
-			'h-7 border-none bg-transparent px-2 text-xs shadow-none',
-			className,
-		)}
+		className={cn('h-7 border-none bg-transparent px-2 text-xs shadow-none', className)}
 		size="sm"
 		{...props}
 	/>
 );
 
-export type CodeBlockLanguageSelectorValueProps = ComponentProps<
-	typeof SelectValue
->;
+export type CodeBlockLanguageSelectorValueProps = ComponentProps<typeof SelectValue>;
 
-export const CodeBlockLanguageSelectorValue = (
-	props: CodeBlockLanguageSelectorValueProps,
-) => <SelectValue {...props} />;
+export const CodeBlockLanguageSelectorValue = (props: CodeBlockLanguageSelectorValueProps) => (
+	<SelectValue {...props} />
+);
 
-export type CodeBlockLanguageSelectorContentProps = ComponentProps<
-	typeof SelectContent
->;
+export type CodeBlockLanguageSelectorContentProps = ComponentProps<typeof SelectContent>;
 
 export const CodeBlockLanguageSelectorContent = ({
 	align = 'end',
 	...props
-}: CodeBlockLanguageSelectorContentProps) => (
-	<SelectContent align={align} {...props} />
+}: CodeBlockLanguageSelectorContentProps) => <SelectContent align={align} {...props} />;
+
+export type CodeBlockLanguageSelectorItemProps = ComponentProps<typeof SelectItem>;
+
+export const CodeBlockLanguageSelectorItem = (props: CodeBlockLanguageSelectorItemProps) => (
+	<SelectItem {...props} />
 );
-
-export type CodeBlockLanguageSelectorItemProps = ComponentProps<
-	typeof SelectItem
->;
-
-export const CodeBlockLanguageSelectorItem = (
-	props: CodeBlockLanguageSelectorItemProps,
-) => <SelectItem {...props} />;

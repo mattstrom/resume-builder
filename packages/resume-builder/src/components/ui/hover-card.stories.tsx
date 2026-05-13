@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from './hover-card';
 import { CalendarDays } from 'lucide-react';
+
 import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import { Button } from './button';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from './hover-card';
 
 const meta = {
 	title: 'UI/HoverCard',
@@ -29,8 +30,7 @@ export const Default: Story = {
 						<div className="space-y-1">
 							<h4 className="text-sm font-semibold">@nextjs</h4>
 							<p className="text-sm">
-								The React Framework – created and maintained by
-								@vercel.
+								The React Framework – created and maintained by @vercel.
 							</p>
 							<div className="flex items-center pt-2">
 								<CalendarDays className="mr-2 h-4 w-4 opacity-70" />
@@ -54,9 +54,7 @@ export const CustomContent: Story = {
 					<Button variant="outline">Hover me</Button>
 				</HoverCardTrigger>
 				<HoverCardContent side="right">
-					<p className="text-sm">
-						This is a hover card with custom configuration.
-					</p>
+					<p className="text-sm">This is a hover card with custom configuration.</p>
 				</HoverCardContent>
 			</HoverCard>
 		</div>

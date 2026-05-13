@@ -1,15 +1,10 @@
-import { observer } from 'mobx-react';
 import { createFileRoute, Navigate } from '@tanstack/react-router';
 import { Loader2 } from 'lucide-react';
+import { observer } from 'mobx-react';
 
 import { Button } from '@/components/ui/button';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { useStore } from '../../stores/store.provider.tsx';
 
 const LoginPage = observer(() => {
@@ -32,16 +27,10 @@ const LoginPage = observer(() => {
 			<Card className="w-[400px]">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl">Resume Builder</CardTitle>
-					<CardDescription>
-						Sign in to create and manage your resumes
-					</CardDescription>
+					<CardDescription>Sign in to create and manage your resumes</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<Button
-						onClick={() => authStore.login()}
-						className="w-full"
-						size="lg"
-					>
+					<Button onClick={() => authStore.login()} className="w-full" size="lg">
 						Log in
 					</Button>
 				</CardContent>

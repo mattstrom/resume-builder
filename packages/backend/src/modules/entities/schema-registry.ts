@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {
 	resumeSchema,
 	resumeContentSchema,
@@ -17,6 +16,7 @@ import {
 	conversationSchema,
 	conversationMessageSchema,
 } from '@resume-builder/entities';
+import { z } from 'zod';
 
 const schemas: Record<string, z.ZodType> = {
 	resume: resumeSchema,
@@ -43,10 +43,7 @@ const schemas: Record<string, z.ZodType> = {
  * converted into JSON Schema format.
  */
 export const SchemasAsJson = Object.fromEntries(
-	Object.entries(schemas).map(([name, schema]) => [
-		name,
-		schema.toJSONSchema(),
-	]),
+	Object.entries(schemas).map(([name, schema]) => [name, schema.toJSONSchema()]),
 );
 
 export const SchemaNames = Object.keys(schemas);

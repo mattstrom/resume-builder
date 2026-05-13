@@ -1,3 +1,6 @@
+import { observer } from 'mobx-react';
+import { type ReactNode, createElement, useMemo, useState } from 'react';
+
 import {
 	Select,
 	SelectContent,
@@ -7,8 +10,6 @@ import {
 } from '@/components/ui/select.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { observer } from 'mobx-react';
-import { type ReactNode, createElement, useMemo, useState } from 'react';
 
 interface LookupFieldEditorProps<TValue, TOption> {
 	path: string;

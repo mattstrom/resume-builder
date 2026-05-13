@@ -160,9 +160,7 @@ Base supports `multiple`, render-function children on `SelectValue`, and object 
 	<SelectTrigger>
 		<SelectValue>
 			{(value: string[]) =>
-				value.length === 0
-					? 'Select fruits'
-					: `${value.length} selected`
+				value.length === 0 ? 'Select fruits' : `${value.length} selected`
 			}
 		</SelectValue>
 	</SelectTrigger>

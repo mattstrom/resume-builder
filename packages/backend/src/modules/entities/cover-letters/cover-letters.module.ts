@@ -9,9 +9,7 @@ import { CoverLettersService } from './cover-letters.service';
 @Module({
 	imports: [
 		MongodbModule,
-		MongooseModule.forFeature([
-			{ name: CoverLetter.name, schema: CoverLetterSchema },
-		]),
+		MongooseModule.forFeature([{ name: CoverLetter.name, schema: CoverLetterSchema }]),
 	],
 	providers: [CoverLettersResolver, CoverLettersService],
 	exports: [CoverLettersService],

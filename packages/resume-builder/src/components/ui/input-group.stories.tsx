@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { Mail, Search, Copy, Check } from 'lucide-react';
+import { useState } from 'react';
+
 import {
 	InputGroup,
 	InputGroupAddon,
@@ -7,8 +10,6 @@ import {
 	InputGroupInput,
 	InputGroupTextarea,
 } from './input-group';
-import { Mail, Search, Copy, Check } from 'lucide-react';
-import { useState } from 'react';
 
 const meta = {
 	title: 'UI/InputGroup',
@@ -55,16 +56,9 @@ export const CopyToClipboard: Story = {
 
 		return (
 			<InputGroup>
-				<InputGroupInput
-					value="https://example.com/share-link"
-					readOnly
-				/>
+				<InputGroupInput value="https://example.com/share-link" readOnly />
 				<InputGroupAddon align="inline-end">
-					<InputGroupButton
-						variant="ghost"
-						size="icon-xs"
-						onClick={handleCopy}
-					>
+					<InputGroupButton variant="ghost" size="icon-xs" onClick={handleCopy}>
 						{copied ? (
 							<Check className="h-4 w-4 text-green-500" />
 						) : (

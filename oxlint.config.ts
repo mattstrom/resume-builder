@@ -13,7 +13,10 @@ export default defineConfig({
 		'eslint/no-unused-vars': 'error',
 		'@stylistic/block-spacing': 'error',
 		'@stylistic/brace-style': ['error', '1tbs', { allowSingleLine: false }],
-		'@stylistic/padding-line-between-statements': ['error', { blankLine: 'always', prev: '*', next: 'return' }],
+		'@stylistic/padding-line-between-statements': [
+			'error',
+			{ blankLine: 'always', prev: '*', next: 'return' },
+		],
 		curly: 'error',
 	},
 });

@@ -1,18 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import type { Response } from 'express';
 
-import { LlmProviderRegistry } from '../llm/llm-provider-registry.service';
 import type {
 	LlmContentBlock,
 	LlmMessage,
 	LlmStreamEvent,
 	LlmToolDefinition,
 } from '../llm/interfaces/llm-types';
-import {
-	finishStream,
-	initSseHeaders,
-	writeChunk,
-} from './vercel-stream-writer';
+import { LlmProviderRegistry } from '../llm/llm-provider-registry.service';
+import { finishStream, initSseHeaders, writeChunk } from './vercel-stream-writer';
 
 const MAX_TOOL_ITERATIONS = 10;
 
@@ -22,10 +18,7 @@ export interface StreamWithToolLoopOptions {
 	system: string;
 	messages: LlmMessage[];
 	tools: LlmToolDefinition[];
-	executeTool: (
-		name: string,
-		input: Record<string, unknown>,
-	) => Promise<string>;
+	executeTool: (name: string, input: Record<string, unknown>) => Promise<string>;
 	conversationId?: string;
 }
 
@@ -33,10 +26,7 @@ export interface StreamWithToolLoopOptions {
 export class ChatService {
 	constructor(private readonly llmRegistry: LlmProviderRegistry) {}
 
-	async streamWithToolLoop(
-		res: Response,
-		options: StreamWithToolLoopOptions,
-	): Promise<string> {
+	async streamWithToolLoop(res: Response, options: StreamWithToolLoopOptions): Promise<string> {
 		const {
 			provider: providerName,
 			model,
@@ -56,10 +46,8 @@ export class ChatService {
 		for (let iteration = 0; iteration < MAX_TOOL_ITERATIONS; iteration++) {
 			writeChunk(res, { type: 'start-step' });
 
-			let messageComplete: Extract<
-				LlmStreamEvent,
-				{ type: 'message-complete' }
-			> | null = null;
+			let messageComplete: Extract<LlmStreamEvent, { type: 'message-complete' }> | null =
+				null;
 
 			for await (const event of provider.stream({
 				model,
@@ -108,24 +96,16 @@ export class ChatService {
 
 			// Handle tool use
 			const toolUseBlocks = messageComplete.content.filter(
-				(
-					block,
-				): block is Extract<LlmContentBlock, { type: 'tool_use' }> =>
+				(block): block is Extract<LlmContentBlock, { type: 'tool_use' }> =>
 					block.type === 'tool_use',
 			);
 
-			if (
-				messageComplete.stopReason === 'tool_use' &&
-				toolUseBlocks.length > 0
-			) {
+			if (messageComplete.stopReason === 'tool_use' && toolUseBlocks.length > 0) {
 				const toolResults: LlmContentBlock[] = [];
 
 				for (const toolBlock of toolUseBlocks) {
 					try {
-						const output = await executeTool(
-							toolBlock.name,
-							toolBlock.input,
-						);
+						const output = await executeTool(toolBlock.name, toolBlock.input);
 
 						writeChunk(res, {
 							type: 'tool-output-available',
@@ -139,10 +119,7 @@ export class ChatService {
 							content: output,
 						});
 					} catch (error) {
-						const errorMsg =
-							error instanceof Error
-								? error.message
-								: String(error);
+						const errorMsg = error instanceof Error ? error.message : String(error);
 
 						writeChunk(res, {
 							type: 'tool-output-error',

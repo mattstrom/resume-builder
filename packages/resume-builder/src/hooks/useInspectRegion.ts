@@ -1,4 +1,5 @@
 import { type MouseEvent, useState } from 'react';
+
 import { useStore } from '@/stores/store.provider.tsx';
 
 export interface InspectRegionHandlers {
@@ -14,10 +15,7 @@ export interface InspectRegionState {
 	handlers: InspectRegionHandlers;
 }
 
-export function useInspectRegion(
-	path: string,
-	label?: string,
-): InspectRegionState {
+export function useInspectRegion(path: string, label?: string): InspectRegionState {
 	const { inspectStore } = useStore();
 	const [isHovered, setIsHovered] = useState(false);
 

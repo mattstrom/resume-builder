@@ -1,17 +1,18 @@
-import config from '@/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+
+import config from '@/config';
 
 import { AuthModule } from './modules/auth';
 import { ChatModule } from './modules/chat/chat.module';
 import { EntitiesModule } from './modules/entities/entities.module';
 import { GraphQLModule } from './modules/graphql/graphql.module';
 import { HealthModule } from './modules/health/health.module';
+import { LlmModule } from './modules/llm/llm.module';
 import { LoggingModule } from './modules/logging/logging.module';
 import { McpModule } from './modules/mcp/mcp.module';
 import { PdfModule } from './modules/pdf/pdf.module';
-import { LlmModule } from './modules/llm/llm.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RequestSigningModule } from './modules/request-signing';
 

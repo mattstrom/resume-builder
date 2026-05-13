@@ -2,9 +2,7 @@ import type { ResumeDocumentController } from './resume-document-controller.ts';
 
 let activeResumeController: ResumeDocumentController | null = null;
 
-export function setActiveResumeController(
-	controller: ResumeDocumentController | null,
-) {
+export function setActiveResumeController(controller: ResumeDocumentController | null) {
 	activeResumeController = controller;
 }
 

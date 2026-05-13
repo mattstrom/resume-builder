@@ -1,11 +1,11 @@
-import { z } from 'zod';
+import { createScorer } from '@mastra/core/evals';
 import { createToolCallAccuracyScorerCode } from '@mastra/evals/scorers/prebuilt';
 import { createCompletenessScorer } from '@mastra/evals/scorers/prebuilt';
 import {
 	getAssistantMessageFromRunOutput,
 	getUserMessageFromRunInput,
 } from '@mastra/evals/scorers/utils';
-import { createScorer } from '@mastra/core/evals';
+import { z } from 'zod';
 
 export const toolCallAppropriatenessScorer = createToolCallAccuracyScorerCode({
 	expectedTool: 'weatherTool',
@@ -18,8 +18,7 @@ export const completenessScorer = createCompletenessScorer();
 export const translationScorer = createScorer({
 	id: 'translation-quality-scorer',
 	name: 'Translation Quality',
-	description:
-		'Checks that non-English location names are translated and used correctly',
+	description: 'Checks that non-English location names are translated and used correctly',
 	type: 'agent',
 	judge: {
 		model: 'anthropic/claude-sonnet-4-5',
@@ -32,13 +31,11 @@ export const translationScorer = createScorer({
 })
 	.preprocess(({ run }) => {
 		const userText = getUserMessageFromRunInput(run.input) || '';
-		const assistantText =
-			getAssistantMessageFromRunOutput(run.output) || '';
+		const assistantText = getAssistantMessageFromRunOutput(run.output) || '';
 		return { userText, assistantText };
 	})
 	.analyze({
-		description:
-			'Extract location names and detect language/translation adequacy',
+		description: 'Extract location names and detect language/translation adequacy',
 		outputSchema: z.object({
 			nonEnglish: z.boolean(),
 			translated: z.boolean(),
@@ -71,8 +68,7 @@ export const translationScorer = createScorer({
 	.generateScore(({ results }) => {
 		const r = (results as any)?.analyzeStepResult || {};
 		if (!r.nonEnglish) return 1; // If not applicable, full credit
-		if (r.translated)
-			return Math.max(0, Math.min(1, 0.7 + 0.3 * (r.confidence ?? 1)));
+		if (r.translated) return Math.max(0, Math.min(1, 0.7 + 0.3 * (r.confidence ?? 1)));
 		return 0; // Non-English but not translated
 	})
 	.generateReason(({ results, score }) => {

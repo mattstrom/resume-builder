@@ -1,11 +1,11 @@
-import { beforeEach, describe } from '@std/testing/bdd';
 import { Test, TestingModule } from '@nestjs/testing';
-import { spy } from '@std/testing/mock';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { beforeEach, describe } from '@std/testing/bdd';
+import { spy } from '@std/testing/mock';
 
-import { ResumeBuilder } from './resume.builder.ts';
-import { LookupService } from './lookup.service.ts';
 import { NotionClient } from '../tokens.ts';
+import { LookupService } from './lookup.service.ts';
+import { ResumeBuilder } from './resume.builder.ts';
 
 describe('ResumeBuilder', () => {
 	let module: TestingModule;

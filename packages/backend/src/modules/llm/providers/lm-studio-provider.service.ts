@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 
+import { Injectable } from '@nestjs/common';
+
+import configuration from '../../../configuration';
 import type { LlmProvider } from '../interfaces/llm-provider.interface';
 import type {
 	LlmContentBlock,
@@ -9,8 +11,6 @@ import type {
 	LlmStreamEvent,
 	LlmToolDefinition,
 } from '../interfaces/llm-types';
-
-import configuration from '../../../configuration';
 
 @Injectable()
 export class LmStudioProviderService implements LlmProvider {
@@ -95,8 +95,7 @@ export class LmStudioProviderService implements LlmProvider {
 								toolCalls[tc.index].name += tc.function.name;
 							}
 							if (tc.function?.arguments) {
-								toolCalls[tc.index].input +=
-									tc.function.arguments;
+								toolCalls[tc.index].input += tc.function.arguments;
 							}
 						}
 						continue;
@@ -180,9 +179,7 @@ function toOpenAiMessages(system: string, messages: LlmMessage[]): any[] {
 				.filter((b) => b.type === 'text')
 				.map((b) => (b as { text: string }).text)
 				.join('');
-			const toolUseBlocks = msg.content.filter(
-				(b) => b.type === 'tool_use',
-			);
+			const toolUseBlocks = msg.content.filter((b) => b.type === 'tool_use');
 
 			const openaiMsg: any = {
 				role: 'assistant',
@@ -195,9 +192,7 @@ function toOpenAiMessages(system: string, messages: LlmMessage[]): any[] {
 					type: 'function',
 					function: {
 						name: (b as { name: string }).name,
-						arguments: JSON.stringify(
-							(b as { input: Record<string, unknown> }).input,
-						),
+						arguments: JSON.stringify((b as { input: Record<string, unknown> }).input),
 					},
 				}));
 			}

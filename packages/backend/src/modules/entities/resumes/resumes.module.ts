@@ -9,9 +9,7 @@ import { ResumesService } from './resumes.service';
 @Module({
 	imports: [
 		MongodbModule,
-		MongooseModule.forFeature([
-			{ name: Resume.name, schema: ResumeSchema },
-		]),
+		MongooseModule.forFeature([{ name: Resume.name, schema: ResumeSchema }]),
 	],
 	providers: [ResumeResolver, ResumesService],
 	exports: [ResumesService],

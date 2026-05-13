@@ -1,21 +1,3 @@
-import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
-import { CollectionEditor } from '@/components/CollectionEditor.tsx';
-import { ListEditor } from '@/components/ListEditor.tsx';
-import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
-import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
-import {
-	ResumeProvider,
-	useResume,
-	useResumeId,
-} from '@/components/Resume.provider.tsx';
-import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
-import {
-	getResumeCollectionPath,
-	ResumeCollections,
-} from '@/graphql/resume-collections.ts';
-import { useStore } from '@/stores/store.provider.tsx';
 import { useQuery } from '@apollo/client/react';
 import type {
 	Education,
@@ -28,6 +10,18 @@ import type {
 } from '@resume-builder/entities';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
+
+import { CollectionEditor } from '@/components/CollectionEditor.tsx';
+import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
+import { ListEditor } from '@/components/ListEditor.tsx';
+import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
+import { ResumeProvider, useResume, useResumeId } from '@/components/Resume.provider.tsx';
+import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
+import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
+import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 import '../App.css';
 import './SimpleResumeView.css';
@@ -72,11 +66,7 @@ interface SimpleSectionProps extends PropsWithChildren {
 	actions?: ReactNode;
 }
 
-const SimpleSection: FC<SimpleSectionProps> = ({
-	title,
-	actions,
-	children,
-}) => {
+const SimpleSection: FC<SimpleSectionProps> = ({ title, actions, children }) => {
 	return (
 		<section className="simple-resume-section">
 			<header className="simple-resume-section-header">
@@ -99,12 +89,7 @@ interface ContactFieldProps {
 	placeholder: string;
 }
 
-const ContactField: FC<ContactFieldProps> = ({
-	label,
-	path,
-	value,
-	placeholder,
-}) => {
+const ContactField: FC<ContactFieldProps> = ({ label, path, value, placeholder }) => {
 	const resumeId = useResumeId();
 
 	return (
@@ -131,10 +116,7 @@ function useCollectionMutations(collection: keyof typeof ResumeCollections) {
 			controller?.addCollectionItem(ResumeCollections[collection]);
 		},
 		removeItem: async (index: number) => {
-			controller?.removeCollectionItem(
-				ResumeCollections[collection],
-				index,
-			);
+			controller?.removeCollectionItem(ResumeCollections[collection], index);
 		},
 		moveItem: async (fromIndex: number, toIndex: number) => {
 			controller?.moveArrayItem(
@@ -223,11 +205,7 @@ const SimpleResumeContent: FC = observer(() => {
 					<VolunteeringSection />
 				</div>
 			</div>
-			{!isEditable && (
-				<div className="simple-resume-readonly-note">
-					Read-only preview
-				</div>
-			)}
+			{!isEditable && <div className="simple-resume-readonly-note">Read-only preview</div>}
 		</div>
 	);
 });
@@ -257,12 +235,7 @@ interface EntryHeaderProps {
 	actions?: ReactNode;
 }
 
-const EntryHeader: FC<EntryHeaderProps> = ({
-	title,
-	subtitle,
-	meta,
-	actions,
-}) => {
+const EntryHeader: FC<EntryHeaderProps> = ({ title, subtitle, meta, actions }) => {
 	return (
 		<header className="simple-resume-entry-header">
 			<div className="simple-resume-entry-heading">
@@ -270,11 +243,7 @@ const EntryHeader: FC<EntryHeaderProps> = ({
 					<div className="simple-resume-entry-title">{title}</div>
 					{actions}
 				</div>
-				{subtitle && (
-					<div className="simple-resume-entry-subtitle">
-						{subtitle}
-					</div>
-				)}
+				{subtitle && <div className="simple-resume-entry-subtitle">{subtitle}</div>}
 			</div>
 			{meta && <div className="simple-resume-entry-meta">{meta}</div>}
 		</header>
@@ -323,18 +292,14 @@ const WorkExperienceSection: FC = observer(() => {
 								length={items.length}
 								label="job"
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove
@@ -402,12 +367,9 @@ const JobEntry: FC<{ job: Job; index: number }> = ({ job, index }) => {
 const EducationSection: FC = () => {
 	const { education } = useResume();
 	const resumeId = useResumeId();
-	const { data } = useQuery<{ listEducations: Education[] }>(
-		LIST_EDUCATIONS,
-		{
-			fetchPolicy: 'network-only',
-		},
-	);
+	const { data } = useQuery<{ listEducations: Education[] }>(LIST_EDUCATIONS, {
+		fetchPolicy: 'network-only',
+	});
 	const options = data?.listEducations ?? [];
 
 	return (
@@ -442,24 +404,15 @@ const EducationSection: FC = () => {
 									{educationItem.field || 'Field of study'}
 								</div>
 								<div className="simple-resume-entry-meta-row">
-									<span>
-										{educationItem.institution ||
-											'Institution'}
-									</span>
-									<span className="simple-resume-divider">
-										•
-									</span>
-									<span>
-										Graduated{' '}
-										{formatYear(educationItem.graduated)}
-									</span>
+									<span>{educationItem.institution || 'Institution'}</span>
+									<span className="simple-resume-divider">•</span>
+									<span>Graduated {formatYear(educationItem.graduated)}</span>
 								</div>
 							</>
 						)}
 						renderOption={(option) => (
 							<>
-								{option.degree} in {option.field} -{' '}
-								{option.institution}
+								{option.degree} in {option.field} - {option.institution}
 							</>
 						)}
 					/>
@@ -575,18 +528,14 @@ const ProjectsSection: FC = observer(() => {
 								length={items.length}
 								label="project"
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove
@@ -666,13 +615,7 @@ const VolunteeringSection: FC = observer(() => {
 			onRemove={collection.removeItem}
 			onMove={collection.moveItem}
 		>
-			{({
-				items: collectionItems,
-				addItem,
-				removeItem,
-				moveItem,
-				isSaving,
-			}) => (
+			{({ items: collectionItems, addItem, removeItem, moveItem, isSaving }) => (
 				<SimpleSection
 					title="Volunteering"
 					actions={
@@ -699,18 +642,14 @@ const VolunteeringSection: FC = observer(() => {
 								length={collectionItems.length}
 								label="role"
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove

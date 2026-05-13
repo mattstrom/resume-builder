@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+
 import { ReorderControls } from '@/components/ReorderControls.tsx';
 
 interface CollectionEditorItemProps {

@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
+
 import { Input } from '@/components/ui/input.tsx';
 
 interface TailorViewProps {
@@ -13,9 +14,7 @@ export const WebView: FC<TailorViewProps> = observer(({ url }) => {
 	}
 
 	return (
-		<div
-			style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-		>
+		<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 			<div style={{ flexGrow: 0 }}>
 				<Input value={url} readOnly />
 			</div>

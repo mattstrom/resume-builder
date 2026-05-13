@@ -1,4 +1,5 @@
 import { type FC, type PropsWithChildren } from 'react';
+
 import './CornerCap.css';
 
 export const CornerCap: FC<PropsWithChildren> = ({ children }) => {

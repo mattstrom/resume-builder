@@ -16,8 +16,8 @@ import { JobsService } from '../entities/jobs/jobs.service';
 import { ProjectsService } from '../entities/projects/projects.service';
 import { ResumesService } from '../entities/resumes/resumes.service';
 import { SkillsService } from '../entities/skills/skills.service';
-import { type McpExtra, type McpToolParams } from './types';
 import { McpGuard } from './mcp.guard';
+import { type McpExtra, type McpToolParams } from './types';
 
 const getSkillsSchema = {
 	categories: z.array(z.string()).optional(),
@@ -120,10 +120,7 @@ export class ResumesResolver {
 		},
 	})
 	async saveResume(
-		{
-			id,
-			resume,
-		}: McpToolParams<{ id?: string; resume: ResumeCreateInput }>,
+		{ id, resume }: McpToolParams<{ id?: string; resume: ResumeCreateInput }>,
 		{ user }: McpExtra,
 	) {
 		const savedResume = id
@@ -152,9 +149,7 @@ export class ResumesResolver {
 		},
 	})
 	async getContactInformation({ user }: McpExtra): Promise<CallToolResult> {
-		const contactInfo = await this.contactInformationService.findOne(
-			user.sub,
-		);
+		const contactInfo = await this.contactInformationService.findOne(user.sub);
 
 		return {
 			content: [
@@ -367,10 +362,7 @@ export class ResumesResolver {
 		{ coverLetter }: McpToolParams<{ coverLetter: CoverLetter }>,
 		{ user }: McpExtra,
 	) {
-		const savedCoverLetter = await this.coverLettersService.create(
-			user.sub,
-			coverLetter,
-		);
+		const savedCoverLetter = await this.coverLettersService.create(user.sub, coverLetter);
 
 		return {
 			content: [

@@ -1,5 +1,6 @@
 import type { Application } from '@resume-builder/entities';
 import { action, computed, makeObservable, observable, reaction } from 'mobx';
+
 import type { RootStore } from './root.store.ts';
 import { StorageKey } from './services/persistence.service.ts';
 
@@ -41,16 +42,8 @@ export class ExplorerSidebarStore {
 			StorageKey.ApplicationExplorerApplicationSortAscending,
 			true,
 		);
-		this.watch(
-			'groupSortField',
-			StorageKey.ApplicationExplorerGroupSortField,
-			'DATE',
-		);
-		this.watch(
-			'groupSortAscending',
-			StorageKey.ApplicationExplorerGroupSortAscending,
-			true,
-		);
+		this.watch('groupSortField', StorageKey.ApplicationExplorerGroupSortField, 'DATE');
+		this.watch('groupSortAscending', StorageKey.ApplicationExplorerGroupSortAscending, true);
 		this.watch('groupBy', StorageKey.ApplicationExplorerGroupBy, 'company');
 
 		this.collapsedGroupKeys = new Set(
@@ -85,9 +78,7 @@ export class ExplorerSidebarStore {
 		const q = this.searchQuery.trim().toLowerCase();
 		if (!q) return sorted;
 		return sorted.filter(
-			(a) =>
-				a.name.toLowerCase().includes(q) ||
-				a.company.toLowerCase().includes(q),
+			(a) => a.name.toLowerCase().includes(q) || a.company.toLowerCase().includes(q),
 		);
 	}
 
@@ -109,19 +100,14 @@ export class ExplorerSidebarStore {
 		}
 
 		const sortedEntries = [...groups.entries()].sort(
-			(
-				[leftGroupName, leftApplications],
-				[rightGroupName, rightApplications],
-			) => {
+			([leftGroupName, leftApplications], [rightGroupName, rightApplications]) => {
 				if (this.groupSortField === 'NAME') {
-					const comparison =
-						leftGroupName.localeCompare(rightGroupName);
+					const comparison = leftGroupName.localeCompare(rightGroupName);
 					return this.groupSortAscending ? comparison : -comparison;
 				}
 
 				const leftTimestamp = this.getGroupTimestamp(leftApplications);
-				const rightTimestamp =
-					this.getGroupTimestamp(rightApplications);
+				const rightTimestamp = this.getGroupTimestamp(rightApplications);
 				return this.groupSortAscending
 					? leftTimestamp - rightTimestamp
 					: rightTimestamp - leftTimestamp;
@@ -138,18 +124,14 @@ export class ExplorerSidebarStore {
 			return [];
 		}
 
-		return [...groups.keys()].map((groupName) =>
-			this.getGroupStorageKey(groupName),
-		);
+		return [...groups.keys()].map((groupName) => this.getGroupStorageKey(groupName));
 	}
 
 	@computed
 	get allGroupsCollapsed() {
 		return (
 			this.groupKeys.length > 0 &&
-			this.groupKeys.every((groupKey) =>
-				this.collapsedGroupKeys.has(groupKey),
-			)
+			this.groupKeys.every((groupKey) => this.collapsedGroupKeys.has(groupKey))
 		);
 	}
 
@@ -226,9 +208,7 @@ export class ExplorerSidebarStore {
 
 		const leftTimestamp = new Date(left.updatedAt).getTime();
 		const rightTimestamp = new Date(right.updatedAt).getTime();
-		return ascending
-			? leftTimestamp - rightTimestamp
-			: rightTimestamp - leftTimestamp;
+		return ascending ? leftTimestamp - rightTimestamp : rightTimestamp - leftTimestamp;
 	}
 
 	private getGroupTimestamp(applications: Application[]) {
@@ -237,9 +217,7 @@ export class ExplorerSidebarStore {
 		}
 
 		return applications.reduce((timestamp, application) => {
-			const applicationTimestamp = new Date(
-				application.updatedAt,
-			).getTime();
+			const applicationTimestamp = new Date(application.updatedAt).getTime();
 			return this.groupSortAscending
 				? Math.min(timestamp, applicationTimestamp)
 				: Math.max(timestamp, applicationTimestamp);

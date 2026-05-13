@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Education, EducationInput } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { EducationsService } from './educations.service';
 
@@ -8,9 +9,7 @@ export class EducationsResolver {
 	constructor(private readonly educationsService: EducationsService) {}
 
 	@Query(() => [Education])
-	async listEducations(
-		@CurrentUser('sub') uid: string,
-	): Promise<Education[]> {
+	async listEducations(@CurrentUser('sub') uid: string): Promise<Education[]> {
 		return this.educationsService.findAll(uid);
 	}
 

@@ -1,15 +1,6 @@
 'use client';
 
 import type { DynamicToolUIPart, ToolUIPart } from 'ai';
-import type { ComponentProps, ReactNode } from 'react';
-
-import { Badge } from '@/components/ui/badge';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { cn } from '@/lib/utils';
 import {
 	CheckCircleIcon,
 	ChevronDownIcon,
@@ -18,7 +9,12 @@ import {
 	WrenchIcon,
 	XCircleIcon,
 } from 'lucide-react';
+import type { ComponentProps, ReactNode } from 'react';
 import { isValidElement } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 
 import { CodeBlock } from './code-block';
 
@@ -26,10 +22,7 @@ export type ToolProps = ComponentProps<typeof Collapsible>;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
 	<Collapsible
-		className={cn(
-			'group not-prose mb-4 w-full rounded-md border',
-			className,
-		)}
+		className={cn('group not-prose mb-4 w-full rounded-md border', className)}
 		{...props}
 	/>
 );
@@ -83,22 +76,16 @@ export const ToolHeader = ({
 	toolName,
 	...props
 }: ToolHeaderProps) => {
-	const derivedName =
-		type === 'dynamic-tool' ? toolName : type.split('-').slice(1).join('-');
+	const derivedName = type === 'dynamic-tool' ? toolName : type.split('-').slice(1).join('-');
 
 	return (
 		<CollapsibleTrigger
-			className={cn(
-				'flex w-full items-center justify-between gap-4 p-3',
-				className,
-			)}
+			className={cn('flex w-full items-center justify-between gap-4 p-3', className)}
 			{...props}
 		>
 			<div className="flex items-center gap-2">
 				<WrenchIcon className="size-4 text-muted-foreground" />
-				<span className="font-medium text-sm">
-					{title ?? derivedName}
-				</span>
+				<span className="font-medium text-sm">{title ?? derivedName}</span>
 				{getStatusBadge(state)}
 			</div>
 			<ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -138,12 +125,7 @@ export type ToolOutputProps = ComponentProps<'div'> & {
 	errorText: ToolPart['errorText'];
 };
 
-export const ToolOutput = ({
-	className,
-	output,
-	errorText,
-	...props
-}: ToolOutputProps) => {
+export const ToolOutput = ({ className, output, errorText, ...props }: ToolOutputProps) => {
 	if (!(output || errorText)) {
 		return null;
 	}
@@ -151,9 +133,7 @@ export const ToolOutput = ({
 	let Output = <div>{output as ReactNode}</div>;
 
 	if (typeof output === 'object' && !isValidElement(output)) {
-		Output = (
-			<CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
-		);
+		Output = <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />;
 	} else if (typeof output === 'string') {
 		Output = <CodeBlock code={output} language="json" />;
 	}

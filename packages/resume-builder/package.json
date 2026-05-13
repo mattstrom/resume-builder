@@ -1,7 +1,12 @@
 {
   "name": "@resume-builder/web",
   "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/lib/index.d.ts",
@@ -17,11 +22,6 @@
     },
     "./styles.css": "./dist/resume-builder.css"
   },
-  "main": "./dist/lib/index.js",
-  "types": "./dist/lib/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "dev": "nx serve",
     "build": "nx vite:build",

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+
 import { Application, ApplicationSchema } from '../models/application.js';
 import { Resume, ResumeSchema } from '../models/resume.js';
 import { connectMongoose } from '../utils/database.js';
@@ -13,9 +14,7 @@ async function main() {
 	const db_ = mongoose.connection.db!;
 
 	// Create the collection if it doesn't exist
-	const collections = await db_
-		.listCollections({ name: 'applications' })
-		.toArray();
+	const collections = await db_.listCollections({ name: 'applications' }).toArray();
 
 	if (collections.length === 0) {
 		console.log('Creating applications collection...');
@@ -29,12 +28,9 @@ async function main() {
 	await collection.createIndex({ uid: 1 });
 	console.log('Ensured uid index on applications collection');
 
-	const ResumeModel =
-		mongoose.models[Resume.name] ??
-		mongoose.model(Resume.name, ResumeSchema);
+	const ResumeModel = mongoose.models[Resume.name] ?? mongoose.model(Resume.name, ResumeSchema);
 	const ApplicationModel =
-		mongoose.models[Application.name] ??
-		mongoose.model(Application.name, ApplicationSchema);
+		mongoose.models[Application.name] ?? mongoose.model(Application.name, ApplicationSchema);
 
 	const resumes = await ResumeModel.find({})
 		.select({
@@ -57,14 +53,9 @@ async function main() {
 		.exec();
 
 	console.log(`Found ${resumes.length} resumes`);
-	console.log(
-		`Found ${existingApplications.length} applications already linked to resumes`,
-	);
+	console.log(`Found ${existingApplications.length} applications already linked to resumes`);
 
-	const applicationsToCreate = buildApplicationBackfillInserts(
-		resumes,
-		existingApplications,
-	);
+	const applicationsToCreate = buildApplicationBackfillInserts(resumes, existingApplications);
 	const alreadyAttachedCount = resumes.length - applicationsToCreate.length;
 
 	console.log(`Resumes already attached: ${alreadyAttachedCount}`);
@@ -76,8 +67,7 @@ async function main() {
 		return;
 	}
 
-	const createdApplications =
-		await ApplicationModel.create(applicationsToCreate);
+	const createdApplications = await ApplicationModel.create(applicationsToCreate);
 
 	console.log(`Created ${createdApplications.length} applications`);
 	console.log('\nMigration completed successfully!');

@@ -1,6 +1,6 @@
-import { describe, it } from '@std/testing/bdd';
 import { expect } from '@std/expect';
-import { NotionSchema } from './notion-schema.ts';
+import { describe, it } from '@std/testing/bdd';
+
 import {
 	Adapter,
 	CheckboxAdapter,
@@ -14,6 +14,7 @@ import {
 	StatusAdapter,
 	UrlAdapter,
 } from './adapters/mod.ts';
+import { NotionSchema } from './notion-schema.ts';
 
 describe('NotionSchema', () => {
 	it('should', async () => {

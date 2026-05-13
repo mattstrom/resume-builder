@@ -1,6 +1,5 @@
 import { type FC } from 'react';
-import { useSettings } from './Settings.provider.tsx';
-import { FileManager } from './FileManager';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -13,16 +12,16 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 
+import { FileManager } from './FileManager';
+import { useSettings } from './Settings.provider.tsx';
+
 interface ControlsProps {}
 
 export const Controls: FC<ControlsProps> = () => {
-	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
-		useSettings();
+	const { template, setTemplate, showMarginPattern, setShowMarginPattern } = useSettings();
 
 	const onPrint = () => {
-		const iframe = document.getElementById(
-			'resume-preview-iframe',
-		) as HTMLIFrameElement;
+		const iframe = document.getElementById('resume-preview-iframe') as HTMLIFrameElement;
 		if (iframe?.contentWindow) {
 			iframe.contentWindow.print();
 		} else {

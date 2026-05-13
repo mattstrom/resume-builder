@@ -1,14 +1,11 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
 import { ApplicationsService } from '../../entities/applications/applications.service';
 import { QUEUES } from '../queues';
-import {
-	JobAssessmentCommand,
-	JobAssessmentCommandResult,
-} from './job-assessment.command';
+import { JobAssessmentCommand, JobAssessmentCommandResult } from './job-assessment.command';
 
 @CommandHandler(JobAssessmentCommand)
 export class JobAssessmentCommandHandler implements ICommandHandler<JobAssessmentCommand> {
@@ -19,18 +16,11 @@ export class JobAssessmentCommandHandler implements ICommandHandler<JobAssessmen
 		private readonly applicationsService: ApplicationsService,
 	) {}
 
-	async execute(
-		command: JobAssessmentCommand,
-	): Promise<JobAssessmentCommandResult> {
-		const application = await this.applicationsService.find(
-			command.uid,
-			command.applicationId,
-		);
+	async execute(command: JobAssessmentCommand): Promise<JobAssessmentCommandResult> {
+		const application = await this.applicationsService.find(command.uid, command.applicationId);
 
 		if (!application.jobDescription) {
-			throw new BadRequestException(
-				'Application does not have a jobDescription to assess',
-			);
+			throw new BadRequestException('Application does not have a jobDescription to assess');
 		}
 
 		const job = await this.queue.add(

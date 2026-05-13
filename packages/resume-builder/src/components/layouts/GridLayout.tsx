@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { Layout } from './Layout.tsx';
+
 import { Page } from '../Page.tsx';
 import {
 	CandidateName,
@@ -10,6 +10,7 @@ import {
 	SummarySection,
 	WorkExperience,
 } from '../sections';
+import { Layout } from './Layout.tsx';
 
 import './GridLayout.css';
 

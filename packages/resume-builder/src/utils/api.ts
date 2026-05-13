@@ -14,9 +14,7 @@ export async function fetchResumes(): Promise<Resume[]> {
 		const response = await authFetch(`${API_BASE_URL}/resumes`);
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch resumes: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to fetch resumes: ${response.status} ${response.statusText}`);
 		}
 
 		const data = await response.json();
@@ -34,9 +32,7 @@ export async function fetchResumeById(_id: string): Promise<Resume> {
 		const response = await authFetch(`${API_BASE_URL}/resumes/${_id}`);
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch resume: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to fetch resume: ${response.status} ${response.statusText}`);
 		}
 
 		const data = await response.json();
@@ -60,9 +56,7 @@ export async function createResume(data: Resume): Promise<Resume> {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to create resume: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to create resume: ${response.status} ${response.statusText}`);
 		}
 
 		const result = await response.json();
@@ -86,9 +80,7 @@ export async function updateResume(_id: string, data: Resume): Promise<Resume> {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Failed to update resume: ${response.status} ${response.statusText}`,
-			);
+			throw new Error(`Failed to update resume: ${response.status} ${response.statusText}`);
 		}
 
 		const result = await response.json();

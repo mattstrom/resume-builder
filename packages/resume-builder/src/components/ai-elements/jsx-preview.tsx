@@ -1,10 +1,7 @@
 'use client';
 
-import type { ComponentProps, ReactNode } from 'react';
-import type { TProps as JsxParserProps } from 'react-jsx-parser';
-
-import { cn } from '@/lib/utils';
 import { AlertCircle } from 'lucide-react';
+import type { ComponentProps, ReactNode } from 'react';
 import {
 	createContext,
 	memo,
@@ -15,7 +12,10 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import type { TProps as JsxParserProps } from 'react-jsx-parser';
 import JsxParser from 'react-jsx-parser';
+
+import { cn } from '@/lib/utils';
 
 interface JSXPreviewContextValue {
 	jsx: string;
@@ -163,44 +163,41 @@ JSXPreview.displayName = 'JSXPreview';
 
 export type JSXPreviewContentProps = Omit<ComponentProps<'div'>, 'children'>;
 
-export const JSXPreviewContent = memo(
-	({ className, ...props }: JSXPreviewContentProps) => {
-		const { processedJsx, components, bindings, setError, onErrorProp } =
-			useJSXPreview();
-		const errorReportedRef = useRef<string | null>(null);
+export const JSXPreviewContent = memo(({ className, ...props }: JSXPreviewContentProps) => {
+	const { processedJsx, components, bindings, setError, onErrorProp } = useJSXPreview();
+	const errorReportedRef = useRef<string | null>(null);
 
-		// Reset error tracking when jsx changes
-		// biome-ignore lint/correctness/useExhaustiveDependencies: processedJsx change should reset tracking
-		useEffect(() => {
-			errorReportedRef.current = null;
-		}, [processedJsx]);
+	// Reset error tracking when jsx changes
+	// biome-ignore lint/correctness/useExhaustiveDependencies: processedJsx change should reset tracking
+	useEffect(() => {
+		errorReportedRef.current = null;
+	}, [processedJsx]);
 
-		const handleError = useCallback(
-			(err: Error) => {
-				// Prevent duplicate error reports for the same jsx
-				if (errorReportedRef.current === processedJsx) {
-					return;
-				}
-				errorReportedRef.current = processedJsx;
-				setError(err);
-				onErrorProp?.(err);
-			},
-			[processedJsx, onErrorProp, setError],
-		);
+	const handleError = useCallback(
+		(err: Error) => {
+			// Prevent duplicate error reports for the same jsx
+			if (errorReportedRef.current === processedJsx) {
+				return;
+			}
+			errorReportedRef.current = processedJsx;
+			setError(err);
+			onErrorProp?.(err);
+		},
+		[processedJsx, onErrorProp, setError],
+	);
 
-		return (
-			<div className={cn('jsx-preview-content', className)} {...props}>
-				<JsxParser
-					bindings={bindings}
-					components={components}
-					jsx={processedJsx}
-					onError={handleError}
-					renderInWrapper={false}
-				/>
-			</div>
-		);
-	},
-);
+	return (
+		<div className={cn('jsx-preview-content', className)} {...props}>
+			<JsxParser
+				bindings={bindings}
+				components={components}
+				jsx={processedJsx}
+				onError={handleError}
+				renderInWrapper={false}
+			/>
+		</div>
+	);
+});
 
 JSXPreviewContent.displayName = 'JSXPreviewContent';
 
@@ -218,33 +215,31 @@ const renderChildren = (
 	return children;
 };
 
-export const JSXPreviewError = memo(
-	({ className, children, ...props }: JSXPreviewErrorProps) => {
-		const { error } = useJSXPreview();
+export const JSXPreviewError = memo(({ className, children, ...props }: JSXPreviewErrorProps) => {
+	const { error } = useJSXPreview();
 
-		if (!error) {
-			return null;
-		}
+	if (!error) {
+		return null;
+	}
 
-		return (
-			<div
-				className={cn(
-					'flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-destructive text-sm',
-					className,
-				)}
-				{...props}
-			>
-				{children ? (
-					renderChildren(children, error)
-				) : (
-					<>
-						<AlertCircle className="size-4 shrink-0" />
-						<span>{error.message}</span>
-					</>
-				)}
-			</div>
-		);
-	},
-);
+	return (
+		<div
+			className={cn(
+				'flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-destructive text-sm',
+				className,
+			)}
+			{...props}
+		>
+			{children ? (
+				renderChildren(children, error)
+			) : (
+				<>
+					<AlertCircle className="size-4 shrink-0" />
+					<span>{error.message}</span>
+				</>
+			)}
+		</div>
+	);
+});
 
 JSXPreviewError.displayName = 'JSXPreviewError';

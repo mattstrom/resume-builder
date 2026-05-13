@@ -19,12 +19,8 @@ export class PingProcessor extends WorkerHost {
 	}
 
 	async process(job: Job<PingJobData>): Promise<void> {
-		this.logger.log(
-			`Processing ping job ${job.id} message="${job.data.message}"`,
-		);
+		this.logger.log(`Processing ping job ${job.id} message="${job.data.message}"`);
 		await new Promise((resolve) => setTimeout(resolve, 250));
-		this.eventBus.publish(
-			new PingCompletedEvent(String(job.id), job.data.message),
-		);
+		this.eventBus.publish(new PingCompletedEvent(String(job.id), job.data.message));
 	}
 }

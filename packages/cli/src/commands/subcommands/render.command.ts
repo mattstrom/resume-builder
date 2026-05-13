@@ -1,13 +1,11 @@
 import { Command } from '@cliffy/command';
 import { Input, Select } from '@cliffy/prompt';
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from '../../app.module.ts';
 import { BuildService } from '../../services/build.service.ts';
+import { RenderService, type TemplateType } from '../../services/render.service.ts';
 import { ResumeBuilder } from '../../services/resume.builder.ts';
-import {
-	RenderService,
-	type TemplateType,
-} from '../../services/render.service.ts';
 
 export class RenderCommand extends Command {
 	constructor() {
@@ -18,13 +16,9 @@ export class RenderCommand extends Command {
 			.option('-n, --name <name>', 'The name of the resume to render.', {
 				required: false,
 			})
-			.option(
-				'-i, --id <id>',
-				'The ID of the resume (e.g., "RES-4" or "4").',
-				{
-					required: false,
-				},
-			)
+			.option('-i, --id <id>', 'The ID of the resume (e.g., "RES-4" or "4").', {
+				required: false,
+			})
 			.option(
 				'-t, --template <template:string>',
 				'The template to use (basic, column, grid).',
@@ -32,13 +26,9 @@ export class RenderCommand extends Command {
 					default: 'basic',
 				},
 			)
-			.option(
-				'-o, --output <output:string>',
-				'Output file path for the HTML.',
-				{
-					required: false,
-				},
-			)
+			.option('-o, --output <output:string>', 'Output file path for the HTML.', {
+				required: false,
+			})
 			.action(async (opts) => {
 				const app = await NestFactory.createApplicationContext(
 					AppModule.register({
@@ -52,9 +42,7 @@ export class RenderCommand extends Command {
 
 				// Prompt for resume selection if not provided
 				if (!opts.name && !opts.id) {
-					const resumes = await Array.fromAsync(
-						buildService.listResumes(),
-					);
+					const resumes = await Array.fromAsync(buildService.listResumes());
 
 					const selection = await Input.prompt({
 						message: 'Which resume?',
@@ -64,9 +52,7 @@ export class RenderCommand extends Command {
 						}),
 					});
 
-					const matchById = resumes.find(
-						(page: any) => page.id === selection,
-					);
+					const matchById = resumes.find((page: any) => page.id === selection);
 					if (matchById) {
 						opts.id = selection;
 					} else {

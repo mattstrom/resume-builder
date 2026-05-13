@@ -46,10 +46,7 @@ export async function generatePDF(
 /**
  * Generates a PDF from a pre-captured HTML string and triggers download.
  */
-export async function generatePDFFromHTML(
-	html: string,
-	resumeData: ResumeData,
-): Promise<void> {
+export async function generatePDFFromHTML(html: string, resumeData: ResumeData): Promise<void> {
 	const response = await authFetch('/api/pdf', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -74,14 +71,10 @@ export async function generatePDFFromHTML(
 }
 
 function getPreviewDocument(): Document {
-	const iframe = document.getElementById(
-		'resume-preview-iframe',
-	) as HTMLIFrameElement | null;
+	const iframe = document.getElementById('resume-preview-iframe') as HTMLIFrameElement | null;
 
 	if (!iframe?.contentDocument) {
-		throw new Error(
-			'Preview not available. Please wait for preview to load.',
-		);
+		throw new Error('Preview not available. Please wait for preview to load.');
 	}
 
 	return iframe.contentDocument;

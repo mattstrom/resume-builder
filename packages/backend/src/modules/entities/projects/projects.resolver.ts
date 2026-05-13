@@ -1,5 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Project, ProjectInput } from '@resume-builder/entities';
+
 import { CurrentUser } from '../../auth';
 import { ProjectsService } from './projects.service';
 
@@ -21,10 +22,7 @@ export class ProjectsResolver {
 	}
 
 	@Mutation(() => Project)
-	async createProject(
-		@CurrentUser('sub') uid: string,
-		@Args('project') project: ProjectInput,
-	) {
+	async createProject(@CurrentUser('sub') uid: string, @Args('project') project: ProjectInput) {
 		return this.projectsService.create(uid, project);
 	}
 }

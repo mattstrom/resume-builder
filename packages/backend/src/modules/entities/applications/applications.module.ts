@@ -12,9 +12,7 @@ import { ApplicationsService } from './applications.service';
 	imports: [
 		ResumesModule,
 		MongodbModule,
-		MongooseModule.forFeature([
-			{ name: Application.name, schema: ApplicationSchema },
-		]),
+		MongooseModule.forFeature([{ name: Application.name, schema: ApplicationSchema }]),
 	],
 	controllers: [ApplicationsController],
 	providers: [ApplicationsResolver, ApplicationsService],

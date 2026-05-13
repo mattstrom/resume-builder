@@ -1,11 +1,8 @@
 import type { Education } from '@resume-builder/entities';
 import { computed, makeObservable } from 'mobx';
+
+import { CREATE_EDUCATION, DELETE_EDUCATION, UPDATE_EDUCATION } from '../graphql/mutations.ts';
 import { LIST_EDUCATIONS } from '../graphql/queries.ts';
-import {
-	CREATE_EDUCATION,
-	DELETE_EDUCATION,
-	UPDATE_EDUCATION,
-} from '../graphql/mutations.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
 
@@ -17,10 +14,9 @@ export class EducationStore {
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
 
-		this.query = ApolloMobxWrapper.create<{ listEducations: Education[] }>(
-			rootStore.client,
-			{ query: LIST_EDUCATIONS },
-		);
+		this.query = ApolloMobxWrapper.create<{ listEducations: Education[] }>(rootStore.client, {
+			query: LIST_EDUCATIONS,
+		});
 	}
 
 	@computed

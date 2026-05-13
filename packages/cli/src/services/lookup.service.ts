@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NotionClient } from '../tokens.ts';
 import { Client } from '@notionhq/client';
+
+import { NotionClient } from '../tokens.ts';
 
 type DbName = keyof LookupService['ids'];
 
@@ -37,11 +38,7 @@ export class LookupService {
 		return id;
 	}
 
-	async getRecordByTitle(
-		name: DbName,
-		title: string,
-		column: string = 'Title',
-	) {
+	async getRecordByTitle(name: DbName, title: string, column: string = 'Title') {
 		const db = this.getId(name);
 
 		const records = await this.client.databases.query({

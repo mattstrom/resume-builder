@@ -1,5 +1,6 @@
-import { StoreProvider } from '@/stores/store.provider.tsx';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+
+import { StoreProvider } from '@/stores/store.provider.tsx';
 
 import { InlineEditor } from './InlineEditor';
 

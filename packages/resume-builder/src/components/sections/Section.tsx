@@ -1,10 +1,5 @@
-import {
-	type FC,
-	type HTMLAttributes,
-	type PropsWithChildren,
-	type ReactNode,
-} from 'react';
 import clsx from 'clsx';
+import { type FC, type HTMLAttributes, type PropsWithChildren, type ReactNode } from 'react';
 
 interface SectionProps extends PropsWithChildren, HTMLAttributes<HTMLElement> {
 	heading: string;
@@ -26,11 +21,7 @@ export const Section: FC<SectionProps> = ({
 			<a id={anchorName}></a>
 			<header className="flex items-center justify-between gap-2">
 				<h2>{heading}</h2>
-				{headerActions && (
-					<div className="section-header-actions">
-						{headerActions}
-					</div>
-				)}
+				{headerActions && <div className="section-header-actions">{headerActions}</div>}
 			</header>
 			<div>{children}</div>
 		</section>
