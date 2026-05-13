@@ -15,6 +15,8 @@
     "start:mcp": "op run --env-file=.env -- sh -c 'docker compose up -d mcp'",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "docker:build": "nx run-many -t docker-build",
