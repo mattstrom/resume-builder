@@ -10,7 +10,13 @@ import type {
 import { MastraAuthProvider, type MastraAuthProviderOptions } from '@mastra/core/server';
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from 'jose';
 
-export type Auth0JwtUser = JWTPayload;
+export type Auth0JwtUser = JWTPayload & {
+	id: string;
+	name?: string;
+	email?: string;
+	avatarUrl?: string;
+	permissions?: string[];
+};
 
 export interface Auth0JwtProviderOptions extends MastraAuthProviderOptions<Auth0JwtUser> {
 	domain: string;
@@ -37,14 +43,21 @@ export class Auth0JwtProvider
 
 	// Keyed by OAuth state param; created in getLoginUrl, consumed in getLoginCookies
 	readonly #pkceCache = new Map<string, { codeVerifier: string; codeChallenge: string }>();
+	// Keyed by sub; populated lazily via the /userinfo endpoint
+	readonly #userinfoCache = new Map<
+		string,
+		{ name?: string; email?: string; avatarUrl?: string }
+	>();
 	// Written by setCallbackCookieHeader, read by handleCallback (same request)
 	#pkceData: { codeVerifier: string; redirectUri: string } | null = null;
 
 	constructor(options: Auth0JwtProviderOptions) {
 		super({ name: options.name ?? 'auth0-jwt', ...options });
+
 		if (!options.domain || !options.audience || !options.clientId) {
 			throw new Error('Auth0JwtProvider: domain, audience, and clientId are required');
 		}
+
 		this.#domain = options.domain;
 		this.#audience = options.audience;
 		this.#clientId = options.clientId;
@@ -67,7 +80,7 @@ export class Auth0JwtProvider
 				audience: this.#audience,
 			});
 
-			return payload;
+			return { ...payload, id: payload.sub ?? '' };
 		} catch {
 			return null;
 		}
@@ -76,8 +89,7 @@ export class Auth0JwtProvider
 	authorizeUser(user: Auth0JwtUser): boolean {
 		if (!user?.sub) {
 			return false;
-		}
-		if (user.exp && user.exp * 1000 < Date.now()) {
+		} else if (user.exp && user.exp * 1000 < Date.now()) {
 			return false;
 		}
 
@@ -121,10 +133,12 @@ export class Auth0JwtProvider
 		if (!cookieHeader) {
 			return;
 		}
+
 		const match = cookieHeader.match(/(?:^|;\s*)auth0_pkce=([^;]+)/);
 		if (!match) {
 			return;
 		}
+
 		try {
 			this.#pkceData = JSON.parse(Buffer.from(match[1], 'base64').toString()) as {
 				codeVerifier: string;
@@ -152,6 +166,7 @@ export class Auth0JwtProvider
 			redirect_uri: pkce.redirectUri,
 			code_verifier: pkce.codeVerifier,
 		};
+
 		if (this.#clientSecret) {
 			body['client_secret'] = this.#clientSecret;
 		}
@@ -282,19 +297,54 @@ export class Auth0JwtProvider
 	// ============================================================================
 
 	async getCurrentUser(request: Request): Promise<Auth0JwtUser | null> {
+		let token: string | null = null;
+
 		const authHeader = request.headers.get('Authorization');
 		if (authHeader) {
-			const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-			if (token) {
-				return this.authenticateToken(token);
+			const stripped = authHeader.replace(/^Bearer\s+/i, '').trim();
+			if (stripped) {
+				token = stripped;
 			}
 		}
-		const sessionId = this.getSessionIdFromRequest(request);
-		if (sessionId) {
-			return this.authenticateToken(sessionId);
+		if (!token) {
+			token = this.getSessionIdFromRequest(request);
+		}
+		if (!token) {
+			return null;
 		}
 
-		return null;
+		const user = await this.authenticateToken(token);
+		if (!user) {
+			return null;
+		}
+
+		return this.#withUserinfo(user, token);
+	}
+
+	async #withUserinfo(user: Auth0JwtUser, token: string): Promise<Auth0JwtUser> {
+		const key = user.sub ?? '';
+		const cached = this.#userinfoCache.get(key);
+		if (cached) {
+			return { ...user, ...cached };
+		}
+
+		try {
+			const res = await fetch(`https://${this.#domain}/userinfo`, {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+
+			if (!res.ok) {
+				return user;
+			}
+
+			const info = (await res.json()) as { name?: string; email?: string; picture?: string };
+			const profile = { name: info.name, email: info.email, avatarUrl: info.picture };
+			this.#userinfoCache.set(key, profile);
+
+			return { ...user, ...profile };
+		} catch {
+			return user;
+		}
 	}
 
 	async getUser(_userId: string): Promise<Auth0JwtUser | null> {

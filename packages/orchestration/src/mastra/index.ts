@@ -1,4 +1,5 @@
 import { chatRoute } from '@mastra/ai-sdk';
+import { StaticRBACProvider, DEFAULT_ROLES } from '@mastra/core/auth/ee';
 import { Mastra } from '@mastra/core/mastra';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
@@ -38,9 +39,15 @@ const auth0Provider = new Auth0JwtProvider({
 	clientId: process.env['AUTH0_CLIENT_ID']!,
 });
 
+const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
+	roles: DEFAULT_ROLES,
+	getUserRoles: (user) => (user.permissions?.includes('studio:admin') ? ['admin'] : ['member']),
+});
+
 export const mastra = new Mastra({
 	server: {
 		auth: auth0Provider,
+		rbac: rbacProvider,
 		apiRoutes: [
 			chatRoute({
 				path: '/chat/:agentId',

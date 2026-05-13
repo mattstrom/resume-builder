@@ -9,7 +9,7 @@ export class SchemasResolver {
 		name: 'get_schemas',
 		description: 'Get all schemas',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -34,7 +34,7 @@ export class SchemasResolver {
 		name: 'get_schema_names',
 		description: 'Get all schema names',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -57,7 +57,7 @@ export class SchemasResolver {
 		description: 'Look up schema by name',
 		paramsSchema: { name: SchemaNamesEnum },
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})

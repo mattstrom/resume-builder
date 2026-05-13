@@ -57,7 +57,7 @@ export class NarrativeEditorResolver {
 		description:
 			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing.",
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -70,6 +70,7 @@ export class NarrativeEditorResolver {
 					`[${n.index}] ${n.nodeType}${Object.keys(n.attrs).length ? ' ' + JSON.stringify(n.attrs) : ''}: ${JSON.stringify(n.content)}`,
 			)
 			.join('\n');
+
 		return {
 			content: [{ type: 'text', text }],
 			structuredContent: { nodes },
@@ -84,7 +85,7 @@ export class NarrativeEditorResolver {
 			'Always call read_narrative first.',
 		paramsSchema: editParamsShape,
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: false,
 		},
 	})
@@ -94,6 +95,7 @@ export class NarrativeEditorResolver {
 	): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
 		const result = await this.crdtApiService.applyDelta(documentName, delta as DeltaOp[]);
+
 		return {
 			content: [
 				{
