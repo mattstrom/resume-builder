@@ -3,9 +3,8 @@ import { Mastra } from '@mastra/core/mastra';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
-import { LibSQLStore } from '@mastra/libsql';
+import { PostgresStore } from '@mastra/pg';
 import { PinoLogger } from '@mastra/loggers';
-import { MCPServer } from '@mastra/mcp';
 import {
 	CloudExporter,
 	DefaultExporter,
@@ -80,9 +79,12 @@ export const mastra = new Mastra({
 	},
 	storage: new MastraCompositeStore({
 		id: 'composite-storage',
-		default: new LibSQLStore({
+		default: new PostgresStore({
 			id: 'mastra-storage',
-			url: 'file:./mastra.db',
+			host: 'localhost',
+			user: 'postgres',
+			password: 'postgres',
+			database: 'mastra',
 		}),
 		domains: {
 			observability: await new DuckDBStore().getStore('observability'),
