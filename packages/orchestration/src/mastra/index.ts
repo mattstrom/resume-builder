@@ -2,6 +2,7 @@ import { chatRoute } from '@mastra/ai-sdk';
 import { StaticRBACProvider, DEFAULT_ROLES } from '@mastra/core/auth/ee';
 import { Mastra } from '@mastra/core/mastra';
 import { MastraCompositeStore } from '@mastra/core/storage';
+import { Workspace, LocalFilesystem, LocalSandbox } from '@mastra/core/workspace';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
 import { PinoLogger } from '@mastra/loggers';
@@ -44,7 +45,20 @@ const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
 	getUserRoles: (user) => (user.permissions?.includes('studio:admin') ? ['admin'] : ['member']),
 });
 
+const directory = './workspace';
+
+const workspace = new Workspace({
+	filesystem: new LocalFilesystem({
+		basePath: directory,
+	}),
+	sandbox: new LocalSandbox({
+		workingDirectory: directory,
+	}),
+	skills: ['skills'],
+});
+
 export const mastra = new Mastra({
+	workspace,
 	server: {
 		auth: auth0Provider,
 		rbac: rbacProvider,
@@ -76,7 +90,7 @@ export const mastra = new Mastra({
 	},
 	bundler: {
 		sourcemap: true,
-		externals: ['@duckdb/node-bindings', '@resume-builder/entities'],
+		externals: ['@duckdb/node-bindings', '@resume-builder/entities', 'electron'],
 	},
 	workflows: { handoffWorkflow, weatherWorkflow, fitAssessmentWorkflow },
 	agents: {
