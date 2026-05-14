@@ -13,15 +13,17 @@ export const jobSummarySchema = z.object({
 	techStack: z.array(z.string()).optional(),
 });
 
+const score = () => z.number().refine((n) => n >= 0 && n <= 1, { message: 'Must be 0–1' });
+
 export const analysisSchema = z.object({
-	skillRelevance: z.number().min(0).max(1),
-	experienceRelevance: z.number().min(0).max(1),
-	roleLevelFit: z.number().min(0).max(1).optional(),
-	locationFit: z.number().min(0).max(1).optional(),
-	compensationFit: z.number().min(0).max(1).optional(),
-	companyFit: z.number().min(0).max(1).optional(),
-	logisticalFit: z.number().min(0).max(1).optional(),
-	overallFit: z.number().min(0).max(1),
+	skillRelevance: score(),
+	experienceRelevance: score(),
+	roleLevelFit: score().optional(),
+	locationFit: score().optional(),
+	compensationFit: score().optional(),
+	companyFit: score().optional(),
+	logisticalFit: score().optional(),
+	overallFit: score(),
 	strengths: z.array(z.string()),
 	weaknesses: z.array(z.string()),
 	recommendations: z.array(z.string()),
