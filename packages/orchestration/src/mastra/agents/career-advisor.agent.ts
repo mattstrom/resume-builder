@@ -8,9 +8,9 @@ export const careerAdvisorAgent = new Agent({
 	id: 'career-advisor',
 	name: 'Career Advisor',
 	description: 'Assist the user in refining their job search preferences',
-	model: () => 'anthropic/claude-sonnet-4-5',
+	model: () => 'anthropic/claude-sonnet-4-6',
 	requestContextSchema: {},
-	instructions: async ({ mastra, requestContext }) => {
+	instructions: async () => {
 		return outdent`
 			You are an expert career advisor helping the user clarify and refine their job search preferences.
 	

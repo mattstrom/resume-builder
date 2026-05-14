@@ -8,7 +8,8 @@ import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 export const resumeWriterAgent = new Agent({
 	id: 'resume-writer',
 	name: 'Resume Writer',
-	model: 'anthropic/claude-sonnet-4-5',
+	description: 'Create or prepare a tailored resume for a job application',
+	model: 'anthropic/claude-sonnet-4-6',
 	requestContextSchema: z.object({
 		profile: profileSchema,
 		application: applicationSchema,

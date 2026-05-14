@@ -14,9 +14,7 @@ export const narrativeCoachAgent = new Agent({
 	requestContextSchema: z.object({
 		scope: z.string().optional(),
 	}),
-	instructions: async ({ mastra, requestContext }) => {
-		const editor = mastra?.getEditor();
-
+	instructions: async () => {
 		return outdent`
 			You are an expert career coach helping the user craft their professional narrative.
 	

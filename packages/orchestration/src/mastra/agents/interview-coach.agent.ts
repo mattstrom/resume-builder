@@ -10,13 +10,11 @@ export const interviewCoachAgent = new Agent({
 	id: 'interview-coach',
 	name: 'Interview Coach',
 	description: 'Coach the user in preparing for and debriefing from interviews',
-	model: 'anthropic/claude-sonnet-4-5',
+	model: 'anthropic/claude-sonnet-4-6',
 	requestContextSchema: z.object({
 		scope: z.string().optional(),
 	}),
-	instructions: async ({ mastra, requestContext }) => {
-		const editor = mastra?.getEditor();
-
+	instructions: async () => {
 		return outdent`
 			You are an expert interview coach helping the user prepare for and debrief from interviews.
 	

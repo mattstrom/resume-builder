@@ -8,11 +8,11 @@ import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 export const applicationReviewerAgent = new Agent({
 	id: 'application-reviewer',
 	name: 'Application Reviewer',
-	model: 'anthropic/claude-sonnet-4-5',
+	model: 'anthropic/claude-sonnet-4-6',
 	requestContextSchema: z.object({
 		applicationId: z.string(),
 	}),
-	instructions: async ({ mastra, requestContext }) => {
+	instructions: async () => {
 		return [
 			outdent`
 				You are an expert resume review. Load the application with id = {{applicationId}}
