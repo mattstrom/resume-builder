@@ -3,13 +3,13 @@ import { configure } from 'mobx';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// Import the generated route tree
-import { routeTree } from './routeTree.gen';
 import { RootStore } from './stores/root.store.ts';
+import { StoreProvider } from './stores/store.provider.tsx';
 
 import './index.css';
 
-import { StoreProvider } from './stores/store.provider.tsx';
+// Import the generated route tree
+import { routeTree } from './routeTree.gen';
 
 configure({
 	enforceActions: 'never',

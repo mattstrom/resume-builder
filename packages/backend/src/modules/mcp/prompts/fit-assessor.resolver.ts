@@ -1,5 +1,5 @@
-import { Prompt, Resolver, UseGuards } from '@nestjs-mcp/server';
 import type { PromptHandlerArgs } from '@nestjs-mcp/server';
+import { Prompt, Resolver, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
 import { FIT_ASSESSOR_SYSTEM_PROMPT } from '../../queue/job-assessment/fit-assessor.rubric';
