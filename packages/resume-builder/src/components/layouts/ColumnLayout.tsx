@@ -3,8 +3,6 @@ import { type FC } from 'react';
 import { CornerCap } from '../CornerCap.tsx';
 import { Page } from '../Page.tsx';
 import { useResume } from '../Resume.provider.tsx';
-
-import './ColumnLayout.css';
 import { CandidateName } from '../sections/CandidateName.tsx';
 import { ContactInformationSection } from '../sections/ContactInformationSection.tsx';
 import {
@@ -16,6 +14,8 @@ import {
 } from '../sections/index.ts';
 import { Column } from './Column.tsx';
 import { Layout } from './Layout.tsx';
+
+import './ColumnLayout.css';
 
 interface ColumnLayoutProps {}
 
