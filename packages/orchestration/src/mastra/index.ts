@@ -58,7 +58,7 @@ const workspace = new Workspace({
 });
 
 export const mastra = new Mastra({
-	workspace,
+	// workspace,
 	server: {
 		auth: auth0Provider,
 		rbac: rbacProvider,

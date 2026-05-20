@@ -15,7 +15,26 @@ const textRunSchema = z.object({
 });
 
 const insertItemSchema = z.object({
-	nodeType: z.enum(['paragraph', 'heading']).describe('Type of block node'),
+	nodeType: z
+		.enum([
+			'paragraph',
+			'heading',
+			'bulletList',
+			'orderedList',
+			'listItem',
+			'blockquote',
+			'codeBlock',
+			'horizontalRule',
+			'hardBreak',
+			'table',
+			'tableRow',
+			'tableCell',
+			'tableHeader',
+			'taskList',
+			'taskItem',
+			'details',
+		])
+		.describe('Type of block node'),
 	attrs: z
 		.record(z.string(), z.string())
 		.optional()
