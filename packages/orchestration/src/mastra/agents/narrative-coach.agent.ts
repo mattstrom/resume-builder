@@ -3,6 +3,8 @@ import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
+import config from '@/config';
+
 import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import { scorers } from '../scorers/weather-scorer';
 
@@ -10,14 +12,12 @@ export const narrativeCoachAgent = new Agent({
 	id: 'narrative-coach',
 	name: 'Narrative Coach',
 	description: 'Assist the user in crafting their professional narrative',
-	model: 'anthropic/claude-sonnet-4-5',
-	requestContextSchema: z.object({
-		scope: z.string().optional(),
-	}),
+	model: config.llms.defaultModel,
+	requestContextSchema: z.object({}),
 	instructions: async () => {
 		return outdent`
 			You are an expert career coach helping the user craft their professional narrative.
-	
+			
 			Use the available tools to retrieve the candidate's narrative.
 		`;
 	},
@@ -26,7 +26,7 @@ export const narrativeCoachAgent = new Agent({
 
 		return {
 			resumeBuilder_read_narrative: tools.resumeBuilder_read_narrative,
-			resumeBuilder_edit_narrative: tools.resumeBuilder_edit_narrative,
+			// resumeBuilder_edit_narrative: tools.resumeBuilder_edit_narrative,
 		};
 	},
 	scorers: {

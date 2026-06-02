@@ -2,7 +2,6 @@ import { chatRoute } from '@mastra/ai-sdk';
 import { StaticRBACProvider, DEFAULT_ROLES } from '@mastra/core/auth/ee';
 import { Mastra } from '@mastra/core/mastra';
 import { MastraCompositeStore } from '@mastra/core/storage';
-import { Workspace, LocalFilesystem, LocalSandbox } from '@mastra/core/workspace';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
 import { PinoLogger } from '@mastra/loggers';
@@ -14,6 +13,8 @@ import {
 } from '@mastra/observability';
 import { PostgresStore } from '@mastra/pg';
 import { getAuthenticatedUser } from '@mastra/server/auth';
+
+import config from '@/config';
 
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
@@ -35,9 +36,9 @@ import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
 const auth0Provider = new Auth0JwtProvider({
-	domain: 'login.mattstrom.com',
-	audience: 'https://resume-builder.mattstrom.com',
-	clientId: process.env['AUTH0_CLIENT_ID']!,
+	domain: config.auth0.domain,
+	audience: config.auth0.audience,
+	clientId: config.auth0.clientId,
 });
 
 const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
@@ -45,20 +46,7 @@ const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
 	getUserRoles: (user) => (user.permissions?.includes('studio:admin') ? ['admin'] : ['member']),
 });
 
-const directory = './workspace';
-
-const workspace = new Workspace({
-	filesystem: new LocalFilesystem({
-		basePath: directory,
-	}),
-	sandbox: new LocalSandbox({
-		workingDirectory: directory,
-	}),
-	skills: ['skills'],
-});
-
 export const mastra = new Mastra({
-	// workspace,
 	server: {
 		auth: auth0Provider,
 		rbac: rbacProvider,
