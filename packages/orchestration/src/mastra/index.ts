@@ -80,7 +80,11 @@ export const mastra = new Mastra({
 		sourcemap: true,
 		externals: ['@duckdb/node-bindings', '@resume-builder/entities', 'electron'],
 	},
-	workflows: { handoffWorkflow, weatherWorkflow, fitAssessmentWorkflow },
+	workflows: {
+		handoffWorkflow,
+		weatherWorkflow,
+		fitAssessmentWorkflow,
+	},
 	agents: {
 		applicationReviewer: applicationReviewerAgent,
 		careerAdvisor: careerAdvisorAgent,
@@ -92,7 +96,16 @@ export const mastra = new Mastra({
 		weatherAgent,
 		webAgent,
 	},
-	editor: new MastraEditor(),
+	editor: new MastraEditor({
+		builder: {
+			enabled: true,
+			configuration: {
+				agent: {
+					memory: { observationalMemory: true },
+				},
+			},
+		},
+	}),
 	scorers: {
 		toolCallAppropriatenessScorer,
 		completenessScorer,

@@ -1,4 +1,6 @@
 import { Agent } from '@mastra/core/agent';
+import { fastembed } from '@mastra/fastembed';
+import { LibSQLVector } from '@mastra/libsql';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
@@ -30,6 +32,23 @@ export const chatAgent = new Agent({
 		handoffWorkflow,
 	},
 	tools: {},
+	memory: new Memory({
+		vector: new LibSQLVector({
+			id: 'resume-builder-chat-vector',
+			url: 'file:./local.db',
+		}),
+		embedder: fastembed,
+		options: {
+			lastMessages: 20,
+			workingMemory: {
+				enabled: true,
+			},
+			semanticRecall: true,
+			observationalMemory: {
+				enabled: true,
+			},
+		},
+	}),
 	scorers: {
 		toolCallAppropriateness: {
 			scorer: scorers.toolCallAppropriatenessScorer,
@@ -53,5 +72,4 @@ export const chatAgent = new Agent({
 			},
 		},
 	},
-	memory: new Memory(),
 });
