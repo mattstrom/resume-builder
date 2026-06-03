@@ -11,6 +11,12 @@ export interface Config {
 		uri: string;
 		database: string;
 	};
+	postgres: {
+		host: string;
+		user: string;
+		password: string;
+		database: string;
+	};
 	llms: {
 		anthropic: {
 			apiKey: string;
@@ -52,6 +58,33 @@ const schema = convict<Config>({
 			format: String,
 			default: 'vector-store',
 			env: 'MONGODB_DATABASE',
+		},
+	},
+	postgres: {
+		host: {
+			doc: 'PostgreSQL host',
+			format: String,
+			default: 'localhost',
+			env: 'POSTGRES_HOST',
+		},
+		user: {
+			doc: 'PostgreSQL user',
+			format: String,
+			default: 'postgres',
+			env: 'POSTGRES_USER',
+		},
+		password: {
+			doc: 'PostgreSQL password',
+			format: String,
+			default: '',
+			env: 'POSTGRES_PASSWORD',
+			sensitive: true,
+		},
+		database: {
+			doc: 'PostgreSQL database name',
+			format: String,
+			default: 'mastra',
+			env: 'POSTGRES_DB',
 		},
 	},
 	llms: {

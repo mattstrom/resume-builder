@@ -115,10 +115,10 @@ export const mastra = new Mastra({
 		id: 'composite-storage',
 		default: new PostgresStore({
 			id: 'mastra-storage',
-			host: 'localhost',
-			user: 'postgres',
-			password: 'postgres',
-			database: 'mastra',
+			host: config.postgres.host,
+			user: config.postgres.user,
+			password: config.postgres.password,
+			database: config.postgres.database,
 		}),
 		domains: {
 			observability: await new DuckDBStore().getStore('observability'),
