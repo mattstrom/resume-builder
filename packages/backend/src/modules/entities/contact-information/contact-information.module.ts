@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ContactInformation, ContactInformationSchema } from '@resume-builder/entities';
 
-import { ContactInformationController } from './contact-information.controller';
-import { ContactInformationResolver } from './contact-information.resolver';
-import { ContactInformationService } from './contact-information.service';
+import { ContactInformationController } from './contact-information.controller.js';
+import { ContactInformationResolver } from './contact-information.resolver.js';
+import { ContactInformationService } from './contact-information.service.js';
 
 @Module({
 	imports: [

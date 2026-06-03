@@ -4,14 +4,14 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { ContentBlock, MessageParam } from '@anthropic-ai/sdk/resources/messages';
 import { Injectable } from '@nestjs/common';
 
-import type { LlmProvider } from '../interfaces/llm-provider.interface';
+import type { LlmProvider } from '../interfaces/llm-provider.interface.js';
 import type {
 	LlmContentBlock,
 	LlmMessage,
 	LlmRequestOptions,
 	LlmStreamEvent,
 	LlmToolDefinition,
-} from '../interfaces/llm-types';
+} from '../interfaces/llm-types.js';
 
 @Injectable()
 export class AnthropicProviderService implements LlmProvider {

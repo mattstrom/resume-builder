@@ -3,8 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import WebSocket from 'ws';
 import * as Y from 'yjs';
 
-import configuration from '../../configuration';
-import { applyJsonPatch, fromYValue, type JsonPatchOp } from './json-patch';
+import configuration from '../../configuration.js';
+import { applyJsonPatch, fromYValue, type JsonPatchOp } from './json-patch.js';
 
 const CONNECT_TIMEOUT_MS = 10_000;
 

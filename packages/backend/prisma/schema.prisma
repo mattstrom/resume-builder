@@ -1,0 +1,56 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Profile ────────────────────────────────────────────────────────────────
+// uid maps to Auth0 sub, unique per user.
+// narrativeSummary and jobPreferences are JSON blobs — not yet normalized.
+
+model Profile {
+  id               String   @id @default(cuid())
+  uid              String   @unique
+  narrative        String   @default("")
+  narrativeSummary Json?
+  jobPreferences   Json     @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Conversation ────────────────────────────────────────────────────────────
+// applicationId is a plain String — no FK until Application is migrated.
+// model stores ChatModelSelection shape: { provider, model }
+
+model Conversation {
+  id            String                @id @default(cuid())
+  uid           String
+  applicationId String?
+  title         String                @default("New Conversation")
+  model         Json?
+  messages      ConversationMessage[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([uid])
+  @@index([applicationId])
+}
+
+// ─── ConversationMessage ─────────────────────────────────────────────────────
+model ConversationMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}

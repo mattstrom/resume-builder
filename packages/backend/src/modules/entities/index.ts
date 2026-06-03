@@ -1,2 +1,2 @@
-export * from './schema-registry';
-export * from './entities.module';
+export * from './schema-registry.js';
+export * from './entities.module.js';

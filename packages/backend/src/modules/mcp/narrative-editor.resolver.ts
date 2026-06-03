@@ -2,9 +2,9 @@ import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
-import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service';
-import { McpGuard } from './mcp.guard';
-import { type McpExtra, type McpToolParams } from './types';
+import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service.js';
+import { McpGuard } from './mcp.guard.js';
+import { type McpExtra, type McpToolParams } from './types.js';
 
 const textRunSchema = z.object({
 	text: z.string().describe('Text content of this run'),

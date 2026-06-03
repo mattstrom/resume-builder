@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CoverLetter, CoverLetterSchema } from '@resume-builder/entities';
 
-import { MongodbModule } from '../../mongodb/mongodb.module';
-import { CoverLettersResolver } from './cover-letters.resolver';
-import { CoverLettersService } from './cover-letters.service';
+import { MongodbModule } from '../../mongodb/mongodb.module.js';
+import { CoverLettersResolver } from './cover-letters.resolver.js';
+import { CoverLettersService } from './cover-letters.service.js';
 
 @Module({
 	imports: [

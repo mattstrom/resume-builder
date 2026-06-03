@@ -40,6 +40,9 @@ export interface Config {
 	mongodb: {
 		uri: string;
 	};
+	postgres: {
+		url: string;
+	};
 	redis: {
 		url: string;
 	};
@@ -155,6 +158,15 @@ const schema = convict<Config>({
 			format: String,
 			default: '',
 			env: 'MONGODB_URI',
+			sensitive: true,
+		},
+	},
+	postgres: {
+		url: {
+			doc: 'PostgreSQL connection URL for Prisma',
+			format: String,
+			default: 'postgresql://postgres:postgres@localhost:5432/mastra',
+			env: 'DATABASE_URL',
 			sensitive: true,
 		},
 	},

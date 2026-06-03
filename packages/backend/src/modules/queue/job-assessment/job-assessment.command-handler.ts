@@ -3,9 +3,9 @@ import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Queue } from 'bullmq';
 
-import { ApplicationsService } from '../../entities/applications/applications.service';
-import { QUEUES } from '../queues';
-import { JobAssessmentCommand, JobAssessmentCommandResult } from './job-assessment.command';
+import { ApplicationsService } from '../../entities/applications/applications.service.js';
+import { QUEUES } from '../queues.js';
+import { JobAssessmentCommand, JobAssessmentCommandResult } from './job-assessment.command.js';
 
 @CommandHandler(JobAssessmentCommand)
 export class JobAssessmentCommandHandler implements ICommandHandler<JobAssessmentCommand> {

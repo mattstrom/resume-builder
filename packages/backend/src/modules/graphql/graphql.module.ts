@@ -4,8 +4,8 @@ import { GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
 import appRoot from 'app-root-path';
 import { Logger } from 'winston';
 
-import { LoggingModule } from '../logging/logging.module';
-import { LoggingPlugin } from './logging.plugin';
+import { LoggingModule } from '../logging/logging.module.js';
+import { LoggingPlugin } from './logging.plugin.js';
 
 @Module({
 	imports: [
@@ -16,7 +16,8 @@ import { LoggingPlugin } from './logging.plugin';
 			useFactory: (logger: Logger) => ({
 				autoSchemaFile: `${appRoot}/schema.gql`,
 				playground: true,
-				plugins: [new LoggingPlugin(logger)],
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				plugins: [new LoggingPlugin(logger) as any],
 			}),
 		}),
 	],

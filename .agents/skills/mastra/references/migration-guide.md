@@ -87,10 +87,10 @@ This will list:
 
 1. **Find the old API** in your code
 2. **Look up the new API** using embedded docs:
-   ```bash
-   cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"NewApi"'
-   cat node_modules/@mastra/core/dist/[path]
-   ```
+    ```bash
+    cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"NewApi"'
+    cat node_modules/@mastra/core/dist/[path]
+    ```
 3. **Update your code** based on the type signatures
 4. **Test** the change
 
@@ -147,21 +147,21 @@ execute: async (inputData, context) => { ... }
 
 1. **Always update all @mastra packages together**
 
-   ```bash
-   npm install @mastra/core@latest @mastra/memory@latest @mastra/rag@latest mastra@latest
-   ```
+    ```bash
+    npm install @mastra/core@latest @mastra/memory@latest @mastra/rag@latest mastra@latest
+    ```
 
 2. **Check for automated migration tools**
 
-   ```bash
-   npx @mastra/codemod@latest [version]
-   ```
+    ```bash
+    npx @mastra/codemod@latest [version]
+    ```
 
 3. **Verify Node.js version requirements**
-   - Check official migration docs for minimum Node version
+    - Check official migration docs for minimum Node version
 
 4. **Run database migrations if using storage**
-   - Follow storage migration guide in official docs
+    - Follow storage migration guide in official docs
 
 ## Getting help
 

@@ -1,9 +1,9 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 
-import { ProfilesService } from '../entities/profiles/profiles.service';
-import { McpGuard } from './mcp.guard';
-import { type McpExtra } from './types';
+import { ProfilesService } from '../entities/profiles/profiles.service.js';
+import { McpGuard } from './mcp.guard.js';
+import { type McpExtra } from './types.js';
 
 @Resolver()
 @UseGuards(McpGuard)

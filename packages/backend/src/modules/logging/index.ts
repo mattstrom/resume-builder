@@ -1,1 +1,1 @@
-export { logger } from './winston';
+export { logger } from './winston.js';

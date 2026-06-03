@@ -16,6 +16,7 @@ import { getAuthenticatedUser } from '@mastra/server/auth';
 
 import config from '@/config';
 
+import { configuration } from '../configuration';
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
 import { chatAgent } from './agents/chat.agent';
@@ -34,6 +35,8 @@ import {
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
+
+console.log(`Configuration:\n${configuration}`);
 
 const auth0Provider = new Auth0JwtProvider({
 	domain: config.auth0.domain,

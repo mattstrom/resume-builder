@@ -3,8 +3,8 @@ import { CoverLetter, CoverLetterInput, CoverLetterUpdateInput } from '@resume-b
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
 
-import { CurrentUser } from '../../auth';
-import { CoverLettersService } from './cover-letters.service';
+import { CurrentUser } from '../../auth/index.js';
+import { CoverLettersService } from './cover-letters.service.js';
 
 @Resolver(() => CoverLetter)
 export class CoverLettersResolver {

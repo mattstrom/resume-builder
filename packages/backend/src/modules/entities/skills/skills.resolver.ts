@@ -1,8 +1,8 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { Skill } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { SkillsService } from './skills.service';
+import { CurrentUser } from '../../auth/index.js';
+import { SkillsService } from './skills.service.js';
 
 @Resolver(() => Skill)
 export class SkillsResolver {

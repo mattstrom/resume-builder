@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import type { ChatModelSelection } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { ConversationsService } from './conversations.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ConversationsService } from './conversations.service.js';
 
 @Controller('api/conversations')
 export class ConversationsController {

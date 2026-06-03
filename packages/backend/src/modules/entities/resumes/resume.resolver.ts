@@ -13,8 +13,8 @@ import {
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
 
-import { CurrentUser } from '../../auth';
-import { ResumesService } from './resumes.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ResumesService } from './resumes.service.js';
 
 @Resolver(() => Resume)
 export class ResumeResolver {

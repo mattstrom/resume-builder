@@ -11,4 +11,6 @@ dist
 .netlify
 .vercel
 
+config/local*
+config/local-*
 src/mastra/public/workspace

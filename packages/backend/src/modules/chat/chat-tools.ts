@@ -1,14 +1,14 @@
-import type { CrdtClientService } from '../crdt-client/crdt-client.service';
-import type { JsonPatchOp } from '../crdt-client/json-patch';
-import type { ContactInformationService } from '../entities/contact-information/contact-information.service';
-import type { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
-import type { EducationsService } from '../entities/educations/educations.service';
-import type { JobsService } from '../entities/jobs/jobs.service';
-import type { ProjectsService } from '../entities/projects/projects.service';
-import type { ResumesService } from '../entities/resumes/resumes.service';
-import type { SkillsService } from '../entities/skills/skills.service';
-import type { VolunteeringService } from '../entities/volunteering/volunteering.service';
-import type { LlmToolDefinition } from '../llm/interfaces/llm-types';
+import type { CrdtClientService } from '../crdt-client/crdt-client.service.js';
+import type { JsonPatchOp } from '../crdt-client/json-patch.js';
+import type { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
+import type { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
+import type { EducationsService } from '../entities/educations/educations.service.js';
+import type { JobsService } from '../entities/jobs/jobs.service.js';
+import type { ProjectsService } from '../entities/projects/projects.service.js';
+import type { ResumesService } from '../entities/resumes/resumes.service.js';
+import type { SkillsService } from '../entities/skills/skills.service.js';
+import type { VolunteeringService } from '../entities/volunteering/volunteering.service.js';
+import type { LlmToolDefinition } from '../llm/interfaces/llm-types.js';
 
 export interface ChatToolServices {
 	resumesService: ResumesService;

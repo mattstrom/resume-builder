@@ -5,14 +5,14 @@ import { analysisSchema, jobSummarySchema, NarrativeSummary } from '@resume-buil
 import { Job } from 'bullmq';
 import { outdent } from 'outdent';
 
-import configuration from '../../../configuration';
-import { ApplicationsService } from '../../entities/applications/applications.service';
-import { ProfilesService } from '../../entities/profiles/profiles.service';
-import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
-import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
-import { QUEUES } from '../queues';
-import { FIT_ASSESSOR_SYSTEM_PROMPT } from './fit-assessor.rubric';
-import { JobAssessmentCompletedEvent } from './job-assessment-completed.event';
+import configuration from '../../../configuration.js';
+import { ApplicationsService } from '../../entities/applications/applications.service.js';
+import { ProfilesService } from '../../entities/profiles/profiles.service.js';
+import type { LlmToolDefinition } from '../../llm/interfaces/llm-types.js';
+import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service.js';
+import { QUEUES } from '../queues.js';
+import { FIT_ASSESSOR_SYSTEM_PROMPT } from './fit-assessor.rubric.js';
+import { JobAssessmentCompletedEvent } from './job-assessment-completed.event.js';
 
 interface JobAssessmentJobData {
 	applicationId: string;

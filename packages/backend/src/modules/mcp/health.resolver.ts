@@ -1,7 +1,7 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool } from '@nestjs-mcp/server';
 
-import { Public } from '../auth';
+import { Public } from '../auth/index.js';
 
 @Public()
 @Resolver()

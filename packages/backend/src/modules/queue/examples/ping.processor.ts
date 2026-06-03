@@ -3,8 +3,8 @@ import { Logger } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Job } from 'bullmq';
 
-import { QUEUES } from '../queues';
-import { PingCompletedEvent } from './ping-completed.event';
+import { QUEUES } from '../queues.js';
+import { PingCompletedEvent } from './ping-completed.event.js';
 
 interface PingJobData {
 	message: string;

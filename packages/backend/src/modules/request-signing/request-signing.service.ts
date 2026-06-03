@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 
 import { Injectable, Inject } from '@nestjs/common';
 
-import { RequestSigningKey } from './tokens';
+import { RequestSigningKey } from './tokens.js';
 
 interface HeaderValues {
 	nonce: string;
