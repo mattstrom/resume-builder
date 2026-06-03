@@ -1,11 +1,13 @@
 generator client {
-  provider     = "prisma-client"
-  output       = "../src/generated/prisma"
-  moduleFormat = "esm"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
 // ─── Profile ────────────────────────────────────────────────────────────────
@@ -54,3 +56,67 @@ model ConversationMessage {
 
   @@index([conversationId])
 }
+
+// ─── Fact ────────────────────────────────────────────────────────────────────
+// A durable, reusable career fact owned by a user.
+// entityId references a MongoDB-resident entity (job/project/education/volunteering) —
+// plain String, no FK, same pattern as Conversation.applicationId.
+// embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
+
+model Fact {
+  id           String                    @id @default(cuid())
+  uid          String
+  kind         String
+  entityType   String?
+  entityId     String?
+  what         String
+  impact       String?
+  scale        String?
+  tags         String[]
+  technologies String[]
+  embedding    Unsupported("vector(1536)")?
+  createdAt    DateTime                  @default(now())
+
+  expressions Expression[]
+  resumeFacts ResumeFact[]
+
+  @@index([uid])
+  @@index([entityId])
+}
+
+// ─── Expression ──────────────────────────────────────────────────────────────
+// A rendered prose variant of a Fact — one fact can have many expressions
+// differing in length/tone.
+
+model Expression {
+  id        String   @id @default(cuid())
+  factId    String
+  text      String
+  length    String?
+  tone      String?
+  createdAt DateTime @default(now())
+
+  fact        Fact         @relation(fields: [factId], references: [id], onDelete: Cascade)
+  resumeFacts ResumeFact[]
+
+  @@index([factId])
+}
+
+// ─── ResumeFact ───────────────────────────────────────────────────────────────
+// Links a Fact (and optionally a specific Expression) to a Resume.
+// resumeId references a MongoDB-resident Resume — plain String, no FK.
+
+model ResumeFact {
+  resumeId     String
+  factId       String
+  expressionId String?
+  section      String?
+  position     Int?
+
+  fact       Fact        @relation(fields: [factId], references: [id], onDelete: Cascade)
+  expression Expression? @relation(fields: [expressionId], references: [id])
+
+  @@id([resumeId, factId])
+  @@index([resumeId])
+}
+
