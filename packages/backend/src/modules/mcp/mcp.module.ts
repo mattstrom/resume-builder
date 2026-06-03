@@ -3,7 +3,9 @@ import { Module } from '@nestjs/common';
 
 import { CrdtClientModule } from '../crdt-client/crdt-client.module.js';
 import { EntitiesModule } from '../entities/index.js';
+import { FactsModule } from '../facts/facts.module.js';
 import { ApplicationsResolver } from './applications.resolver.js';
+import { FactsResolver } from './facts.resolver.js';
 import { HealthResolver } from './health.resolver.js';
 import { NarrativeEditorResolver } from './narrative-editor.resolver.js';
 import { ProfileResolver } from './profile.resolver.js';
@@ -25,10 +27,12 @@ import { SchemasResolver } from './schemas.resolver.js';
 		}),
 		EntitiesModule,
 		CrdtClientModule,
+		FactsModule,
 	],
 	exports: [NestMcpModule],
 	providers: [
 		ApplicationsResolver,
+		FactsResolver,
 		FitAssessorPromptResolver,
 		HealthResolver,
 		NarrativeEditorResolver,
