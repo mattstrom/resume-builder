@@ -116,9 +116,14 @@ export class ApiService implements Extension {
 		const nonce = request.headers['x-nonce'] as string | undefined;
 		const ts = request.headers['x-timestamp'] as string | undefined;
 		const sig = request.headers['x-signature'] as string | undefined;
-		if (!nonce || !ts || !sig || !this.internalKey) return false;
 
-		if (Math.abs(Date.now() - Number(ts)) > 30_000) return false;
+		if (!nonce || !ts || !sig || !this.internalKey) {
+			return false;
+		}
+
+		if (Math.abs(Date.now() - Number(ts)) > 30_000) {
+			return false;
+		}
 
 		const expected = crypto
 			.createHmac('sha256', this.internalKey)
@@ -131,7 +136,9 @@ export class ApiService implements Extension {
 	async onRequest({ request, response, instance }: onRequestPayload) {
 		const url = new URL(request.url ?? '/', 'http://localhost');
 
-		if (!url.pathname.startsWith('/api/')) return;
+		if (!url.pathname.startsWith('/api/')) {
+			return;
+		}
 
 		if (!this.verifyRequest(request)) {
 			sendJson(response, 401, { error: 'Unauthorized' });
@@ -140,9 +147,11 @@ export class ApiService implements Extension {
 
 		try {
 			const getMatch = url.pathname.match(/^\/api\/documents\/([^/]+)$/);
+
 			if (getMatch && request.method === 'GET') {
 				const name = decodeURIComponent(getMatch[1]);
 				const conn = await instance.openDirectConnection(name, contextForDocument(name));
+
 				try {
 					let nodes: StructuredNode[] = [];
 					await conn.transact((doc) => {
@@ -155,10 +164,12 @@ export class ApiService implements Extension {
 				} finally {
 					await conn.disconnect();
 				}
+
 				return;
 			}
 
 			const deltaMatch = url.pathname.match(/^\/api\/documents\/([^/]+)\/apply-delta$/);
+
 			if (deltaMatch && request.method === 'POST') {
 				const name = decodeURIComponent(deltaMatch[1]);
 				const body = JSON.parse(await readBody(request)) as {

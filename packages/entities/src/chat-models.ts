@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+export type ChatScope = 'narrative' | 'background' | 'preferences';
+
 export const chatModelSelectionSchema = z.object({
 	provider: z.string(),
 	model: z.string(),

@@ -10,3 +10,5 @@ dist
 *.duckdb.wal
 .netlify
 .vercel
+
+src/mastra/public/workspace

@@ -18,6 +18,15 @@ services:
       - mongodb
       - redis
 
+  db:
+    image: postgres:18-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mastra
+
   mcp:
     image: ghcr.io/apollographql/apollo-mcp-server:latest
     environment:
