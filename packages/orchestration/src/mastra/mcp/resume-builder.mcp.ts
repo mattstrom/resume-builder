@@ -24,7 +24,18 @@ type Tools =
 	| 'get_schema_names'
 	| 'lookup_schema'
 	| 'read_preferences'
-	| 'edit_preferences';
+	| 'edit_preferences'
+	| 'get_facts'
+	| 'get_fact'
+	| 'create_facts'
+	| 'update_fact'
+	| 'delete_fact'
+	| 'get_expressions'
+	| 'create_expression'
+	| 'delete_expression'
+	| 'get_resume_facts'
+	| 'link_fact_to_resume'
+	| 'unlink_fact_from_resume';
 
 type ResumeBuilderMCPTools = {
 	[key in `resumeBuilder_${Tools}`]: Tool<any, any, any, any>;

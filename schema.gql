@@ -348,6 +348,39 @@ type ConversationMessage {
   createdAt: DateTime!
 }
 
+type FactType {
+  id: ID!
+  uid: String!
+  kind: String!
+  entityType: String
+  entityId: String
+  what: String!
+  impact: String
+  scale: String
+  tags: [String!]!
+  technologies: [String!]!
+  createdAt: DateTime!
+}
+
+type ExpressionType {
+  id: ID!
+  factId: String!
+  text: String!
+  length: String
+  tone: String
+  createdAt: DateTime!
+}
+
+type ResumeFactType {
+  resumeId: String!
+  factId: String!
+  expressionId: String
+  section: String
+  position: Int
+  fact: FactType
+  expression: ExpressionType
+}
+
 type GenerateNarrativeSummaryResult {
   jobId: String!
 }
@@ -363,6 +396,10 @@ type Query {
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
   getProfile: Profile
+  facts(kind: String, entityType: String, entityId: String): [FactType!]!
+  fact(id: ID!): FactType!
+  expressions(factId: ID!): [ExpressionType!]!
+  resumeFacts(resumeId: ID!): [ResumeFactType!]!
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
@@ -415,6 +452,13 @@ type Mutation {
   removeResumeCollectionItem(id: String!, input: ResumeRemoveCollectionItemInput!): Resume!
   updateProfile(input: ProfileUpdateInput!): Profile!
   generateNarrativeSummary: GenerateNarrativeSummaryResult!
+  createFact(input: CreateFactInput!): FactType!
+  updateFact(id: ID!, input: UpdateFactInput!): FactType!
+  deleteFact(id: ID!): Boolean!
+  createExpression(factId: ID!, input: CreateExpressionInput!): ExpressionType!
+  deleteExpression(factId: ID!, expressionId: ID!): Boolean!
+  linkFactToResume(resumeId: ID!, input: LinkFactInput!): ResumeFactType!
+  unlinkFactFromResume(resumeId: ID!, factId: ID!): Boolean!
   createEducation(education: EducationInput!): Education!
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
@@ -645,6 +689,41 @@ input ProfileUpdateInput {
 
   """Structured job search preferences"""
   jobPreferences: JSON
+}
+
+input CreateFactInput {
+  kind: String!
+  what: String!
+  impact: String
+  scale: String
+  tags: [String!]
+  technologies: [String!]
+  entityType: String
+  entityId: String
+}
+
+input UpdateFactInput {
+  kind: String
+  what: String
+  impact: String
+  scale: String
+  tags: [String!]
+  technologies: [String!]
+  entityType: String
+  entityId: String
+}
+
+input CreateExpressionInput {
+  text: String!
+  length: String
+  tone: String
+}
+
+input LinkFactInput {
+  factId: String!
+  expressionId: String
+  section: String
+  position: Int
 }
 
 input EducationInput {

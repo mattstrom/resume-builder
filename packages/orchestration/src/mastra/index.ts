@@ -20,6 +20,7 @@ import { configuration } from '../configuration';
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
 import { chatAgent } from './agents/chat.agent';
+import { factsExtractorAgent } from './agents/facts-extractor.agent';
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
 import { interviewCoachAgent } from './agents/interview-coach.agent';
 import { narrativeCoachAgent } from './agents/narrative-coach.agent';
@@ -92,6 +93,7 @@ export const mastra = new Mastra({
 		applicationReviewer: applicationReviewerAgent,
 		careerAdvisor: careerAdvisorAgent,
 		chatAgent,
+		factsExtractor: factsExtractorAgent,
 		fitAssessmentAgent,
 		interviewCoach: interviewCoachAgent,
 		narrativeCoach: narrativeCoachAgent,

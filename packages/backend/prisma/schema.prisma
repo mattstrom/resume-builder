@@ -74,7 +74,7 @@ model Fact {
   scale        String?
   tags         String[]
   technologies String[]
-  embedding    Unsupported("vector(1536)")?
+  embedding    Unsupported("vector(768)")?
   createdAt    DateTime                  @default(now())
 
   expressions Expression[]

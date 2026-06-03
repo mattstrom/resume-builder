@@ -6,6 +6,7 @@ import config from './configuration.js';
 import { AuthModule } from './modules/auth/index.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { EntitiesModule } from './modules/entities/entities.module.js';
+import { FactsModule } from './modules/facts/facts.module.js';
 import { GraphQLModule } from './modules/graphql/graphql.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { LlmModule } from './modules/llm/llm.module.js';
@@ -27,6 +28,7 @@ import { RequestSigningModule } from './modules/request-signing/index.js';
 		QueueModule,
 		ChatModule,
 		EntitiesModule,
+		FactsModule,
 		GraphQLModule,
 		HealthModule,
 		McpModule,
