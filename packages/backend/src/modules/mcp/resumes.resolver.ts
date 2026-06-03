@@ -44,7 +44,7 @@ export class ResumesResolver {
 		description: 'Retrieves all resumes for the current user',
 		paramsSchema: {},
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -69,7 +69,7 @@ export class ResumesResolver {
 		description: 'Retrieves a resume by ID',
 		paramsSchema: { id: z.string() },
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -115,7 +115,7 @@ export class ResumesResolver {
 			resume: resumeInputSchema,
 		},
 		annotations: {
-			destructureHint: true,
+			destructiveHint: true,
 			idempotentHint: false,
 		},
 	})
@@ -144,7 +144,7 @@ export class ResumesResolver {
 		name: 'get_contact_information',
 		description: 'Retrieve contact information from the database',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -168,7 +168,7 @@ export class ResumesResolver {
 		name: 'get_jobs',
 		description: 'Retrieve job listings from the database',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -195,7 +195,7 @@ export class ResumesResolver {
 		name: 'get_education',
 		description: 'Retrieve education from the database',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -222,7 +222,7 @@ export class ResumesResolver {
 		name: 'get_projects',
 		description: 'Retrieve projects from the database',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -250,7 +250,7 @@ export class ResumesResolver {
 		description: 'Retrieve skills, optionally filtered by category',
 		paramsSchema: getSkillsSchema,
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -263,7 +263,6 @@ export class ResumesResolver {
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		const skills = await this.skillsService.findAll(user.sub, categories);
-		const skillsText = skills.map((skill) => skill.name).join(', ');
 
 		return {
 			content: [
@@ -285,7 +284,7 @@ export class ResumesResolver {
 		name: 'get_cover_letters',
 		description: 'Retrieve cover letters from the database',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -312,7 +311,7 @@ export class ResumesResolver {
 			id: z.uuid(),
 		},
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -354,7 +353,7 @@ export class ResumesResolver {
 		description: 'Saves a cover letter to the database',
 		paramsSchema: { coverLetter: coverLetterSchema },
 		annotations: {
-			destructureHint: true,
+			destructiveHint: true,
 			idempotentHint: false,
 		},
 	})

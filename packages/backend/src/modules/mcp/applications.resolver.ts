@@ -23,7 +23,7 @@ export class ApplicationsResolver {
 		name: 'get_applications',
 		description: 'Retrieve all job applications and their analyses',
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -48,7 +48,7 @@ export class ApplicationsResolver {
 		description: 'Retrieve specific job application by ID and its analysis',
 		paramsSchema: { id: z.string() },
 		annotations: {
-			destructureHint: false,
+			destructiveHint: false,
 			idempotentHint: true,
 		},
 	})
@@ -91,7 +91,7 @@ export class ApplicationsResolver {
 			'Use this tool to create a job application. An application represents a top-level container for all the information about a candidate applying for a job, like a resume and a cover letter.',
 		paramsSchema: { application: applicationInputSchema },
 		annotations: {
-			destructureHint: true,
+			destructiveHint: true,
 			idempotentHint: false,
 		},
 	})
@@ -120,7 +120,7 @@ export class ApplicationsResolver {
 			'Updates the analysis of a job application with skill fit, strengths, weaknesses, and relevance scores',
 		paramsSchema: { applicationId: z.string(), analysis: analysisSchema },
 		annotations: {
-			destructureHint: true,
+			destructiveHint: true,
 			idempotentHint: false,
 		},
 	})

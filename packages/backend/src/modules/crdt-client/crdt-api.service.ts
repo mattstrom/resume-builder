@@ -9,7 +9,23 @@ export type TextRun = {
 };
 
 export type InsertItem = {
-	nodeType: 'paragraph' | 'heading';
+	nodeType:
+		| 'paragraph'
+		| 'heading'
+		| 'bulletList'
+		| 'orderedList'
+		| 'listItem'
+		| 'blockquote'
+		| 'codeBlock'
+		| 'horizontalRule'
+		| 'hardBreak'
+		| 'table'
+		| 'tableRow'
+		| 'tableCell'
+		| 'tableHeader'
+		| 'taskList'
+		| 'taskItem'
+		| 'details';
 	attrs?: Record<string, string>;
 	content: TextRun[];
 };

@@ -9,7 +9,11 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": "./",
+    "paths": {
+      "@/config": ["./src/configuration"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["config/**/*.ts", "src/**/*"]
 }

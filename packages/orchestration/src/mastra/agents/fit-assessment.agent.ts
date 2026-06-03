@@ -9,6 +9,7 @@ import { extractJobSummaryTool } from '../tools/extract-job-summary.tool';
 export const fitAssessmentAgent = new Agent({
 	id: 'fit-assessment-agent',
 	name: 'Fit Assessment Agent',
+	description: 'Assess how well the candidate fits a specific job role or posting',
 	instructions: outdent`
 		You are a senior technical recruiter and career coach performing a structured
 	job fit assessment. You MUST call BOTH tools in order:
