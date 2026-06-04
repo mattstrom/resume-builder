@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { MongodbModule } from '../mongodb/mongodb.module.js';
 import { FactsModule } from '../facts/facts.module.js';
+import { MongodbModule } from '../mongodb/mongodb.module.js';
 import { ApplicationsModule } from './applications/applications.module.js';
 import { ContactInformationModule } from './contact-information/contact-information.module.js';
 import { ConversationsModule } from './conversations/conversations.module.js';
