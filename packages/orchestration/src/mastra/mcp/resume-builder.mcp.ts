@@ -35,7 +35,9 @@ type Tools =
 	| 'delete_expression'
 	| 'get_resume_facts'
 	| 'link_fact_to_resume'
-	| 'unlink_fact_from_resume';
+	| 'unlink_fact_from_resume'
+	| 'get_job_requirements'
+	| 'create_job_requirements';
 
 type ResumeBuilderMCPTools = {
 	[key in `resumeBuilder_${Tools}`]: Tool<any, any, any, any>;

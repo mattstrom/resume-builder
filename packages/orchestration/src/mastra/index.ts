@@ -23,6 +23,7 @@ import { chatAgent } from './agents/chat.agent';
 import { factsExtractorAgent } from './agents/facts-extractor.agent';
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
 import { interviewCoachAgent } from './agents/interview-coach.agent';
+import { jobRequirementsExtractorAgent } from './agents/job-requirements-extractor.agent';
 import { narrativeCoachAgent } from './agents/narrative-coach.agent';
 import { resumeWriterAgent } from './agents/resume-writer.agent';
 import { weatherAgent } from './agents/weather-agent';
@@ -82,7 +83,12 @@ export const mastra = new Mastra({
 	},
 	bundler: {
 		sourcemap: true,
-		externals: ['@duckdb/node-bindings', '@resume-builder/entities', 'electron'],
+		externals: [
+			'@anush008/tokenizers',
+			'@duckdb/node-bindings',
+			'@resume-builder/entities',
+			'electron',
+		],
 	},
 	workflows: {
 		handoffWorkflow,
@@ -96,6 +102,7 @@ export const mastra = new Mastra({
 		factsExtractor: factsExtractorAgent,
 		fitAssessmentAgent,
 		interviewCoach: interviewCoachAgent,
+		jobRequirementsExtractor: jobRequirementsExtractorAgent,
 		narrativeCoach: narrativeCoachAgent,
 		resumeWriter: resumeWriterAgent,
 		weatherAgent,

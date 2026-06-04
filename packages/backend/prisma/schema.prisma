@@ -102,6 +102,26 @@ model Expression {
   @@index([factId])
 }
 
+// ─── JobRequirementFact ───────────────────────────────────────────────────────
+// A structured requirement extracted from a job description.
+// applicationId references a MongoDB-resident Application — plain String, no FK.
+// embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
+
+model JobRequirementFact {
+  id            String                    @id @default(cuid())
+  uid           String
+  applicationId String
+  kind          String
+  what          String
+  technologies  String[]
+  tags          String[]
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                  @default(now())
+
+  @@index([uid])
+  @@index([applicationId])
+}
+
 // ─── ResumeFact ───────────────────────────────────────────────────────────────
 // Links a Fact (and optionally a specific Expression) to a Resume.
 // resumeId references a MongoDB-resident Resume — plain String, no FK.
