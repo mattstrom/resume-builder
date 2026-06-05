@@ -56,3 +56,73 @@ export interface PgContactInformation {
 	createdAt: Date;
 	updatedAt: Date;
 }
+
+export interface PgJob {
+	id: string;
+	uid: string;
+	company: string;
+	position: string;
+	location: string;
+	startDate: string;
+	endDate: string | null;
+	responsibilities: string[];
+	relevance: number | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface PgEducation {
+	id: string;
+	uid: string;
+	degree: string;
+	field: string;
+	institution: string;
+	graduated: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface PgProject {
+	id: string;
+	uid: string;
+	name: string;
+	technologies: string[];
+	items: string[];
+	type: 'professional' | 'personal' | null;
+	relevance: number | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface PgSkill {
+	id: string;
+	uid: string;
+	name: string;
+	category: string;
+	relevance: number | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface PgSkillGroup {
+	id: string;
+	uid: string;
+	name: string;
+	items: string[];
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface PgVolunteering {
+	id: string;
+	uid: string;
+	organization: string | null;
+	position: string;
+	location: string | null;
+	startDate: string;
+	endDate: string | null;
+	responsibilities: string[];
+	relevance: number | null;
+	createdAt: Date;
+	updatedAt: Date;
+}

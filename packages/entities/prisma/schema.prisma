@@ -206,6 +206,107 @@ model ContactInformation {
   @@index([uid])
 }
 
+// ─── ProjectType ─────────────────────────────────────────────────────────────
+
+enum ProjectType {
+  professional
+  personal
+}
+
+// ─── Job ─────────────────────────────────────────────────────────────────────
+
+model Job {
+  id               String   @id @default(cuid())
+  uid              String
+  company          String   @default("")
+  position         String   @default("")
+  location         String   @default("")
+  startDate        String   @default("")
+  endDate          String?
+  responsibilities String[]
+  relevance        Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Education ───────────────────────────────────────────────────────────────
+
+model Education {
+  id          String   @id @default(cuid())
+  uid         String
+  degree      String   @default("")
+  field       String   @default("")
+  institution String   @default("")
+  graduated   String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Project ─────────────────────────────────────────────────────────────────
+
+model Project {
+  id           String      @id @default(cuid())
+  uid          String
+  name         String      @default("")
+  technologies String[]
+  items        String[]
+  type         ProjectType?
+  relevance    Float?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Skill ───────────────────────────────────────────────────────────────────
+
+model Skill {
+  id        String   @id @default(cuid())
+  uid       String
+  name      String   @default("")
+  category  String   @default("")
+  relevance Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── SkillGroup ──────────────────────────────────────────────────────────────
+
+model SkillGroup {
+  id        String   @id @default(cuid())
+  uid       String
+  name      String   @default("")
+  items     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Volunteering ────────────────────────────────────────────────────────────
+
+model Volunteering {
+  id               String   @id @default(cuid())
+  uid              String
+  organization     String?
+  position         String   @default("")
+  location         String?
+  startDate        String   @default("")
+  endDate          String?
+  responsibilities String[]
+  relevance        Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
 // ─── ResumeFact ───────────────────────────────────────────────────────────────
 // Links a Fact (and optionally a specific Expression) to a Resume.
 // resumeId references a MongoDB-resident Resume — plain String, no FK.
