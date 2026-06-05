@@ -2,7 +2,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Resume } from '@resume-builder/entities';
 
-import { ResumesService } from './resumes.service';
+import { ResumesService } from './resumes.service.js';
 
 describe('ResumesService', () => {
 	let service: ResumesService;

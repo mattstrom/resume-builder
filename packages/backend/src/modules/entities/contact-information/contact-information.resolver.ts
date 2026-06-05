@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ContactInformation, ContactInformationInput } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { ContactInformationService } from './contact-information.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ContactInformationService } from './contact-information.service.js';
 
 @Resolver(() => ContactInformation)
 export class ContactInformationResolver {

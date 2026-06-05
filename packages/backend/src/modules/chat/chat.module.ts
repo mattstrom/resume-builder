@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { CrdtClientModule } from '../crdt-client/crdt-client.module';
-import { EntitiesModule } from '../entities/entities.module';
-import { LlmModule } from '../llm/llm.module';
-import { ChatController } from './chat.controller';
-import { ChatService } from './chat.service';
+import { CrdtClientModule } from '../crdt-client/crdt-client.module.js';
+import { EntitiesModule } from '../entities/entities.module.js';
+import { LlmModule } from '../llm/llm.module.js';
+import { ChatController } from './chat.controller.js';
+import { ChatService } from './chat.service.js';
 
 @Module({
 	imports: [EntitiesModule, LlmModule, CrdtClientModule],

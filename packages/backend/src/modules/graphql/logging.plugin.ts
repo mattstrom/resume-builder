@@ -2,8 +2,8 @@ import { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } fro
 import { Plugin } from '@nestjs/apollo';
 import { Logger } from 'winston';
 
-import { isIntrospectionQuery } from './is-introspection-query';
-import { GqlContextValue } from './types';
+import { isIntrospectionQuery } from './is-introspection-query.js';
+import { GqlContextValue } from './types.js';
 
 @Plugin()
 export class LoggingPlugin implements ApolloServerPlugin<GqlContextValue> {

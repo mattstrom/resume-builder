@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { CrdtApiService } from './crdt-api.service';
-import { CrdtClientService } from './crdt-client.service';
+import { CrdtApiService } from './crdt-api.service.js';
+import { CrdtClientService } from './crdt-client.service.js';
 
 @Module({
 	providers: [CrdtClientService, CrdtApiService],

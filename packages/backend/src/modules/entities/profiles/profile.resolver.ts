@@ -2,9 +2,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Field, Mutation, ObjectType, Args, Query, Resolver } from '@nestjs/graphql';
 import { Profile, ProfileUpdateInput } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { ProfileNarrativeSummaryCommand } from '../../queue/profile-summarizer/profile-summarizer.command';
-import { ProfilesService } from './profiles.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ProfileNarrativeSummaryCommand } from '../../queue/profile-summarizer/profile-summarizer.command.js';
+import { ProfilesService } from './profiles.service.js';
 
 @ObjectType()
 class GenerateNarrativeSummaryResult {

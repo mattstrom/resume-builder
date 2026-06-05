@@ -1,11 +1,11 @@
 import { Controller, Param, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 
-import { CurrentUser } from '../../auth/current-user.decorator';
+import { CurrentUser } from '../../auth/current-user.decorator.js';
 import {
 	JobAssessmentCommand,
 	JobAssessmentCommandResult,
-} from '../../queue/job-assessment/job-assessment.command';
+} from '../../queue/job-assessment/job-assessment.command.js';
 
 @Controller('applications')
 export class ApplicationsController {

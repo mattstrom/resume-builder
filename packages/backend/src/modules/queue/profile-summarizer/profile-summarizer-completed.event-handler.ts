@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
-import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event';
+import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event.js';
 
 @EventsHandler(ProfileNarrativeSummaryCompletedEvent)
 export class ProfileNarrativeSummaryCompletedEventHandler implements IEventHandler<ProfileNarrativeSummaryCompletedEvent> {

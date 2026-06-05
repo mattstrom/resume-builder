@@ -3,12 +3,12 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 
-import { ProfilesModule } from '../../entities/profiles/profiles.module';
-import { LlmModule } from '../../llm/llm.module';
-import { QUEUES } from '../queues';
-import { ProfileNarrativeSummaryCompletedEventHandler } from './profile-summarizer-completed.event-handler';
-import { ProfileNarrativeSummaryCommandHandler } from './profile-summarizer.command-handler';
-import { ProfileNarrativeSummaryProcessor } from './profile-summarizer.processor';
+import { ProfilesModule } from '../../entities/profiles/profiles.module.js';
+import { LlmModule } from '../../llm/llm.module.js';
+import { QUEUES } from '../queues.js';
+import { ProfileNarrativeSummaryCompletedEventHandler } from './profile-summarizer-completed.event-handler.js';
+import { ProfileNarrativeSummaryCommandHandler } from './profile-summarizer.command-handler.js';
+import { ProfileNarrativeSummaryProcessor } from './profile-summarizer.processor.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { PdfController } from './pdf.controller';
+import { PdfController } from './pdf.controller.js';
 
 @Module({
 	controllers: [PdfController],

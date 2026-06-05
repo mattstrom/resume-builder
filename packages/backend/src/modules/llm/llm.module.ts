@@ -1,10 +1,10 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 
-import configuration from '../../configuration';
-import { LlmProviderRegistry } from './llm-provider-registry.service';
-import { AnthropicProviderService } from './providers/anthropic-provider.service';
-import { LmStudioProviderService } from './providers/lm-studio-provider.service';
-import { OllamaProviderService } from './providers/ollama-provider.service';
+import configuration from '../../configuration.js';
+import { LlmProviderRegistry } from './llm-provider-registry.service.js';
+import { AnthropicProviderService } from './providers/anthropic-provider.service.js';
+import { LmStudioProviderService } from './providers/lm-studio-provider.service.js';
+import { OllamaProviderService } from './providers/ollama-provider.service.js';
 
 @Module({
 	providers: [

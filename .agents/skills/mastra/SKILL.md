@@ -1,11 +1,11 @@
 ---
 name: mastra
-description: "Comprehensive Mastra framework guide for building agents, workflows, tools, memory, workspaces, and storage with current APIs. Use for documentation lookup, API verification, TypeScript setup, common errors, migrations, and `mastra api` CLI tasks: inspect or call resources on local, Mastra platform, or remote servers."
+description: 'Comprehensive Mastra framework guide for building agents, workflows, tools, memory, workspaces, and storage with current APIs. Use for documentation lookup, API verification, TypeScript setup, common errors, migrations, and `mastra api` CLI tasks: inspect or call resources on local, Mastra platform, or remote servers.'
 license: Apache-2.0
 metadata:
-  author: Mastra
-  version: "2.0.0"
-  repository: https://github.com/mastra-ai/skills
+    author: Mastra
+    version: '2.0.0'
+    repository: https://github.com/mastra-ai/skills
 ---
 
 # Mastra Framework Guide
@@ -33,14 +33,14 @@ ls node_modules/@mastra/
 
 ### References
 
-| User Question                       | First Check                                                      | How To                                         |
-| ----------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------- |
-| Create/install Mastra project     | [`references/create-mastra.md`](references/create-mastra.md)     | Setup guide with CLI and manual steps          |
-| How do I use Agent/Workflow/Tool? | [`references/embedded-docs.md`](references/embedded-docs.md)     | Look up in `node_modules/@mastra/*/dist/docs/` |
-| How do I use X? (no packages)     | [`references/remote-docs.md`](references/remote-docs.md)         | Fetch from `https://mastra.ai/llms.txt`        |
-| I'm getting an error...           | [`references/common-errors.md`](references/common-errors.md)     | Common errors and solutions                    |
-| Upgrade from v0.x to v1.x         | [`references/migration-guide.md`](references/migration-guide.md) | Version upgrade workflows                      |
-| Inspect/call server resources via CLI | [`references/mastra-api.md`](references/mastra-api.md)       | `mastra api` CLI for local, Mastra platform, or remote servers |
+| User Question                         | First Check                                                      | How To                                                         |
+| ------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------- |
+| Create/install Mastra project         | [`references/create-mastra.md`](references/create-mastra.md)     | Setup guide with CLI and manual steps                          |
+| How do I use Agent/Workflow/Tool?     | [`references/embedded-docs.md`](references/embedded-docs.md)     | Look up in `node_modules/@mastra/*/dist/docs/`                 |
+| How do I use X? (no packages)         | [`references/remote-docs.md`](references/remote-docs.md)         | Fetch from `https://mastra.ai/llms.txt`                        |
+| I'm getting an error...               | [`references/common-errors.md`](references/common-errors.md)     | Common errors and solutions                                    |
+| Upgrade from v0.x to v1.x             | [`references/migration-guide.md`](references/migration-guide.md) | Version upgrade workflows                                      |
+| Inspect/call server resources via CLI | [`references/mastra-api.md`](references/mastra-api.md)           | `mastra api` CLI for local, Mastra platform, or remote servers |
 
 ### Scripts
 
@@ -52,43 +52,43 @@ Never write code without checking current docs first.
 
 1. Embedded docs first (if packages installed)
 
-   Look up current docs in `node_modules` for a package. Example of looking up "Agent" docs in `@mastra/core`:
+    Look up current docs in `node_modules` for a package. Example of looking up "Agent" docs in `@mastra/core`:
 
-   ```bash
-   grep -r "Agent" node_modules/@mastra/core/dist/docs/references
-   ```
+    ```bash
+    grep -r "Agent" node_modules/@mastra/core/dist/docs/references
+    ```
 
-   - Why: Matches your EXACT installed version
-   - Most reliable source of truth
-   - More information: [`references/embedded-docs.md`](references/embedded-docs.md)
+    - Why: Matches your EXACT installed version
+    - Most reliable source of truth
+    - More information: [`references/embedded-docs.md`](references/embedded-docs.md)
 
 2. Source code second (if packages installed)
 
-   If you can't find what you need in the embedded docs, look directly at the source code. This is more time consuming but can provide insights into implementation details.
+    If you can't find what you need in the embedded docs, look directly at the source code. This is more time consuming but can provide insights into implementation details.
 
-   ```bash
-   # Check what's available
-   cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"Agent"'
+    ```bash
+    # Check what's available
+    cat node_modules/@mastra/core/dist/docs/assets/SOURCE_MAP.json | grep '"Agent"'
 
-   # Read the actual type definition
-   cat node_modules/@mastra/core/dist/[path-from-source-map]
-   ```
+    # Read the actual type definition
+    cat node_modules/@mastra/core/dist/[path-from-source-map]
+    ```
 
-   - Why: Ultimate source of truth if docs are missing or unclear
-   - Use when: Embedded docs don't cover your question
-   - More information: [`references/embedded-docs.md`](references/embedded-docs.md)
+    - Why: Ultimate source of truth if docs are missing or unclear
+    - Use when: Embedded docs don't cover your question
+    - More information: [`references/embedded-docs.md`](references/embedded-docs.md)
 
 3. Remote docs third (if packages not installed)
 
-   You can fetch the latest docs from the Mastra website:
+    You can fetch the latest docs from the Mastra website:
 
-   ```bash
-   https://mastra.ai/llms.txt
-   ```
+    ```bash
+    https://mastra.ai/llms.txt
+    ```
 
-   - Why: Latest published docs (may be ahead of installed version)
-   - Use when: Packages not installed or exploring new features
-   - More information: [`references/remote-docs.md`](references/remote-docs.md)
+    - Why: Latest published docs (may be ahead of installed version)
+    - Use when: Packages not installed or exploring new features
+    - More information: [`references/remote-docs.md`](references/remote-docs.md)
 
 ## Core concepts
 
@@ -128,11 +128,11 @@ Mastra requires ES2022 modules. CommonJS will fail.
 
 ```json
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "bundler"
-  }
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ES2022",
+		"moduleResolution": "bundler"
+	}
 }
 ```
 
@@ -182,20 +182,20 @@ Always verify before writing code:
 
 1. Check packages installed
 
-   ```bash
-   ls node_modules/@mastra/
-   ```
+    ```bash
+    ls node_modules/@mastra/
+    ```
 
 2. Look up current API
-   - If installed: Use embedded docs [`references/embedded-docs.md`](references/embedded-docs.md)
-   - If not: Use remote docs [`references/remote-docs.md`](references/remote-docs.md)
+    - If installed: Use embedded docs [`references/embedded-docs.md`](references/embedded-docs.md)
+    - If not: Use remote docs [`references/remote-docs.md`](references/remote-docs.md)
 
 3. Write code based on current docs
 
 4. Test in Studio
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
 ## Mastra API CLI
 

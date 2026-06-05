@@ -3,6 +3,7 @@ import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { fitAssessmentAgent } from '../agents/fit-assessment.agent';
+import { jobRequirementsExtractorAgent } from '../agents/job-requirements-extractor.agent';
 import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import {
 	analysisSchema,
@@ -180,22 +181,52 @@ const saveAssessmentResults = createStep({
 	id: 'save-assessment-results',
 	description: 'Saves the fit analysis back to the application via the backend MCP tool',
 	inputSchema: z.object({
-		applicationId: z.string(),
-		jobSummary: jobSummarySchema,
-		analysis: analysisSchema,
+		'run-fit-assessment': z.object({
+			applicationId: z.string(),
+			jobSummary: jobSummarySchema,
+			analysis: analysisSchema,
+		}),
+		'extract-job-requirements': z.object({}),
 	}),
 	outputSchema: z.object({
 		jobSummary: jobSummarySchema,
 		analysis: analysisSchema,
 	}),
 	execute: async ({ inputData }) => {
-		const { applicationId, jobSummary, analysis } = inputData;
+		const { applicationId, jobSummary, analysis } = inputData['run-fit-assessment'];
 		const toolsets = await resumeBuilderMcpClient.listToolsets();
 		const tools = toolsets['resumeBuilder'];
 
 		await tools['update_analysis'].execute!({ applicationId, analysis }, {} as any);
 
 		return { jobSummary, analysis };
+	},
+});
+
+const extractJobRequirements = createStep({
+	id: 'extract-job-requirements',
+	description:
+		'Extracts structured requirement facts from the job description and persists them for gap analysis and resume tailoring',
+	inputSchema: z.object({
+		applicationId: z.string(),
+	}),
+	outputSchema: z.object({}),
+	execute: async ({ inputData, mastra }) => {
+		const { applicationId } = inputData;
+
+		const agent = mastra?.getAgent('jobRequirementsExtractor') ?? jobRequirementsExtractorAgent;
+
+		await agent.generate(
+			[
+				{
+					role: 'user',
+					content: `Extract requirement facts for application ID: ${applicationId}`,
+				},
+			],
+			{ maxSteps: 5 },
+		);
+
+		return {};
 	},
 });
 
@@ -210,7 +241,7 @@ const fitAssessmentWorkflow = createWorkflow({
 	}),
 })
 	.then(fetchAssessmentData)
-	.then(runFitAssessment)
+	.parallel([runFitAssessment, extractJobRequirements])
 	.then(saveAssessmentResults);
 
 fitAssessmentWorkflow.commit();

@@ -4,13 +4,13 @@ import { EventBus } from '@nestjs/cqrs';
 import { narrativeSummarySchema } from '@resume-builder/entities';
 import { Job } from 'bullmq';
 
-import configuration from '../../../configuration';
-import { ProfilesService } from '../../entities/profiles/profiles.service';
-import type { LlmToolDefinition } from '../../llm/interfaces/llm-types';
-import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service';
-import { QUEUES } from '../queues';
-import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric';
-import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event';
+import configuration from '../../../configuration.js';
+import { ProfilesService } from '../../entities/profiles/profiles.service.js';
+import type { LlmToolDefinition } from '../../llm/interfaces/llm-types.js';
+import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service.js';
+import { QUEUES } from '../queues.js';
+import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric.js';
+import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event.js';
 
 interface ProfileNarrativeSummaryJobData {
 	uid: string;

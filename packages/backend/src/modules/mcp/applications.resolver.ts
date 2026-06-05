@@ -9,10 +9,10 @@ import {
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { ApplicationsService } from '../entities/applications/applications.service';
-import { McpGuard } from './mcp.guard';
-import { type McpToolParams } from './types';
-import * as types from './types';
+import { ApplicationsService } from '../entities/applications/applications.service.js';
+import { McpGuard } from './mcp.guard.js';
+import { type McpToolParams } from './types.js';
+import * as types from './types.js';
 
 @Resolver()
 @UseGuards(McpGuard)

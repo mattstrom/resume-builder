@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import configuration from '../../configuration';
-import { RequestSigningService } from '../request-signing';
+import configuration from '../../configuration.js';
+import { RequestSigningService } from '../request-signing/index.js';
 
 export type TextRun = {
 	text: string;

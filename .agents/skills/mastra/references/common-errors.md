@@ -33,23 +33,23 @@ SyntaxError: Cannot use import statement outside a module
 
 1. Update `tsconfig.json`:
 
-   ```json
-   {
-     "compilerOptions": {
-       "target": "ES2022",
-       "module": "ES2022",
-       "moduleResolution": "bundler"
-     }
-   }
-   ```
+    ```json
+    {
+    	"compilerOptions": {
+    		"target": "ES2022",
+    		"module": "ES2022",
+    		"moduleResolution": "bundler"
+    	}
+    }
+    ```
 
 2. Add to `package.json`:
 
-   ```json
-   {
-     "type": "module"
-   }
-   ```
+    ```json
+    {
+    	"type": "module"
+    }
+    ```
 
 3. Ensure imports use `.js` extensions for local files (if needed by your bundler)
 
@@ -97,22 +97,22 @@ Property 'memory' does not exist on type 'AgentConfig'
 ```typescript
 // 1. Create tool
 const weatherTool = createTool({
-  id: "get-weather",
-  // ... tool config
+	id: 'get-weather',
+	// ... tool config
 });
 
 // 2. Register in Mastra instance
 const mastra = new Mastra({
-  tools: {
-    weatherTool, // or 'weatherTool': weatherTool
-  },
+	tools: {
+		weatherTool, // or 'weatherTool': weatherTool
+	},
 });
 
 // 3. Assign to agent
 const agent = new Agent({
-  id: "weather-agent",
-  tools: { weatherTool }, // Reference the tool
-  // ... other config
+	id: 'weather-agent',
+	tools: { weatherTool }, // Reference the tool
+	// ... other config
 });
 ```
 
@@ -120,10 +120,10 @@ const agent = new Agent({
 
 ```typescript
 const agent = new Agent({
-  id: "weather-agent",
-  tools: {
-    weatherTool: createTool({ id: "get-weather" /* ... */ }),
-  },
+	id: 'weather-agent',
+	tools: {
+		weatherTool: createTool({ id: 'get-weather' /* ... */ }),
+	},
 });
 ```
 
@@ -145,28 +145,28 @@ const agent = new Agent({
 ```typescript
 // 1. Configure storage
 const storage = new PostgresStore({
-  connectionString: process.env.DATABASE_URL,
+	connectionString: process.env.DATABASE_URL,
 });
 
 // 2. Create memory with storage
 const memory = new Memory({
-  id: "chat-memory",
-  storage,
-  options: {
-    lastMessages: 10, // How many messages to retrieve
-  },
+	id: 'chat-memory',
+	storage,
+	options: {
+		lastMessages: 10, // How many messages to retrieve
+	},
 });
 
 // 3. Assign memory to agent
 const agent = new Agent({
-  id: "chat-agent",
-  memory,
+	id: 'chat-agent',
+	memory,
 });
 
 // 4. Use consistent threadId
-await agent.generate("Hello", {
-  threadId: "user-123-conversation", // Same threadId for entire conversation
-  resourceId: "user-123",
+await agent.generate('Hello', {
+	threadId: 'user-123-conversation', // Same threadId for entire conversation
+	resourceId: 'user-123',
 });
 ```
 
@@ -192,17 +192,17 @@ Workflow execution fails immediately
 
 ```typescript
 const workflow = createWorkflow({
-  id: "my-workflow",
-  inputSchema: z.object({ data: z.string() }),
-  outputSchema: z.object({ result: z.string() }),
+	id: 'my-workflow',
+	inputSchema: z.object({ data: z.string() }),
+	outputSchema: z.object({ result: z.string() }),
 })
-  .then(step1)
-  .then(step2)
-  .commit(); // REQUIRED!
+	.then(step1)
+	.then(step2)
+	.commit(); // REQUIRED!
 
 // Then execute
 const run = await workflow.createRun();
-const result = await run.start({ inputData: { data: "test" } });
+const result = await run.start({ inputData: { data: 'test' } });
 ```
 
 ### Workflow state not updating
@@ -221,21 +221,21 @@ const result = await run.start({ inputData: { data: "test" } });
 
 ```typescript
 const step1 = createStep({
-  id: "step1",
-  execute: async ({ state, setState }) => {
-    // Update state
-    await setState({ ...state, counter: (state.counter || 0) + 1 });
-    return { result: "done" };
-  },
+	id: 'step1',
+	execute: async ({ state, setState }) => {
+		// Update state
+		await setState({ ...state, counter: (state.counter || 0) + 1 });
+		return { result: 'done' };
+	},
 });
 
 // Access state in subsequent steps
 const step2 = createStep({
-  id: "step2",
-  execute: async ({ state }) => {
-    console.log(state.counter); // Access updated state
-    return { result: "complete" };
-  },
+	id: 'step2',
+	execute: async ({ state }) => {
+		console.log(state.counter); // Access updated state
+		return { result: 'complete' };
+	},
 });
 ```
 
@@ -259,11 +259,11 @@ Memory instantiation fails
 ```typescript
 // Always provide storage when creating Memory
 const memory = new Memory({
-  id: "my-memory",
-  storage: postgresStore, // REQUIRED
-  options: {
-    lastMessages: 10,
-  },
+	id: 'my-memory',
+	storage: postgresStore, // REQUIRED
+	options: {
+		lastMessages: 10,
+	},
 });
 ```
 
@@ -284,14 +284,14 @@ const memory = new Memory({
 
 ```typescript
 const memory = new Memory({
-  id: "semantic-memory",
-  storage: postgresStore,
-  vector: chromaVectorStore, // REQUIRED for semantic recall
-  embedder: openaiEmbedder, // REQUIRED for semantic recall
-  options: {
-    lastMessages: 10,
-    semanticRecall: true, // REQUIRED
-  },
+	id: 'semantic-memory',
+	storage: postgresStore,
+	vector: chromaVectorStore, // REQUIRED for semantic recall
+	embedder: openaiEmbedder, // REQUIRED for semantic recall
+	options: {
+		lastMessages: 10,
+		semanticRecall: true, // REQUIRED
+	},
 });
 ```
 
@@ -316,20 +316,20 @@ ZodError: Expected string, received number
 
 ```typescript
 const tool = createTool({
-  id: "my-tool",
-  inputSchema: z.object({
-    name: z.string(),
-    age: z.number().optional(), // Make optional fields explicit
-  }),
-  execute: async (input) => {
-    // input is validated and typed
-    return { result: `Hello ${input.name}` };
-  },
+	id: 'my-tool',
+	inputSchema: z.object({
+		name: z.string(),
+		age: z.number().optional(), // Make optional fields explicit
+	}),
+	execute: async (input) => {
+		// input is validated and typed
+		return { result: `Hello ${input.name}` };
+	},
 });
 
 // Correct usage
-await tool.execute({ name: "Alice" }); // Works
-await tool.execute({ name: "Bob", age: 30 }); // Works
+await tool.execute({ name: 'Alice' }); // Works
+await tool.execute({ name: 'Bob', age: 30 }); // Works
 await tool.execute({ age: 30 }); // ERROR: name is required
 ```
 
@@ -349,27 +349,27 @@ await tool.execute({ age: 30 }); // ERROR: name is required
 
 ```typescript
 const approvalTool = createTool({
-  id: "approval",
-  inputSchema: z.object({ request: z.string() }),
-  outputSchema: z.object({ approved: z.boolean() }),
-  suspendSchema: z.object({ requestId: z.string() }),
-  resumeSchema: z.object({ approved: z.boolean() }),
-  execute: async (input, context) => {
-    if (!context.resumeData) {
-      // First call - suspend
-      const requestId = generateId();
-      context.suspend({ requestId });
-      return; // Execution pauses here
-    }
+	id: 'approval',
+	inputSchema: z.object({ request: z.string() }),
+	outputSchema: z.object({ approved: z.boolean() }),
+	suspendSchema: z.object({ requestId: z.string() }),
+	resumeSchema: z.object({ approved: z.boolean() }),
+	execute: async (input, context) => {
+		if (!context.resumeData) {
+			// First call - suspend
+			const requestId = generateId();
+			context.suspend({ requestId });
+			return; // Execution pauses here
+		}
 
-    // Resumed - use resumeData
-    return { approved: context.resumeData.approved };
-  },
+		// Resumed - use resumeData
+		return { approved: context.resumeData.approved };
+	},
 });
 
 // Resume the workflow/agent
 await run.resume({
-  resumeData: { approved: true },
+	resumeData: { approved: true },
 });
 ```
 
@@ -413,7 +413,7 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/mastra
 
 ```typescript
 const storage = new PostgresStore({
-  connectionString: process.env.DATABASE_URL,
+	connectionString: process.env.DATABASE_URL,
 });
 await storage.init(); // Creates tables if needed
 ```
@@ -448,14 +448,14 @@ GOOGLE_GENERATIVE_AI_API_KEY=...
 2. Load environment variables (for Node.js):
 
 ```typescript
-import "dotenv/config"; // At top of entry file
+import 'dotenv/config'; // At top of entry file
 ```
 
 3. Verify variable is loaded:
 
 ```typescript
 if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY is required");
+	throw new Error('OPENAI_API_KEY is required');
 }
 ```
 
@@ -482,8 +482,8 @@ Error: Invalid model format
 
 ```typescript
 const agent = new Agent({
-  model: "openai/gpt-5.4", // ✅ Correct
-  // NOT: model: 'gpt-5.4'       // ❌ Missing provider
+	model: 'openai/gpt-5.4', // ✅ Correct
+	// NOT: model: 'gpt-5.4'       // ❌ Missing provider
 });
 ```
 
@@ -507,10 +507,10 @@ ls node_modules/@mastra/core/dist/docs/
 
 ```typescript
 const mastra = new Mastra({
-  logger: new PinoLogger({
-    name: "mastra",
-    level: "debug", // or 'trace' for even more detail
-  }),
+	logger: new PinoLogger({
+		name: 'mastra',
+		level: 'debug', // or 'trace' for even more detail
+	}),
 });
 ```
 

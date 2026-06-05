@@ -100,6 +100,7 @@ const schema = convict<Config>({
 				format: String,
 				default: '',
 				env: 'ANTHROPIC_API_KEY',
+				sensitive: true,
 			},
 		},
 	},

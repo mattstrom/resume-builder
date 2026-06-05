@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Conversation, ConversationSchema } from '@resume-builder/entities';
 
-import { MongodbModule } from '../../mongodb/mongodb.module';
-import { ConversationsController } from './conversations.controller';
-import { ConversationsService } from './conversations.service';
+import { MongodbModule } from '../../mongodb/mongodb.module.js';
+import { ConversationsController } from './conversations.controller.js';
+import { ConversationsService } from './conversations.service.js';
 
 @Module({
 	imports: [

@@ -3,15 +3,15 @@ import { randomUUID } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { Ollama, type Message, type Tool } from 'ollama';
 
-import configuration from '../../../configuration';
-import type { LlmProvider } from '../interfaces/llm-provider.interface';
+import configuration from '../../../configuration.js';
+import type { LlmProvider } from '../interfaces/llm-provider.interface.js';
 import type {
 	LlmContentBlock,
 	LlmMessage,
 	LlmRequestOptions,
 	LlmStreamEvent,
 	LlmToolDefinition,
-} from '../interfaces/llm-types';
+} from '../interfaces/llm-types.js';
 
 @Injectable()
 export class OllamaProviderService implements LlmProvider {

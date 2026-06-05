@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 
-import { CurrentUser } from '../../auth';
-import { ProjectsService } from './projects.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ProjectsService } from './projects.service.js';
 
 @Controller('projects')
 export class ProjectsController {

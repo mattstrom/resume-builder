@@ -1,4 +1,4 @@
-import { type Config } from '@/config';
+import { type Config } from '../src/configuration.js';
 
 const config: Config = {
 	auth0: {
@@ -7,6 +7,9 @@ const config: Config = {
 	},
 	mongodb: {
 		uri: 'mongodb://localhost:27017/resume-builder',
+	},
+	postgres: {
+		url: 'postgresql://postgres:postgres@localhost:5432/mastra',
 	},
 	redis: {
 		url: 'redis://localhost:6379',
