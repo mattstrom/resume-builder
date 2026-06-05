@@ -11,6 +11,8 @@ type FactType {
   what: String!
   impact: String
   scale: String
+  citation: String
+  citationNodeIndex: Int
   tags: [String!]!
   technologies: [String!]!
   createdAt: DateTime!
@@ -696,6 +698,8 @@ input CreateFactInput {
   what: String!
   impact: String
   scale: String
+  citation: String
+  citationNodeIndex: Int
   tags: [String!]
   technologies: [String!]
   entityType: String
@@ -707,6 +711,8 @@ input UpdateFactInput {
   what: String
   impact: String
   scale: String
+  citation: String
+  citationNodeIndex: Int
   tags: [String!]
   technologies: [String!]
   entityType: String

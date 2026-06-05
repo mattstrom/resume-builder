@@ -2,6 +2,7 @@ import { observer } from 'mobx-react';
 import type { FC } from 'react';
 
 import { Badge } from '@/components/ui/badge.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import type { Fact } from '@/stores/facts.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -95,16 +96,26 @@ const EntityTypeGroup: FC<EntityTypeGroupProps> = ({ entityType, entityMap }) =>
 
 export const FactsView: FC = observer(() => {
 	const { factsStore } = useStore();
-	const { factsGrouped, loading } = factsStore;
+	const { factsGrouped, loading, isExtracting } = factsStore;
 	const entityTypes = Object.keys(factsGrouped);
 
 	return (
 		<div className="flex h-full w-full flex-col gap-8 overflow-y-auto p-6">
-			<div>
-				<h1 className="text-2xl font-semibold text-foreground">Facts</h1>
-				<p className="text-sm text-muted-foreground">
-					Recorded facts about your experience, organized by category.
-				</p>
+			<div className="flex items-start justify-between gap-4">
+				<div>
+					<h1 className="text-2xl font-semibold text-foreground">Facts</h1>
+					<p className="text-sm text-muted-foreground">
+						Recorded facts about your experience, organized by category.
+					</p>
+				</div>
+				<Button
+					variant="outline"
+					size="sm"
+					disabled={isExtracting}
+					onClick={() => factsStore.extractFacts()}
+				>
+					{isExtracting ? 'Extracting…' : 'Extract Facts'}
+				</Button>
 			</div>
 
 			{loading ? (

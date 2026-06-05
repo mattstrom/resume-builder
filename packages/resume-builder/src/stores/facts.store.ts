@@ -1,8 +1,11 @@
-import { computed, makeObservable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 
 import { LIST_FACTS } from '../graphql/queries.ts';
+import { authFetch } from '../utils/auth.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
+
+const MASTRA_API_BASE = 'http://localhost:4111';
 
 export interface Fact {
 	id: string;
@@ -22,6 +25,8 @@ export interface Fact {
 
 export class FactsStore {
 	private query: ApolloMobxWrapper<{ facts: Fact[] }>;
+
+	@observable isExtracting = false;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -47,5 +52,22 @@ export class FactsStore {
 			result[entityType][entityId][fact.kind].push(fact);
 		}
 		return result;
+	}
+
+	@action
+	async extractFacts(): Promise<void> {
+		this.isExtracting = true;
+		try {
+			await authFetch(`${MASTRA_API_BASE}/api/agents/factsExtractor/generate`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					messages: [{ role: 'user', content: 'Extract facts from my narrative.' }],
+				}),
+			});
+			await this.query.refetch();
+		} finally {
+			this.isExtracting = false;
+		}
 	}
 }
