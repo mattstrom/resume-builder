@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Resume, ResumeSchema } from '@resume-builder/entities';
 
-import { MongodbModule } from '../../mongodb/mongodb.module';
-import { ResumeResolver } from './resume.resolver';
-import { ResumesService } from './resumes.service';
+import { MongodbModule } from '../../mongodb/mongodb.module.js';
+import { ResumeResolver } from './resume.resolver.js';
+import { ResumesService } from './resumes.service.js';
 
 @Module({
 	imports: [

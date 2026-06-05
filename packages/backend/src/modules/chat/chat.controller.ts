@@ -12,24 +12,24 @@ import type { ChatModelSelection, ChatModelsResponse, ChatScope } from '@resume-
 import type { Request, Response } from 'express';
 import { outdent } from 'outdent';
 
-import configuration from '../../configuration';
-import { CurrentUser } from '../auth';
-import { CrdtClientService } from '../crdt-client/crdt-client.service';
-import { ApplicationsService } from '../entities/applications/applications.service';
-import { ContactInformationService } from '../entities/contact-information/contact-information.service';
-import { ConversationsService } from '../entities/conversations/conversations.service';
-import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
-import { EducationsService } from '../entities/educations/educations.service';
-import { JobsService } from '../entities/jobs/jobs.service';
-import { ProfilesService } from '../entities/profiles/profiles.service';
-import { ProjectsService } from '../entities/projects/projects.service';
-import { ResumesService } from '../entities/resumes/resumes.service';
-import { SkillsService } from '../entities/skills/skills.service';
-import { VolunteeringService } from '../entities/volunteering/volunteering.service';
-import type { LlmMessage } from '../llm/interfaces/llm-types';
-import { getChatModelCatalog, isConfiguredChatModel } from './chat-models';
-import { chatTools, executeTool } from './chat-tools';
-import { ChatService } from './chat.service';
+import configuration from '../../configuration.js';
+import { CurrentUser } from '../auth/index.js';
+import { CrdtClientService } from '../crdt-client/crdt-client.service.js';
+import { ApplicationsService } from '../entities/applications/applications.service.js';
+import { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
+import { ConversationsService } from '../entities/conversations/conversations.service.js';
+import { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
+import { EducationsService } from '../entities/educations/educations.service.js';
+import { JobsService } from '../entities/jobs/jobs.service.js';
+import { ProfilesService } from '../entities/profiles/profiles.service.js';
+import { ProjectsService } from '../entities/projects/projects.service.js';
+import { ResumesService } from '../entities/resumes/resumes.service.js';
+import { SkillsService } from '../entities/skills/skills.service.js';
+import { VolunteeringService } from '../entities/volunteering/volunteering.service.js';
+import type { LlmMessage } from '../llm/interfaces/llm-types.js';
+import { getChatModelCatalog, isConfiguredChatModel } from './chat-models.js';
+import { chatTools, executeTool } from './chat-tools.js';
+import { ChatService } from './chat.service.js';
 
 @Controller('api/chat')
 export class ChatController {

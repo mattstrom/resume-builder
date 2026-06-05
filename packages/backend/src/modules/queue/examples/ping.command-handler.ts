@@ -3,8 +3,8 @@ import { Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Queue } from 'bullmq';
 
-import { QUEUES } from '../queues';
-import { PingCommand, type PingCommandResult } from './ping.command';
+import { QUEUES } from '../queues.js';
+import { PingCommand, type PingCommandResult } from './ping.command.js';
 
 @CommandHandler(PingCommand)
 export class PingCommandHandler implements ICommandHandler<PingCommand> {

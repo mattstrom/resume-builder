@@ -8,9 +8,9 @@ import {
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
 
-import { CurrentUser } from '../../auth';
-import { ResumesService } from '../resumes/resumes.service';
-import { ApplicationsService } from './applications.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ResumesService } from '../resumes/resumes.service.js';
+import { ApplicationsService } from './applications.service.js';
 
 @Resolver(() => Application)
 export class ApplicationsResolver {

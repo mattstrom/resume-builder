@@ -9,15 +9,15 @@ import {
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { ContactInformationService } from '../entities/contact-information/contact-information.service';
-import { CoverLettersService } from '../entities/cover-letters/cover-letters.service';
-import { EducationsService } from '../entities/educations/educations.service';
-import { JobsService } from '../entities/jobs/jobs.service';
-import { ProjectsService } from '../entities/projects/projects.service';
-import { ResumesService } from '../entities/resumes/resumes.service';
-import { SkillsService } from '../entities/skills/skills.service';
-import { McpGuard } from './mcp.guard';
-import { type McpExtra, type McpToolParams } from './types';
+import { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
+import { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
+import { EducationsService } from '../entities/educations/educations.service.js';
+import { JobsService } from '../entities/jobs/jobs.service.js';
+import { ProjectsService } from '../entities/projects/projects.service.js';
+import { ResumesService } from '../entities/resumes/resumes.service.js';
+import { SkillsService } from '../entities/skills/skills.service.js';
+import { McpGuard } from './mcp.guard.js';
+import { type McpExtra, type McpToolParams } from './types.js';
 
 const getSkillsSchema = {
 	categories: z.array(z.string()).optional(),

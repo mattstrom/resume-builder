@@ -1,6 +1,4 @@
-import { type Config } from '@/config';
-
-const config: Config = {
+const config = {
 	auth0: {
 		clientId: '',
 		domain: 'login.mattstrom.com',

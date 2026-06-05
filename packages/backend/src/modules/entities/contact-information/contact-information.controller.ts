@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 
-import { CurrentUser } from '../../auth';
-import { ContactInformationService } from './contact-information.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ContactInformationService } from './contact-information.service.js';
 
 @Controller('contact-information')
 export class ContactInformationController {

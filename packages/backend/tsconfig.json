@@ -26,5 +26,5 @@
     }
   },
   "references": [{ "path": "./packages/entities" }],
-  "include": ["config/**/*.ts", "src/**/*.ts"]
+  "include": ["config/**/*.ts", "src/**/*.ts", "generated/**/*.ts"]
 }

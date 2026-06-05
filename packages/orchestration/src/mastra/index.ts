@@ -16,11 +16,14 @@ import { getAuthenticatedUser } from '@mastra/server/auth';
 
 import config from '@/config';
 
+import { configuration } from '../configuration';
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
 import { chatAgent } from './agents/chat.agent';
+import { factsExtractorAgent } from './agents/facts-extractor.agent';
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
 import { interviewCoachAgent } from './agents/interview-coach.agent';
+import { jobRequirementsExtractorAgent } from './agents/job-requirements-extractor.agent';
 import { narrativeCoachAgent } from './agents/narrative-coach.agent';
 import { resumeWriterAgent } from './agents/resume-writer.agent';
 import { weatherAgent } from './agents/weather-agent';
@@ -34,6 +37,8 @@ import {
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
+
+console.log(`Configuration:\n${configuration}`);
 
 const auth0Provider = new Auth0JwtProvider({
 	domain: config.auth0.domain,
@@ -78,7 +83,12 @@ export const mastra = new Mastra({
 	},
 	bundler: {
 		sourcemap: true,
-		externals: ['@duckdb/node-bindings', '@resume-builder/entities', 'electron'],
+		externals: [
+			'@anush008/tokenizers',
+			'@duckdb/node-bindings',
+			'@resume-builder/entities',
+			'electron',
+		],
 	},
 	workflows: {
 		handoffWorkflow,
@@ -89,8 +99,10 @@ export const mastra = new Mastra({
 		applicationReviewer: applicationReviewerAgent,
 		careerAdvisor: careerAdvisorAgent,
 		chatAgent,
+		factsExtractor: factsExtractorAgent,
 		fitAssessmentAgent,
 		interviewCoach: interviewCoachAgent,
+		jobRequirementsExtractor: jobRequirementsExtractorAgent,
 		narrativeCoach: narrativeCoachAgent,
 		resumeWriter: resumeWriterAgent,
 		weatherAgent,

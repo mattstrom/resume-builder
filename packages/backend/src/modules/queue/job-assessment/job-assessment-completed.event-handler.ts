@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
-import { JobAssessmentCompletedEvent } from './job-assessment-completed.event';
+import { JobAssessmentCompletedEvent } from './job-assessment-completed.event.js';
 
 @EventsHandler(JobAssessmentCompletedEvent)
 export class JobAssessmentCompletedEventHandler implements IEventHandler<JobAssessmentCompletedEvent> {

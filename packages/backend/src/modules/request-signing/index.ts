@@ -1,2 +1,2 @@
-export * from './request-signing.service';
-export * from './request-signing.module';
+export * from './request-signing.service.js';
+export * from './request-signing.module.js';

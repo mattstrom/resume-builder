@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
-import { PingCompletedEvent } from './ping-completed.event';
+import { PingCompletedEvent } from './ping-completed.event.js';
 
 @EventsHandler(PingCompletedEvent)
 export class PingCompletedEventHandler implements IEventHandler<PingCompletedEvent> {

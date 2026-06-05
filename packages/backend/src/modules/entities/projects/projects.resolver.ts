@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Project, ProjectInput } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { ProjectsService } from './projects.service';
+import { CurrentUser } from '../../auth/index.js';
+import { ProjectsService } from './projects.service.js';
 
 @Resolver(() => Project)
 export class ProjectsResolver {

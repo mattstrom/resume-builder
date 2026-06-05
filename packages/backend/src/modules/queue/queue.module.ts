@@ -5,11 +5,10 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import type { Config } from '@/config';
-
-import { ExamplesModule } from './examples/examples.module';
-import { JobAssessmentModule } from './job-assessment/job-assessment.module';
-import { ProfileSummarizerModule } from './profile-summarizer/profile-summarizer.module';
+import type { Config } from '../../configuration.js';
+import { ExamplesModule } from './examples/examples.module.js';
+import { JobAssessmentModule } from './job-assessment/job-assessment.module.js';
+import { ProfileSummarizerModule } from './profile-summarizer/profile-summarizer.module.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 

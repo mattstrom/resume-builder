@@ -74,10 +74,10 @@ Add to `package.json`:
 
 ```json
 {
-  "scripts": {
-    "dev": "mastra dev",
-    "build": "mastra build"
-  }
+	"scripts": {
+		"dev": "mastra dev",
+		"build": "mastra build"
+	}
 }
 ```
 
@@ -87,18 +87,18 @@ Create `tsconfig.json`:
 
 ```json
 {
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "noEmit": true,
-    "outDir": "dist"
-  },
-  "include": ["src/**/*"]
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ES2022",
+		"moduleResolution": "bundler",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"outDir": "dist"
+	},
+	"include": ["src/**/*"]
 }
 ```
 
@@ -119,21 +119,21 @@ Or use `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.
 Create `src/mastra/tools/weather-tool.ts`:
 
 ```typescript
-import { createTool } from "@mastra/core/tools";
-import { z } from "zod";
+import { createTool } from '@mastra/core/tools';
+import { z } from 'zod';
 
 export const weatherTool = createTool({
-  id: "get-weather",
-  description: "Get current weather for a location",
-  inputSchema: z.object({
-    location: z.string().describe("City name"),
-  }),
-  outputSchema: z.object({
-    output: z.string(),
-  }),
-  execute: async () => {
-    return { output: "The weather is sunny" };
-  },
+	id: 'get-weather',
+	description: 'Get current weather for a location',
+	inputSchema: z.object({
+		location: z.string().describe('City name'),
+	}),
+	outputSchema: z.object({
+		output: z.string(),
+	}),
+	execute: async () => {
+		return { output: 'The weather is sunny' };
+	},
 });
 ```
 
@@ -142,13 +142,13 @@ export const weatherTool = createTool({
 Create `src/mastra/agents/weather-agent.ts`:
 
 ```typescript
-import { Agent } from "@mastra/core/agent";
-import { weatherTool } from "../tools/weather-tool";
+import { Agent } from '@mastra/core/agent';
+import { weatherTool } from '../tools/weather-tool';
 
 export const weatherAgent = new Agent({
-  id: "weather-agent",
-  name: "Weather Agent",
-  instructions: `
+	id: 'weather-agent',
+	name: 'Weather Agent',
+	instructions: `
       You are a helpful weather assistant that provides accurate weather information.
 
       Your primary function is to help users get weather details for specific locations. When responding:
@@ -160,8 +160,8 @@ export const weatherAgent = new Agent({
 
       Use the weatherTool to fetch current weather data.
 `,
-  model: "google/gemini-2.5-pro",
-  tools: { weatherTool },
+	model: 'google/gemini-2.5-pro',
+	tools: { weatherTool },
 });
 ```
 
@@ -176,11 +176,11 @@ export const weatherAgent = new Agent({
 Create `src/mastra/index.ts`:
 
 ```typescript
-import { Mastra } from "@mastra/core";
-import { weatherAgent } from "./agents/weather-agent";
+import { Mastra } from '@mastra/core';
+import { weatherAgent } from './agents/weather-agent';
 
 export const mastra = new Mastra({
-  agents: { weatherAgent },
+	agents: { weatherAgent },
 });
 ```
 

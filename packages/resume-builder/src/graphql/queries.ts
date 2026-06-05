@@ -258,3 +258,23 @@ export const LIST_JOBS = gql`
 		}
 	}
 `;
+
+export const LIST_FACTS = gql`
+	query ListFacts {
+		facts {
+			id
+			uid
+			kind
+			entityType
+			entityId
+			what
+			impact
+			scale
+			citation
+			citationNodeIndex
+			tags
+			technologies
+			createdAt
+		}
+	}
+`;

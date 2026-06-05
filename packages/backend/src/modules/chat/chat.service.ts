@@ -6,9 +6,9 @@ import type {
 	LlmMessage,
 	LlmStreamEvent,
 	LlmToolDefinition,
-} from '../llm/interfaces/llm-types';
-import { LlmProviderRegistry } from '../llm/llm-provider-registry.service';
-import { finishStream, initSseHeaders, writeChunk } from './vercel-stream-writer';
+} from '../llm/interfaces/llm-types.js';
+import { LlmProviderRegistry } from '../llm/llm-provider-registry.service.js';
+import { finishStream, initSseHeaders, writeChunk } from './vercel-stream-writer.js';
 
 const MAX_TOOL_ITERATIONS = 10;
 

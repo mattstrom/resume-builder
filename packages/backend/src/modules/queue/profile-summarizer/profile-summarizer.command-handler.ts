@@ -3,12 +3,12 @@ import { BadRequestException, Logger } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Queue } from 'bullmq';
 
-import { ProfilesService } from '../../entities/profiles/profiles.service';
-import { QUEUES } from '../queues';
+import { ProfilesService } from '../../entities/profiles/profiles.service.js';
+import { QUEUES } from '../queues.js';
 import {
 	ProfileNarrativeSummaryCommand,
 	ProfileNarrativeSummaryCommandResult,
-} from './profile-summarizer.command';
+} from './profile-summarizer.command.js';
 
 @CommandHandler(ProfileNarrativeSummaryCommand)
 export class ProfileNarrativeSummaryCommandHandler implements ICommandHandler<ProfileNarrativeSummaryCommand> {

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Application, ApplicationInput, ApplicationUpdateInput } from '@resume-builder/entities';
 import { Model, UpdateOneModel } from 'mongoose';
 
-import { ResumesService } from '../resumes/resumes.service';
+import { ResumesService } from '../resumes/resumes.service.js';
 
 @Injectable()
 export class ApplicationsService {

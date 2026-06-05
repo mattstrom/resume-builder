@@ -7,6 +7,7 @@ import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import TextAlign from '@tiptap/extension-text-align';
+import { FontFamily, TextStyle } from '@tiptap/extension-text-style';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { observer } from 'mobx-react';
@@ -38,6 +39,8 @@ const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: str
 	TableRow,
 	TableCell,
 	TableHeader,
+	TextStyle,
+	FontFamily,
 	TaskList,
 	TaskItem.configure({ nested: true }),
 	Details,

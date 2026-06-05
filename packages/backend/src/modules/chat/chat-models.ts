@@ -4,7 +4,7 @@ import type {
 	ChatModelsResponse,
 } from '@resume-builder/entities';
 
-import configuration from '../../configuration';
+import configuration from '../../configuration.js';
 
 type ConfiguredProvider = keyof typeof configuration.llms & ('anthropic' | 'ollama' | 'lmStudio');
 

@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Education, EducationInput } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { EducationsService } from './educations.service';
+import { CurrentUser } from '../../auth/index.js';
+import { EducationsService } from './educations.service.js';
 
 @Resolver(() => Education)
 export class EducationsResolver {

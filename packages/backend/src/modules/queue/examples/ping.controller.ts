@@ -1,7 +1,7 @@
 import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 
-import { PingCommand, type PingCommandResult } from './ping.command';
+import { PingCommand, type PingCommandResult } from './ping.command.js';
 
 /**
  * Dev-only smoke-test endpoint for the queue pipeline. Not exposed in

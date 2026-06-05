@@ -1,8 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Volunteering, VolunteeringInput } from '@resume-builder/entities';
 
-import { CurrentUser } from '../../auth';
-import { VolunteeringService } from './volunteering.service';
+import { CurrentUser } from '../../auth/index.js';
+import { VolunteeringService } from './volunteering.service.js';
 
 @Resolver(() => Volunteering)
 export class VolunteeringResolver {
