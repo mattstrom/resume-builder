@@ -101,6 +101,19 @@ export class FactsResolver {
 							.describe('Technologies involved'),
 						entityType: z.string().optional().describe('Type of related entity'),
 						entityId: z.string().optional().describe('ID of the related entity'),
+						citation: z
+							.string()
+							.optional()
+							.describe(
+								'Key phrase from the narrative node this fact was extracted from',
+							),
+						citationNodeIndex: z
+							.number()
+							.int()
+							.optional()
+							.describe(
+								'CRDT node index in the narrative document at the time of extraction',
+							),
 					}),
 				)
 				.describe('List of facts to create'),
@@ -120,6 +133,8 @@ export class FactsResolver {
 				technologies?: string[];
 				entityType?: string;
 				entityId?: string;
+				citation?: string;
+				citationNodeIndex?: number;
 			}>;
 		}>,
 		{ user }: types.McpExtra,
@@ -145,6 +160,15 @@ export class FactsResolver {
 			technologies: z.array(z.string()).optional(),
 			entityType: z.string().optional(),
 			entityId: z.string().optional(),
+			citation: z
+				.string()
+				.optional()
+				.describe('Key phrase from the narrative node this fact was extracted from'),
+			citationNodeIndex: z
+				.number()
+				.int()
+				.optional()
+				.describe('CRDT node index in the narrative document at the time of extraction'),
 		},
 		annotations: { destructiveHint: true, idempotentHint: false },
 	})
@@ -162,6 +186,8 @@ export class FactsResolver {
 			technologies?: string[];
 			entityType?: string;
 			entityId?: string;
+			citation?: string;
+			citationNodeIndex?: number;
 		}>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {

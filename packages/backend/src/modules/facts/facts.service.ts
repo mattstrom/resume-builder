@@ -15,6 +15,8 @@ export interface CreateFactDto {
 	what: string;
 	impact?: string;
 	scale?: string;
+	citation?: string;
+	citationNodeIndex?: number;
 	tags?: string[];
 	technologies?: string[];
 }
@@ -26,6 +28,8 @@ export interface UpdateFactDto {
 	what?: string;
 	impact?: string;
 	scale?: string;
+	citation?: string;
+	citationNodeIndex?: number;
 	tags?: string[];
 	technologies?: string[];
 }
@@ -71,6 +75,8 @@ export class FactsService {
 				what: dto.what,
 				impact: dto.impact,
 				scale: dto.scale,
+				citation: dto.citation,
+				citationNodeIndex: dto.citationNodeIndex,
 				tags: dto.tags ?? [],
 				technologies: dto.technologies ?? [],
 			},
@@ -165,7 +171,7 @@ export class FactsService {
 	async findSimilar(uid: string, vector: number[], limit = 10): Promise<SimilarFact[]> {
 		const formatted = `[${vector.join(',')}]`;
 		const rows = await this.prisma.$queryRawUnsafe<SimilarFact[]>(
-			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, tags, technologies, "createdAt",
+			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, citation, "citationNodeIndex", tags, technologies, "createdAt",
               embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL

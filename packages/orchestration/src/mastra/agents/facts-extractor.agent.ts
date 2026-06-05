@@ -42,16 +42,20 @@ export const factsExtractorAgent = new Agent({
 			       | 'trait'          // how they work, how they think, behavioral patterns
 			       | 'skill'          // a technology, tool, methodology, or domain they know
 			       | 'credential'     // education, certification, clearance
-			
+
 			  // The durable truth, as structured properties
 			  what: string            // one sentence, plain factual language, no spin
 			  impact: string | null   // what changed or improved because of this — omit if not present in narrative
 			  scale: string | null    // quantitative or qualitative scope — omit if not stated in narrative
-			
+
+			  // Citation — provenance tracking
+			  citation: string | null       // the key phrase from the narrative node that supports this fact (one sentence or less — not the full node text)
+			  citationNodeIndex: number | null  // the index field of the narrative node this fact was derived from
+
 			  // Context
 			  entity_type: 'job' | 'project' | 'education' | 'volunteering' | 'personal' | 'profile'
 			  entity_ref: string      // human-readable reference: company name, project name, etc.
-			
+
 			  // Retrieval
 			  tags: string[]          // lowercase, hyphenated, specific — see tagging guidelines below
 			  technologies: string[]  // specific named tools, languages, frameworks — omit generic terms
@@ -79,6 +83,9 @@ export const factsExtractorAgent = new Agent({
 			
 			### On scale and impact
 			Only populate \`scale\`  and \`impact\`  if the narrative actually supports it. Do not infer, embellish, or estimate. If the narrative says "roughly a million page views per month," that is the scale. Do not round it up to "1M+" unless the candidate wrote that.
+
+			### On citation
+			Always populate \`citation\` and \`citationNodeIndex\` when creating or updating facts. The \`read_narrative\` tool returns nodes with \`index\` and \`content\` fields. Set \`citationNodeIndex\` to the \`index\` of the primary node the fact was extracted from, and set \`citation\` to the specific phrase or sentence within that node's content that most directly supports the fact (keep it to one sentence or a short clause — not the entire node). If a fact spans multiple nodes, use the node that contains the most direct evidence.
 			
 			### On kind 
 			* Use achievement  when there is a discrete, completable outcome — something was built, shipped, fixed, or changed

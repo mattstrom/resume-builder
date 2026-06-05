@@ -13,6 +13,8 @@ export interface Fact {
 	what: string;
 	impact?: string;
 	scale?: string;
+	citation?: string;
+	citationNodeIndex?: number;
 	tags: string[];
 	technologies: string[];
 	createdAt: string;

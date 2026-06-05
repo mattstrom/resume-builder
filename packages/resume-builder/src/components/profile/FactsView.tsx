@@ -24,6 +24,12 @@ const FactCard: FC<FactCardProps> = ({ fact }) => (
 			</p>
 		)}
 
+		{fact.citation && (
+			<blockquote className="border-l-2 border-border pl-3 text-xs italic text-muted-foreground/70">
+				&ldquo;{fact.citation}&rdquo;
+			</blockquote>
+		)}
+
 		{(fact.tags.length > 0 || fact.technologies.length > 0) && (
 			<div className="flex flex-wrap gap-1.5 pt-1">
 				{fact.tags.map((tag) => (

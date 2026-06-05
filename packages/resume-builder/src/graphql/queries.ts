@@ -270,6 +270,8 @@ export const LIST_FACTS = gql`
 			what
 			impact
 			scale
+			citation
+			citationNodeIndex
 			tags
 			technologies
 			createdAt

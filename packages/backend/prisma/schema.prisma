@@ -69,10 +69,12 @@ model Fact {
   kind         String
   entityType   String?
   entityId     String?
-  what         String
-  impact       String?
-  scale        String?
-  tags         String[]
+  what              String
+  impact            String?
+  scale             String?
+  citation          String?
+  citationNodeIndex Int?
+  tags              String[]
   technologies String[]
   embedding    Unsupported("vector(768)")?
   createdAt    DateTime                  @default(now())

@@ -26,6 +26,12 @@ export class FactType {
 	@Field({ nullable: true })
 	scale?: string;
 
+	@Field({ nullable: true })
+	citation?: string;
+
+	@Field(() => Int, { nullable: true })
+	citationNodeIndex?: number;
+
 	@Field(() => [String])
 	tags: string[];
 
@@ -95,6 +101,12 @@ export class CreateFactInput {
 	@Field({ nullable: true })
 	scale?: string;
 
+	@Field({ nullable: true })
+	citation?: string;
+
+	@Field(() => Int, { nullable: true })
+	citationNodeIndex?: number;
+
 	@Field(() => [String], { nullable: true })
 	tags?: string[];
 
@@ -121,6 +133,12 @@ export class UpdateFactInput {
 
 	@Field({ nullable: true })
 	scale?: string;
+
+	@Field({ nullable: true })
+	citation?: string;
+
+	@Field(() => Int, { nullable: true })
+	citationNodeIndex?: number;
 
 	@Field(() => [String], { nullable: true })
 	tags?: string[];
