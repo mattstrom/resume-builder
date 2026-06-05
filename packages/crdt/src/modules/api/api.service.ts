@@ -44,7 +44,10 @@ function readBody(req: IncomingMessage): Promise<string> {
 }
 
 function sendJson(res: ServerResponse, status: number, body: unknown) {
-	if (res.headersSent) return;
+	if (res.headersSent) {
+		return;
+	}
+
 	res.writeHead(status, { 'Content-Type': 'application/json' });
 	res.end(JSON.stringify(body));
 }
@@ -67,6 +70,7 @@ function elementToStructured(element: Y.XmlElement, index: number): StructuredNo
 			}
 		}
 	}
+
 	return {
 		index,
 		nodeType: element.nodeName,
@@ -90,6 +94,7 @@ function buildElement(item: InsertItem): Y.XmlElement {
 		})),
 	);
 	element.insert(0, [textNode]);
+
 	return element;
 }
 
@@ -142,6 +147,7 @@ export class ApiService implements Extension {
 
 		if (!this.verifyRequest(request)) {
 			sendJson(response, 401, { error: 'Unauthorized' });
+
 			return;
 		}
 
@@ -188,6 +194,7 @@ export class ApiService implements Extension {
 					await conn.disconnect();
 				}
 				sendJson(response, 200, { ok: true, length });
+
 				return;
 			}
 
