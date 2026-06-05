@@ -20,6 +20,7 @@ export class FitAssessorPromptResolver {
 	})
 	fitAssessor({ args }: PromptHandlerArgs) {
 		const jd = (args as { jobDescription: string }).jobDescription;
+
 		return {
 			messages: [
 				{

@@ -5,6 +5,13 @@ generator client {
   previewFeatures = ["postgresqlExtensions"]
 }
 
+generator crdtClient {
+  provider        = "prisma-client"
+  output          = "../../crdt/src/generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
 datasource db {
   provider   = "postgresql"
   extensions = [vector]
@@ -323,5 +330,22 @@ model ResumeFact {
 
   @@id([resumeId, factId])
   @@index([resumeId])
+}
+
+// ─── ProfileUpdate ───────────────────────────────────────────────────────────
+// Append-only log of Yjs CRDT binary state snapshots for profile documents.
+// Each row is immutable — never updated, only inserted. The highest sequence
+// for a given (name, uid) is the current state.
+
+model ProfileUpdate {
+  id        String   @id @default(cuid())
+  name      String
+  uid       String
+  sequence  Int
+  update    Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name, uid, sequence(sort: Desc)])
 }
 

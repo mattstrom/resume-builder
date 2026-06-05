@@ -103,6 +103,15 @@ const ConversationModel = model(
 
 const ResumeModel = model('Resume', new Schema({}, { strict: false, timestamps: true }), 'resumes');
 
+const ProfileUpdateModel = model(
+	'ProfileUpdate',
+	new Schema(
+		{ name: String, uid: String, sequence: Number, update: Buffer },
+		{ strict: false, timestamps: true },
+	),
+	'profile_updates',
+);
+
 // ─── Migration Functions ─────────────────────────────────────────────────────
 
 async function migrateProfiles(prisma: PrismaClient) {
@@ -574,6 +583,42 @@ async function migrateConversations(prisma: PrismaClient) {
 	summary('conversations', docs.length, errors);
 }
 
+async function migrateProfileUpdates(prisma: PrismaClient) {
+	log('\nMigrating profile updates…');
+	const docs = await ProfileUpdateModel.find().lean();
+	log(`  Found ${docs.length} documents`);
+
+	let errors = 0;
+	for (const doc of docs) {
+		if (DRY_RUN) continue;
+		try {
+			const id = mongoId(doc._id);
+			// doc.update comes back as a BSON Binary from lean(); convert to Buffer.
+			const update: Buffer = Buffer.isBuffer(doc.update)
+				? doc.update
+				: Buffer.from((doc.update as { buffer?: Buffer }).buffer ?? doc.update);
+			await prisma.profileUpdate.upsert({
+				where: { id },
+				create: {
+					id,
+					name: doc.name,
+					uid: doc.uid,
+					sequence: doc.sequence,
+					update,
+					createdAt: doc.createdAt ?? objectIdTs(doc._id),
+					updatedAt: doc.updatedAt ?? doc.createdAt ?? objectIdTs(doc._id),
+				},
+				update: {},
+			});
+		} catch (err) {
+			errors++;
+			console.error(`  Error on profile update ${doc._id}:`, err);
+		}
+	}
+
+	summary('profile_updates', docs.length, errors);
+}
+
 async function migrateResumes(prisma: PrismaClient) {
 	log('\nMigrating resumes…');
 	const docs = await ResumeModel.find().lean();
@@ -653,6 +698,7 @@ async function main() {
 		await migrateApplications(prisma);
 		await migrateConversations(prisma);
 		await migrateResumes(prisma);
+		await migrateProfileUpdates(prisma);
 
 		log('\nMigration complete.');
 	} finally {
