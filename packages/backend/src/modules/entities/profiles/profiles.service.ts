@@ -1,43 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { NarrativeSummaryData, Profile, ProfileUpdateInput } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
 
 @Injectable()
 export class ProfilesService {
-	constructor(
-		@InjectModel(Profile.name)
-		private readonly profileModel: Model<Profile>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findOne(uid: string): Promise<Profile | null> {
-		return this.profileModel.findOne({ uid }).exec();
+	async findOne(uid: string): Promise<(Profile & { _id: string }) | null> {
+		const result = await this.prisma.profile.findFirst({ where: { uid } });
+		return result ? ({ ...result, _id: result.id } as Profile & { _id: string }) : null;
 	}
 
-	async upsert(uid: string, input: ProfileUpdateInput): Promise<Profile> {
-		const result = await this.profileModel
-			.findOneAndUpdate(
-				{ uid },
-				{ $set: input, $setOnInsert: { uid } },
-				{ upsert: true, new: true },
-			)
-			.exec();
-
-		return result as Profile;
+	async upsert(uid: string, input: ProfileUpdateInput): Promise<Profile & { _id: string }> {
+		const result = await this.prisma.profile.upsert({
+			where: { uid },
+			update: input,
+			create: { uid, ...input },
+		});
+		return { ...result, _id: result.id } as Profile & { _id: string };
 	}
 
 	async updateNarrativeSummary(
 		uid: string,
 		narrativeSummary: NarrativeSummaryData,
-	): Promise<Profile> {
-		const result = await this.profileModel
-			.findOneAndUpdate(
-				{ uid },
-				{ $set: { narrativeSummary }, $setOnInsert: { uid } },
-				{ upsert: true, new: true },
-			)
-			.exec();
-
-		return result as Profile;
+	): Promise<Profile & { _id: string }> {
+		const result = await this.prisma.profile.upsert({
+			where: { uid },
+			update: { narrativeSummary: narrativeSummary as object },
+			create: { uid, narrativeSummary: narrativeSummary as object },
+		});
+		return { ...result, _id: result.id } as Profile & { _id: string };
 	}
 }

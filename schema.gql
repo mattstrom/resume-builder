@@ -46,54 +46,54 @@ type ResumeFactType {
 type ContactInformation {
   _id: ID!
   uid: String!
-  location: String!
-  phoneNumber: String!
-  email: String!
-  linkedInProfile: String!
-  githubProfile: String!
-  personalWebsite: String!
+  location: String
+  phoneNumber: String
+  email: String
+  linkedInProfile: String
+  githubProfile: String
+  personalWebsite: String
 }
 
 type ContactInformationSubdoc {
   _id: ID!
-  location: String!
-  phoneNumber: String!
-  email: String!
-  linkedInProfile: String!
-  githubProfile: String!
-  personalWebsite: String!
+  location: String
+  phoneNumber: String
+  email: String
+  linkedInProfile: String
+  githubProfile: String
+  personalWebsite: String
 }
 
 """Education"""
 type Education {
   _id: ID!
-  uid: String!
-  degree: String!
-  field: String!
-  institution: String!
-  graduated: String!
+  uid: String
+  degree: String
+  field: String
+  institution: String
+  graduated: String
 }
 
 """Job"""
 type Job {
   _id: ID!
-  uid: String!
-  company: String!
-  position: String!
-  location: String!
-  startDate: String!
+  uid: String
+  company: String
+  position: String
+  location: String
+  startDate: String
   endDate: String
-  responsibilities: [String!]!
+  responsibilities: [String!]
   relevance: Float
 }
 
 """Project"""
 type Project {
   _id: ID!
-  uid: String!
-  name: String!
-  technologies: [String!]!
-  items: [String!]!
+  uid: String
+  name: String
+  technologies: [String!]
+  items: [String!]
   type: String
   relevance: Float
 }
@@ -101,30 +101,30 @@ type Project {
 """Skill"""
 type Skill {
   _id: ID!
-  uid: String!
-  name: String!
-  category: String!
+  uid: String
+  name: String
+  category: String
   relevance: Float
 }
 
 """Skill Group"""
 type SkillGroup {
   _id: ID!
-  uid: String!
-  name: String!
-  items: [String!]!
+  uid: String
+  name: String
+  items: [String!]
 }
 
 """Volunteering"""
 type Volunteering {
   _id: ID!
-  uid: String!
+  uid: String
   organization: String
-  position: String!
+  position: String
   location: String
-  startDate: String!
+  startDate: String
   endDate: String
-  responsibilities: [String!]!
+  responsibilities: [String!]
   relevance: Float
 }
 
@@ -143,16 +143,16 @@ Content of the resume, as opposed to the Resume object which holds metadata.
 """
 type ResumeContent {
   _id: ID!
-  name: String!
-  title: String!
-  contactInformation: ContactInformationSubdoc!
-  summary: String!
-  workExperience: [Job!]!
-  education: [Education!]!
+  name: String
+  title: String
+  contactInformation: ContactInformationSubdoc
+  summary: String
+  workExperience: [Job!]
+  education: [Education!]
   skills: [Skill!]
   skillGroups: [SkillGroup!]
-  projects: [Project!]!
-  volunteering: [Volunteering!]!
+  projects: [Project!]
+  volunteering: [Volunteering!]
 }
 
 """Resume"""
@@ -203,10 +203,10 @@ type Resume {
 """Structured summary of job posting requirements"""
 type JobSummary {
   """Skills required by the job posting"""
-  requiredSkills: [String!]!
+  requiredSkills: [String!]
 
   """Skills preferred but not required by the job posting"""
-  preferredSkills: [String!]!
+  preferredSkills: [String!]
 
   """Education requirements"""
   requiredEducation: String
@@ -230,7 +230,7 @@ type JobSummary {
   teamSize: String
 
   """Tech stack used by company"""
-  techStack: [String!]!
+  techStack: [String!]
 }
 
 """Analysis of fit between user skills/experience and job posting"""
@@ -262,13 +262,13 @@ type Analysis {
   overallFit: Float!
 
   """Strengths of the user relative to the job posting"""
-  strengths: [String!]!
+  strengths: [String!]
 
   """Weaknesses or skill gaps relative to the job posting"""
-  weaknesses: [String!]!
+  weaknesses: [String!]
 
   """Suggested improvements or talking points"""
-  recommendations: [String!]!
+  recommendations: [String!]
 }
 
 """Application"""
@@ -558,55 +558,55 @@ input ResumeContentInput {
 }
 
 input JobInput {
-  company: String!
-  position: String!
-  location: String!
-  startDate: String!
+  company: String
+  position: String
+  location: String
+  startDate: String
   endDate: String
-  responsibilities: [String!]!
+  responsibilities: [String!]
   relevance: Float
   _id: ID
 }
 
 input ContactInformationInput {
-  location: String!
-  phoneNumber: String!
-  email: String!
-  linkedInProfile: String!
-  githubProfile: String!
-  personalWebsite: String!
+  location: String
+  phoneNumber: String
+  email: String
+  linkedInProfile: String
+  githubProfile: String
+  personalWebsite: String
   _id: ID
 }
 
 input ProjectInput {
-  name: String!
-  technologies: [String!]!
-  items: [String!]!
+  name: String
+  technologies: [String!]
+  items: [String!]
   type: String
   relevance: Float
   _id: ID
 }
 
 input SkillInput {
-  name: String!
-  category: String!
+  name: String
+  category: String
   relevance: Float
   _id: ID
 }
 
 input SkillGroupInput {
-  name: String!
-  items: [String!]!
+  name: String
+  items: [String!]
   _id: ID
 }
 
 input VolunteeringInput {
   organization: String
-  position: String!
+  position: String
   location: String
-  startDate: String!
+  startDate: String
   endDate: String
-  responsibilities: [String!]!
+  responsibilities: [String!]
   relevance: Float
   _id: ID
 }
@@ -733,10 +733,10 @@ input LinkFactInput {
 }
 
 input EducationInput {
-  degree: String!
-  field: String!
-  institution: String!
-  graduated: String!
+  degree: String
+  field: String
+  institution: String
+  graduated: String
   _id: ID
 }
 

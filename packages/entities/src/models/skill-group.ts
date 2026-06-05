@@ -8,15 +8,15 @@ export class SkillGroup {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	name: string;
 
-	@Field(() => [String])
+	@Field(() => [String], { nullable: true })
 	@Prop({ type: [String], default: [] })
 	items: string[];
 
