@@ -103,6 +103,10 @@ export class FactsService {
 		return fact;
 	}
 
+	async findByIds(uid: string, ids: string[]): Promise<FactWithoutEmbedding[]> {
+		return this.prisma.fact.findMany({ where: { id: { in: ids }, uid } });
+	}
+
 	async update(uid: string, id: string, dto: UpdateFactDto): Promise<FactWithoutEmbedding> {
 		await this.findById(uid, id);
 
@@ -162,7 +166,7 @@ export class FactsService {
 		const formatted = `[${vector.join(',')}]`;
 		const rows = await this.prisma.$queryRawUnsafe<SimilarFact[]>(
 			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, tags, technologies, "createdAt",
-              embedding <=> $1::resume_builder.vector AS distance
+              embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
        ORDER BY distance

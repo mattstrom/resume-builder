@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import type { JobRequirementFact } from '../../generated/prisma/client.js';
 import { EmbeddingService } from '../facts/embedding.service.js';
@@ -56,6 +56,16 @@ export class JobRequirementsService {
 		return created;
 	}
 
+	async findById(id: string): Promise<JobRequirementFactWithoutEmbedding> {
+		const row = await this.prisma.jobRequirementFact.findUnique({ where: { id } });
+		if (!row) throw new NotFoundException(`JobRequirementFact ${id} not found`);
+		return row;
+	}
+
+	async findByIds(ids: string[]): Promise<JobRequirementFactWithoutEmbedding[]> {
+		return this.prisma.jobRequirementFact.findMany({ where: { id: { in: ids } } });
+	}
+
 	async findByApplication(
 		uid: string,
 		applicationId: string,
@@ -70,10 +80,23 @@ export class JobRequirementsService {
 		id: string,
 		uid: string,
 		limit = 10,
-	): Promise<{ id: string; uid: string; kind: string; what: string; impact: string | null; scale: string | null; tags: string[]; technologies: string[]; entityType: string | null; entityId: string | null; createdAt: Date; distance: number }[]> {
-		const rows = await this.prisma.$queryRawUnsafe<
-			{ embedding: string }[]
-		>(
+	): Promise<
+		{
+			id: string;
+			uid: string;
+			kind: string;
+			what: string;
+			impact: string | null;
+			scale: string | null;
+			tags: string[];
+			technologies: string[];
+			entityType: string | null;
+			entityId: string | null;
+			createdAt: Date;
+			distance: number;
+		}[]
+	> {
+		const rows = await this.prisma.$queryRawUnsafe<{ embedding: string }[]>(
 			`SELECT embedding::text FROM "${SCHEMA}"."JobRequirementFact" WHERE id = $1`,
 			id,
 		);
@@ -84,7 +107,7 @@ export class JobRequirementsService {
 
 		return this.prisma.$queryRawUnsafe(
 			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, tags, technologies, "createdAt",
-              embedding <=> $1::${SCHEMA}.vector AS distance
+              embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
        ORDER BY distance

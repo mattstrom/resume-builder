@@ -32,6 +32,10 @@ export interface Config {
 			provider: string;
 			model: string;
 		};
+		reranker: {
+			provider: string;
+			model: string;
+		};
 	};
 	auth0: {
 		domain: string;
@@ -149,6 +153,20 @@ const schema = convict<Config>({
 				format: String,
 				default: 'claude-sonnet-4-6',
 				env: 'NARRATIVE_SUMMARIZER_LLM_MODEL',
+			},
+		},
+		reranker: {
+			provider: {
+				doc: 'LLM provider to use for reranking (anthropic | ollama)',
+				format: String,
+				default: 'anthropic',
+				env: 'RERANKER_LLM_PROVIDER',
+			},
+			model: {
+				doc: 'LLM model to use for reranking',
+				format: String,
+				default: 'claude-haiku-4-5-20251001',
+				env: 'RERANKER_LLM_MODEL',
 			},
 		},
 	},
