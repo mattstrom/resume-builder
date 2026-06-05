@@ -28,8 +28,25 @@ import {
 import type { FC, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { cn } from '@/lib/utils';
+
+const FONTS = [
+	{ label: 'Default', value: '' },
+	{ label: 'Arial', value: 'Arial, Helvetica, sans-serif' },
+	{ label: 'Georgia', value: 'Georgia, serif' },
+	{ label: 'Roboto', value: "'Roboto', sans-serif" },
+	{ label: 'Roboto Serif', value: "'Roboto Serif', serif" },
+	{ label: 'Courier New', value: 'Courier New, Courier, monospace' },
+	{ label: 'Trebuchet MS', value: 'Trebuchet MS, Helvetica, sans-serif' },
+];
 
 interface NarrativeToolbarProps {
 	editor: Editor | null;
@@ -45,6 +62,7 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 				return null;
 			}
 			return {
+				fontFamily: (e.getAttributes('textStyle').fontFamily as string | undefined) ?? '',
 				isBold: e.isActive('bold'),
 				isItalic: e.isActive('italic'),
 				isCode: e.isActive('code'),
@@ -78,6 +96,34 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 
 	return (
 		<div className="flex flex-wrap items-center gap-1 border-b border-input bg-muted/30 px-2 py-1">
+			<Select
+				value={state.fontFamily || "'Roboto Serif', serif"}
+				onValueChange={(value) => {
+					if (value === '__default__') {
+						editor.chain().focus().unsetFontFamily().run();
+					} else {
+						editor.chain().focus().setFontFamily(value).run();
+					}
+				}}
+			>
+				<SelectTrigger className="h-8 w-36 text-xs">
+					<SelectValue placeholder="Font" />
+				</SelectTrigger>
+				<SelectContent>
+					{FONTS.map(({ label, value }) => (
+						<SelectItem
+							key={label}
+							value={value || '__default__'}
+							style={{ fontFamily: value || undefined }}
+						>
+							{label}
+						</SelectItem>
+					))}
+				</SelectContent>
+			</Select>
+
+			<ToolbarSeparator />
+
 			<ToolbarButton
 				label="Bold"
 				active={state.isBold}

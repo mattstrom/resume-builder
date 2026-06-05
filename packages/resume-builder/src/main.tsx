@@ -6,6 +6,10 @@ import { createRoot } from 'react-dom/client';
 import { RootStore } from './stores/root.store.ts';
 import { StoreProvider } from './stores/store.provider.tsx';
 
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/700.css';
+import '@fontsource/roboto-serif/400.css';
+import '@fontsource/roboto-serif/700.css';
 import './index.css';
 
 // Import the generated route tree
