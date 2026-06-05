@@ -29,27 +29,27 @@ export class ResumeContent {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	name: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	title: string;
 
-	@Field(() => ContactInformationSubdoc)
+	@Field(() => ContactInformationSubdoc, { nullable: true })
 	@Prop({ type: ContactInformationSubdocSchema, default: () => ({}) })
 	contactInformation: ContactInformationSubdoc;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	summary: string;
 
-	@Field(() => [Job])
+	@Field(() => [Job], { nullable: true })
 	@Prop({ type: [JobSchema], default: [] })
 	workExperience: Job[];
 
-	@Field(() => [Education])
+	@Field(() => [Education], { nullable: true })
 	@Prop({ type: [EducationSchema], default: [] })
 	education: Education[];
 
@@ -61,11 +61,11 @@ export class ResumeContent {
 	@Prop({ type: [SkillGroupSchema], default: [] })
 	skillGroups?: SkillGroup[];
 
-	@Field(() => [Project])
+	@Field(() => [Project], { nullable: true })
 	@Prop({ type: [ProjectSchema], default: [] })
 	projects: Project[];
 
-	@Field(() => [Volunteering])
+	@Field(() => [Volunteering], { nullable: true })
 	@Prop({ type: [VolunteeringSchema], default: [] })
 	volunteering?: Volunteering[];
 }

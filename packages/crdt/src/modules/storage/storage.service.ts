@@ -1,12 +1,12 @@
 import { Extension } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Profile, Resume } from '@resume-builder/entities';
+import { Resume } from '@resume-builder/entities';
 import { Model } from 'mongoose';
 import * as Y from 'yjs';
 
 import { Document as StoredDocument } from './document.js';
-import { ProfileUpdate } from './profile-update.js';
+import { PrismaService } from './prisma.service.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -19,12 +19,14 @@ function toYValue(value: unknown): unknown {
 			0,
 			value.map((entry) => toYValue(entry)),
 		);
+
 		return array;
 	}
 
 	if (isPlainObject(value)) {
 		const map = new Y.Map<unknown>();
 		syncYMap(map, value);
+
 		return map;
 	}
 
@@ -65,12 +67,9 @@ type ParsedDocumentName = { kind: 'resume'; resumeId: string } | { kind: 'profil
 export class StorageService implements Extension {
 	constructor(
 		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
-		@InjectModel(Profile.name)
-		private readonly profileModel: Model<Profile>,
 		@InjectModel(StoredDocument.name)
 		private readonly documentModel: Model<StoredDocument>,
-		@InjectModel(ProfileUpdate.name)
-		private readonly profileUpdateModel: Model<ProfileUpdate>,
+		private readonly prisma: PrismaService,
 	) {}
 
 	async onLoadDocument({ context, documentName }) {
@@ -132,6 +131,7 @@ export class StorageService implements Extension {
 
 		if (parsed.kind === 'resume') {
 			await this.storeResumeDocument(uid, documentName, parsed.resumeId, document);
+
 			return;
 		}
 
@@ -145,10 +145,12 @@ export class StorageService implements Extension {
 
 		if (stored?.update) {
 			Y.applyUpdate(document, new Uint8Array(stored.update));
+
 			return document;
 		}
 
 		this.writeResumeDocument(document, resume.toObject());
+
 		return document;
 	}
 
@@ -193,13 +195,14 @@ export class StorageService implements Extension {
 		this.assertProfileAccess(uid, profileUid);
 
 		const document = new Y.Doc();
-		const latest = await this.profileUpdateModel
-			.findOne({ name: documentName, uid })
-			.sort({ sequence: -1 })
-			.exec();
+		const latest = await this.prisma.profileUpdate.findFirst({
+			where: { name: documentName, uid },
+			orderBy: { sequence: 'desc' },
+		});
 
 		if (latest?.update) {
 			Y.applyUpdate(document, new Uint8Array(latest.update));
+
 			return document;
 		}
 
@@ -222,19 +225,16 @@ export class StorageService implements Extension {
 
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 
-		const previous = await this.profileUpdateModel
-			.findOne({ name: documentName, uid })
-			.sort({ sequence: -1 })
-			.select({ sequence: 1 })
-			.exec();
+		const previous = await this.prisma.profileUpdate.findFirst({
+			where: { name: documentName, uid },
+			orderBy: { sequence: 'desc' },
+			select: { sequence: true },
+		});
 
 		const nextSequence = (previous?.sequence ?? 0) + 1;
 
-		await this.profileUpdateModel.create({
-			name: documentName,
-			uid,
-			sequence: nextSequence,
-			update,
+		await this.prisma.profileUpdate.create({
+			data: { name: documentName, uid, sequence: nextSequence, update },
 		});
 
 		// Mirror the narrative as XML to Profile.narrative for downstream
@@ -242,17 +242,12 @@ export class StorageService implements Extension {
 		// the Tiptap/ProseMirror doc serialized as XML without needing a
 		// schema on the server.
 		const narrative = document.getXmlFragment('narrative').toString();
-		const jobPreferences = fromYValue(document.getMap('jobPreferences')) as Record<
-			string,
-			unknown
-		>;
+		const jobPreferences = fromYValue(document.getMap('jobPreferences')) as object;
 
-		await this.profileModel
-			.findOneAndUpdate(
-				{ uid },
-				{ $set: { narrative, jobPreferences }, $setOnInsert: { uid } },
-				{ upsert: true, new: true },
-			)
-			.exec();
+		await this.prisma.profile.upsert({
+			where: { uid },
+			update: { narrative, jobPreferences },
+			create: { uid, narrative, jobPreferences },
+		});
 	}
 }

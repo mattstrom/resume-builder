@@ -7,8 +7,6 @@ import {
 	EducationSchema,
 	Job,
 	JobSchema,
-	Profile,
-	ProfileSchema,
 	Project,
 	ProjectSchema,
 	Resume,
@@ -20,7 +18,7 @@ import {
 } from '@resume-builder/entities';
 
 import { Document, DocumentSchema } from './document.js';
-import { ProfileUpdate, ProfileUpdateSchema } from './profile-update.js';
+import { PrismaService } from './prisma.service.js';
 import { StorageService } from './storage.service.js';
 
 @Module({
@@ -33,12 +31,10 @@ import { StorageService } from './storage.service.js';
 			{ name: Job.name, schema: JobSchema },
 			{ name: Project.name, schema: ProjectSchema },
 			{ name: Skill.name, schema: SkillSchema },
-			{ name: Profile.name, schema: ProfileSchema },
 			{ name: Document.name, schema: DocumentSchema },
-			{ name: ProfileUpdate.name, schema: ProfileUpdateSchema },
 		]),
 	],
-	providers: [StorageService],
+	providers: [PrismaService, StorageService],
 	exports: [StorageService],
 })
 export class StorageModule {}

@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Volunteering, VolunteeringInput } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
 
 @Injectable()
 export class VolunteeringService {
-	constructor(
-		@InjectModel(Volunteering.name)
-		private readonly volunteeringModel: Model<Volunteering>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll(uid: string) {
-		return this.volunteeringModel.find({ uid }).exec();
+	async findAll(uid: string): Promise<(Volunteering & { _id: string })[]> {
+		const results = await this.prisma.volunteering.findMany({ where: { uid } });
+		return results.map((r) => ({ ...r, _id: r.id }) as Volunteering & { _id: string });
 	}
 
-	async create(uid: string, volunteering: VolunteeringInput): Promise<Volunteering> {
-		const created = new this.volunteeringModel({ ...volunteering, uid });
-		const saved = await created.save();
-		return saved.toObject();
+	async create(
+		uid: string,
+		volunteering: VolunteeringInput,
+	): Promise<Volunteering & { _id: string }> {
+		const result = await this.prisma.volunteering.create({
+			data: { ...volunteering, uid },
+		});
+		return { ...result, _id: result.id } as Volunteering & { _id: string };
 	}
 }

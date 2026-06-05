@@ -8,15 +8,15 @@ export class Skill {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	name: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	category: string;
 

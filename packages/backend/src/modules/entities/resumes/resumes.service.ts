@@ -1,28 +1,20 @@
-import {
-	BadRequestException,
-	ForbiddenException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import {
 	BlankResumeCreateInput,
-	ContactInformation,
 	Job,
 	Project,
 	Resume,
 	ResumeCollection,
+	ResumeContent,
 	ResumeCreateInput,
-	ResumeDocument,
 	ResumeFilterInput,
 	ResumeSortBy,
 	ResumeSortInput,
 	ResumeUpdateInput,
 	Volunteering,
 } from '@resume-builder/entities';
-import { Model, SortOrder, Types, UpdateOneModel } from 'mongoose';
 
-import ObjectId = Types.ObjectId;
+import { PrismaService } from '../../prisma/index.js';
 
 const ALLOWED_PATH_PREFIXES = [
 	'data.name',
@@ -41,37 +33,42 @@ const ALLOWED_PATH_PREFIXES = [
 	'jobPostingUrl',
 ];
 
+function setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): void {
+	const parts = path.split('.');
+	let current = obj;
+	for (let i = 0; i < parts.length - 1; i++) {
+		if (current[parts[i]] === undefined || current[parts[i]] === null) {
+			current[parts[i]] = {};
+		}
+		current = current[parts[i]] as Record<string, unknown>;
+	}
+	current[parts[parts.length - 1]] = value;
+}
+
+type ResumeWithId = Resume & { _id: string };
+
 @Injectable()
 export class ResumesService {
-	constructor(
-		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
-		@InjectModel(ContactInformation.name)
-		private readonly contactInfoModel: Model<ContactInformation>,
-		@InjectModel(Job.name) private readonly jobModel: Model<Job>,
-		@InjectModel(Project.name)
-		private readonly projectModel: Model<Project>,
-		@InjectModel(Volunteering.name)
-		private readonly volunteeringModel: Model<Volunteering>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
 	async findAll(
 		uid: string,
 		sort?: ResumeSortInput,
 		filter?: ResumeFilterInput,
-	): Promise<Resume[]> {
-		const query: Record<string, unknown> = { uid };
+	): Promise<ResumeWithId[]> {
+		const where: Record<string, unknown> = { uid };
 
 		if (filter?.base !== undefined) {
-			query['base'] = filter.base;
+			where['base'] = filter.base;
 		}
 		if (filter?.company) {
-			query['company'] = { $regex: filter.company, $options: 'i' };
+			where['company'] = { contains: filter.company, mode: 'insensitive' };
 		}
 		if (filter?.applicationId) {
-			query['applicationId'] = new ObjectId(filter.applicationId);
+			where['applicationId'] = filter.applicationId;
 		}
 
-		const sortCriteria: Record<string, SortOrder> = {};
+		const orderBy: Record<string, string>[] = [];
 
 		if (sort) {
 			const fieldMap: Record<ResumeSortBy, string> = {
@@ -79,92 +76,75 @@ export class ResumesService {
 				[ResumeSortBy.LEVEL]: 'level',
 				[ResumeSortBy.DATE]: 'createdAt',
 			};
-			const direction: SortOrder = sort.ascending ? 1 : -1;
-			sortCriteria[fieldMap[sort.field]] = direction;
+			orderBy.push({ [fieldMap[sort.field]]: sort.ascending ? 'asc' : 'desc' });
 		}
 
-		sortCriteria['name'] = 1;
+		orderBy.push({ name: 'asc' });
 
-		const results = await this.resumeModel.find(query).sort(sortCriteria).exec();
-
-		return results.map((item) => item.toObject());
+		const results = await this.prisma.resume.findMany({ where, orderBy });
+		return results.map(
+			(r) => ({ ...r, _id: r.id, data: r.data as ResumeContent }) as ResumeWithId,
+		);
 	}
 
-	async find(uid: string, id: string): Promise<Resume | null> {
-		const result = await this.resumeModel.findOne({ _id: id, uid }).exec();
-
-		if (!result) {
-			throw new NotFoundException();
-		}
-
-		return result?.toObject() ?? null;
+	async find(uid: string, id: string): Promise<ResumeWithId> {
+		const result = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!result) throw new NotFoundException();
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	async create(uid: string, resumeData: ResumeCreateInput): Promise<Resume> {
-		const created = new this.resumeModel({ ...resumeData, uid });
-		const saved = await created.save();
-		return saved.toObject();
+	async create(uid: string, resumeData: ResumeCreateInput): Promise<ResumeWithId> {
+		const result = await this.prisma.resume.create({
+			data: {
+				...resumeData,
+				uid,
+				data: resumeData.data as object,
+			},
+		});
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<Resume> {
-		const contactInfo = await this.contactInfoModel.findOne({}).exec();
+	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<ResumeWithId> {
+		const contactInfo = await this.prisma.contactInformation.findFirst({ where: { uid } });
 
 		if (!contactInfo) {
 			throw new NotFoundException('Contact information not found');
 		}
 
-		const created = new this.resumeModel({
-			...resumeData,
-			uid,
+		const result = await this.prisma.resume.create({
 			data: {
-				contactInformation: contactInfo,
+				...resumeData,
+				uid,
+				data: { contactInformation: contactInfo },
 			},
 		});
-
-		const saved = await created.save();
-		return saved.toObject();
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	async update(uid: string, id: string, updateData: ResumeUpdateInput): Promise<Resume> {
-		const updated = await this.resumeModel
-			.findOneAndUpdate({ _id: id, uid }, updateData, { new: true })
-			.exec();
+	async update(uid: string, id: string, updateData: ResumeUpdateInput): Promise<ResumeWithId> {
+		const existing = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Resume with id ${id} not found`);
 
-		if (!updated) {
-			throw new NotFoundException(`Resume with id ${id} not found`);
-		}
-
-		return updated.toObject();
+		const result = await this.prisma.resume.update({
+			where: { id },
+			data: {
+				...updateData,
+				data: updateData.data ? (updateData.data as object) : undefined,
+			},
+		});
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	async patch(uid: string, id: string, update: UpdateOneModel<Resume>): Promise<Resume> {
-		const resume = await this.getResumeModel(id, uid);
+	async patch(uid: string, id: string, update: Record<string, unknown>): Promise<ResumeWithId> {
+		const existing = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Resume with id ${id} not found`);
 
-		if (!resume) {
-			throw new NotFoundException(`Resume with id ${id} not found`);
-		}
-
-		// else if (resume.readOnly) {
-		// 	throw new ForbiddenException(`Resume with id ${id} is read-only`);
-		// }
-
-		const result = resume.set(update);
-		await result.save();
-
-		return result;
+		const fields = '$set' in update ? (update['$set'] as Record<string, unknown>) : update;
+		const result = await this.prisma.resume.update({ where: { id }, data: fields });
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	private async getResumeModel(id: string, uid: string) {
-		const result = await this.resumeModel.findOne({ _id: id, uid }).exec();
-
-		if (!result) {
-			throw new NotFoundException();
-		}
-
-		return result;
-	}
-
-	async setField(uid: string, id: string, path: string, value: unknown): Promise<Resume> {
+	async setField(uid: string, id: string, path: string, value: unknown): Promise<ResumeWithId> {
 		const isAllowed = ALLOWED_PATH_PREFIXES.some(
 			(prefix) => path === prefix || path.startsWith(prefix + '.'),
 		);
@@ -173,62 +153,57 @@ export class ResumesService {
 			throw new BadRequestException(`Path "${path}" is not allowed`);
 		}
 
-		const resume = await this.resumeModel.findOne({ _id: id, uid }).exec();
+		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
 
-		if (!resume) {
-			throw new NotFoundException(`Resume with id ${id} not found`);
+		if (path.startsWith('data.')) {
+			const data = (resume.data ?? {}) as Record<string, unknown>;
+			setNestedValue(data, path.slice(5), value);
+			this.ensureEmbeddedUids(data as ResumeContent, uid);
+			const result = await this.prisma.resume.update({ where: { id }, data: { data } });
+			return {
+				...result,
+				_id: result.id,
+				data: result.data as ResumeContent,
+			} as ResumeWithId;
 		}
 
-		resume.set(path, value);
-		this.ensureEmbeddedUids(resume, uid);
-
-		const saved = await resume.save();
-		return saved.toObject();
+		const result = await this.prisma.resume.update({ where: { id }, data: { [path]: value } });
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
 	async addCollectionItem(
 		uid: string,
 		id: string,
 		collection: ResumeCollection,
-	): Promise<Resume> {
-		const resume = await this.resumeModel.findOne({ _id: id, uid }).exec();
+	): Promise<ResumeWithId> {
+		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
 
-		if (!resume) {
-			throw new NotFoundException(`Resume with id ${id} not found`);
-		}
+		const data = (resume.data ?? {}) as ResumeContent;
 
 		switch (collection) {
 			case ResumeCollection.WORK_EXPERIENCE:
-				resume.data.workExperience.push(
-					this.createJob(uid, {
-						position: 'New Role',
-					}),
-				);
+				(data.workExperience ??= []).push(this.createJob(uid, { position: 'New Role' }));
 				break;
 			case ResumeCollection.PROJECTS:
-				resume.data.projects.push(
-					this.createProject(uid, {
-						name: 'New Project',
-					}),
-				);
+				(data.projects ??= []).push(this.createProject(uid, { name: 'New Project' }));
 				break;
 			case ResumeCollection.VOLUNTEERING:
-				if (!resume.data.volunteering) {
-					resume.data.volunteering = [];
-				}
-				resume.data.volunteering.push(
-					this.createVolunteering(uid, {
-						position: 'New Role',
-					}),
+				(data.volunteering ??= []).push(
+					this.createVolunteering(uid, { position: 'New Role' }),
 				);
 				break;
 			default:
 				throw new BadRequestException(`Collection "${collection}" is not supported`);
 		}
 
-		this.ensureEmbeddedUids(resume, uid);
-		const saved = await resume.save();
-		return saved.toObject();
+		this.ensureEmbeddedUids(data, uid);
+		const result = await this.prisma.resume.update({
+			where: { id },
+			data: { data: data as object },
+		});
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
 	async removeCollectionItem(
@@ -236,14 +211,12 @@ export class ResumesService {
 		id: string,
 		collection: ResumeCollection,
 		index: number,
-	): Promise<Resume> {
-		const resume = await this.resumeModel.findOne({ _id: id, uid }).exec();
+	): Promise<ResumeWithId> {
+		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
+		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
 
-		if (!resume) {
-			throw new NotFoundException(`Resume with id ${id} not found`);
-		}
-
-		const items = this.getCollectionItems(resume, collection);
+		const data = (resume.data ?? {}) as ResumeContent;
+		const items = this.getCollectionItems(data, collection);
 
 		if (index < 0 || index >= items.length) {
 			throw new BadRequestException(
@@ -252,15 +225,15 @@ export class ResumesService {
 		}
 
 		items.splice(index, 1);
-
-		this.ensureEmbeddedUids(resume, uid);
-		const saved = await resume.save();
-		return saved.toObject();
+		this.ensureEmbeddedUids(data, uid);
+		const result = await this.prisma.resume.update({
+			where: { id },
+			data: { data: data as object },
+		});
+		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
-	private ensureEmbeddedUids(resume: ResumeDocument, uid: string) {
-		const { data } = resume;
-
+	private ensureEmbeddedUids(data: ResumeContent, uid: string) {
 		this.ensureCollectionItemUids(data.education, uid);
 		this.ensureCollectionItemUids(data.skills, uid);
 		this.ensureCollectionItemUids(data.skillGroups, uid);
@@ -271,49 +244,66 @@ export class ResumesService {
 
 	private ensureCollectionItemUids(items: Array<{ uid?: string }> | undefined, uid: string) {
 		items?.forEach((item) => {
-			if (!item.uid) {
-				item.uid = uid;
-			}
+			if (!item.uid) item.uid = uid;
 		});
 	}
 
 	private getCollectionItems(
-		resume: ResumeDocument,
+		data: ResumeContent,
 		collection: ResumeCollection,
 	): Job[] | Project[] | Volunteering[] {
 		switch (collection) {
 			case ResumeCollection.WORK_EXPERIENCE:
-				return resume.data.workExperience;
+				return (data.workExperience ??= []);
 			case ResumeCollection.PROJECTS:
-				return resume.data.projects;
+				return (data.projects ??= []);
 			case ResumeCollection.VOLUNTEERING:
-				if (!resume.data.volunteering) {
-					resume.data.volunteering = [];
-				}
-				return resume.data.volunteering;
+				return (data.volunteering ??= []);
 			default:
 				throw new BadRequestException(`Collection "${collection}" is not supported`);
 		}
 	}
 
 	private createJob(uid: string, overrides: Partial<Job> = {}): Job {
-		return new this.jobModel({
+		return {
+			_id: crypto.randomUUID(),
 			uid,
+			company: '',
+			position: '',
+			location: '',
+			startDate: '',
+			endDate: undefined,
+			responsibilities: [],
+			relevance: undefined,
 			...overrides,
-		}).toObject();
+		} as unknown as Job;
 	}
 
 	private createProject(uid: string, overrides: Partial<Project> = {}): Project {
-		return new this.projectModel({
+		return {
+			_id: crypto.randomUUID(),
 			uid,
+			name: '',
+			technologies: [],
+			items: [],
+			type: undefined,
+			relevance: undefined,
 			...overrides,
-		}).toObject();
+		} as unknown as Project;
 	}
 
 	private createVolunteering(uid: string, overrides: Partial<Volunteering> = {}): Volunteering {
-		return new this.volunteeringModel({
+		return {
+			_id: crypto.randomUUID(),
 			uid,
+			organization: undefined,
+			position: '',
+			location: undefined,
+			startDate: '',
+			endDate: undefined,
+			responsibilities: [],
+			relevance: undefined,
 			...overrides,
-		}).toObject();
+		} as unknown as Volunteering;
 	}
 }
