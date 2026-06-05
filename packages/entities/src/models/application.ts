@@ -9,12 +9,14 @@ import { Resume } from './resume.js';
 @Schema({ _id: false, versionKey: false })
 export class JobSummary {
 	@Field(() => [String], {
+		nullable: true,
 		description: 'Skills required by the job posting',
 	})
 	@Prop({ type: [String], default: [] })
 	requiredSkills: string[];
 
 	@Field(() => [String], {
+		nullable: true,
 		description: 'Skills preferred but not required by the job posting',
 	})
 	@Prop({ type: [String], default: [] })
@@ -60,7 +62,7 @@ export class JobSummary {
 	@Prop({ type: String })
 	teamSize?: string;
 
-	@Field(() => [String], { description: 'Tech stack used by company' })
+	@Field(() => [String], { nullable: true, description: 'Tech stack used by company' })
 	@Prop({ type: [String] })
 	techStack: string[];
 }
@@ -125,18 +127,21 @@ export class Analysis {
 	overallFit: number;
 
 	@Field(() => [String], {
+		nullable: true,
 		description: 'Strengths of the user relative to the job posting',
 	})
 	@Prop({ type: [String], default: [] })
 	strengths: string[];
 
 	@Field(() => [String], {
+		nullable: true,
 		description: 'Weaknesses or skill gaps relative to the job posting',
 	})
 	@Prop({ type: [String], default: [] })
 	weaknesses: string[];
 
 	@Field(() => [String], {
+		nullable: true,
 		description: 'Suggested improvements or talking points',
 	})
 	@Prop({ type: [String], default: [] })

@@ -12,27 +12,27 @@ export class ContactInformation {
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	location: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	phoneNumber: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	email: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	linkedInProfile: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	githubProfile: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	personalWebsite: string;
 

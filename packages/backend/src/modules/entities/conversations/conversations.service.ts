@@ -1,53 +1,66 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import {
 	type ChatModelSelection,
 	Conversation,
 	ConversationCreateInput,
 } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
+
+const MESSAGES_INCLUDE = { messages: { orderBy: { createdAt: 'asc' as const } } };
+
+type ConversationWithMessages = Conversation & { _id: string };
 
 @Injectable()
 export class ConversationsService {
-	constructor(
-		@InjectModel(Conversation.name)
-		private readonly conversationModel: Model<Conversation>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findAllByApplicationId(uid: string, applicationId: string): Promise<Conversation[]> {
-		const results = await this.conversationModel
-			.find({ applicationId, uid })
-			.sort({ updatedAt: -1 })
-			.exec();
-		return results.map((item) => item.toObject());
+	async findAllByApplicationId(
+		uid: string,
+		applicationId: string,
+	): Promise<ConversationWithMessages[]> {
+		const results = await this.prisma.conversation.findMany({
+			where: { applicationId, uid },
+			orderBy: { updatedAt: 'desc' },
+			include: MESSAGES_INCLUDE,
+		});
+		return results.map((r) => ({ ...r, _id: r.id }) as ConversationWithMessages);
 	}
 
-	async findById(uid: string, id: string): Promise<Conversation> {
-		const result = await this.conversationModel.findOne({ _id: id, uid }).exec();
+	async findById(uid: string, id: string): Promise<ConversationWithMessages> {
+		const result = await this.prisma.conversation.findFirst({
+			where: { id, uid },
+			include: MESSAGES_INCLUDE,
+		});
 		if (!result) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);
 		}
-		return result.toObject();
+		return { ...result, _id: result.id } as ConversationWithMessages;
 	}
 
 	async findOrCreate(
 		uid: string,
 		id?: string,
 		data?: ConversationCreateInput,
-	): Promise<Conversation> {
-		const existing = await this.conversationModel.findOne({ _id: id, uid }).exec();
-
-		if (existing) {
-			return existing.toObject();
+	): Promise<ConversationWithMessages> {
+		if (id) {
+			const existing = await this.prisma.conversation.findFirst({
+				where: { id, uid },
+				include: MESSAGES_INCLUDE,
+			});
+			if (existing) {
+				return { ...existing, _id: existing.id } as ConversationWithMessages;
+			}
 		}
-
 		return this.create(uid, data!);
 	}
 
-	async create(uid: string, data: ConversationCreateInput): Promise<Conversation> {
-		const created = new this.conversationModel({ ...data, uid });
-		const saved = await created.save();
-		return saved.toObject();
+	async create(uid: string, data: ConversationCreateInput): Promise<ConversationWithMessages> {
+		const result = await this.prisma.conversation.create({
+			data: { ...data, uid },
+			include: MESSAGES_INCLUDE,
+		});
+		return { ...result, _id: result.id } as ConversationWithMessages;
 	}
 
 	async appendMessage(
@@ -55,29 +68,32 @@ export class ConversationsService {
 		id: string,
 		message: { role: string; content: string },
 	): Promise<void> {
-		const result = await this.conversationModel
-			.updateOne(
-				{ _id: id, uid },
-				{ $push: { messages: { ...message, createdAt: new Date() } } },
-			)
-			.exec();
-		if (result.matchedCount === 0) {
+		const conversation = await this.prisma.conversation.findFirst({ where: { id, uid } });
+		if (!conversation) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);
 		}
+		await this.prisma.conversationMessage.create({
+			data: { conversationId: id, role: message.role, content: message.content },
+		});
+		await this.prisma.conversation.update({
+			where: { id },
+			data: { updatedAt: new Date() },
+		});
 	}
 
 	async setModel(uid: string, id: string, model: ChatModelSelection): Promise<void> {
-		const result = await this.conversationModel
-			.updateOne({ _id: id, uid }, { $set: { model } })
-			.exec();
-		if (result.matchedCount === 0) {
+		const result = await this.prisma.conversation.updateMany({
+			where: { id, uid },
+			data: { model: model as object },
+		});
+		if (result.count === 0) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);
 		}
 	}
 
 	async delete(uid: string, id: string): Promise<void> {
-		const result = await this.conversationModel.deleteOne({ _id: id, uid }).exec();
-		if (result.deletedCount === 0) {
+		const result = await this.prisma.conversation.deleteMany({ where: { id, uid } });
+		if (result.count === 0) {
 			throw new NotFoundException(`Conversation with id ${id} not found`);
 		}
 	}

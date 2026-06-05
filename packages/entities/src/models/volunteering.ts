@@ -8,7 +8,7 @@ export class Volunteering {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
@@ -16,7 +16,7 @@ export class Volunteering {
 	@Prop({ type: String, required: false })
 	organization?: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	position: string;
 
@@ -24,7 +24,7 @@ export class Volunteering {
 	@Prop({ type: String, required: false })
 	location?: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	startDate: string;
 
@@ -32,7 +32,7 @@ export class Volunteering {
 	@Prop({ type: String, required: false })
 	endDate?: string;
 
-	@Field(() => [String])
+	@Field(() => [String], { nullable: true })
 	@Prop({ type: [String], default: [] })
 	responsibilities: string[];
 

@@ -27,7 +27,10 @@
     "migrate:add-base": "node dist/data/migrate-add-base.js",
     "migrate:add-job-preferences": "node dist/data/migrate-add-job-preferences.js",
     "migrate:add-resume-application-id": "node dist/data/migrate-resume-application-id.js",
-    "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js"
+    "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "op run --env-file=../../.env -- prisma migrate dev",
+    "prisma:push": "op run --env-file=../../.env -- prisma db push"
   },
   "dependencies": {
     "@nestjs/graphql": "^13.2.3",
@@ -37,6 +40,8 @@
     "zod": "^4.3.4"
   },
   "devDependencies": {
+    "dotenv": "^16.0.0",
+    "prisma": "^7.8.0",
     "vite-plugin-emit-metadata": "^0.2.0"
   }
 }

@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Skill } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
 
 @Injectable()
 export class SkillsService {
-	constructor(@InjectModel(Skill.name) private readonly skillModel: Model<Skill>) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll(uid: string, categories?: string[]) {
-		const query = categories && categories.length > 0 ? { category: { $in: categories } } : {};
-
-		return this.skillModel
-			.find({ ...query, uid })
-			.lean()
-			.exec();
+	async findAll(uid: string, categories?: string[]): Promise<(Skill & { _id: string })[]> {
+		const results = await this.prisma.skill.findMany({
+			where: { uid, ...(categories?.length ? { category: { in: categories } } : {}) },
+		});
+		return results.map((r) => ({ ...r, _id: r.id }) as Skill & { _id: string });
 	}
 }

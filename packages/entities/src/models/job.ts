@@ -8,23 +8,23 @@ export class Job {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	company: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	position: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	location: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	startDate: string;
 
@@ -32,7 +32,7 @@ export class Job {
 	@Prop({ type: String, required: false })
 	endDate?: string;
 
-	@Field(() => [String])
+	@Field(() => [String], { nullable: true })
 	@Prop({ type: [String], default: [] })
 	responsibilities: string[];
 

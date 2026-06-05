@@ -1,0 +1,351 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../../backend/src/generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+generator crdtClient {
+  provider        = "prisma-client"
+  output          = "../../crdt/src/generated/prisma"
+  moduleFormat    = "esm"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+// ─── Profile ────────────────────────────────────────────────────────────────
+// uid maps to Auth0 sub, unique per user.
+// narrativeSummary and jobPreferences are JSON blobs — not yet normalized.
+
+model Profile {
+  id               String   @id @default(cuid())
+  uid              String   @unique
+  narrative        String   @default("")
+  narrativeSummary Json?
+  jobPreferences   Json     @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Conversation ────────────────────────────────────────────────────────────
+// applicationId is a plain String — no FK until Application is migrated.
+// model stores ChatModelSelection shape: { provider, model }
+
+model Conversation {
+  id            String                @id @default(cuid())
+  uid           String
+  applicationId String?
+  title         String                @default("New Conversation")
+  model         Json?
+  messages      ConversationMessage[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([uid])
+  @@index([applicationId])
+}
+
+// ─── ConversationMessage ─────────────────────────────────────────────────────
+model ConversationMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}
+
+// ─── Fact ────────────────────────────────────────────────────────────────────
+// A durable, reusable career fact owned by a user.
+// entityId references a MongoDB-resident entity (job/project/education/volunteering) —
+// plain String, no FK, same pattern as Conversation.applicationId.
+// embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
+
+model Fact {
+  id           String                    @id @default(cuid())
+  uid          String
+  kind         String
+  entityType   String?
+  entityId     String?
+  what              String
+  impact            String?
+  scale             String?
+  citation          String?
+  citationNodeIndex Int?
+  tags              String[]
+  technologies String[]
+  embedding    Unsupported("vector(768)")?
+  createdAt    DateTime                  @default(now())
+
+  expressions Expression[]
+  resumeFacts ResumeFact[]
+
+  @@index([uid])
+  @@index([entityId])
+}
+
+// ─── Expression ──────────────────────────────────────────────────────────────
+// A rendered prose variant of a Fact — one fact can have many expressions
+// differing in length/tone.
+
+model Expression {
+  id        String   @id @default(cuid())
+  factId    String
+  text      String
+  length    String?
+  tone      String?
+  createdAt DateTime @default(now())
+
+  fact        Fact         @relation(fields: [factId], references: [id], onDelete: Cascade)
+  resumeFacts ResumeFact[]
+
+  @@index([factId])
+}
+
+// ─── JobRequirementFact ───────────────────────────────────────────────────────
+// A structured requirement extracted from a job description.
+// applicationId references a MongoDB-resident Application — plain String, no FK.
+// embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
+
+model JobRequirementFact {
+  id            String                    @id @default(cuid())
+  uid           String
+  applicationId String
+  kind          String
+  what          String
+  technologies  String[]
+  tags          String[]
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                  @default(now())
+
+  @@index([uid])
+  @@index([applicationId])
+}
+
+// ─── Resume ──────────────────────────────────────────────────────────────────
+// data holds the full ResumeContent blob (workExperience, education, skills,
+// projects, volunteering, etc.) as JSON — see PgResume in @resume-builder/entities.
+// applicationId and sourceResumeId are plain strings during dual-DB transition.
+
+model Resume {
+  id             String  @id @default(cuid())
+  uid            String
+  name           String  @default("")
+  company        String  @default("")
+  level          String?
+  jobPostingUrl  String  @default("")
+  readOnly       Boolean @default(false)
+  base           Boolean @default(false)
+  applicationId  String?
+  sourceResumeId String?
+  data           Json    @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sourceResume   Resume?  @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
+  derivedResumes Resume[] @relation("ResumeVersions")
+
+  @@index([uid])
+  @@index([applicationId])
+  @@index([sourceResumeId])
+}
+
+// ─── Application ─────────────────────────────────────────────────────────────
+// jobSummary and analysis are JSON blobs — see PgApplication in @resume-builder/entities.
+// coverLetterId is a plain string during dual-DB transition.
+
+model Application {
+  id             String  @id @default(cuid())
+  uid            String
+  name           String  @default("")
+  company        String  @default("")
+  jobPostingUrl  String  @default("")
+  jobDescription String?
+  notionId       String?
+  coverLetterId  String?
+  jobSummary     Json?
+  analysis       Json?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── CoverLetter ─────────────────────────────────────────────────────────────
+
+model CoverLetter {
+  id            String   @id @default(cuid())
+  uid           String
+  name          String   @default("")
+  company       String   @default("")
+  jobPostingUrl String   @default("")
+  content       String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── ContactInformation ──────────────────────────────────────────────────────
+
+model ContactInformation {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  location        String   @default("")
+  phoneNumber     String   @default("")
+  email           String   @default("")
+  linkedInProfile String   @default("")
+  githubProfile   String   @default("")
+  personalWebsite String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── ProjectType ─────────────────────────────────────────────────────────────
+
+enum ProjectType {
+  professional
+  personal
+}
+
+// ─── Job ─────────────────────────────────────────────────────────────────────
+
+model Job {
+  id               String   @id @default(cuid())
+  uid              String
+  company          String   @default("")
+  position         String   @default("")
+  location         String   @default("")
+  startDate        String   @default("")
+  endDate          String?
+  responsibilities String[]
+  relevance        Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Education ───────────────────────────────────────────────────────────────
+
+model Education {
+  id          String   @id @default(cuid())
+  uid         String
+  degree      String   @default("")
+  field       String   @default("")
+  institution String   @default("")
+  graduated   String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Project ─────────────────────────────────────────────────────────────────
+
+model Project {
+  id           String      @id @default(cuid())
+  uid          String
+  name         String      @default("")
+  technologies String[]
+  items        String[]
+  type         ProjectType?
+  relevance    Float?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Skill ───────────────────────────────────────────────────────────────────
+
+model Skill {
+  id        String   @id @default(cuid())
+  uid       String
+  name      String   @default("")
+  category  String   @default("")
+  relevance Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── SkillGroup ──────────────────────────────────────────────────────────────
+
+model SkillGroup {
+  id        String   @id @default(cuid())
+  uid       String
+  name      String   @default("")
+  items     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── Volunteering ────────────────────────────────────────────────────────────
+
+model Volunteering {
+  id               String   @id @default(cuid())
+  uid              String
+  organization     String?
+  position         String   @default("")
+  location         String?
+  startDate        String   @default("")
+  endDate          String?
+  responsibilities String[]
+  relevance        Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── ResumeFact ───────────────────────────────────────────────────────────────
+// Links a Fact (and optionally a specific Expression) to a Resume.
+// resumeId references a MongoDB-resident Resume — plain String, no FK.
+
+model ResumeFact {
+  resumeId     String
+  factId       String
+  expressionId String?
+  section      String?
+  position     Int?
+
+  fact       Fact        @relation(fields: [factId], references: [id], onDelete: Cascade)
+  expression Expression? @relation(fields: [expressionId], references: [id])
+
+  @@id([resumeId, factId])
+  @@index([resumeId])
+}
+
+// ─── ProfileUpdate ───────────────────────────────────────────────────────────
+// Append-only log of Yjs CRDT binary state snapshots for profile documents.
+// Each row is immutable — never updated, only inserted. The highest sequence
+// for a given (name, uid) is the current state.
+
+model ProfileUpdate {
+  id        String   @id @default(cuid())
+  name      String
+  uid       String
+  sequence  Int
+  update    Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name, uid, sequence(sort: Desc)])
+}
+

@@ -8,23 +8,23 @@ export class Education {
 	@Field(() => ID)
 	_id: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	degree: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	field: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	institution: string;
 
-	@Field()
+	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	graduated: string;
 
