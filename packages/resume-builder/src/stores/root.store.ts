@@ -16,6 +16,7 @@ import { AuthStore } from './auth.store.ts';
 import { ContactInformationStore } from './contact-information.store.ts';
 import { EditorStore } from './editor.store.ts';
 import { EducationStore } from './education.store.ts';
+import { FactsStore } from './facts.store.ts';
 import { ProfileStore } from './profile.store.ts';
 import { ResumeStore } from './resume.store.ts';
 
@@ -31,6 +32,7 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly contactInformationStore: ContactInformationStore;
 	public readonly editorStore: EditorStore;
 	public readonly educationStore: EducationStore;
+	public readonly factsStore: FactsStore;
 	public readonly explorerSidebarStore: ExplorerSidebarStore;
 	public readonly inlineEditStore: InlineEditStore;
 	public readonly inspectStore: InspectStore;
@@ -48,6 +50,7 @@ export class RootStore<R extends AnyRoute = any> {
 		this.contactInformationStore = new ContactInformationStore(this);
 		this.editorStore = new EditorStore(this);
 		this.educationStore = new EducationStore(this);
+		this.factsStore = new FactsStore(this);
 		this.explorerSidebarStore = new ExplorerSidebarStore(this);
 		this.inlineEditStore = new InlineEditStore(this);
 		this.inspectStore = new InspectStore(this);
