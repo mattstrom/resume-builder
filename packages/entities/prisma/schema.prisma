@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client"
-  output          = "../src/generated/prisma"
+  output          = "../../backend/src/generated/prisma"
   moduleFormat    = "esm"
   previewFeatures = ["postgresqlExtensions"]
 }
@@ -122,6 +122,88 @@ model JobRequirementFact {
 
   @@index([uid])
   @@index([applicationId])
+}
+
+// ─── Resume ──────────────────────────────────────────────────────────────────
+// data holds the full ResumeContent blob (workExperience, education, skills,
+// projects, volunteering, etc.) as JSON — see PgResume in @resume-builder/entities.
+// applicationId and sourceResumeId are plain strings during dual-DB transition.
+
+model Resume {
+  id             String  @id @default(cuid())
+  uid            String
+  name           String  @default("")
+  company        String  @default("")
+  level          String?
+  jobPostingUrl  String  @default("")
+  readOnly       Boolean @default(false)
+  base           Boolean @default(false)
+  applicationId  String?
+  sourceResumeId String?
+  data           Json    @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sourceResume   Resume?  @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
+  derivedResumes Resume[] @relation("ResumeVersions")
+
+  @@index([uid])
+  @@index([applicationId])
+  @@index([sourceResumeId])
+}
+
+// ─── Application ─────────────────────────────────────────────────────────────
+// jobSummary and analysis are JSON blobs — see PgApplication in @resume-builder/entities.
+// coverLetterId is a plain string during dual-DB transition.
+
+model Application {
+  id             String  @id @default(cuid())
+  uid            String
+  name           String  @default("")
+  company        String  @default("")
+  jobPostingUrl  String  @default("")
+  jobDescription String?
+  notionId       String?
+  coverLetterId  String?
+  jobSummary     Json?
+  analysis       Json?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── CoverLetter ─────────────────────────────────────────────────────────────
+
+model CoverLetter {
+  id            String   @id @default(cuid())
+  uid           String
+  name          String   @default("")
+  company       String   @default("")
+  jobPostingUrl String   @default("")
+  content       String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([uid])
+}
+
+// ─── ContactInformation ──────────────────────────────────────────────────────
+
+model ContactInformation {
+  id              String   @id @default(cuid())
+  uid             String   @unique
+  location        String   @default("")
+  phoneNumber     String   @default("")
+  email           String   @default("")
+  linkedInProfile String   @default("")
+  githubProfile   String   @default("")
+  personalWebsite String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([uid])
 }
 
 // ─── ResumeFact ───────────────────────────────────────────────────────────────
