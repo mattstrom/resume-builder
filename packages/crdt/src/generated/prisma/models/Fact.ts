@@ -887,13 +887,37 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     uid: string
+    /**
+     * @zod.string.describe("Category of fact (e.g. 'achievement', 'responsibility', 'skill-evidence')")
+     */
     kind: string
+    /**
+     * @zod.string.describe("Type of the related entity (e.g. 'job', 'project', 'education')")
+     */
     entityType: string | null
+    /**
+     * @zod.string.describe("ID of the related entity")
+     */
     entityId: string | null
+    /**
+     * @zod.string.describe("One or two sentence description of the fact")
+     */
     what: string
+    /**
+     * @zod.string.describe("Measurable outcome or impact (e.g. 'reduced latency by 40%')")
+     */
     impact: string | null
+    /**
+     * @zod.string.describe("Scale or magnitude (e.g. 'team of 8', '$2M ARR product')")
+     */
     scale: string | null
+    /**
+     * @zod.string.describe("Key phrase from the narrative node this fact was extracted from")
+     */
     citation: string | null
+    /**
+     * @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
+     */
     citationNodeIndex: number | null
     tags: string[]
     technologies: string[]

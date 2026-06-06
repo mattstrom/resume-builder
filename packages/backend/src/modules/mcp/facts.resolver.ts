@@ -1,12 +1,19 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
+import { FactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import { EmbeddingService } from '../facts/embedding.service.js';
-import { FactsService } from '../facts/facts.service.js';
+import { type CreateFactDto, type UpdateFactDto, FactsService } from '../facts/facts.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
 import { type McpToolParams } from './types.js';
+
+const factCreateSchema = FactSchema.omit({ id: true, uid: true, createdAt: true }).extend({
+	tags: z.string().array().optional().describe('Tags for classification'),
+	technologies: z.string().array().optional().describe('Technologies involved'),
+});
+const factUpdateSchema = factCreateSchema.partial();
 
 @Resolver()
 @UseGuards(McpGuard)
@@ -87,56 +94,12 @@ export class FactsResolver {
 		name: 'create_facts',
 		description: 'Create multiple facts at once to avoid hitting tool call limits',
 		paramsSchema: {
-			facts: z
-				.array(
-					z.object({
-						kind: z.string().describe('Category of fact'),
-						what: z.string().describe('Description of the fact'),
-						impact: z.string().optional().describe('Impact or outcome'),
-						scale: z.string().optional().describe('Scale or magnitude'),
-						tags: z.array(z.string()).optional().describe('Tags for classification'),
-						technologies: z
-							.array(z.string())
-							.optional()
-							.describe('Technologies involved'),
-						entityType: z.string().optional().describe('Type of related entity'),
-						entityId: z.string().optional().describe('ID of the related entity'),
-						citation: z
-							.string()
-							.optional()
-							.describe(
-								'Key phrase from the narrative node this fact was extracted from',
-							),
-						citationNodeIndex: z
-							.number()
-							.int()
-							.optional()
-							.describe(
-								'CRDT node index in the narrative document at the time of extraction',
-							),
-					}),
-				)
-				.describe('List of facts to create'),
+			facts: z.array(factCreateSchema).describe('List of facts to create'),
 		},
 		annotations: { destructiveHint: true, idempotentHint: false },
 	})
 	async createFacts(
-		{
-			facts,
-		}: McpToolParams<{
-			facts: Array<{
-				kind: string;
-				what: string;
-				impact?: string;
-				scale?: string;
-				tags?: string[];
-				technologies?: string[];
-				entityType?: string;
-				entityId?: string;
-				citation?: string;
-				citationNodeIndex?: number;
-			}>;
-		}>,
+		{ facts }: McpToolParams<{ facts: CreateFactDto[] }>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
 		const created = await Promise.all(facts.map((f) => this.factsService.create(user.sub, f)));
@@ -152,43 +115,12 @@ export class FactsResolver {
 		description: 'Update an existing fact',
 		paramsSchema: {
 			id: z.string().describe('Fact ID'),
-			kind: z.string().optional(),
-			what: z.string().optional(),
-			impact: z.string().optional(),
-			scale: z.string().optional(),
-			tags: z.array(z.string()).optional(),
-			technologies: z.array(z.string()).optional(),
-			entityType: z.string().optional(),
-			entityId: z.string().optional(),
-			citation: z
-				.string()
-				.optional()
-				.describe('Key phrase from the narrative node this fact was extracted from'),
-			citationNodeIndex: z
-				.number()
-				.int()
-				.optional()
-				.describe('CRDT node index in the narrative document at the time of extraction'),
+			...factUpdateSchema.shape,
 		},
 		annotations: { destructiveHint: true, idempotentHint: false },
 	})
 	async updateFact(
-		{
-			id,
-			...dto
-		}: McpToolParams<{
-			id: string;
-			kind?: string;
-			what?: string;
-			impact?: string;
-			scale?: string;
-			tags?: string[];
-			technologies?: string[];
-			entityType?: string;
-			entityId?: string;
-			citation?: string;
-			citationNodeIndex?: number;
-		}>,
+		{ id, ...dto }: McpToolParams<{ id: string } & UpdateFactDto>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
 		const fact = await this.factsService.update(user.sub, id, dto);

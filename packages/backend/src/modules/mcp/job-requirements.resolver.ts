@@ -1,11 +1,29 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
+import { JobRequirementFactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
-import { JobRequirementsService } from '../job-requirements/job-requirements.service.js';
+import {
+	type CreateJobRequirementDto,
+	JobRequirementsService,
+} from '../job-requirements/job-requirements.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
 import { type McpToolParams } from './types.js';
+
+const requirementCreateSchema = JobRequirementFactSchema.omit({
+	id: true,
+	uid: true,
+	applicationId: true,
+	createdAt: true,
+}).extend({
+	technologies: z
+		.string()
+		.array()
+		.optional()
+		.describe('Specific technologies or tools mentioned'),
+	tags: z.string().array().optional().describe('Lowercase hyphenated classification tags'),
+});
 
 @Resolver()
 @UseGuards(McpGuard)
@@ -19,24 +37,7 @@ export class JobRequirementsResolver {
 		paramsSchema: {
 			applicationId: z.string().describe('Application ID'),
 			requirements: z
-				.array(
-					z.object({
-						kind: z
-							.string()
-							.describe(
-								'Requirement kind: "required", "preferred", "responsibility", or "culture"',
-							),
-						what: z.string().describe('One-sentence description of the requirement'),
-						technologies: z
-							.array(z.string())
-							.optional()
-							.describe('Specific technologies or tools mentioned'),
-						tags: z
-							.array(z.string())
-							.optional()
-							.describe('Lowercase hyphenated classification tags'),
-					}),
-				)
+				.array(requirementCreateSchema)
 				.describe('List of requirement facts to create'),
 		},
 		annotations: { destructiveHint: true, idempotentHint: false },
@@ -47,12 +48,7 @@ export class JobRequirementsResolver {
 			requirements,
 		}: McpToolParams<{
 			applicationId: string;
-			requirements: Array<{
-				kind: string;
-				what: string;
-				technologies?: string[];
-				tags?: string[];
-			}>;
+			requirements: CreateJobRequirementDto[];
 		}>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
@@ -70,7 +66,8 @@ export class JobRequirementsResolver {
 
 	@Tool({
 		name: 'get_job_requirements',
-		description: 'Get all requirement facts extracted from a job description for an application',
+		description:
+			'Get all requirement facts extracted from a job description for an application',
 		paramsSchema: {
 			applicationId: z.string().describe('Application ID'),
 		},
