@@ -19,3 +19,19 @@ export * from './chat-models.js';
 
 export * from './utils/database.js';
 export * from './pg-types.js';
+
+export { FactSchema } from './generated/zod/modelSchema/FactSchema.js';
+export type { Fact } from './generated/zod/modelSchema/FactSchema.js';
+export { ExpressionSchema } from './generated/zod/modelSchema/ExpressionSchema.js';
+export type { Expression } from './generated/zod/modelSchema/ExpressionSchema.js';
+export { JobRequirementFactSchema } from './generated/zod/modelSchema/JobRequirementFactSchema.js';
+export type { JobRequirementFact } from './generated/zod/modelSchema/JobRequirementFactSchema.js';
+
+export { JobSchema as PgJobSchema } from './generated/zod/modelSchema/JobSchema.js';
+export { EducationSchema as PgEducationSchema } from './generated/zod/modelSchema/EducationSchema.js';
+export { SkillSchema as PgSkillSchema } from './generated/zod/modelSchema/SkillSchema.js';
+export { SkillGroupSchema as PgSkillGroupSchema } from './generated/zod/modelSchema/SkillGroupSchema.js';
+export { VolunteeringSchema as PgVolunteeringSchema } from './generated/zod/modelSchema/VolunteeringSchema.js';
+export { CoverLetterSchema as PgCoverLetterSchema } from './generated/zod/modelSchema/CoverLetterSchema.js';
+export { ContactInformationSchema as PgContactInformationSchema } from './generated/zod/modelSchema/ContactInformationSchema.js';
+export { ConversationMessageSchema as PgConversationMessageSchema } from './generated/zod/modelSchema/ConversationMessageSchema.js';
