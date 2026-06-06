@@ -432,7 +432,13 @@ export type $JobRequirementFactPayload<ExtArgs extends runtime.Types.Extensions.
     id: string
     uid: string
     applicationId: string
+    /**
+     * @zod.string.describe("Requirement kind: 'required', 'preferred', 'responsibility', or 'culture'")
+     */
     kind: string
+    /**
+     * @zod.string.describe("One-sentence description of the requirement")
+     */
     what: string
     technologies: string[]
     tags: string[]

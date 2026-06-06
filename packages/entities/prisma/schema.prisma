@@ -12,6 +12,21 @@ generator crdtClient {
   previewFeatures = ["postgresqlExtensions"]
 }
 
+generator zod {
+  provider                 = "zod-prisma-types"
+  output                   = "../src/generated/zod"
+  useMultipleFiles         = true
+  writeBarrelFiles         = true
+  createInputTypes         = false
+  createModelTypes         = true
+  createPartialTypes       = false
+  addInputTypeValidation   = false
+  addIncludeType           = false
+  addSelectType            = false
+  writeNullishInModelTypes = true
+  coerceDate               = false
+}
+
 datasource db {
   provider   = "postgresql"
   extensions = [vector]
@@ -73,13 +88,21 @@ model ConversationMessage {
 model Fact {
   id           String                    @id @default(cuid())
   uid          String
+  /// @zod.string.describe("Category of fact (e.g. 'achievement', 'responsibility', 'skill-evidence')")
   kind         String
+  /// @zod.string.describe("Type of the related entity (e.g. 'job', 'project', 'education')")
   entityType   String?
+  /// @zod.string.describe("ID of the related entity")
   entityId     String?
+  /// @zod.string.describe("One or two sentence description of the fact")
   what              String
+  /// @zod.string.describe("Measurable outcome or impact (e.g. 'reduced latency by 40%')")
   impact            String?
+  /// @zod.string.describe("Scale or magnitude (e.g. 'team of 8', '$2M ARR product')")
   scale             String?
+  /// @zod.string.describe("Key phrase from the narrative node this fact was extracted from")
   citation          String?
+  /// @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
   citationNodeIndex Int?
   tags              String[]
   technologies String[]
@@ -100,8 +123,11 @@ model Fact {
 model Expression {
   id        String   @id @default(cuid())
   factId    String
+  /// @zod.string.describe("The polished prose expression suitable for a resume bullet")
   text      String
+  /// @zod.string.describe("Length category (e.g. 'short', 'medium', 'long')")
   length    String?
+  /// @zod.string.describe("Tone (e.g. 'formal', 'concise', 'confident')")
   tone      String?
   createdAt DateTime @default(now())
 
@@ -120,7 +146,9 @@ model JobRequirementFact {
   id            String                    @id @default(cuid())
   uid           String
   applicationId String
+  /// @zod.string.describe("Requirement kind: 'required', 'preferred', 'responsibility', or 'culture'")
   kind          String
+  /// @zod.string.describe("One-sentence description of the requirement")
   what          String
   technologies  String[]
   tags          String[]

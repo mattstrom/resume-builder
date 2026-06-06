@@ -17,5 +17,5 @@
     "noUnusedLocals": false
   },
   "include": ["./src/**/*.ts"],
-  "exclude": ["./src/data"]
+  "exclude": ["./src/data", "./src/generated/zod"]
 }

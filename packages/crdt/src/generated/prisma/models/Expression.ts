@@ -645,8 +645,17 @@ export type $ExpressionPayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     factId: string
+    /**
+     * @zod.string.describe("The polished prose expression suitable for a resume bullet")
+     */
     text: string
+    /**
+     * @zod.string.describe("Length category (e.g. 'short', 'medium', 'long')")
+     */
     length: string | null
+    /**
+     * @zod.string.describe("Tone (e.g. 'formal', 'concise', 'confident')")
+     */
     tone: string | null
     createdAt: Date
   }, ExtArgs["result"]["expression"]>
