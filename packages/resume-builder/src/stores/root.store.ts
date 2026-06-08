@@ -17,8 +17,12 @@ import { ContactInformationStore } from './contact-information.store.ts';
 import { EditorStore } from './editor.store.ts';
 import { EducationStore } from './education.store.ts';
 import { FactsStore } from './facts.store.ts';
+import { JobsStore } from './jobs.store.ts';
 import { ProfileStore } from './profile.store.ts';
+import { ProjectsStore } from './projects.store.ts';
 import { ResumeStore } from './resume.store.ts';
+import { SkillsStore } from './skills.store.ts';
+import { VolunteeringStore } from './volunteering.store.ts';
 
 let singleton: RootStore;
 
@@ -33,6 +37,10 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly editorStore: EditorStore;
 	public readonly educationStore: EducationStore;
 	public readonly factsStore: FactsStore;
+	public readonly jobsStore: JobsStore;
+	public readonly projectsStore: ProjectsStore;
+	public readonly skillsStore: SkillsStore;
+	public readonly volunteeringStore: VolunteeringStore;
 	public readonly explorerSidebarStore: ExplorerSidebarStore;
 	public readonly inlineEditStore: InlineEditStore;
 	public readonly inspectStore: InspectStore;
@@ -51,6 +59,10 @@ export class RootStore<R extends AnyRoute = any> {
 		this.editorStore = new EditorStore(this);
 		this.educationStore = new EducationStore(this);
 		this.factsStore = new FactsStore(this);
+		this.jobsStore = new JobsStore(this);
+		this.projectsStore = new ProjectsStore(this);
+		this.skillsStore = new SkillsStore(this);
+		this.volunteeringStore = new VolunteeringStore(this);
 		this.explorerSidebarStore = new ExplorerSidebarStore(this);
 		this.inlineEditStore = new InlineEditStore(this);
 		this.inspectStore = new InspectStore(this);

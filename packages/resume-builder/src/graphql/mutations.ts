@@ -46,6 +46,138 @@ export const DELETE_EDUCATION = gql`
 	}
 `;
 
+export const CREATE_JOB = gql`
+	mutation CreateJob($job: JobInput!) {
+		createJob(job: $job) {
+			_id
+			company
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+			relevance
+		}
+	}
+`;
+
+export const UPDATE_JOB = gql`
+	mutation UpdateJob($id: String!, $job: JobInput!) {
+		updateJob(id: $id, job: $job) {
+			_id
+			company
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+			relevance
+		}
+	}
+`;
+
+export const DELETE_JOB = gql`
+	mutation DeleteJob($id: String!) {
+		deleteJob(id: $id)
+	}
+`;
+
+export const CREATE_PROJECT = gql`
+	mutation CreateProject($project: ProjectInput!) {
+		createProject(project: $project) {
+			_id
+			name
+			technologies
+			items
+			type
+			relevance
+		}
+	}
+`;
+
+export const UPDATE_PROJECT = gql`
+	mutation UpdateProject($id: String!, $project: ProjectInput!) {
+		updateProject(id: $id, project: $project) {
+			_id
+			name
+			technologies
+			items
+			type
+			relevance
+		}
+	}
+`;
+
+export const DELETE_PROJECT = gql`
+	mutation DeleteProject($id: String!) {
+		deleteProject(id: $id)
+	}
+`;
+
+export const CREATE_SKILL = gql`
+	mutation CreateSkill($skill: SkillInput!) {
+		createSkill(skill: $skill) {
+			_id
+			name
+			category
+			relevance
+		}
+	}
+`;
+
+export const UPDATE_SKILL = gql`
+	mutation UpdateSkill($id: String!, $skill: SkillInput!) {
+		updateSkill(id: $id, skill: $skill) {
+			_id
+			name
+			category
+			relevance
+		}
+	}
+`;
+
+export const DELETE_SKILL = gql`
+	mutation DeleteSkill($id: String!) {
+		deleteSkill(id: $id)
+	}
+`;
+
+export const CREATE_VOLUNTEERING = gql`
+	mutation CreateVolunteering($volunteering: VolunteeringInput!) {
+		createVolunteering(volunteering: $volunteering) {
+			_id
+			organization
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+			relevance
+		}
+	}
+`;
+
+export const UPDATE_VOLUNTEERING = gql`
+	mutation UpdateVolunteering($id: String!, $volunteering: VolunteeringInput!) {
+		updateVolunteering(id: $id, volunteering: $volunteering) {
+			_id
+			organization
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+			relevance
+		}
+	}
+`;
+
+export const DELETE_VOLUNTEERING = gql`
+	mutation DeleteVolunteering($id: String!) {
+		deleteVolunteering(id: $id)
+	}
+`;
+
 export const CREATE_APPLICATION = gql`
 	mutation CreateApplication($applicationData: ApplicationInput!) {
 		createApplication(applicationData: $applicationData) {

@@ -1,10 +1,11 @@
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { fitAssessmentAgent } from '../agents/fit-assessment.agent';
 import { jobRequirementsExtractorAgent } from '../agents/job-requirements-extractor.agent';
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import {
 	analysisSchema,
 	jobSummarySchema,
@@ -88,9 +89,10 @@ const fetchAssessmentData = createStep({
 		candidateText: z.string(),
 		jobPreferencesText: z.string(),
 	}),
-	execute: async ({ inputData }) => {
+	execute: async ({ inputData, requestContext }) => {
 		const { applicationId } = inputData;
-		const toolsets = await resumeBuilderMcpClient.listToolsets();
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const toolsets = await createResumeBuilderMcpClient(token).listToolsets();
 		const tools = toolsets['resumeBuilder'];
 
 		const [appResult, profileResult] = await Promise.all([
@@ -192,9 +194,10 @@ const saveAssessmentResults = createStep({
 		jobSummary: jobSummarySchema,
 		analysis: analysisSchema,
 	}),
-	execute: async ({ inputData }) => {
+	execute: async ({ inputData, requestContext }) => {
 		const { applicationId, jobSummary, analysis } = inputData['run-fit-assessment'];
-		const toolsets = await resumeBuilderMcpClient.listToolsets();
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const toolsets = await createResumeBuilderMcpClient(token).listToolsets();
 		const tools = toolsets['resumeBuilder'];
 
 		await tools['update_analysis'].execute!({ applicationId, analysis }, {} as any);

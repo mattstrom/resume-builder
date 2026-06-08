@@ -259,6 +259,45 @@ export const LIST_JOBS = gql`
 	}
 `;
 
+export const LIST_PROJECTS = gql`
+	query ListProjects {
+		listProjects {
+			_id
+			name
+			technologies
+			items
+			type
+			relevance
+		}
+	}
+`;
+
+export const LIST_SKILLS = gql`
+	query ListSkills {
+		listSkills {
+			_id
+			name
+			category
+			relevance
+		}
+	}
+`;
+
+export const LIST_VOLUNTEERING = gql`
+	query ListVolunteering {
+		listVolunteering {
+			_id
+			organization
+			position
+			location
+			startDate
+			endDate
+			responsibilities
+			relevance
+		}
+	}
+`;
+
 export const LIST_FACTS = gql`
 	query ListFacts {
 		facts {

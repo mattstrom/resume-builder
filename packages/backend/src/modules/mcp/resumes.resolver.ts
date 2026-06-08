@@ -3,8 +3,12 @@ import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import {
 	CoverLetter,
 	coverLetterSchema,
+	JobInput,
+	ProjectInput,
 	ResumeCreateInput,
 	resumeInputSchema,
+	SkillInput,
+	VolunteeringInput,
 } from '@resume-builder/entities';
 import { outdent } from 'outdent';
 import { z } from 'zod';
@@ -16,11 +20,46 @@ import { JobsService } from '../entities/jobs/jobs.service.js';
 import { ProjectsService } from '../entities/projects/projects.service.js';
 import { ResumesService } from '../entities/resumes/resumes.service.js';
 import { SkillsService } from '../entities/skills/skills.service.js';
+import { VolunteeringService } from '../entities/volunteering/volunteering.service.js';
 import { McpGuard } from './mcp.guard.js';
 import { type McpExtra, type McpToolParams } from './types.js';
 
 const getSkillsSchema = {
 	categories: z.array(z.string()).optional(),
+};
+
+const createJobSchema = {
+	company: z.string(),
+	position: z.string(),
+	location: z.string(),
+	startDate: z.string(),
+	endDate: z.string().optional(),
+	responsibilities: z.array(z.string()),
+	relevance: z.number().min(0).max(1).optional(),
+};
+
+const createProjectSchema = {
+	name: z.string(),
+	technologies: z.array(z.string()),
+	items: z.array(z.string()),
+	type: z.enum(['professional', 'personal']).optional(),
+	relevance: z.number().min(0).max(1).optional(),
+};
+
+const createSkillSchema = {
+	name: z.string(),
+	category: z.string(),
+	relevance: z.number().min(0).max(1).optional(),
+};
+
+const createVolunteeringSchema = {
+	organization: z.string().optional(),
+	position: z.string(),
+	location: z.string().optional(),
+	startDate: z.string(),
+	endDate: z.string().optional(),
+	responsibilities: z.array(z.string()),
+	relevance: z.number().min(0).max(1).optional(),
 };
 
 @Resolver()
@@ -34,6 +73,7 @@ export class ResumesResolver {
 		private projectsService: ProjectsService,
 		private resumesService: ResumesService,
 		private skillsService: SkillsService,
+		private volunteeringService: VolunteeringService,
 	) {}
 
 	/**
@@ -373,6 +413,120 @@ export class ResumesResolver {
 			structuredContent: {
 				coverLetter: savedCoverLetter,
 			},
+		};
+	}
+
+	@Tool({
+		name: 'get_volunteering',
+		description: 'Retrieve volunteering entries from the database',
+		annotations: {
+			destructiveHint: false,
+			idempotentHint: true,
+		},
+	})
+	async getVolunteering({ user }: McpExtra): Promise<CallToolResult> {
+		const volunteering = await this.volunteeringService.findAll(user.sub);
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: outdent`
+						Found ${volunteering.length} volunteering entries.
+						${JSON.stringify(volunteering, null, 2)}
+					`,
+				},
+			],
+			structuredContent: { volunteering },
+		};
+	}
+
+	@Tool({
+		name: 'create_job',
+		description: 'Create a new job entry in the database',
+		paramsSchema: createJobSchema,
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: false,
+		},
+	})
+	async createJob(jobData: McpToolParams<JobInput>, { user }: McpExtra): Promise<CallToolResult> {
+		const job = await this.jobsService.create(user.sub, jobData as JobInput);
+
+		return {
+			content: [{ type: 'text', text: `Job created successfully. ID: ${job._id}` }],
+			structuredContent: { job },
+		};
+	}
+
+	@Tool({
+		name: 'create_project',
+		description: 'Create a new project entry in the database',
+		paramsSchema: createProjectSchema,
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: false,
+		},
+	})
+	async createProject(
+		projectData: McpToolParams<ProjectInput>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const project = await this.projectsService.create(user.sub, projectData as ProjectInput);
+
+		return {
+			content: [{ type: 'text', text: `Project created successfully. ID: ${project._id}` }],
+			structuredContent: { project },
+		};
+	}
+
+	@Tool({
+		name: 'create_skill',
+		description: 'Create a new skill entry in the database',
+		paramsSchema: createSkillSchema,
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: false,
+		},
+	})
+	async createSkill(
+		skillData: McpToolParams<SkillInput>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const skill = await this.skillsService.create(user.sub, skillData as SkillInput);
+
+		return {
+			content: [{ type: 'text', text: `Skill created successfully. ID: ${skill._id}` }],
+			structuredContent: { skill },
+		};
+	}
+
+	@Tool({
+		name: 'create_volunteering',
+		description: 'Create a new volunteering entry in the database',
+		paramsSchema: createVolunteeringSchema,
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: false,
+		},
+	})
+	async createVolunteering(
+		volunteeringData: McpToolParams<VolunteeringInput>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const volunteering = await this.volunteeringService.create(
+			user.sub,
+			volunteeringData as VolunteeringInput,
+		);
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Volunteering entry created successfully. ID: ${volunteering._id}`,
+				},
+			],
+			structuredContent: { volunteering },
 		};
 	}
 }

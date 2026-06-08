@@ -1,8 +1,9 @@
 import { Agent } from '@mastra/core/agent';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
 export const factsExtractorAgent = new Agent({
 	id: 'facts-extractor',
@@ -133,8 +134,9 @@ export const factsExtractorAgent = new Agent({
 			You are not writing a resume. You are not generating bullets. You are not summarizing the candidate's career. You are not evaluating whether facts are impressive. You are decomposing a narrative into its smallest true units so that a separate agent can later assemble and express them appropriately for any given context.
 		`;
 	},
-	tools: async () => {
-		const tools = await resumeBuilderMcpClient.listTools();
+	tools: async ({ requestContext }) => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {
 			resumeBuilder_read_narrative: tools.resumeBuilder_read_narrative,

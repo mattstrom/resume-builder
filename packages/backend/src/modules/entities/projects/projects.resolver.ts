@@ -25,4 +25,19 @@ export class ProjectsResolver {
 	async createProject(@CurrentUser('sub') uid: string, @Args('project') project: ProjectInput) {
 		return this.projectsService.create(uid, project);
 	}
+
+	@Mutation(() => Project)
+	async updateProject(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('project') project: ProjectInput,
+	): Promise<Project> {
+		return this.projectsService.update(uid, id, project);
+	}
+
+	@Mutation(() => Boolean)
+	async deleteProject(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
+		await this.projectsService.delete(uid, id);
+		return true;
+	}
 }

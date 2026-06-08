@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Volunteering, VolunteeringInput } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
@@ -20,5 +20,25 @@ export class VolunteeringService {
 			data: { ...volunteering, uid },
 		});
 		return { ...result, _id: result.id } as Volunteering & { _id: string };
+	}
+
+	async update(
+		uid: string,
+		id: string,
+		volunteeringData: VolunteeringInput,
+	): Promise<Volunteering & { _id: string }> {
+		const existing = await this.prisma.volunteering.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Volunteering with id ${id} not found`);
+		const result = await this.prisma.volunteering.update({
+			where: { id },
+			data: volunteeringData,
+		});
+		return { ...result, _id: result.id } as Volunteering & { _id: string };
+	}
+
+	async delete(uid: string, id: string): Promise<void> {
+		const existing = await this.prisma.volunteering.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Volunteering with id ${id} not found`);
+		await this.prisma.volunteering.delete({ where: { id } });
 	}
 }
