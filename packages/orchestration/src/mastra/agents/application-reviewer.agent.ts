@@ -1,9 +1,10 @@
 import { Agent } from '@mastra/core/agent';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
 export const applicationReviewerAgent = new Agent({
 	id: 'application-reviewer',
@@ -20,8 +21,9 @@ export const applicationReviewerAgent = new Agent({
 			`,
 		];
 	},
-	tools: async () => {
-		const tools = await resumeBuilderMcpClient.listTools();
+	tools: async ({ requestContext }) => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {
 			...tools,

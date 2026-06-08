@@ -461,12 +461,22 @@ type Mutation {
   deleteExpression(factId: ID!, expressionId: ID!): Boolean!
   linkFactToResume(resumeId: ID!, input: LinkFactInput!): ResumeFactType!
   unlinkFactFromResume(resumeId: ID!, factId: ID!): Boolean!
+  createJob(job: JobInput!): Job!
+  updateJob(id: String!, job: JobInput!): Job!
+  deleteJob(id: String!): Boolean!
+  createSkill(skill: SkillInput!): Skill!
+  updateSkill(id: String!, skill: SkillInput!): Skill!
+  deleteSkill(id: String!): Boolean!
   createEducation(education: EducationInput!): Education!
   updateEducation(id: String!, education: EducationInput!): Education!
   deleteEducation(id: String!): Boolean!
   createProject(project: ProjectInput!): Project!
+  updateProject(id: String!, project: ProjectInput!): Project!
+  deleteProject(id: String!): Boolean!
   upsertContactInformation(input: ContactInformationInput!): ContactInformation!
   createVolunteering(volunteering: VolunteeringInput!): Volunteering!
+  updateVolunteering(id: String!, volunteering: VolunteeringInput!): Volunteering!
+  deleteVolunteering(id: String!): Boolean!
   createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
   updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
   patchCoverLetter(id: String!, update: JSON!): CoverLetter!

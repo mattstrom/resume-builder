@@ -17,6 +17,7 @@ type Tools =
 	| 'get_education'
 	| 'get_projects'
 	| 'get_skills'
+	| 'get_volunteering'
 	| 'get_cover_letters'
 	| 'get_cover_letter'
 	| 'save_cover_letter'
@@ -37,14 +38,18 @@ type Tools =
 	| 'link_fact_to_resume'
 	| 'unlink_fact_from_resume'
 	| 'get_job_requirements'
-	| 'create_job_requirements';
+	| 'create_job_requirements'
+	| 'create_job'
+	| 'create_project'
+	| 'create_skill'
+	| 'create_volunteering';
 
 type ResumeBuilderMCPTools = {
 	[key in `resumeBuilder_${Tools}`]: Tool<any, any, any, any>;
 };
 
 class ResumeBuilderMCPClient extends MCPClient {
-	constructor() {
+	constructor(token: string) {
 		super({
 			id: 'resume-builder-mcp-client',
 			servers: {
@@ -52,7 +57,7 @@ class ResumeBuilderMCPClient extends MCPClient {
 					url: new URL(`http://localhost:3000/mcp`),
 					requestInit: {
 						headers: {
-							Authorization: `Bearer ${process.env.RESUME_BUILDER_TOKEN}`,
+							Authorization: `Bearer ${token}`,
 						},
 					},
 				},
@@ -65,4 +70,6 @@ class ResumeBuilderMCPClient extends MCPClient {
 	}
 }
 
-export const resumeBuilderMcpClient = new ResumeBuilderMCPClient();
+export function createResumeBuilderMcpClient(token: string): ResumeBuilderMCPClient {
+	return new ResumeBuilderMCPClient(token);
+}

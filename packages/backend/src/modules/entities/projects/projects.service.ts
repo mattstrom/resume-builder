@@ -22,4 +22,21 @@ export class ProjectsService {
 		const result = await this.prisma.project.create({ data: { ...projectData, uid } });
 		return { ...result, _id: result.id } as Project & { _id: string };
 	}
+
+	async update(
+		uid: string,
+		id: string,
+		projectData: ProjectInput,
+	): Promise<Project & { _id: string }> {
+		const existing = await this.prisma.project.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Project with id ${id} not found`);
+		const result = await this.prisma.project.update({ where: { id }, data: projectData });
+		return { ...result, _id: result.id } as Project & { _id: string };
+	}
+
+	async delete(uid: string, id: string): Promise<void> {
+		const existing = await this.prisma.project.findFirst({ where: { id, uid } });
+		if (!existing) throw new NotFoundException(`Project with id ${id} not found`);
+		await this.prisma.project.delete({ where: { id } });
+	}
 }

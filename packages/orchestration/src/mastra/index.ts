@@ -18,6 +18,7 @@ import config from '@/config';
 
 import { configuration } from '../configuration';
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
+import { backgroundAutofillAgent } from './agents/background-autofill.agent';
 import { careerAdvisorAgent } from './agents/career-advisor.agent';
 import { chatAgent } from './agents/chat.agent';
 import { factsExtractorAgent } from './agents/facts-extractor.agent';
@@ -34,6 +35,7 @@ import {
 	toolCallAppropriatenessScorer,
 	translationScorer,
 } from './scorers/weather-scorer';
+import { backgroundAutofillWorkflow } from './workflows/background-autofill.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
@@ -94,9 +96,11 @@ export const mastra = new Mastra({
 		handoffWorkflow,
 		weatherWorkflow,
 		fitAssessmentWorkflow,
+		backgroundAutofillWorkflow,
 	},
 	agents: {
 		applicationReviewer: applicationReviewerAgent,
+		backgroundAutofill: backgroundAutofillAgent,
 		careerAdvisor: careerAdvisorAgent,
 		chatAgent,
 		factsExtractor: factsExtractorAgent,

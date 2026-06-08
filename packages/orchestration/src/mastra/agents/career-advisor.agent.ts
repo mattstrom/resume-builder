@@ -1,8 +1,9 @@
 import { Agent } from '@mastra/core/agent';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
 export const careerAdvisorAgent = new Agent({
 	id: 'career-advisor',
@@ -17,8 +18,9 @@ export const careerAdvisorAgent = new Agent({
 			Use the available tools to retrieve the candidate's job search preferences.
 		`;
 	},
-	tools: async () => {
-		const tools = await resumeBuilderMcpClient.listTools();
+	tools: async ({ requestContext }) => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {
 			resumeBuilder_read_preferences: tools.resumeBuilder_read_preferences,

@@ -1,5 +1,5 @@
-import { Query, Resolver } from '@nestjs/graphql';
-import { Skill } from '@resume-builder/entities';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Skill, SkillInput } from '@resume-builder/entities';
 
 import { CurrentUser } from '../../auth/index.js';
 import { SkillsService } from './skills.service.js';
@@ -11,5 +11,28 @@ export class SkillsResolver {
 	@Query(() => [Skill])
 	async listSkills(@CurrentUser('sub') uid: string): Promise<Skill[]> {
 		return this.skillsService.findAll(uid);
+	}
+
+	@Mutation(() => Skill)
+	async createSkill(
+		@CurrentUser('sub') uid: string,
+		@Args('skill') skill: SkillInput,
+	): Promise<Skill> {
+		return this.skillsService.create(uid, skill);
+	}
+
+	@Mutation(() => Skill)
+	async updateSkill(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('skill') skill: SkillInput,
+	): Promise<Skill> {
+		return this.skillsService.update(uid, id, skill);
+	}
+
+	@Mutation(() => Boolean)
+	async deleteSkill(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
+		await this.skillsService.delete(uid, id);
+		return true;
 	}
 }

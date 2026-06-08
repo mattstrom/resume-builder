@@ -1,8 +1,9 @@
 import { Agent } from '@mastra/core/agent';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
-import { resumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import { extractAnalysisTool } from '../tools/extract-analysis.tool';
 import { extractJobSummaryTool } from '../tools/extract-job-summary.tool';
 
@@ -129,10 +130,15 @@ export const fitAssessmentAgent = new Agent({
 	with limited backend/infra/systems scope.
 	`,
 	model: 'anthropic/claude-sonnet-4-5',
-	tools: {
-		...(await resumeBuilderMcpClient.listTools()),
-		extract_job_summary: extractJobSummaryTool,
-		extract_analysis: extractAnalysisTool,
+	tools: async ({ requestContext }) => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const mcpTools = await createResumeBuilderMcpClient(token).listTools();
+
+		return {
+			...mcpTools,
+			extract_job_summary: extractJobSummaryTool,
+			extract_analysis: extractAnalysisTool,
+		};
 	},
 	memory: new Memory({
 		options: {

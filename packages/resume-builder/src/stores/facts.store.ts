@@ -1,11 +1,9 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 
 import { LIST_FACTS } from '../graphql/queries.ts';
-import { authFetch } from '../utils/auth.ts';
+import { getMastraClient } from '../lib/mastra-client.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
-
-const MASTRA_API_BASE = 'http://localhost:4111';
 
 export interface Fact {
 	id: string;
@@ -58,13 +56,9 @@ export class FactsStore {
 	async extractFacts(): Promise<void> {
 		this.isExtracting = true;
 		try {
-			await authFetch(`${MASTRA_API_BASE}/api/agents/factsExtractor/generate`, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					messages: [{ role: 'user', content: 'Extract facts from my narrative.' }],
-				}),
-			});
+			const client = await getMastraClient();
+			const agent = client.getAgent('factsExtractor');
+			await agent.generate([{ role: 'user', content: 'Extract facts from my narrative.' }]);
 			await this.query.refetch();
 		} finally {
 			this.isExtracting = false;
