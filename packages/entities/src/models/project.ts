@@ -33,8 +33,12 @@ export class Project {
 	relevance?: number;
 
 	static isValid(data: unknown): data is Project {
-		if (!data || typeof data !== 'object') return false;
+		if (!data || typeof data !== 'object') {
+			return false;
+		}
+
 		const obj = data as Record<string, unknown>;
+
 		return (
 			typeof obj.name === 'string' &&
 			Array.isArray(obj.technologies) &&

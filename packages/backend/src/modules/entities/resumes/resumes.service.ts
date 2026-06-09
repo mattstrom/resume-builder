@@ -82,6 +82,7 @@ export class ResumesService {
 		orderBy.push({ name: 'asc' });
 
 		const results = await this.prisma.resume.findMany({ where, orderBy });
+
 		return results.map(
 			(r) => ({ ...r, _id: r.id, data: r.data as ResumeContent }) as ResumeWithId,
 		);
@@ -89,7 +90,9 @@ export class ResumesService {
 
 	async find(uid: string, id: string): Promise<ResumeWithId> {
 		const result = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!result) throw new NotFoundException();
+		if (!result) {
+			throw new NotFoundException();
+		}
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
@@ -101,29 +104,53 @@ export class ResumesService {
 				data: resumeData.data as object,
 			},
 		});
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
 	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<ResumeWithId> {
-		const contactInfo = await this.prisma.contactInformation.findFirst({ where: { uid } });
+		let data: object;
 
-		if (!contactInfo) {
-			throw new NotFoundException('Contact information not found');
+		if (resumeData.sourceResumeId) {
+			const sourceResume = await this.prisma.resume.findFirst({
+				where: { id: resumeData.sourceResumeId, uid },
+			});
+
+			if (!sourceResume) {
+				throw new NotFoundException(
+					`Resume with id ${resumeData.sourceResumeId} not found`,
+				);
+			}
+
+			data = sourceResume.data as object;
+		} else {
+			const contactInfo = await this.prisma.contactInformation.findFirst({
+				where: { uid },
+			});
+
+			if (!contactInfo) {
+				throw new NotFoundException('Contact information not found');
+			}
+
+			data = { contactInformation: contactInfo };
 		}
 
 		const result = await this.prisma.resume.create({
 			data: {
 				...resumeData,
 				uid,
-				data: { contactInformation: contactInfo },
+				data,
 			},
 		});
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
 	async update(uid: string, id: string, updateData: ResumeUpdateInput): Promise<ResumeWithId> {
 		const existing = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!existing) throw new NotFoundException(`Resume with id ${id} not found`);
+		if (!existing) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
 
 		const result = await this.prisma.resume.update({
 			where: { id },
@@ -132,15 +159,19 @@ export class ResumesService {
 				data: updateData.data ? (updateData.data as object) : undefined,
 			},
 		});
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
 	async patch(uid: string, id: string, update: Record<string, unknown>): Promise<ResumeWithId> {
 		const existing = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!existing) throw new NotFoundException(`Resume with id ${id} not found`);
+		if (!existing) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
 
 		const fields = '$set' in update ? (update['$set'] as Record<string, unknown>) : update;
 		const result = await this.prisma.resume.update({ where: { id }, data: fields });
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
@@ -154,13 +185,16 @@ export class ResumesService {
 		}
 
 		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
+		if (!resume) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
 
 		if (path.startsWith('data.')) {
 			const data = (resume.data ?? {}) as Record<string, unknown>;
 			setNestedValue(data, path.slice(5), value);
 			this.ensureEmbeddedUids(data as ResumeContent, uid);
 			const result = await this.prisma.resume.update({ where: { id }, data: { data } });
+
 			return {
 				...result,
 				_id: result.id,
@@ -169,6 +203,7 @@ export class ResumesService {
 		}
 
 		const result = await this.prisma.resume.update({ where: { id }, data: { [path]: value } });
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
@@ -178,7 +213,9 @@ export class ResumesService {
 		collection: ResumeCollection,
 	): Promise<ResumeWithId> {
 		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
+		if (!resume) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
 
 		const data = (resume.data ?? {}) as ResumeContent;
 
@@ -203,6 +240,7 @@ export class ResumesService {
 			where: { id },
 			data: { data: data as object },
 		});
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
@@ -213,7 +251,9 @@ export class ResumesService {
 		index: number,
 	): Promise<ResumeWithId> {
 		const resume = await this.prisma.resume.findFirst({ where: { id, uid } });
-		if (!resume) throw new NotFoundException(`Resume with id ${id} not found`);
+		if (!resume) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
 
 		const data = (resume.data ?? {}) as ResumeContent;
 		const items = this.getCollectionItems(data, collection);
@@ -230,6 +270,7 @@ export class ResumesService {
 			where: { id },
 			data: { data: data as object },
 		});
+
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
 
@@ -244,7 +285,9 @@ export class ResumesService {
 
 	private ensureCollectionItemUids(items: Array<{ uid?: string }> | undefined, uid: string) {
 		items?.forEach((item) => {
-			if (!item.uid) item.uid = uid;
+			if (!item.uid) {
+				item.uid = uid;
+			}
 		});
 	}
 

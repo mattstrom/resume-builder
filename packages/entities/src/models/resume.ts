@@ -101,11 +101,18 @@ export class Resume {
 
 		const obj = resume.data as Record<string, unknown>;
 
-		if (typeof obj.name !== 'string') errors.push('Missing or invalid "name" field');
-		if (typeof obj.title !== 'string') errors.push('Missing or invalid "title" field');
-		if (typeof obj.summary !== 'string') errors.push('Missing or invalid "summary" field');
-		if (!ContactInformation.isValid(obj.contactInformation))
+		if (typeof obj.name !== 'string') {
+			errors.push('Missing or invalid "name" field');
+		}
+		if (typeof obj.title !== 'string') {
+			errors.push('Missing or invalid "title" field');
+		}
+		if (typeof obj.summary !== 'string') {
+			errors.push('Missing or invalid "summary" field');
+		}
+		if (!ContactInformation.isValid(obj.contactInformation)) {
 			errors.push('Missing or invalid "contactInformation" object');
+		}
 		if (!Array.isArray(obj.workExperience)) {
 			errors.push('Missing "workExperience" array');
 		} else if (!obj.workExperience.every(Job.isValid)) {
@@ -173,7 +180,10 @@ export class ResumeCreateInput {
 }
 
 @InputType()
-export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, ['data'] as const) {}
+export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, ['data', 'id'] as const) {
+	@Field({ nullable: true, description: 'Existing resume to copy content from' })
+	sourceResumeId?: string;
+}
 
 @InputType()
 export class ResumeUpdateInput extends PartialType(ResumeCreateInput) {}
