@@ -17,6 +17,8 @@ export * from './models/conversation.js';
 export * from './models/chat-model.js';
 export * from './chat-models.js';
 
+export * from './mcp/index.js';
+
 export * from './utils/database.js';
 export * from './pg-types.js';
 

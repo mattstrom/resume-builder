@@ -48,6 +48,13 @@ type ResumeBuilderMCPTools = {
 	[key in `resumeBuilder_${Tools}`]: Tool<any, any, any, any>;
 };
 
+interface ResumeBuilderMCPToolsets extends Record<
+	string,
+	Record<string, Tool<any, any, any, any>>
+> {
+	resumeBuilder: Record<Tools, Tool<any, any, any, any>>;
+}
+
 class ResumeBuilderMCPClient extends MCPClient {
 	constructor(token: string) {
 		super({
@@ -63,6 +70,10 @@ class ResumeBuilderMCPClient extends MCPClient {
 				},
 			},
 		});
+	}
+
+	listToolsets(): Promise<ResumeBuilderMCPToolsets> {
+		return super.listToolsets() as Promise<ResumeBuilderMCPToolsets>;
 	}
 
 	listTools(): Promise<ResumeBuilderMCPTools> {

@@ -1,43 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { DeltaOp, NarrativeNode } from '@resume-builder/entities';
 
 import configuration from '../../configuration.js';
 import { RequestSigningService } from '../request-signing/index.js';
-
-export type TextRun = {
-	text: string;
-	marks?: Record<string, unknown>;
-};
-
-export type InsertItem = {
-	nodeType:
-		| 'paragraph'
-		| 'heading'
-		| 'bulletList'
-		| 'orderedList'
-		| 'listItem'
-		| 'blockquote'
-		| 'codeBlock'
-		| 'horizontalRule'
-		| 'hardBreak'
-		| 'table'
-		| 'tableRow'
-		| 'tableCell'
-		| 'tableHeader'
-		| 'taskList'
-		| 'taskItem'
-		| 'details';
-	attrs?: Record<string, string>;
-	content: TextRun[];
-};
-
-export type DeltaOp = { retain: number } | { delete: number } | { insert: InsertItem[] };
-
-export type NarrativeNode = {
-	index: number;
-	nodeType: string;
-	attrs: Record<string, string>;
-	content: TextRun[];
-};
 
 @Injectable()
 export class CrdtApiService {
@@ -51,11 +16,13 @@ export class CrdtApiService {
 		const res = await fetch(url, {
 			headers: this.signing.getSigningHeaders(),
 		});
+
 		if (!res.ok) {
 			const body = await res.text();
 			this.logger.error(`CRDT API read failed: ${res.status} ${body}`);
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
+
 		return res.json() as Promise<{ nodes: NarrativeNode[] }>;
 	}
 
@@ -79,6 +46,6 @@ export class CrdtApiService {
 			throw new Error(`CRDT API error: ${res.status}`);
 		}
 
-		return res.json() as Promise<{ ok: boolean; length: number }>;
+		return (await res.json()) as Promise<{ ok: boolean; length: number }>;
 	}
 }
