@@ -59,6 +59,7 @@ export interface CreateBlankResumeVariables {
 		jobPostingUrl: string;
 		base: boolean;
 		applicationId?: string;
+		sourceResumeId?: string;
 	};
 }
 

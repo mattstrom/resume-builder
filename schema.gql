@@ -612,9 +612,6 @@ input VolunteeringInput {
 }
 
 input BlankResumeCreateInput {
-  """Resume identifier"""
-  id: String!
-
   """Name of the resume"""
   name: String!
 
@@ -632,6 +629,9 @@ input BlankResumeCreateInput {
 
   """Application this resume belongs to"""
   applicationId: String
+
+  """Existing resume to copy content from"""
+  sourceResumeId: String
 }
 
 input ResumeUpdateInput {
