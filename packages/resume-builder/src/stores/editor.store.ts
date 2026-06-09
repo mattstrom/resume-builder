@@ -1,5 +1,5 @@
 import type { Application, Resume } from '@resume-builder/entities';
-import { action, makeObservable, observable, runInAction } from 'mobx';
+import { action, makeObservable, observable, runInAction, toJS } from 'mobx';
 
 import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { ApiResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
@@ -20,6 +20,7 @@ import type { RootStore } from './root.store.ts';
 export class EditorStore {
 	@observable resumeData: Resume | null = null;
 	@observable applicationResumes: Resume[] = [];
+	@observable baseResumes: Resume[] = [];
 	@observable selectedApiApplicationId: string | null = null;
 	@observable selectedApplication: Application | null = null;
 	@observable isLoading = false;
@@ -57,7 +58,9 @@ export class EditorStore {
 				fetchPolicy: 'network-only',
 			});
 			const application = applicationResult.data?.getApplication;
-			if (!application) throw new Error('Application not found');
+			if (!application) {
+				throw new Error('Application not found');
+			}
 			runInAction(() => {
 				this.selectedApplication = application;
 			});
@@ -104,7 +107,9 @@ export class EditorStore {
 	@action
 	async selectResume(resumeId: string) {
 		const resume = this.applicationResumes.find((r) => r._id === resumeId);
-		if (!resume) return;
+		if (!resume) {
+			return;
+		}
 
 		await this.controller?.destroy();
 		this.controller = null;
@@ -114,8 +119,30 @@ export class EditorStore {
 	}
 
 	@action
-	async createResumeForApplication(name: string) {
-		if (!this.selectedApplication) return;
+	async loadBaseResumes() {
+		try {
+			const result = await this.rootStore.client.query<ListResumesData, ListResumesVariables>(
+				{
+					query: LIST_RESUMES,
+					variables: { filter: { base: true } },
+					fetchPolicy: 'network-only',
+				},
+			);
+			runInAction(() => {
+				this.baseResumes = result.data?.listResumes ?? [];
+			});
+		} catch {
+			runInAction(() => {
+				this.baseResumes = [];
+			});
+		}
+	}
+
+	@action
+	async createResumeForApplication(name: string, sourceResumeId?: string) {
+		if (!this.selectedApplication) {
+			return;
+		}
 
 		try {
 			const result = await this.rootStore.client.mutate<
@@ -130,12 +157,15 @@ export class EditorStore {
 						jobPostingUrl: this.selectedApplication.jobPostingUrl,
 						base: false,
 						applicationId: this.selectedApplication._id,
+						sourceResumeId,
 					},
 				},
 			});
 
 			const newResume = result.data?.createBlankResume;
-			if (!newResume) return;
+			if (!newResume) {
+				return;
+			}
 
 			runInAction(() => {
 				this.applicationResumes = [...this.applicationResumes, newResume];
@@ -151,7 +181,8 @@ export class EditorStore {
 	@action
 	updateResumeData(resume: Resume) {
 		if (this.controller) {
-			this.controller.replaceResume(resume);
+			// replaceResume structuredClones, which fails on MobX proxies.
+			this.controller.replaceResume(toJS(resume));
 		} else {
 			this.resumeData = resume;
 		}
@@ -163,8 +194,11 @@ export class EditorStore {
 	}
 
 	private async setupApiController(resume: Resume) {
+		// Resumes pulled from observable state are MobX proxies, which the
+		// controller's structuredClone cannot handle — unwrap to plain data.
+		const plainResume = toJS(resume);
 		const controller = new ApiResumeController({
-			resume,
+			resume: plainResume,
 			client: apolloClient,
 			onSnapshotChange: (r) => {
 				runInAction(() => {
@@ -180,7 +214,7 @@ export class EditorStore {
 		this.controller = controller;
 		setActiveResumeController(controller);
 		runInAction(() => {
-			this.resumeData = resume;
+			this.resumeData = plainResume;
 		});
 	}
 }

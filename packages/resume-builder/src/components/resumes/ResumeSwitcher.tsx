@@ -27,6 +27,7 @@ export const ResumeSwitcher: FC = observer(() => {
 		editorStore;
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [creating, setCreating] = useState(false);
+	const [baseResumeId, setBaseResumeId] = useState('blank');
 
 	if (!selectedApiApplicationId) {
 		return null;
@@ -34,13 +35,26 @@ export const ResumeSwitcher: FC = observer(() => {
 
 	const defaultName = selectedApplication ? `${selectedApplication.name} Resume` : 'Resume';
 
+	const openDialog = () => {
+		setBaseResumeId('blank');
+		void editorStore.loadBaseResumes();
+		setDialogOpen(true);
+	};
+
 	const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const name = (new FormData(e.currentTarget).get('name') as string).trim();
-		if (!name) return;
+
+		if (!name) {
+			return;
+		}
+
 		setCreating(true);
 		try {
-			await editorStore.createResumeForApplication(name);
+			await editorStore.createResumeForApplication(
+				name,
+				baseResumeId === 'blank' ? undefined : baseResumeId,
+			);
 			setDialogOpen(false);
 		} finally {
 			setCreating(false);
@@ -75,7 +89,7 @@ export const ResumeSwitcher: FC = observer(() => {
 				variant="ghost"
 				size="icon"
 				className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
-				onClick={() => setDialogOpen(true)}
+				onClick={openDialog}
 				title="New resume for this application"
 			>
 				<Plus className="h-3.5 w-3.5" />
@@ -97,6 +111,24 @@ export const ResumeSwitcher: FC = observer(() => {
 								autoFocus
 							/>
 						</div>
+						{editorStore.baseResumes.length > 0 && (
+							<div className="grid gap-2">
+								<Label htmlFor="base-resume">Base resume</Label>
+								<Select value={baseResumeId} onValueChange={setBaseResumeId}>
+									<SelectTrigger id="base-resume">
+										<SelectValue placeholder="Blank resume" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="blank">Blank resume</SelectItem>
+										{editorStore.baseResumes.map((r) => (
+											<SelectItem key={r._id} value={r._id}>
+												{r.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
 						<DialogFooter>
 							<Button type="submit" disabled={creating}>
 								{creating ? 'Creating...' : 'Create'}
