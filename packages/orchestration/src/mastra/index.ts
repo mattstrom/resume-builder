@@ -1,6 +1,7 @@
 import { chatRoute } from '@mastra/ai-sdk';
 import { StaticRBACProvider, DEFAULT_ROLES } from '@mastra/core/auth/ee';
 import { Mastra } from '@mastra/core/mastra';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
@@ -36,6 +37,9 @@ import {
 	translationScorer,
 } from './scorers/weather-scorer';
 import { backgroundAutofillWorkflow } from './workflows/background-autofill.workflow';
+import { careerContextWorkflow } from './workflows/career-context.workflow';
+import { narrativeDistillationWorkflow } from './workflows/distillation/narrative-distillation.workflow';
+import { factsExtractionWorkflow } from './workflows/facts-extraction.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
@@ -65,7 +69,13 @@ export const mastra = new Mastra({
 		middleware: [
 			async (context, next) => {
 				const requestContext = context.get('requestContext');
-				const authHeader = context.req.header('Authorization');
+				const authHeader = requestContext.get('mastra__isStudio')
+					? context.req.header('X-Authorization')
+					: context.req.header('Authorization');
+
+				if (requestContext.get('mastra__isStudio')) {
+					requestContext.set(MASTRA_AUTH_TOKEN_KEY, authHeader!.replace('Bearer ', ''));
+				}
 
 				if (authHeader) {
 					const user = await getAuthenticatedUser<Auth0JwtUser>({
@@ -97,6 +107,9 @@ export const mastra = new Mastra({
 		weatherWorkflow,
 		fitAssessmentWorkflow,
 		backgroundAutofillWorkflow,
+		careerContextWorkflow,
+		factsExtractionWorkflow,
+		narrativeDistillationWorkflow,
 	},
 	agents: {
 		applicationReviewer: applicationReviewerAgent,
