@@ -34,7 +34,7 @@ function formatDate(dateString: string): string {
 interface VolunteeringSectionProps {}
 
 export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => {
-	const { volunteering } = useResume();
+	const { volunteering = [] } = useResume();
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;

@@ -37,7 +37,7 @@ export class EditorStore {
 	}
 
 	@action
-	async selectApplication(applicationId: string) {
+	async selectApplication(applicationId: string, resumeId?: string) {
 		await this.controller?.destroy();
 		this.controller = null;
 		setActiveResumeController(null);
@@ -78,9 +78,10 @@ export class EditorStore {
 				this.applicationResumes = resumes;
 			});
 
-			const firstResume = resumes[0] ?? null;
-			if (firstResume) {
-				await this.setupApiController(firstResume);
+			const targetResume =
+				(resumeId ? resumes.find((r) => r._id === resumeId) : null) ?? resumes[0] ?? null;
+			if (targetResume) {
+				await this.setupApiController(targetResume);
 			} else {
 				runInAction(() => {
 					this.resumeData = null;

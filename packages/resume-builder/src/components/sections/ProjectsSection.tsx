@@ -17,7 +17,7 @@ import { Section } from './Section.tsx';
 interface ProjectsSectionProps {}
 
 export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
-	const { projects } = useResume();
+	const { projects = [] } = useResume();
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;

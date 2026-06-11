@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { useEffect } from 'react';
+import { z } from 'zod';
 
 import { RouteLoading } from '../../../components/RouteLoading.tsx';
 import { Workspace } from '../../../components/Workspace.tsx';
@@ -8,17 +9,36 @@ import { GET_APPLICATION } from '../../../graphql/queries.ts';
 import type { GetApplicationData, GetApplicationVariables } from '../../../graphql/types.ts';
 import { useStore } from '../../../stores/store.provider.tsx';
 
+const editorSearchSchema = z
+	.object({
+		resumeId: z.string().optional(),
+	})
+	.catch({});
+
 const ApiApplicationEditor = observer(function ApiApplicationEditor() {
 	const { applicationId } = Route.useParams();
+	const { resumeId } = Route.useSearch();
 	const { editorStore } = useStore();
+	const navigate = useNavigate();
 	const { selectedApiApplicationId, isLoading, error, resumeData, selectedApplication } =
 		editorStore;
 
 	useEffect(() => {
 		if (applicationId !== selectedApiApplicationId) {
-			void editorStore.selectApplication(applicationId);
+			void editorStore.selectApplication(applicationId, resumeId);
+		} else if (!isLoading && resumeId !== undefined && resumeId !== resumeData?._id) {
+			void editorStore.selectResume(resumeId);
 		}
-	}, [applicationId, selectedApiApplicationId, editorStore]);
+	}, [applicationId, resumeId, selectedApiApplicationId, resumeData, isLoading, editorStore]);
+
+	useEffect(() => {
+		if (resumeData && !resumeId) {
+			void navigate({
+				search: (prev) => ({ ...prev, resumeId: resumeData._id }),
+				replace: true,
+			});
+		}
+	}, [resumeData, resumeId, navigate]);
 
 	useEffect(() => {
 		if (selectedApplication && resumeData) {
@@ -48,6 +68,7 @@ const ApiApplicationEditor = observer(function ApiApplicationEditor() {
 });
 
 export const Route = createFileRoute('/_authenticated/editor/$applicationId')({
+	validateSearch: editorSearchSchema,
 	component: ApiApplicationEditor,
 	loader: async ({ context, params }) => {
 		const { applicationId } = params;
