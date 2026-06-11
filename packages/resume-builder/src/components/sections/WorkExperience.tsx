@@ -16,7 +16,7 @@ import { Section } from './Section.tsx';
 interface WorkExperienceProps extends PropsWithChildren {}
 
 export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
-	const { workExperience } = useResume();
+	const { workExperience = [] } = useResume();
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;

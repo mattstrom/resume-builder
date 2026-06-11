@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type FormEvent, useState } from 'react';
@@ -25,6 +26,7 @@ export const ResumeSwitcher: FC = observer(() => {
 	const { editorStore } = useStore();
 	const { selectedApiApplicationId, selectedApplication, applicationResumes, resumeData } =
 		editorStore;
+	const navigate = useNavigate();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [creating, setCreating] = useState(false);
 	const [baseResumeId, setBaseResumeId] = useState('blank');
@@ -55,6 +57,10 @@ export const ResumeSwitcher: FC = observer(() => {
 				name,
 				baseResumeId === 'blank' ? undefined : baseResumeId,
 			);
+			const newResume = editorStore.resumeData;
+			if (newResume) {
+				void navigate({ search: (prev) => ({ ...prev, resumeId: newResume._id }) });
+			}
 			setDialogOpen(false);
 		} finally {
 			setCreating(false);
@@ -66,7 +72,9 @@ export const ResumeSwitcher: FC = observer(() => {
 			{applicationResumes.length > 1 ? (
 				<Select
 					value={resumeData?._id ?? ''}
-					onValueChange={(id) => void editorStore.selectResume(id)}
+					onValueChange={(id) =>
+						void navigate({ search: (prev) => ({ ...prev, resumeId: id }) })
+					}
 				>
 					<SelectTrigger className="h-7 text-xs w-[160px] border-border/60">
 						<SelectValue placeholder="Select resume" />
