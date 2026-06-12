@@ -9,6 +9,20 @@
         }
       ]
     },
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "target": "build",
+          "dependencies": true
+        }
+      ],
+      "options": {
+        "command": "npm run start:direct",
+        "cwd": "packages/crdt"
+      }
+    },
     "start": {
       "executor": "nx:run-commands",
       "options": {

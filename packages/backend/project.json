@@ -15,6 +15,20 @@
         "cwd": "{projectRoot}"
       }
     },
+    "dev": {
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "dependsOn": [
+        {
+          "target": "build",
+          "dependencies": true
+        }
+      ],
+      "options": {
+        "command": "npm run start:dev",
+        "cwd": "{projectRoot}"
+      }
+    },
     "docker-build": {
       "executor": "nx:run-commands",
       "options": {
