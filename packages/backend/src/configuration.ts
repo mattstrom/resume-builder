@@ -40,6 +40,7 @@ export interface Config {
 	auth0: {
 		domain: string;
 		audience: string;
+		localAudience: string;
 	};
 	mongodb: {
 		uri: string;
@@ -70,6 +71,12 @@ const schema = convict<Config>({
 			format: String,
 			default: 'https://resume-builder.mattstrom.com',
 			env: 'AUTH0_AUDIENCE',
+		},
+		localAudience: {
+			doc: 'Additional Auth0 API audience accepted for local development (e.g. http://127.0.0.1:3000), registered as a separate Auth0 API so OAuth clients connecting to a local server can mint a token whose resource matches that origin',
+			format: String,
+			default: '',
+			env: 'AUTH0_LOCAL_AUDIENCE',
 		},
 	},
 	llms: {
