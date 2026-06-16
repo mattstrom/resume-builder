@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,6 +30,31 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		}
 
 		const ctx = GqlExecutionContext.create(context);
+
 		return ctx.getContext().req;
+	}
+
+	override handleRequest<TUser = unknown>(
+		err: any,
+		user: any,
+		_info: any,
+		context: ExecutionContext,
+	): TUser {
+		if (!err && user) {
+			return user;
+		}
+
+		if (context.getType() === 'http') {
+			const request = context.switchToHttp().getRequest();
+			const response = context.switchToHttp().getResponse();
+			const resourceMetadataUrl = `${request.protocol}://${request.get('host')}/.well-known/oauth-protected-resource`;
+
+			response.setHeader(
+				'WWW-Authenticate',
+				`Bearer error="unauthorized", error_description="Authorization required", resource_metadata="${resourceMetadataUrl}"`,
+			);
+		}
+
+		throw err instanceof Error ? err : new UnauthorizedException();
 	}
 }

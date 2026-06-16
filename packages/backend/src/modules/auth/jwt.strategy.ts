@@ -8,7 +8,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 export class JwtStrategy extends PassportStrategy(Strategy) {
 	constructor(configService: ConfigService) {
 		const domain = configService.get<string>('auth0.domain');
-		const audience = configService.get<string>('auth0.audience');
+		const audience = configService.get<string>('auth0.audience')!;
+		const localAudience = configService.get<string>('auth0.localAudience');
 
 		super({
 			secretOrKeyProvider: passportJwtSecret({
@@ -18,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 				jwksUri: `https://${domain}/.well-known/jwks.json`,
 			}),
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-			audience,
+			audience: localAudience ? [audience, localAudience] : audience,
 			issuer: `https://${domain}/`,
 			algorithms: ['RS256'],
 		});
