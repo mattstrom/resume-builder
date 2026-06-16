@@ -2,7 +2,6 @@ import { Agent } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
-import { z } from 'zod';
 
 import config from '@/config';
 
@@ -14,7 +13,6 @@ export const narrativeCoachAgent = new Agent({
 	name: 'Narrative Coach',
 	description: 'Assist the user in crafting their professional narrative',
 	model: config.llms.defaultModel,
-	requestContextSchema: z.object({}),
 	instructions: async () => {
 		return outdent`
 			You are an expert career coach helping the user craft their professional narrative.

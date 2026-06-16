@@ -47,7 +47,6 @@ import { comparisonWorkflow } from './workflows/comparison.workflow';
 import { narrativeDistillationWorkflow } from './workflows/distillation/narrative-distillation.workflow';
 import { factsExtractionWorkflow } from './workflows/facts-extraction.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
-import { handoffWorkflow } from './workflows/handoff.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
 console.log(`Configuration:\n${configuration}`);
@@ -118,7 +117,6 @@ export const mastra = new Mastra({
 		],
 	},
 	workflows: {
-		handoffWorkflow,
 		weatherWorkflow,
 		fitAssessmentWorkflow,
 		backgroundAutofillWorkflow,
