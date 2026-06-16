@@ -1,8 +1,10 @@
-import type {
-	ChatModelOption,
-	ChatModelSelection,
-	ChatModelsResponse,
-	ChatScope,
+import { MastraClient } from '@mastra/client-js';
+import {
+	chatWorkingMemorySchema,
+	type ChatModelOption,
+	type ChatModelSelection,
+	type ChatModelsResponse,
+	type ChatScope,
 } from '@resume-builder/entities';
 import { DefaultChatTransport } from 'ai';
 import { action, computed, makeObservable, observable } from 'mobx';
@@ -152,6 +154,25 @@ export class ConversationService {
 		return null;
 	}
 
+	// JSON string for chatAgent's structured working memory, validated against
+	// the shared `chatWorkingMemorySchema`.
+	private buildInitialWorkingMemory(): string | null {
+		const applicationId = this.rootStore.applicationStore.selectedApplicationId;
+		const resumeId = this.rootStore.resumeStore.selectedResumeId;
+
+		if (!applicationId && !resumeId) {
+			return null; // nothing known yet; let the agent fill it in
+		}
+
+		const workingMemory = chatWorkingMemorySchema.parse({
+			applicationId,
+			resumeId,
+			facts: [],
+		});
+
+		return JSON.stringify(workingMemory);
+	}
+
 	private getActiveStorageKey(): string | null {
 		const scope = this.chatScope;
 		if (scope) {
@@ -165,33 +186,100 @@ export class ConversationService {
 	get transport() {
 		return new DefaultChatTransport({
 			api: `${MASTRA_API_BASE}/chat/chatAgent`,
-			body: { data: this.requestContext },
+			body: { metadata: this.requestContext },
+			prepareSendMessagesRequest: async ({ messages }) => {
+				const { sub } = this.rootStore.authStore.user!;
+				const token = await this.rootStore.authStore.getTokenSilently();
+				const mastra = new MastraClient({
+					baseUrl: MASTRA_API_BASE,
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				let threadId: string | undefined;
+
+				if (!this.activeConversationId) {
+					const thread = await mastra.createMemoryThread({
+						agentId: 'chatAgent',
+						resourceId: sub!,
+						metadata: this.requestContext,
+					});
+
+					threadId = thread.id;
+					this.activeConversationId = thread.id;
+
+					const workingMemory = this.buildInitialWorkingMemory();
+					if (workingMemory) {
+						await mastra.updateWorkingMemory({
+							agentId: 'chatAgent',
+							threadId,
+							resourceId: sub,
+							workingMemory,
+						});
+					}
+
+					const key = this.getActiveStorageKey();
+					if (key) {
+						localStorage.setItem(key, this.activeConversationId);
+					}
+				}
+
+				return {
+					body: {
+						messages,
+					},
+					memory: {
+						resourceId: sub,
+						threadId,
+					},
+				};
+			},
 			fetch: async (url, init?) => {
 				const id = this.activeConversationId;
 
 				// Inject scope, conversationId, and model into each request body
 				if (init?.body && typeof init.body === 'string') {
 					const parsed = JSON.parse(init.body);
-					parsed.data = {
-						...parsed.data,
+
+					// if (!this.activeConversationId) {
+					// 	this.activeConversationId = crypto.randomUUID();
+					// 	const key = this.getActiveStorageKey();
+					// 	if (key) {
+					// 		localStorage.setItem(key, this.activeConversationId);
+					// 	}
+					// }
+
+					parsed.threadId = this.activeConversationId;
+					parsed.metadata = {
+						...parsed.metadata,
 						scope: this.chatScope,
 						conversationId: this.activeConversationId,
 						model: this.selectedModel,
 					};
 
-					init = { ...init, body: JSON.stringify(parsed) };
+					// init = { ...init, body: JSON.stringify(parsed) };
 				}
+
+				init = {
+					...init,
+					headers: {
+						...(init?.headers as Record<string, string> | undefined),
+						'x-thread-id': this.activeConversationId!,
+					},
+				};
+
 				const response = await authFetch(url, init);
-				const newConvId = response.headers.get('X-Conversation-Id');
+				// const newConvId = response.headers.get('X-Conversation-Id');
 
-				if (newConvId && newConvId !== id) {
-					this.activeConversationId = newConvId;
-
-					const key = this.getActiveStorageKey();
-					if (key) {
-						localStorage.setItem(key, newConvId);
-					}
-				}
+				// if (newConvId && newConvId !== id) {
+				// 	this.activeConversationId = newConvId;
+				//
+				// 	const key = this.getActiveStorageKey();
+				// 	if (key) {
+				// 		localStorage.setItem(key, newConvId);
+				// 	}
+				// }
 
 				return response;
 			},

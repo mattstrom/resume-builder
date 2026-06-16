@@ -1,6 +1,8 @@
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { createStep, createWorkflow } from '@mastra/core/workflows';
 import {
+	PgContactInformationSchema,
+	PgEducationSchema,
 	PgJobSchema,
 	projectSchema,
 	skillSchema,
@@ -10,12 +12,81 @@ import { z } from 'zod';
 
 import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
+const fetchProfileStep = createStep({
+	id: 'fetch-profile',
+	description: 'Fetches profile via MCP',
+	inputSchema: z.object({}),
+	outputSchema: z.object({
+		profile: z.any(),
+	}),
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
+	}),
+	execute: async ({ requestContext }) => {
+		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
+		const mcpClient = createResumeBuilderMcpClient(token);
+		const toolsets = await mcpClient.listToolsets();
+		const result = await toolsets['resumeBuilder'].get_profile.execute!({} as any, {} as any);
+
+		return {
+			profile: result.profile,
+		};
+	},
+});
+
+const fetchContactInformationStep = createStep({
+	id: 'fetch-contact-information',
+	description: 'Fetches contact information via MCP',
+	inputSchema: z.object({}),
+	outputSchema: z.object({
+		contactInformation: PgContactInformationSchema,
+	}),
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
+	}),
+	execute: async ({ requestContext }) => {
+		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
+		const mcpClient = createResumeBuilderMcpClient(token);
+		const toolsets = await mcpClient.listToolsets();
+		const result = await toolsets['resumeBuilder'].get_contact_information.execute!(
+			{} as any,
+			{} as any,
+		);
+
+		return {
+			contactInformation: result.contactInformation,
+		};
+	},
+});
+
+const fetchEducationStep = createStep({
+	id: 'fetch-education',
+	description: 'Fetches education via MCP',
+	inputSchema: z.object({}),
+	outputSchema: z.object({
+		education: z.array(PgEducationSchema),
+	}),
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
+	}),
+	execute: async ({ requestContext }) => {
+		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
+		const mcpClient = createResumeBuilderMcpClient(token);
+		const toolsets = await mcpClient.listToolsets();
+		const result = await toolsets['resumeBuilder'].get_education.execute!({} as any, {} as any);
+
+		return {
+			education: result.education,
+		};
+	},
+});
+
 const fetchJobsStep = createStep({
 	id: 'fetch-jobs',
 	description: 'Fetches jobs via MCP',
 	inputSchema: z.object({}),
 	outputSchema: z.object({
-		jobs: PgJobSchema,
+		jobs: z.array(PgJobSchema),
 	}),
 	requestContextSchema: z.object({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
@@ -37,7 +108,7 @@ const fetchProjectsStep = createStep({
 	description: 'Fetches projects via MCP',
 	inputSchema: z.object({}),
 	outputSchema: z.object({
-		projects: projectSchema,
+		projects: z.array(projectSchema),
 	}),
 	requestContextSchema: z.object({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
@@ -59,7 +130,7 @@ const fetchSkillsStep = createStep({
 	description: 'Fetches skills via MCP',
 	inputSchema: z.object({}),
 	outputSchema: z.object({
-		skills: skillSchema,
+		skills: z.array(skillSchema),
 	}),
 	requestContextSchema: z.object({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
@@ -81,7 +152,7 @@ const fetchVolunteeringStep = createStep({
 	description: 'Fetches volunteering experience via MCP',
 	inputSchema: z.object({}),
 	outputSchema: z.object({
-		volunteering: volunteeringSchema,
+		volunteering: z.array(volunteeringSchema),
 	}),
 	requestContextSchema: z.object({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
@@ -101,6 +172,16 @@ const fetchVolunteeringStep = createStep({
 	},
 });
 
+const careerContextOutputSchema = z.object({
+	profile: z.any(),
+	contactInformation: PgContactInformationSchema,
+	education: z.array(PgEducationSchema),
+	jobs: z.array(PgJobSchema),
+	projects: z.array(projectSchema),
+	skills: z.array(skillSchema),
+	volunteering: z.array(volunteeringSchema),
+});
+
 const careerContextWorkflow = createWorkflow({
 	id: 'career-context-workflow',
 	description:
@@ -109,16 +190,22 @@ const careerContextWorkflow = createWorkflow({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string(),
 	}),
 	inputSchema: z.object({}),
-	outputSchema: z.object({
-		jobs: PgJobSchema,
-		projects: projectSchema,
-		skills: skillSchema,
-		volunteering: volunteeringSchema,
-	}),
+	outputSchema: careerContextOutputSchema,
 })
-	.parallel([fetchJobsStep, fetchProjectsStep, fetchSkillsStep, fetchVolunteeringStep])
+	.parallel([
+		fetchProfileStep,
+		fetchContactInformationStep,
+		fetchEducationStep,
+		fetchJobsStep,
+		fetchProjectsStep,
+		fetchSkillsStep,
+		fetchVolunteeringStep,
+	])
 	.map(async ({ inputData }) => {
 		return {
+			profile: inputData['fetch-profile'].profile,
+			contactInformation: inputData['fetch-contact-information'].contactInformation,
+			education: inputData['fetch-education'].education,
 			jobs: inputData['fetch-jobs'].jobs,
 			projects: inputData['fetch-projects'].projects,
 			skills: inputData['fetch-skills'].skills,
@@ -128,4 +215,4 @@ const careerContextWorkflow = createWorkflow({
 
 careerContextWorkflow.commit();
 
-export { careerContextWorkflow };
+export { careerContextOutputSchema, careerContextWorkflow };

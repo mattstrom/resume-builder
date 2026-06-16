@@ -7,6 +7,11 @@ export interface Config {
 		domain: string;
 		audience: string;
 	};
+	frontend: {
+		baseUrl: string;
+		previewPath: string;
+		exportPath: string;
+	};
 	mongodb: {
 		uri: string;
 		database: string;
@@ -44,6 +49,23 @@ const schema = convict<Config>({
 			format: String,
 			default: 'https://resume-builder.mattstrom.com',
 			env: 'AUTH0_AUDIENCE',
+		},
+	},
+	frontend: {
+		baseUrl: {
+			doc: 'The base URL of the frontend application',
+			format: String,
+			default: 'http://localhost:5173',
+		},
+		previewPath: {
+			doc: 'The preview URL of the frontend application',
+			format: String,
+			default: '/preview/{resumeId}',
+		},
+		exportPath: {
+			doc: 'The preview URL of the frontend application',
+			format: String,
+			default: '/export/{resumeId}',
 		},
 	},
 	mongodb: {
