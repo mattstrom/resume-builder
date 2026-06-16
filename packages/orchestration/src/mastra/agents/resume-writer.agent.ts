@@ -1,9 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
-import { applicationSchema, profileSchema } from '@resume-builder/entities';
 import { outdent } from 'outdent';
-import { z } from 'zod';
 
 import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import { careerContextWorkflow } from '../workflows/career-context.workflow';
@@ -13,10 +11,6 @@ export const resumeWriterAgent = new Agent({
 	name: 'Resume Writer',
 	description: 'Create or prepare a tailored resume for a job application',
 	model: 'anthropic/claude-sonnet-4-6',
-	requestContextSchema: z.object({
-		// profile: profileSchema,
-		// application: applicationSchema,
-	}),
 	workflows: {
 		careerContext: careerContextWorkflow,
 	},
@@ -113,7 +107,7 @@ export const resumeWriterAgent = new Agent({
 		];
 	},
 	tools: async ({ requestContext }) => {
-		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
 		const mcpClient = createResumeBuilderMcpClient(token);
 		const tools = await mcpClient.listTools();
 
