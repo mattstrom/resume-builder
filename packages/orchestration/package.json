@@ -31,6 +31,7 @@
     "@mastra/observability": "^1.14.1",
     "@mastra/pg": "^1.13.0",
     "@resume-builder/entities": "file:../entities",
+    "fast-xml-parser": "^5.8.0",
     "graphql": "^16.13.2",
     "jose": "^6.2.3",
     "outdent": "^0.8.0",

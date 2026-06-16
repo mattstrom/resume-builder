@@ -1,7 +1,11 @@
 import { chatRoute } from '@mastra/ai-sdk';
 import { StaticRBACProvider, DEFAULT_ROLES } from '@mastra/core/auth/ee';
 import { Mastra } from '@mastra/core/mastra';
-import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
+import {
+	MASTRA_AUTH_TOKEN_KEY,
+	MASTRA_RESOURCE_ID_KEY,
+	MASTRA_THREAD_ID_KEY,
+} from '@mastra/core/request-context';
 import { MastraCompositeStore } from '@mastra/core/storage';
 import { DuckDBStore } from '@mastra/duckdb';
 import { MastraEditor } from '@mastra/editor';
@@ -36,8 +40,10 @@ import {
 	toolCallAppropriatenessScorer,
 	translationScorer,
 } from './scorers/weather-scorer';
+import { markupJobDescriptionWorkflow } from './steps/markup-job-description.step';
 import { backgroundAutofillWorkflow } from './workflows/background-autofill.workflow';
 import { careerContextWorkflow } from './workflows/career-context.workflow';
+import { comparisonWorkflow } from './workflows/comparison.workflow';
 import { narrativeDistillationWorkflow } from './workflows/distillation/narrative-distillation.workflow';
 import { factsExtractionWorkflow } from './workflows/facts-extraction.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
@@ -66,6 +72,9 @@ export const mastra = new Mastra({
 				path: '/chat/:agentId',
 			}),
 		],
+		cors: {
+			allowHeaders: ['X-Thread-Id'],
+		},
 		middleware: [
 			async (context, next) => {
 				const requestContext = context.get('requestContext');
@@ -86,7 +95,13 @@ export const mastra = new Mastra({
 
 					if (user?.sub) {
 						requestContext.set('userId', user.sub);
+						requestContext.set(MASTRA_RESOURCE_ID_KEY, user.sub);
 					}
+				}
+
+				const threadId = context.req.header('x-thread-id');
+				if (threadId) {
+					requestContext.set(MASTRA_THREAD_ID_KEY, threadId);
 				}
 
 				await next();
@@ -110,6 +125,8 @@ export const mastra = new Mastra({
 		careerContextWorkflow,
 		factsExtractionWorkflow,
 		narrativeDistillationWorkflow,
+		comparisonWorkflow,
+		markupJobDescriptionWorkflow,
 	},
 	agents: {
 		applicationReviewer: applicationReviewerAgent,
