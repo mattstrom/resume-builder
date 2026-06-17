@@ -26,6 +26,7 @@ export interface ResumeDocumentController {
 	setField(path: string, value: unknown): void | Promise<void>;
 	moveArrayItem(path: string, fromIndex: number, toIndex: number): void | Promise<void>;
 	addCollectionItem(collection: ResumeCollectionValue): void | Promise<void>;
+	insertCollectionItem(collection: ResumeCollectionValue, index: number): void | Promise<void>;
 	removeCollectionItem(collection: ResumeCollectionValue, index: number): void | Promise<void>;
 	undo(): void | Promise<void>;
 	redo(): void | Promise<void>;
@@ -187,6 +188,24 @@ export class LocalResumeController implements ResumeDocumentController {
 		this.emitSnapshot();
 	}
 
+	insertCollectionItem(collection: ResumeCollectionValue, index: number) {
+		if (!this.snapshot) {
+			return;
+		}
+
+		const path = getResumeCollectionPath(collection);
+		const currentItems = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
+		const clampedIndex = Math.max(0, Math.min(index, currentItems.length));
+
+		this.pushUndoSnapshot();
+		this.snapshot = cloneWithPathValue(this.snapshot, path, [
+			...currentItems.slice(0, clampedIndex),
+			createDefaultCollectionItem(collection, this.snapshot),
+			...currentItems.slice(clampedIndex),
+		]);
+		this.emitSnapshot();
+	}
+
 	removeCollectionItem(collection: ResumeCollectionValue, index: number) {
 		if (!this.snapshot) {
 			return;
@@ -342,6 +361,34 @@ export class ApiResumeController extends LocalResumeController {
 			});
 
 			return result.data?.addResumeCollectionItem ?? null;
+		});
+	}
+
+	override insertCollectionItem(collection: ResumeCollectionValue, index: number) {
+		const previousSnapshot = this.getSnapshot();
+		super.insertCollectionItem(collection, index);
+
+		if (!previousSnapshot || !this.snapshot) {
+			return;
+		}
+
+		const path = getResumeCollectionPath(collection);
+		const nextValue = this.getValueAtPath(path);
+
+		this.enqueueWrite(previousSnapshot, async () => {
+			const result = await this.apiOptions.client.mutate<
+				SetResumeFieldData,
+				SetResumeFieldVariables
+			>({
+				mutation: SET_RESUME_FIELD,
+				variables: {
+					id: this.resumeId,
+					input: { path },
+					value: nextValue,
+				},
+			});
+
+			return result.data?.setResumeField ?? null;
 		});
 	}
 

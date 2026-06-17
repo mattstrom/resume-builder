@@ -9,6 +9,7 @@ interface CollectionEditorProps<T> {
 	isSaving?: boolean;
 	isEditable?: boolean;
 	onAdd: () => Promise<void>;
+	onInsert?: (index: number) => Promise<void>;
 	onRemove: (index: number) => Promise<void>;
 	onMove?: (fromIndex: number, toIndex: number) => Promise<void>;
 	children: (props: CollectionEditorRenderProps<T>) => ReactNode;
@@ -19,6 +20,7 @@ export interface CollectionEditorRenderProps<T> {
 	isSaving: boolean;
 	isEditable: boolean;
 	addItem: () => Promise<void>;
+	insertItem: (index: number) => Promise<void>;
 	removeItem: (index: number) => Promise<void>;
 	moveItem: (fromIndex: number, toIndex: number) => Promise<void>;
 }
@@ -30,6 +32,7 @@ export const CollectionEditor = <T,>({
 	isSaving = false,
 	isEditable = true,
 	onAdd,
+	onInsert,
 	onRemove,
 	onMove,
 	children,
@@ -40,6 +43,14 @@ export const CollectionEditor = <T,>({
 		}
 
 		await onAdd();
+	};
+
+	const insertItem = async (index: number) => {
+		if (!isEditable || !onInsert) {
+			return;
+		}
+
+		await onInsert(index);
 	};
 
 	const removeItem = async (index: number) => {
@@ -65,6 +76,7 @@ export const CollectionEditor = <T,>({
 				isSaving,
 				isEditable,
 				addItem,
+				insertItem,
 				removeItem,
 				moveItem,
 			})}

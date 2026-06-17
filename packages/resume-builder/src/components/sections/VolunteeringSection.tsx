@@ -1,7 +1,9 @@
 import type { Volunteering } from '@resume-builder/entities';
+import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
 
+import { AddItemGhostRow } from '@/components/AddItemGhostRow.tsx';
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
@@ -41,45 +43,8 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 	const controller = getActiveResumeController(resumeId);
 	const isSaving = false;
 
-	if (!volunteering || volunteering.length === 0) {
-		if (!isEditable) {
-			return null;
-		}
-
-		return (
-			<CollectionEditor<Volunteering>
-				path="data.volunteering"
-				label="Volunteering"
-				items={[]}
-				isSaving={isSaving}
-				isEditable={isEditable}
-				onAdd={async () => {
-					controller?.addCollectionItem(ResumeCollections.VOLUNTEERING);
-				}}
-				onRemove={async () => {}}
-				onMove={async () => {}}
-			>
-				{({ addItem, isSaving }) => (
-					<Section
-						heading="Volunteering"
-						className="volunteering"
-						floatingActions={
-							isEditable ? (
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									onClick={() => void addItem()}
-									disabled={isSaving}
-								>
-									Add role
-								</Button>
-							) : null
-						}
-					/>
-				)}
-			</CollectionEditor>
-		);
+	if (!isEditable && (!volunteering || volunteering.length === 0)) {
+		return null;
 	}
 
 	return (
@@ -92,6 +57,9 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 			onAdd={async () => {
 				controller?.addCollectionItem(ResumeCollections.VOLUNTEERING);
 			}}
+			onInsert={async (index) => {
+				controller?.insertCollectionItem(ResumeCollections.VOLUNTEERING, index);
+			}}
 			onRemove={async (index) => {
 				controller?.removeCollectionItem(ResumeCollections.VOLUNTEERING, index);
 			}}
@@ -103,49 +71,46 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 				);
 			}}
 		>
-			{({ items, addItem, removeItem, moveItem, isSaving }) => (
-				<Section
-					heading="Volunteering"
-					className="volunteering"
-					floatingActions={
-						isEditable ? (
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={() => void addItem()}
-								disabled={isSaving}
-							>
-								Add role
-							</Button>
-						) : null
-					}
-				>
-					{items.map((item, index) => (
-						<CollectionEditorItem
-							key={item._id}
-							index={index}
-							length={items.length}
+			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
+				<Section heading="Volunteering" className="volunteering">
+					{items.length === 0 && isEditable ? (
+						<AddItemGhostRow
 							label="role"
-							isEditable={isEditable}
-							onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
-							actions={
-								isEditable ? (
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										onClick={() => void removeItem(index)}
-										disabled={isSaving}
-									>
-										Remove
-									</Button>
-								) : null
-							}
-						>
-							<VolunteeringPosition volunteering={item} index={index} />
-						</CollectionEditorItem>
-					))}
+							onAdd={() => void insertItem(0)}
+							disabled={isSaving}
+						/>
+					) : (
+						items.map((item, index) => (
+							<CollectionEditorItem
+								key={item._id}
+								index={index}
+								length={items.length}
+								label="role"
+								isEditable={isEditable}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
+								onInsertAbove={() => void insertItem(index)}
+								onInsertBelow={() => void insertItem(index + 1)}
+								actions={
+									isEditable ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="h-7 w-7"
+											onClick={() => void removeItem(index)}
+											disabled={isSaving}
+											aria-label="Remove role"
+											title="Remove role"
+										>
+											<Trash2 />
+										</Button>
+									) : null
+								}
+							>
+								<VolunteeringPosition volunteering={item} index={index} />
+							</CollectionEditorItem>
+						))
+					)}
 				</Section>
 			)}
 		</CollectionEditor>

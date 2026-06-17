@@ -33,6 +33,7 @@ export const ReorderControls: FC<ReorderControlsProps> = ({
 				onClick={onMoveBackward}
 				disabled={!canMoveBackward}
 				aria-label={`Move ${label} ${direction === 'vertical' ? 'up' : 'left'}`}
+				title={`Move ${label} ${direction === 'vertical' ? 'up' : 'left'}`}
 			>
 				<BackwardIcon />
 			</Button>
@@ -44,6 +45,7 @@ export const ReorderControls: FC<ReorderControlsProps> = ({
 				onClick={onMoveForward}
 				disabled={!canMoveForward}
 				aria-label={`Move ${label} ${direction === 'vertical' ? 'down' : 'right'}`}
+				title={`Move ${label} ${direction === 'vertical' ? 'down' : 'right'}`}
 			>
 				<ForwardIcon />
 			</Button>

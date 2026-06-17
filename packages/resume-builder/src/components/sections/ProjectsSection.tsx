@@ -1,7 +1,9 @@
 import type { Project, ResumeContent } from '@resume-builder/entities';
+import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
+import { AddItemGhostRow } from '@/components/AddItemGhostRow.tsx';
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
@@ -34,6 +36,9 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 			onAdd={async () => {
 				controller?.addCollectionItem(ResumeCollections.PROJECTS);
 			}}
+			onInsert={async (index) => {
+				controller?.insertCollectionItem(ResumeCollections.PROJECTS, index);
+			}}
 			onRemove={async (index) => {
 				controller?.removeCollectionItem(ResumeCollections.PROJECTS, index);
 			}}
@@ -45,49 +50,46 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 				);
 			}}
 		>
-			{({ items, addItem, removeItem, moveItem, isSaving }) => (
-				<Section
-					heading="Projects"
-					className="projects"
-					floatingActions={
-						isEditable ? (
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={() => void addItem()}
-								disabled={isSaving}
-							>
-								Add project
-							</Button>
-						) : null
-					}
-				>
-					{items.map((item, index) => (
-						<CollectionEditorItem
-							key={item._id}
-							index={index}
-							length={items.length}
+			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
+				<Section heading="Projects" className="projects">
+					{items.length === 0 && isEditable ? (
+						<AddItemGhostRow
 							label="project"
-							isEditable={isEditable}
-							onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
-							actions={
-								isEditable ? (
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										onClick={() => void removeItem(index)}
-										disabled={isSaving}
-									>
-										Remove
-									</Button>
-								) : null
-							}
-						>
-							<ProjectSection project={item} index={index} />
-						</CollectionEditorItem>
-					))}
+							onAdd={() => void insertItem(0)}
+							disabled={isSaving}
+						/>
+					) : (
+						items.map((item, index) => (
+							<CollectionEditorItem
+								key={item._id}
+								index={index}
+								length={items.length}
+								label="project"
+								isEditable={isEditable}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
+								onInsertAbove={() => void insertItem(index)}
+								onInsertBelow={() => void insertItem(index + 1)}
+								actions={
+									isEditable ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="h-7 w-7"
+											onClick={() => void removeItem(index)}
+											disabled={isSaving}
+											aria-label="Remove project"
+											title="Remove project"
+										>
+											<Trash2 />
+										</Button>
+									) : null
+								}
+							>
+								<ProjectSection project={item} index={index} />
+							</CollectionEditorItem>
+						))
+					)}
 				</Section>
 			)}
 		</CollectionEditor>
