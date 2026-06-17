@@ -4,6 +4,7 @@ import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
 import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { renderFocusBlock } from '../request-context';
 import { careerContextWorkflow } from '../workflows/career-context.workflow';
 
 export const resumeWriterAgent = new Agent({
@@ -14,7 +15,7 @@ export const resumeWriterAgent = new Agent({
 	workflows: {
 		careerContext: careerContextWorkflow,
 	},
-	instructions: async ({ mastra, requestContext }) => {
+	instructions: async ({ requestContext }) => {
 		return [
 			outdent`
 				You are a resume generation assistant. Your job is to build a tailored, well-crafted resume for a specific job application by pulling data from the resume-builder system and assembling it into a polished final document.
@@ -104,6 +105,7 @@ export const resumeWriterAgent = new Agent({
 				- **Single-line bullets preferred.** Dense, tight bullets scan better on a resume. Rewrite multi-line bullets to fit one line unless critical detail would be lost.
 				- **Do not pad.** Do not add technologies, skills, or accomplishments not present in the source data just to match the job description.
 			`,
+			renderFocusBlock(requestContext),
 		];
 	},
 	tools: async ({ requestContext }) => {
