@@ -15,7 +15,12 @@ export const SkillsSection: FC<SkillsSectionProps> = () => {
 	// Prefer skillGroups if available
 	if (skillGroups && skillGroups.length > 0) {
 		return (
-			<Section heading="Skills" className="skills">
+			<Section
+				heading="Skills"
+				className="skills"
+				path="data.skillGroups"
+				label="Skills"
+			>
 				<dfn>
 					{skillGroups.map((group: SkillGroup, index: number) => (
 						<Fragment key={index}>
@@ -51,7 +56,7 @@ export const SkillsSection: FC<SkillsSectionProps> = () => {
 		);
 
 		return (
-			<Section heading="Skills" className="skills">
+			<Section heading="Skills" className="skills" path="data.skills" label="Skills">
 				<dfn>
 					{Object.entries(groupedSkills).map(
 						([category, names]: [string, string[]], index: number) => (

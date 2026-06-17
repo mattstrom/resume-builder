@@ -19,7 +19,12 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 	const options = data?.listEducations ?? [];
 
 	return (
-		<Section heading="Education" className="education">
+		<Section
+			heading="Education"
+			className="education"
+			path="data.education"
+			label="Education"
+		>
 			{education.map((item, index) => (
 				<LookupFieldEditor<Education, Education>
 					key={index}

@@ -1,7 +1,15 @@
 import { Plus, X } from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FC, type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
+import {
+	type FC,
+	Fragment,
+	type KeyboardEvent,
+	type ReactNode,
+	useEffect,
+	useRef,
+} from 'react';
 
+import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import { ReorderControls } from '@/components/ReorderControls.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -31,6 +39,29 @@ interface DraggableListItemProps {
 	children: ReactNode;
 }
 
+const HighlightableBlockItems: FC<{ path: string; items: string[] }> = ({ path, items }) => (
+	<>
+		{items.map((item, i) => (
+			<HighlightRegion key={i} path={`${path}.${i}`} label={item}>
+				<li>{item}</li>
+			</HighlightRegion>
+		))}
+	</>
+);
+
+const HighlightableInlineItems: FC<{ path: string; items: string[] }> = ({ path, items }) => (
+	<>
+		{items.map((item, i) => (
+			<Fragment key={i}>
+				{i > 0 && ', '}
+				<HighlightRegion path={`${path}.${i}`} label={item}>
+					<span>{item}</span>
+				</HighlightRegion>
+			</Fragment>
+		))}
+	</>
+);
+
 export const ListEditor: FC<ListEditorProps> = observer(
 	({ path, items, resumeId, variant, className, emptyPlaceholder }) => {
 		const { listEditStore: store, uiStateStore } = useStore();
@@ -58,12 +89,12 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 			return variant === 'block' ? (
 				<ul className={className}>
-					{items.map((item, i) => (
-						<li key={i}>{item}</li>
-					))}
+					<HighlightableBlockItems path={path} items={items} />
 				</ul>
 			) : (
-				<span className={className}>{items.join(', ')}</span>
+				<span className={className}>
+					<HighlightableInlineItems path={path} items={items} />
+				</span>
 			);
 		}
 
@@ -83,13 +114,11 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 			return variant === 'block' ? (
 				<ul className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
-					{items.map((item, i) => (
-						<li key={i}>{item}</li>
-					))}
+					<HighlightableBlockItems path={path} items={items} />
 				</ul>
 			) : (
 				<span className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
-					{items.join(', ')}
+					<HighlightableInlineItems path={path} items={items} />
 				</span>
 			);
 		}

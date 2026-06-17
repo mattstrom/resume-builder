@@ -64,6 +64,7 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 								index={index}
 								length={items.length}
 								label="job"
+								path={`data.workExperience.${index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								onInsertAbove={() => void insertItem(index)}
