@@ -4,6 +4,7 @@ import { LibSQLVector } from '@mastra/libsql';
 import { Memory } from '@mastra/memory';
 import { chatWorkingMemorySchema } from '@resume-builder/entities';
 
+import { renderFocusBlock } from '../request-context';
 import { scorers } from '../scorers/weather-scorer';
 import { md } from '../utils';
 import { careerAdvisorAgent } from './career-advisor.agent';
@@ -16,7 +17,7 @@ export const chatAgent = new Agent({
 	name: 'Chat Agent',
 	model: 'anthropic/claude-sonnet-4-6',
 
-	instructions: md`
+	instructions: async ({ requestContext }) => md`
 		You coordinate specialists for a resume-building app. You talk to the
 		user directly and delegate to a specialist when their expertise is
 		needed.
@@ -56,6 +57,7 @@ export const chatAgent = new Agent({
 		  re-summarize, or alter URLs or scores.
 		- narrativeCoach and careerAdvisor are conversational. You may weave and
 		  synthesize their output into your reply.
+		${renderFocusBlock(requestContext)}
 	`,
 
 	agents: {

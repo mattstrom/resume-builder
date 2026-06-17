@@ -236,8 +236,6 @@ export class ConversationService {
 				};
 			},
 			fetch: async (url, init?) => {
-				const id = this.activeConversationId;
-
 				// Inject scope, conversationId, and model into each request body
 				if (init?.body && typeof init.body === 'string') {
 					const parsed = JSON.parse(init.body);
@@ -261,11 +259,18 @@ export class ConversationService {
 					// init = { ...init, body: JSON.stringify(parsed) };
 				}
 
+				const regions = this.rootStore.inspectStore.selectedRegions;
+
 				init = {
 					...init,
 					headers: {
 						...(init?.headers as Record<string, string> | undefined),
 						'x-thread-id': this.activeConversationId!,
+						...(regions.length > 0
+							? {
+									'X-Focused-Paths': encodeURIComponent(JSON.stringify(regions)),
+								}
+							: {}),
 					},
 				};
 

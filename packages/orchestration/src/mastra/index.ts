@@ -35,6 +35,7 @@ import { resumeWriterAgent } from './agents/resume-writer.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
+import { FOCUSED_PATHS_HEADER, FOCUSED_PATHS_KEY, parseFocusedPaths } from './request-context';
 import {
 	completenessScorer,
 	toolCallAppropriatenessScorer,
@@ -72,7 +73,7 @@ export const mastra = new Mastra({
 			}),
 		],
 		cors: {
-			allowHeaders: ['X-Thread-Id'],
+			allowHeaders: ['X-Thread-Id', 'X-Focused-Paths'],
 		},
 		middleware: [
 			async (context, next) => {
@@ -101,6 +102,11 @@ export const mastra = new Mastra({
 				const threadId = context.req.header('x-thread-id');
 				if (threadId) {
 					requestContext.set(MASTRA_THREAD_ID_KEY, threadId);
+				}
+
+				const focusedRegions = parseFocusedPaths(context.req.header(FOCUSED_PATHS_HEADER));
+				if (focusedRegions.length > 0) {
+					requestContext.set(FOCUSED_PATHS_KEY, focusedRegions);
 				}
 
 				await next();
