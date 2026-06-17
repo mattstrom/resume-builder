@@ -64,7 +64,10 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		const readContent = children ?? (value || placeholder);
 
 		return (
-			<span className={cn('relative inline')} data-path={path}>
+			<span
+				className={cn('relative', multiline ? 'block w-full' : 'inline')}
+				data-path={path}
+			>
 				{createElement(
 					Tag,
 					{
@@ -98,7 +101,12 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 						autoFocus
 						onCommitSuccess={() => store.discard()}
 						onCancel={() => store.discard()}
-						className="absolute left-0 top-full z-50 mt-1 w-full rounded border border-border bg-popover text-popover-foreground p-1 text-sm shadow-md"
+						className={cn(
+							'z-50 rounded border border-border bg-white p-1 text-sm text-zinc-900 shadow-md placeholder:text-zinc-400',
+							multiline
+								? 'absolute -top-1 left-0 h-[calc(100%+0.5rem)] w-full resize-none'
+								: 'absolute left-0 top-full mt-1 w-full',
+						)}
 					/>
 				)}
 			</span>

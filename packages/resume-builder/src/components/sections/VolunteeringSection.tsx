@@ -63,7 +63,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 					<Section
 						heading="Volunteering"
 						className="volunteering"
-						headerActions={
+						floatingActions={
 							isEditable ? (
 								<Button
 									type="button"
@@ -107,7 +107,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 				<Section
 					heading="Volunteering"
 					className="volunteering"
-					headerActions={
+					floatingActions={
 						isEditable ? (
 							<Button
 								type="button"

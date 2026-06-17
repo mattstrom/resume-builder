@@ -49,7 +49,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 				<Section
 					heading="Projects"
 					className="projects"
-					headerActions={
+					floatingActions={
 						isEditable ? (
 							<Button
 								type="button"
