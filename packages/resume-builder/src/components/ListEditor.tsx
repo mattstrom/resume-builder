@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
 
@@ -44,6 +44,13 @@ export const ListEditor: FC<ListEditorProps> = observer(
 			}
 		};
 
+		const handleBeginAdd = () => {
+			if (isEditable && !isEditing) {
+				store.beginEdit(resumeId, path, items);
+				store.beginAdd();
+			}
+		};
+
 		if (!isEditable) {
 			if (!hasItems && emptyPlaceholder) {
 				return <span className={className}>{emptyPlaceholder}</span>;
@@ -61,23 +68,15 @@ export const ListEditor: FC<ListEditorProps> = observer(
 		}
 
 		if (!isEditing) {
-			if (!hasItems && emptyPlaceholder) {
+			if (!hasItems) {
 				return (
 					<button
 						type="button"
-						className={className}
-						onClick={handleClick}
-						style={{
-							background: 'none',
-							border: 'none',
-							padding: 0,
-							font: 'inherit',
-							color: 'inherit',
-							cursor: 'pointer',
-							textAlign: 'left',
-						}}
+						onClick={handleBeginAdd}
+						className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-zinc-300 px-2 py-0.5 text-sm font-normal text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
 					>
-						{emptyPlaceholder}
+						<Plus className="h-3.5 w-3.5" />
+						{emptyPlaceholder ?? 'Add item'}
 					</button>
 				);
 			}
