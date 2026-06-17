@@ -26,6 +26,8 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 
 	return (
 		<CollectionEditor<Project>
+			path="data.projects"
+			label="Projects"
 			items={projects}
 			isSaving={isSaving}
 			isEditable={isEditable}

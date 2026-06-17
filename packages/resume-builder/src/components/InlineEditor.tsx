@@ -9,6 +9,7 @@ import { useStore } from '@/stores/store.provider.tsx';
 
 function pathToLabel(path: string): string {
 	const segment = path.split('.').findLast((s) => !/^\d+$/.test(s)) ?? path;
+
 	return segment.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
 }
 

@@ -1,7 +1,10 @@
+import { X } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
 
 import { ReorderControls } from '@/components/ReorderControls.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface ListEditorProps {
@@ -23,6 +26,7 @@ interface DraggableListItemProps {
 	length: number;
 	direction: 'vertical' | 'horizontal';
 	onMove: (fromIndex: number, toIndex: number) => void;
+	onRemove?: () => void;
 	inline?: boolean;
 	children: ReactNode;
 }
@@ -104,17 +108,16 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 	length,
 	direction,
 	onMove,
+	onRemove,
 	inline = false,
 	children,
 }) => {
 	const WrapperTag = inline ? 'span' : 'div';
-	const ContentTag = inline ? 'span' : 'div';
 
 	return (
-		<WrapperTag>
-			<ContentTag
-				className={inline ? 'inline-flex items-start gap-2' : 'flex items-start gap-2'}
-			>
+		<WrapperTag className={cn('group/reorder relative', inline ? 'inline-block' : 'block')}>
+			<WrapperTag className="min-w-0">{children}</WrapperTag>
+			<span className="absolute right-full top-0 z-10 mr-1 inline-flex items-center rounded-md border border-border bg-popover/95 opacity-0 shadow-md transition-opacity focus-within:opacity-100 group-hover/reorder:opacity-100">
 				<ReorderControls
 					direction={direction}
 					canMoveBackward={index > 0}
@@ -123,15 +126,26 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 					onMoveForward={() => onMove(index, index + 1)}
 					label="item"
 				/>
-				<ContentTag className="min-w-0 flex-1">{children}</ContentTag>
-			</ContentTag>
+				{onRemove && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						className="h-7 w-7"
+						onClick={onRemove}
+						aria-label="Remove item"
+					>
+						<X />
+					</Button>
+				)}
+			</span>
 		</WrapperTag>
 	);
 };
 
 const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 	return (
-		<div className={className}>
+		<div className={cn('relative', className)}>
 			<ul className="space-y-1">
 				{store.items.map((item, index) => (
 					<li key={`${index}:${item}`} className="list-none">
@@ -140,6 +154,7 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 							length={store.items.length}
 							direction="vertical"
 							onMove={(fromIndex, toIndex) => store.moveItem(fromIndex, toIndex)}
+							onRemove={() => store.removeItem(index)}
 						>
 							{store.editingIndex === index ? (
 								<ItemInput
@@ -149,67 +164,63 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 									onCancel={() => store.cancelEditItem()}
 								/>
 							) : (
-								<div className="group flex items-start gap-1">
-									<span
-										className="flex-1 cursor-pointer"
-										onClick={() => store.beginEditItem(index)}
-									>
-										{item}
-									</span>
-									<button
-										type="button"
-										className="ml-1 text-xs text-red-400 opacity-0 group-hover:opacity-100"
-										onClick={() => store.removeItem(index)}
-									>
-										&times;
-									</button>
-								</div>
+								<span
+									className="cursor-pointer"
+									onClick={() => store.beginEditItem(index)}
+								>
+									{item}
+								</span>
 							)}
 						</DraggableListItem>
 					</li>
 				))}
 			</ul>
 
-			{store.isAdding ? (
-				<ItemInput
-					value={store.addValue}
-					onChange={(value) => store.updateAddValue(value)}
-					onCommit={() => store.commitAdd()}
-					onCancel={() => store.cancelAdd()}
-					placeholder="New item..."
-				/>
-			) : (
-				<div className="mt-1 flex gap-2">
-					<button
-						type="button"
-						className="text-xs text-blue-500 hover:text-blue-700"
-						onClick={() => store.beginAdd()}
-					>
-						+ Add item
-					</button>
-					<button
-						type="button"
-						className="text-xs text-green-600 hover:text-green-800"
-						onClick={() => store.commit()}
-					>
-						Save
-					</button>
-					<button
-						type="button"
-						className="text-xs text-gray-400 hover:text-gray-600"
-						onClick={() => store.discard()}
-					>
-						Cancel
-					</button>
-				</div>
-			)}
+			<div className="absolute left-0 top-full z-10 mt-1">
+				{store.isAdding ? (
+					<ItemInput
+						value={store.addValue}
+						onChange={(value) => store.updateAddValue(value)}
+						onCommit={() => store.commitAdd()}
+						onCancel={() => store.cancelAdd()}
+						placeholder="New item..."
+					/>
+				) : (
+					<div className="inline-flex items-center rounded-md border border-border bg-popover/95 shadow-md">
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={() => store.beginAdd()}
+						>
+							Add item
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={() => store.commit()}
+						>
+							Save
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={() => store.discard()}
+						>
+							Cancel
+						</Button>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 });
 
 const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 	return (
-		<span className={className}>
+		<span className={cn('relative inline-block', className)}>
 			<span className="inline-flex flex-wrap items-center gap-2">
 				{store.items.map((item, index) => (
 					<span key={`${index}:${item}`} className="inline-flex items-center">
@@ -220,6 +231,7 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 							direction="horizontal"
 							inline
 							onMove={(fromIndex, toIndex) => store.moveItem(fromIndex, toIndex)}
+							onRemove={() => store.removeItem(index)}
 						>
 							{store.editingIndex === index ? (
 								<ItemInput
@@ -230,26 +242,19 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 									inline
 								/>
 							) : (
-								<span className="group/item inline">
-									<span
-										className="cursor-pointer"
-										onClick={() => store.beginEditItem(index)}
-									>
-										{item}
-									</span>
-									<button
-										type="button"
-										className="ml-0.5 text-xs text-red-400 opacity-0 group-hover/item:opacity-100"
-										onClick={() => store.removeItem(index)}
-									>
-										&times;
-									</button>
+								<span
+									className="cursor-pointer"
+									onClick={() => store.beginEditItem(index)}
+								>
+									{item}
 								</span>
 							)}
 						</DraggableListItem>
 					</span>
 				))}
+			</span>
 
+			<span className="absolute left-0 top-full z-10 mt-1 inline-flex">
 				{store.isAdding ? (
 					<ItemInput
 						value={store.addValue}
@@ -260,28 +265,31 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 						inline
 					/>
 				) : (
-					<span className="inline-flex gap-1">
-						<button
+					<span className="inline-flex items-center rounded-md border border-border bg-popover/95 shadow-md">
+						<Button
 							type="button"
-							className="text-xs text-blue-500 hover:text-blue-700"
+							variant="ghost"
+							size="sm"
 							onClick={() => store.beginAdd()}
 						>
-							+
-						</button>
-						<button
+							Add item
+						</Button>
+						<Button
 							type="button"
-							className="text-xs text-green-600 hover:text-green-800"
+							variant="ghost"
+							size="sm"
 							onClick={() => store.commit()}
 						>
 							Save
-						</button>
-						<button
+						</Button>
+						<Button
 							type="button"
-							className="text-xs text-gray-400 hover:text-gray-600"
+							variant="ghost"
+							size="sm"
 							onClick={() => store.discard()}
 						>
 							Cancel
-						</button>
+						</Button>
 					</span>
 				)}
 			</span>
@@ -328,8 +336,8 @@ const ItemInput: FC<ItemInputProps> = ({
 			type="text"
 			className={
 				inline
-					? 'inline-block w-auto rounded border border-border bg-background px-1 text-sm shadow-sm'
-					: 'w-full rounded border border-border bg-background p-1 text-sm shadow-sm'
+					? 'inline-block w-auto rounded border border-border bg-white px-1 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400'
+					: 'w-full rounded border border-border bg-white p-1 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400'
 			}
 			value={value}
 			onChange={(event) => onChange(event.target.value)}

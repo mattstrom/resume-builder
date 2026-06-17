@@ -25,6 +25,8 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 
 	return (
 		<CollectionEditor<Job>
+			path="data.workExperience"
+			label="Work Experience"
 			items={workExperience}
 			isSaving={isSaving}
 			isEditable={isEditable}

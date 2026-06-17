@@ -27,7 +27,8 @@
     "build": "nx vite:build",
     "build:lib": "nx vite:build --config vite.lib.config.ts",
     "lint": "nx eslint:lint",
-    "preview": "nx vite:preview"
+    "preview": "nx vite:preview",
+    "storybook": "nx storybook"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.170",
