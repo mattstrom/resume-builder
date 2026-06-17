@@ -86,6 +86,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 								index={index}
 								length={items.length}
 								label="role"
+								path={`data.volunteering.${index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								onInsertAbove={() => void insertItem(index)}

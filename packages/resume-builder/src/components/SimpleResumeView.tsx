@@ -293,6 +293,7 @@ const WorkExperienceSection: FC = observer(() => {
 								index={index}
 								length={items.length}
 								label="job"
+								path={`data.workExperience.${index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
@@ -531,6 +532,7 @@ const ProjectsSection: FC = observer(() => {
 								index={index}
 								length={items.length}
 								label="project"
+								path={`data.projects.${index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
@@ -647,6 +649,7 @@ const VolunteeringSection: FC = observer(() => {
 								index={index}
 								length={collectionItems.length}
 								label="role"
+								path={`data.volunteering.${index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
