@@ -1,7 +1,9 @@
 import type { Job } from '@resume-builder/entities';
+import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
 
+import { AddItemGhostRow } from '@/components/AddItemGhostRow.tsx';
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -33,6 +35,9 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 			onAdd={async () => {
 				controller?.addCollectionItem(ResumeCollections.WORK_EXPERIENCE);
 			}}
+			onInsert={async (index) => {
+				controller?.insertCollectionItem(ResumeCollections.WORK_EXPERIENCE, index);
+			}}
 			onRemove={async (index) => {
 				controller?.removeCollectionItem(ResumeCollections.WORK_EXPERIENCE, index);
 			}}
@@ -44,49 +49,46 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 				);
 			}}
 		>
-			{({ items, addItem, removeItem, moveItem, isSaving }) => (
-				<Section
-					heading="Work History"
-					className="work-experience"
-					floatingActions={
-						isEditable ? (
-							<Button
-								type="button"
-								variant="ghost"
-								size="sm"
-								onClick={() => void addItem()}
-								disabled={isSaving}
-							>
-								Add job
-							</Button>
-						) : null
-					}
-				>
-					{items.map((item, index) => (
-						<CollectionEditorItem
-							key={item._id}
-							index={index}
-							length={items.length}
+			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
+				<Section heading="Work History" className="work-experience">
+					{items.length === 0 && isEditable ? (
+						<AddItemGhostRow
 							label="job"
-							isEditable={isEditable}
-							onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
-							actions={
-								isEditable ? (
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										onClick={() => void removeItem(index)}
-										disabled={isSaving}
-									>
-										Remove
-									</Button>
-								) : null
-							}
-						>
-							<JobSection job={item} index={index} />
-						</CollectionEditorItem>
-					))}
+							onAdd={() => void insertItem(0)}
+							disabled={isSaving}
+						/>
+					) : (
+						items.map((item, index) => (
+							<CollectionEditorItem
+								key={item._id}
+								index={index}
+								length={items.length}
+								label="job"
+								isEditable={isEditable}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
+								onInsertAbove={() => void insertItem(index)}
+								onInsertBelow={() => void insertItem(index + 1)}
+								actions={
+									isEditable ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="h-7 w-7"
+											onClick={() => void removeItem(index)}
+											disabled={isSaving}
+											aria-label="Remove job"
+											title="Remove job"
+										>
+											<Trash2 />
+										</Button>
+									) : null
+								}
+							>
+								<JobSection job={item} index={index} />
+							</CollectionEditorItem>
+						))
+					)}
 				</Section>
 			)}
 		</CollectionEditor>

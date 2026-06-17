@@ -1,6 +1,7 @@
 import type { Resume } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
 
+import { ResumeCollections } from '../graphql/resume-collections.ts';
 import { reorderItems } from './reorder.ts';
 import { LocalResumeController } from './resume-document-controller.ts';
 
@@ -124,6 +125,43 @@ describe('LocalResumeController.moveArrayItem', () => {
 			'Rust',
 			'TypeScript',
 			'Go',
+		]);
+	});
+});
+
+describe('LocalResumeController.insertCollectionItem', () => {
+	it('inserts a new item at the given index and supports undo', () => {
+		const controller = new LocalResumeController({
+			resume: createResume(),
+		});
+
+		controller.insertCollectionItem(ResumeCollections.WORK_EXPERIENCE, 1);
+
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'First',
+			'New Role',
+			'Second',
+		]);
+
+		controller.undo();
+
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'First',
+			'Second',
+		]);
+	});
+
+	it('clamps an out-of-range index to the end of the collection', () => {
+		const controller = new LocalResumeController({
+			resume: createResume(),
+		});
+
+		controller.insertCollectionItem(ResumeCollections.WORK_EXPERIENCE, 99);
+
+		expect(controller.getSnapshot()?.data.workExperience.map((job) => job.position)).toEqual([
+			'First',
+			'Second',
+			'New Role',
 		]);
 	});
 });
