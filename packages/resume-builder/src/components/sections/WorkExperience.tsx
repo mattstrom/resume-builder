@@ -48,7 +48,7 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 				<Section
 					heading="Work History"
 					className="work-experience"
-					headerActions={
+					floatingActions={
 						isEditable ? (
 							<Button
 								type="button"
