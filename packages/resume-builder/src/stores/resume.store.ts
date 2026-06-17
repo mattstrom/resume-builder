@@ -25,9 +25,6 @@ export class ResumeStore {
 	private query: ApolloMobxWrapper<{ listResumes: Resume[] }, ListResumesVariables>;
 
 	@observable
-	selectedResumeId: string | null = null;
-
-	@observable
 	sortField: string | null = localStorage.getItem(STORAGE_KEY_SORT_FIELD) ?? null;
 
 	@observable
@@ -43,7 +40,14 @@ export class ResumeStore {
 	@observable
 	filterCompany: string | null = null;
 
-	@computed
+	get selectedResumeId(): string | null {
+		const search = this.rootStore.router?.state.location.search as
+			| { resumeId?: string }
+			| undefined;
+
+		return search?.resumeId ?? null;
+	}
+
 	get selectedResume() {
 		return this.data.find((resume) => resume._id === this.selectedResumeId) ?? null;
 	}
@@ -100,7 +104,9 @@ export class ResumeStore {
 
 	@computed
 	get groupedData(): Map<string, Resume[]> | null {
-		if (!this.groupBy) return null;
+		if (!this.groupBy) {
+			return null;
+		}
 
 		const groups = new Map<string, Resume[]>();
 		for (const resume of this.data) {
@@ -112,6 +118,7 @@ export class ResumeStore {
 				groups.set(key, [resume]);
 			}
 		}
+
 		return groups;
 	}
 
@@ -145,13 +152,14 @@ export class ResumeStore {
 		}
 
 		const variables: ListResumesVariables = {};
-		if (sort) variables.sort = sort;
-		if (Object.keys(filter).length > 0) variables.filter = filter;
-		return variables;
-	}
+		if (sort) {
+			variables.sort = sort;
+		}
 
-	@action
-	selectResume(resumeId: string | null) {
-		this.selectedResumeId = resumeId;
+		if (Object.keys(filter).length > 0) {
+			variables.filter = filter;
+		}
+
+		return variables;
 	}
 }
