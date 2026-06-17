@@ -48,6 +48,8 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 
 		return (
 			<CollectionEditor<Volunteering>
+				path="data.volunteering"
+				label="Volunteering"
 				items={[]}
 				isSaving={isSaving}
 				isEditable={isEditable}
@@ -82,6 +84,8 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 
 	return (
 		<CollectionEditor<Volunteering>
+			path="data.volunteering"
+			label="Volunteering"
 			items={volunteering}
 			isSaving={isSaving}
 			isEditable={isEditable}

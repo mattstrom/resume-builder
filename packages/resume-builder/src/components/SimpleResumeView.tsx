@@ -258,6 +258,8 @@ const WorkExperienceSection: FC = observer(() => {
 
 	return (
 		<CollectionEditor<Job>
+			path="data.workExperience"
+			label="Work Experience"
 			items={workExperience}
 			isSaving={collection.isSaving}
 			isEditable={isEditable}
@@ -494,6 +496,8 @@ const ProjectsSection: FC = observer(() => {
 
 	return (
 		<CollectionEditor<Project>
+			path="data.projects"
+			label="Projects"
 			items={projects}
 			isSaving={collection.isSaving}
 			isEditable={isEditable}
@@ -608,6 +612,8 @@ const VolunteeringSection: FC = observer(() => {
 
 	return (
 		<CollectionEditor<Volunteering>
+			path="data.volunteering"
+			label="Volunteering"
 			items={items}
 			isSaving={collection.isSaving}
 			isEditable={isEditable}

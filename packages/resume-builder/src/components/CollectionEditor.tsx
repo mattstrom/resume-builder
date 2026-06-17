@@ -1,6 +1,10 @@
 import { type ReactNode } from 'react';
 
+import { HighlightRegion } from '@/components/HighlightRegion.tsx';
+
 interface CollectionEditorProps<T> {
+	path: string;
+	label?: string;
 	items: T[];
 	isSaving?: boolean;
 	isEditable?: boolean;
@@ -20,6 +24,8 @@ export interface CollectionEditorRenderProps<T> {
 }
 
 export const CollectionEditor = <T,>({
+	path,
+	label,
 	items,
 	isSaving = false,
 	isEditable = true,
@@ -52,12 +58,16 @@ export const CollectionEditor = <T,>({
 		await onMove(fromIndex, toIndex);
 	};
 
-	return children({
-		items,
-		isSaving,
-		isEditable,
-		addItem,
-		removeItem,
-		moveItem,
-	});
+	return (
+		<HighlightRegion path={path} label={label}>
+			{children({
+				items,
+				isSaving,
+				isEditable,
+				addItem,
+				removeItem,
+				moveItem,
+			})}
+		</HighlightRegion>
+	);
 };
