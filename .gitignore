@@ -40,3 +40,7 @@ files
 storybook-static
 .claude/worktrees
 .claude/settings.local.json
+
+# Local scratch / personal files
+scratch/
+.git.bak/
