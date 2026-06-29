@@ -153,6 +153,17 @@ postgresBackup:
   tolerations: []
   affinity: {}
 
+# -- Redis (BullMQ backing store)
+redis:
+  image:
+    repository: redis
+    tag: '7-alpine'
+    pullPolicy: IfNotPresent
+  port: 6379
+  password: ''
+  storage: 1Gi
+  resources: {}
+
 # -- PostgreSQL Restore Job (one-shot, opt-in)
 postgresRestore:
   # Set to true and run helm upgrade to trigger a restore

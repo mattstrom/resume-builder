@@ -50,6 +50,7 @@ export interface Config {
 	};
 	redis: {
 		url: string;
+		password: string;
 	};
 	crdt: {
 		url: string;
@@ -201,6 +202,13 @@ const schema = convict<Config>({
 			format: String,
 			default: 'redis://localhost:6379',
 			env: 'REDIS_URL',
+		},
+		password: {
+			doc: 'Redis password — injected into REDIS_URL when set (useful for local dev when REDIS_URL lacks auth)',
+			format: String,
+			default: '',
+			env: 'REDIS_PASSWORD',
+			sensitive: true,
 		},
 	},
 	crdt: {

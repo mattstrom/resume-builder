@@ -101,6 +101,29 @@ PostgreSQL read-write host (CloudNativePG primary service)
 {{- end }}
 
 {{/*
+Redis fully qualified name
+*/}}
+{{- define "resume-builder.redis.fullname" -}}
+{{- printf "%s-redis" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Redis selector labels
+*/}}
+{{- define "resume-builder.redis.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "resume-builder.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: redis
+{{- end }}
+
+{{/*
+Redis connection URL
+*/}}
+{{- define "resume-builder.redisUrl" -}}
+{{- printf "redis://:%s@%s:%d" "$(REDIS_PASSWORD)" (include "resume-builder.redis.fullname" .) (int .Values.redis.port) }}
+{{- end }}
+
+{{/*
 MongoDB connection URI
 */}}
 {{- define "resume-builder.mongodbUri" -}}
