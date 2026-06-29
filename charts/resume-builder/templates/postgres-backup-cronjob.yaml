@@ -1,0 +1,101 @@
+{{- if .Values.postgresBackup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-postgres-backup
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-backup
+spec:
+  schedule: {{ .Values.postgresBackup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: {{ .Values.postgresBackup.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.postgresBackup.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.postgresBackup.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "resume-builder.labels" . | nindent 12 }}
+            app.kubernetes.io/component: postgres-backup
+        spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: OnFailure
+          containers:
+            - name: postgres-backup
+              image: "{{ .Values.postgresBackup.image.repository }}:{{ .Values.postgresBackup.image.tag }}"
+              imagePullPolicy: {{ .Values.postgresBackup.image.pullPolicy }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+
+                  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+                  BACKUP_FILE="postgres_backup_${TIMESTAMP}.dump"
+                  BACKUP_PATH="/backup/${BACKUP_FILE}"
+
+                  echo "[INFO] Starting PostgreSQL backup..."
+                  echo "[INFO] Database: {{ .Values.postgres.database }}"
+                  echo "[INFO] Backup path: ${BACKUP_PATH}"
+
+                  pg_dump \
+                    --host="${PGHOST}" \
+                    --username="${PGUSER}" \
+                    --dbname="${PGDATABASE}" \
+                    --format=custom \
+                    --file="${BACKUP_PATH}"
+
+                  BACKUP_SIZE=$(du -h "${BACKUP_PATH}" | cut -f1)
+                  echo "[INFO] Backup complete: ${BACKUP_FILE} (${BACKUP_SIZE})"
+
+                  {{- if gt (int .Values.postgresBackup.retentionDays) 0 }}
+                  echo "[INFO] Cleaning up backups older than {{ .Values.postgresBackup.retentionDays }} days..."
+                  find /backup -name "postgres_backup_*.dump" -type f -mtime +{{ .Values.postgresBackup.retentionDays }} -delete
+                  echo "[INFO] Cleanup complete"
+                  {{- end }}
+              env:
+                - name: PGHOST
+                  value: {{ include "resume-builder.postgresHost" . | quote }}
+                - name: PGPORT
+                  value: "5432"
+                - name: PGDATABASE
+                  value: {{ .Values.postgres.database | quote }}
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "resume-builder.fullname" . }}-postgres-user
+                      key: username
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "resume-builder.fullname" . }}-postgres-user
+                      key: password
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backup
+              {{- with .Values.postgresBackup.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: {{ include "resume-builder.fullname" . }}-postgres-backup
+          {{- with .Values.postgresBackup.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.postgresBackup.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.postgresBackup.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

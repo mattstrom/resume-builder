@@ -1,0 +1,15 @@
+{{- if .Values.postgresBackup.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-postgres-backup
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.postgresBackup.storage }}
+{{- end }}

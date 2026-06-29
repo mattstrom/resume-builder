@@ -83,7 +83,7 @@ const schema = convict<Config>({
 		database: {
 			doc: 'PostgreSQL database name',
 			format: String,
-			default: 'mastra',
+			default: 'resume-builder',
 			env: 'POSTGRES_DB',
 		},
 	},

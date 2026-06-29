@@ -9,7 +9,8 @@ const SCHEMA = 'resume_builder';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
 	constructor() {
 		const connectionString =
-			process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/mastra';
+			process.env.DATABASE_URL ??
+			'postgresql://postgres:postgres@localhost:5432/resume-builder';
 		const adapter = new PrismaPg(connectionString, { schema: SCHEMA });
 		super({ adapter });
 	}

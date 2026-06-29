@@ -26,7 +26,7 @@ import { PrismaClient } from './generated/prisma/client.js';
 
 const MONGO_URI = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/resume-builder';
 const DATABASE_URL =
-	process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/mastra';
+	process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/resume-builder';
 const DRY_RUN = process.argv.includes('--dry-run');
 const SCHEMA = 'resume_builder';
 
