@@ -35,6 +35,11 @@ spec:
                   key: password
             - name: MONGODB_URI
               value: {{ include "resume-builder.mongodbUri" . | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-app
+                  key: uri
           livenessProbe:
             httpGet:
               path: /health

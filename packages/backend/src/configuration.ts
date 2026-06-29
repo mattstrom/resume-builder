@@ -190,7 +190,7 @@ const schema = convict<Config>({
 		url: {
 			doc: 'PostgreSQL connection URL for Prisma',
 			format: String,
-			default: 'postgresql://postgres:postgres@localhost:5432/mastra',
+			default: 'postgresql://postgres:postgres@localhost:5432/resume-builder',
 			env: 'DATABASE_URL',
 			sensitive: true,
 		},

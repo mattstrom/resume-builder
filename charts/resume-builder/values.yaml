@@ -118,6 +118,14 @@ mongodbRestore:
       cpu: 500m
       memory: 512Mi
 
+# -- PostgreSQL (CloudNativePG)
+postgres:
+  instances: 1
+  database: resume-builder
+  username: app
+  password: ''
+  storage: 5Gi
+
 serviceAccount:
   create: false
   automount: true

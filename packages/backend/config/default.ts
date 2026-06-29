@@ -9,7 +9,7 @@ const config: Config = {
 		uri: 'mongodb://localhost:27017/resume-builder',
 	},
 	postgres: {
-		url: 'postgresql://postgres:postgres@localhost:5432/mastra',
+		url: 'postgresql://postgres:postgres@localhost:5432/resume-builder',
 	},
 	redis: {
 		url: 'redis://localhost:6379',
