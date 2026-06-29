@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "resume-builder.redis.fullname" . }}
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "resume-builder.redis.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "resume-builder.redis.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: redis
+          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          ports:
+            - name: redis
+              containerPort: {{ .Values.redis.port }}
+              protocol: TCP
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.redis.fullname" . }}
+                  key: password
+          command:
+            - redis-server
+            - --appendonly
+            - 'yes'
+            - --requirepass
+            - $(REDIS_PASSWORD)
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          {{- with .Values.redis.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: {{ include "resume-builder.redis.fullname" . }}

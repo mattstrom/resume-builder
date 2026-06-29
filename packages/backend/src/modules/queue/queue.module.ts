@@ -20,14 +20,19 @@ const isProd = process.env.NODE_ENV === 'production';
 			imports: [ConfigModule],
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService<Config>) => {
-				const url = configService.get('redis', { infer: true })?.url;
-				return {
-					connection: {
-						// BullMQ accepts a full Redis URL via the `url` connection field
-						// or host/port pairs. Using `url` keeps us in sync with config.
-						url,
-					},
-				};
+				const { url, password } = configService.get('redis', {
+					infer: true,
+				})!;
+
+				let redisUrl = url;
+
+				if (password) {
+					const parsed = new URL(url);
+					parsed.password = encodeURIComponent(password);
+					redisUrl = parsed.toString();
+				}
+
+				return { connection: { url: redisUrl } };
 			},
 		}),
 		...(isProd

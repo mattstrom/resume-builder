@@ -40,6 +40,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "resume-builder.fullname" . }}-postgres-app
                   key: uri
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.redis.fullname" . }}
+                  key: password
+            - name: REDIS_URL
+              value: {{ include "resume-builder.redisUrl" . | quote }}
           livenessProbe:
             httpGet:
               path: /health
