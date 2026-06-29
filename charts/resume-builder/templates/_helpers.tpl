@@ -94,6 +94,13 @@ app.kubernetes.io/component: web
 {{- end }}
 
 {{/*
+PostgreSQL read-write host (CloudNativePG primary service)
+*/}}
+{{- define "resume-builder.postgresHost" -}}
+{{- printf "%s-postgres-rw" (include "resume-builder.fullname" .) }}
+{{- end }}
+
+{{/*
 MongoDB connection URI
 */}}
 {{- define "resume-builder.mongodbUri" -}}

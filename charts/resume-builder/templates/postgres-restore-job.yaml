@@ -1,0 +1,123 @@
+{{- if .Values.postgresRestore.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "resume-builder.fullname" . }}-postgres-restore-{{ .Values.postgresRestore.jobId | default "1" }}
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres-restore
+spec:
+  backoffLimit: {{ .Values.postgresRestore.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.postgresRestore.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        {{- include "resume-builder.labels" . | nindent 8 }}
+        app.kubernetes.io/component: postgres-restore
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Never
+      containers:
+        - name: postgres-restore
+          image: "{{ .Values.postgresBackup.image.repository }}:{{ .Values.postgresBackup.image.tag }}"
+          imagePullPolicy: {{ .Values.postgresBackup.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+
+              BACKUP_FILE="{{ .Values.postgresRestore.backupFile }}"
+
+              # Resolve "latest" to the most recent backup
+              if [ "$BACKUP_FILE" = "latest" ]; then
+                BACKUP_FILE=$(ls -t /backup/postgres_backup_*.dump 2>/dev/null | head -1 | xargs basename 2>/dev/null || true)
+                if [ -z "$BACKUP_FILE" ]; then
+                  echo "[ERROR] No backups found in /backup/"
+                  exit 1
+                fi
+                echo "[INFO] Resolved 'latest' to: ${BACKUP_FILE}"
+              fi
+
+              BACKUP_PATH="/backup/${BACKUP_FILE}"
+
+              # Validate the backup file exists
+              if [ ! -f "$BACKUP_PATH" ]; then
+                echo "[ERROR] Backup file not found: ${BACKUP_PATH}"
+                echo "[INFO] Available backups:"
+                ls -1 /backup/postgres_backup_*.dump 2>/dev/null || echo "  (none)"
+                exit 1
+              fi
+
+              echo "[INFO] Starting PostgreSQL restore..."
+              echo "[INFO] Backup file: ${BACKUP_FILE}"
+              echo "[INFO] Database: {{ .Values.postgres.database }}"
+
+              # Drop and recreate the database so pg_restore --clean has a clean slate
+              echo "[INFO] Dropping and recreating database..."
+              psql \
+                --host="${PGHOST}" \
+                --username="${PGUSER}" \
+                --dbname="postgres" \
+                -c "DROP DATABASE IF EXISTS \"{{ .Values.postgres.database }}\";"
+              psql \
+                --host="${PGHOST}" \
+                --username="${PGUSER}" \
+                --dbname="postgres" \
+                -c "CREATE DATABASE \"{{ .Values.postgres.database }}\" OWNER \"{{ .Values.postgres.username }}\";"
+
+              echo "[INFO] Running pg_restore..."
+              pg_restore \
+                --host="${PGHOST}" \
+                --username="${PGUSER}" \
+                --dbname="{{ .Values.postgres.database }}" \
+                --no-owner \
+                --role="{{ .Values.postgres.username }}" \
+                "${BACKUP_PATH}"
+
+              echo "[INFO] Restore completed successfully!"
+          env:
+            - name: PGHOST
+              value: {{ include "resume-builder.postgresHost" . | quote }}
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: {{ .Values.postgres.database | quote }}
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: password
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+              readOnly: true
+          {{- with .Values.postgresRestore.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: {{ include "resume-builder.fullname" . }}-postgres-backup
+      {{- with .Values.postgresBackup.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.postgresBackup.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.postgresBackup.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
