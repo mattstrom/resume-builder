@@ -35,11 +35,18 @@ spec:
                   key: password
             - name: MONGODB_URI
               value: {{ include "resume-builder.mongodbUri" . | quote }}
-            - name: DATABASE_URL
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "resume-builder.fullname" . }}-postgres-app
-                  key: uri
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: password
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ include "resume-builder.postgresHost" . }}:5432/{{ .Values.postgres.database }}"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
