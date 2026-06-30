@@ -140,6 +140,36 @@ app.kubernetes.io/component: orchestration
 {{- end }}
 
 {{/*
+CRDT fully qualified name
+*/}}
+{{- define "resume-builder.crdt.fullname" -}}
+{{- printf "%s-crdt" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+CRDT selector labels
+*/}}
+{{- define "resume-builder.crdt.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "resume-builder.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: crdt
+{{- end }}
+
+{{/*
+CRDT internal WebSocket URL
+*/}}
+{{- define "resume-builder.crdtUrl" -}}
+{{- printf "ws://%s:%d" (include "resume-builder.crdt.fullname" .) (int .Values.crdt.service.port) }}
+{{- end }}
+
+{{/*
+CRDT internal HTTP URL
+*/}}
+{{- define "resume-builder.crdtHttpUrl" -}}
+{{- printf "http://%s:%d" (include "resume-builder.crdt.fullname" .) (int .Values.crdt.service.port) }}
+{{- end }}
+
+{{/*
 MongoDB connection URI
 */}}
 {{- define "resume-builder.mongodbUri" -}}

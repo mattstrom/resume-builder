@@ -68,6 +68,24 @@ orchestration:
     pathType: Prefix
     annotations: {}
 
+# -- CRDT (Hocuspocus collaborative editing server)
+crdt:
+  replicaCount: 1
+  image:
+    repository: registry.mattstrom.com/resume-builder-crdt
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 1234
+  # Shared HMAC secret used to authenticate backend -> crdt internal API calls
+  # (auto-generated and preserved across upgrades if left blank)
+  internalKey: ''
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
 # -- MongoDB Community Operator
 mongodb:
   name: resume-builder-mongodb
@@ -101,6 +119,9 @@ ingress:
         - path: /.well-known
           pathType: Prefix
           service: backend
+        - path: /collaboration
+          pathType: Prefix
+          service: crdt
     - host: mastra.mattstrom.com
       paths:
         - path: /

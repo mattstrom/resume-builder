@@ -35,6 +35,18 @@
           "dependencies": true
         }
       ]
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f packages/crdt/Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-crdt:${TAG:-latest} ."
+      }
+    },
+    "docker-push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker push ${REGISTRY:-registry.mattstrom.com}/resume-builder-crdt:${TAG:-latest}"
+      }
     }
   }
 }

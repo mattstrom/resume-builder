@@ -41,6 +41,10 @@ spec:
                 name: {{ include "resume-builder.orchestration.fullname" $ }}
                 port:
                   number: {{ $.Values.orchestration.service.port }}
+                {{- else if eq .service "crdt" }}
+                name: {{ include "resume-builder.crdt.fullname" $ }}
+                port:
+                  number: {{ $.Values.crdt.service.port }}
                 {{- else }}
                 name: {{ include "resume-builder.web.fullname" $ }}
                 port:
