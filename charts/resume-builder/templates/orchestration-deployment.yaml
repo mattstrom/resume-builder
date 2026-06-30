@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "resume-builder.orchestration.fullname" . }}
+  labels:
+    {{- include "resume-builder.labels" . | nindent 4 }}
+    app.kubernetes.io/component: orchestration
+spec:
+  replicas: {{ .Values.orchestration.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "resume-builder.orchestration.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "resume-builder.orchestration.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: orchestration
+          image: "{{ .Values.orchestration.image.repository }}:{{ .Values.orchestration.image.tag }}"
+          imagePullPolicy: {{ .Values.orchestration.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 4111
+              protocol: TCP
+          env:
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-orchestration
+                  key: anthropicApiKey
+            - name: AUTH0_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-orchestration
+                  key: auth0ClientId
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mongodb.name }}-password
+                  key: password
+            - name: MONGODB_URI
+              value: {{ include "resume-builder.mongodbUri" . | quote }}
+            - name: POSTGRES_HOST
+              value: {{ include "resume-builder.postgresHost" . | quote }}
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-postgres-user
+                  key: password
+            - name: POSTGRES_DB
+              value: {{ .Values.orchestration.postgresDatabase | default .Values.postgres.database | quote }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          {{- with .Values.orchestration.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.orchestration.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.orchestration.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.orchestration.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

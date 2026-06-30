@@ -39,6 +39,26 @@ web:
   tolerations: []
   affinity: {}
 
+# -- Orchestration (Mastra dev server)
+orchestration:
+  replicaCount: 1
+  image:
+    repository: registry.mattstrom.com/resume-builder-orchestration
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 4111
+  anthropicApiKey: ''
+  auth0:
+    clientId: ''
+  # Override which Postgres database Mastra uses (defaults to postgres.database)
+  postgresDatabase: ''
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
 # -- MongoDB Community Operator
 mongodb:
   name: resume-builder-mongodb
@@ -72,6 +92,11 @@ ingress:
         - path: /.well-known
           pathType: Prefix
           service: backend
+    - host: mastra.mattstrom.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: orchestration
   tls: []
   #  - secretName: resume-builder-tls
   #    hosts:

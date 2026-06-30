@@ -118,6 +118,8 @@ export const mastra = new Mastra({
 		externals: [
 			'@anush008/tokenizers',
 			'@duckdb/node-bindings',
+			'@mastra/agent-browser',
+			'@mastra/fastembed',
 			'@resume-builder/entities',
 			'electron',
 		],
