@@ -58,6 +58,15 @@ orchestration:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # -- Dedicated ingress for the Mastra API (distinct from the Studio UI
+  # ingress below), so API-only concerns (CORS, auth, rate-limiting) can be
+  # set via annotations without affecting Studio.
+  ingress:
+    enabled: true
+    host: mastra.mattstrom.com
+    path: /api
+    pathType: Prefix
+    annotations: {}
 
 # -- MongoDB Community Operator
 mongodb:
