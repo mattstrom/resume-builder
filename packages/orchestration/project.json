@@ -8,6 +8,18 @@
         "command": "npm run dev",
         "cwd": "{projectRoot}"
       }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker build -f packages/orchestration/Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-orchestration:${TAG:-latest} ."
+      }
+    },
+    "docker-push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker push ${REGISTRY:-registry.mattstrom.com}/resume-builder-orchestration:${TAG:-latest}"
+      }
     }
   }
 }

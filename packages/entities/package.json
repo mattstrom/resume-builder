@@ -36,6 +36,7 @@
     "@nestjs/graphql": "^13.2.3",
     "@nestjs/mongoose": "^11.0.4",
     "@typegoose/typegoose": "^13.0.0",
+    "graphql-type-json": "^0.3.2",
     "reflect-metadata": "^0.1.13",
     "zod": "^4.3.4"
   },

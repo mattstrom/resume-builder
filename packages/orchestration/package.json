@@ -10,8 +10,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "mastra dev --inspect",
-    "build": "mastra build",
-    "start": "mastra start"
+    "build": "mastra build --studio",
+    "start": "mastra start",
+    "docker:build": "docker build -f Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-orchestration:${TAG:-latest} ../..",
+    "docker:push": "docker push ${REGISTRY:-registry.mattstrom.com}/resume-builder-orchestration:${TAG:-latest}"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.65",
@@ -35,6 +37,7 @@
     "graphql": "^16.13.2",
     "jose": "^6.2.3",
     "outdent": "^0.8.0",
+    "reflect-metadata": "^0.1.13",
     "zod": "^4.3.6"
   },
   "devDependencies": {

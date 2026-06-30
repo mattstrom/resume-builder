@@ -23,7 +23,7 @@
     "format:check": "oxfmt --check",
     "docker:build": "nx run-many -t docker-build",
     "docker:push": "nx run-many -t docker-push",
-    "deploy": "op run --env-file=.env -- sh -c 'helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set mongodb.password=${MONGODB_PASSWORD} --set postgres.password=${POSTGRES_PASSWORD} --install'"
+    "deploy": "op run --env-file=.env -- sh -c 'helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set orchestration.image.tag=${TAG:-latest} --set mongodb.password=${MONGODB_PASSWORD} --set postgres.password=${POSTGRES_PASSWORD} --set orchestration.anthropicApiKey=${ANTHROPIC_API_KEY} --set orchestration.auth0.clientId=${AUTH_CLIENT_ID} --install'"
   },
   "dependencies": {
     "lightningcss": "^1.30.2",

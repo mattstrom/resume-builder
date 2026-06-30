@@ -124,6 +124,22 @@ Redis connection URL
 {{- end }}
 
 {{/*
+Orchestration fully qualified name
+*/}}
+{{- define "resume-builder.orchestration.fullname" -}}
+{{- printf "%s-orchestration" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Orchestration selector labels
+*/}}
+{{- define "resume-builder.orchestration.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "resume-builder.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/component: orchestration
+{{- end }}
+
+{{/*
 MongoDB connection URI
 */}}
 {{- define "resume-builder.mongodbUri" -}}

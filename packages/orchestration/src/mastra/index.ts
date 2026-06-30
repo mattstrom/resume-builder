@@ -82,8 +82,8 @@ export const mastra = new Mastra({
 					? context.req.header('X-Authorization')
 					: context.req.header('Authorization');
 
-				if (requestContext.get('mastra__isStudio')) {
-					requestContext.set(MASTRA_AUTH_TOKEN_KEY, authHeader!.replace('Bearer ', ''));
+				if (requestContext.get('mastra__isStudio') && authHeader) {
+					requestContext.set(MASTRA_AUTH_TOKEN_KEY, authHeader.replace('Bearer ', ''));
 				}
 
 				if (authHeader) {
@@ -118,6 +118,8 @@ export const mastra = new Mastra({
 		externals: [
 			'@anush008/tokenizers',
 			'@duckdb/node-bindings',
+			'@mastra/agent-browser',
+			'@mastra/fastembed',
 			'@resume-builder/entities',
 			'electron',
 		],
