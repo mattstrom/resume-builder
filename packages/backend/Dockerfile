@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM node:24.8.0-alpine AS deps
+FROM node:24.8.0-slim AS deps
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ WORKDIR /app/packages/backend
 EXPOSE 3000
 
 # Expects src/, dist/, config/ as volume mounts from host
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
 
 # Stage 3: Build
 FROM deps AS build
@@ -46,7 +46,7 @@ COPY packages/backend packages/backend
 RUN npx nx build @resume-builder/backend
 
 # Stage 4: Production dependencies
-FROM node:24.8.0-alpine AS prod-deps
+FROM node:24.8.0-slim AS prod-deps
 
 WORKDIR /app
 
@@ -57,7 +57,7 @@ COPY packages/entities/package.json packages/entities/
 RUN npm ci --workspace=packages/backend --workspace=packages/entities --omit=dev
 
 # Stage 5: Production runtime
-FROM node:24.8.0-alpine
+FROM node:24.8.0-slim
 
 WORKDIR /app
 
@@ -80,4 +80,4 @@ WORKDIR /app/packages/backend
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]
