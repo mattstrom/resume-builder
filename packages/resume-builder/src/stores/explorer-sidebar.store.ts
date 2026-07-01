@@ -26,6 +26,9 @@ export class ExplorerSidebarStore {
 	@observable.shallow
 	collapsedGroupKeys = new Set<string>();
 
+	@observable.shallow
+	pinnedApplicationIds = new Set<string>();
+
 	@observable
 	searchQuery = '';
 
@@ -52,6 +55,12 @@ export class ExplorerSidebarStore {
 				[],
 			) ?? [],
 		);
+		this.pinnedApplicationIds = new Set(
+			this.rootStore.persistence.retrieve<string[]>(
+				StorageKey.ApplicationExplorerPinnedApplications,
+				[],
+			) ?? [],
+		);
 
 		reaction(
 			() => [...this.collapsedGroupKeys].sort(),
@@ -59,6 +68,15 @@ export class ExplorerSidebarStore {
 				this.rootStore.persistence.store(
 					StorageKey.ApplicationExplorerCollapsedGroups,
 					groupKeys,
+				);
+			},
+		);
+		reaction(
+			() => [...this.pinnedApplicationIds].sort(),
+			(applicationIds) => {
+				this.rootStore.persistence.store(
+					StorageKey.ApplicationExplorerPinnedApplications,
+					applicationIds,
 				);
 			},
 		);
@@ -80,6 +98,33 @@ export class ExplorerSidebarStore {
 		return sorted.filter(
 			(a) => a.name.toLowerCase().includes(q) || a.company.toLowerCase().includes(q),
 		);
+	}
+
+	@computed
+	get recentApplications(): Application[] {
+		if (this.searchQuery.trim()) {
+			return [];
+		}
+
+		return [...this.rootStore.applicationStore.data]
+			.sort((left, right) => {
+				return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+			})
+			.filter((application) => !this.pinnedApplicationIds.has(application._id))
+			.slice(0, 5);
+	}
+
+	@computed
+	get pinnedApplications(): Application[] {
+		if (this.searchQuery.trim()) {
+			return [];
+		}
+
+		return [...this.rootStore.applicationStore.data]
+			.filter((application) => this.pinnedApplicationIds.has(application._id))
+			.sort((left, right) => {
+				return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+			});
 	}
 
 	@computed
@@ -138,6 +183,20 @@ export class ExplorerSidebarStore {
 	@action
 	setSearchQuery(q: string) {
 		this.searchQuery = q;
+	}
+
+	@action
+	togglePinnedApplication(applicationId: string) {
+		if (this.pinnedApplicationIds.has(applicationId)) {
+			this.pinnedApplicationIds.delete(applicationId);
+			return;
+		}
+
+		this.pinnedApplicationIds.add(applicationId);
+	}
+
+	isApplicationPinned(applicationId: string) {
+		return this.pinnedApplicationIds.has(applicationId);
 	}
 
 	@action

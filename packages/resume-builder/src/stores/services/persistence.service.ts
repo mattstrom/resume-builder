@@ -10,6 +10,7 @@ export enum StorageKey {
 	ApplicationExplorerGroupSortAscending = 'applicationList.groupSortAscending',
 	ApplicationExplorerGroupBy = 'applicationList.groupBy',
 	ApplicationExplorerCollapsedGroups = 'applicationList.collapsedGroups',
+	ApplicationExplorerPinnedApplications = 'applicationList.pinnedApplications',
 	ResumeListFilterBase = 'resumeList.filterBase',
 	ResumeListFilterCompany = 'resumeList.filterCompany',
 }

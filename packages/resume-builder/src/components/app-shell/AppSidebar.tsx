@@ -1,11 +1,14 @@
 import {
 	ChevronsUpDown,
+	Database,
+	FileText,
 	Home,
 	LogOut,
 	Monitor,
 	Moon,
 	Palette,
 	Search,
+	SlidersHorizontal,
 	Sun,
 	UserCog,
 	X,
@@ -108,18 +111,41 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
+				<SidebarResumeTree />
 				<SidebarGroup>
 					<SidebarGroupLabel>Profile</SidebarGroupLabel>
 					<SidebarGroupContent>
-						<SidebarMenuButton to="/profile/background">Background</SidebarMenuButton>
-						<SidebarMenuButton to="/profile">Narrative</SidebarMenuButton>
-						<SidebarMenuButton to="/profile/facts">Facts</SidebarMenuButton>
-						<SidebarMenuButton to="/profile/preferences">
-							Job Preferences
-						</SidebarMenuButton>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/profile/background" tooltip="Background">
+									<UserCog />
+									<span>Background</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/profile" tooltip="Narrative">
+									<FileText />
+									<span>Narrative</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/profile/facts" tooltip="Facts">
+									<Database />
+									<span>Facts</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton
+									to="/profile/preferences"
+									tooltip="Job Preferences"
+								>
+									<SlidersHorizontal />
+									<span>Job Preferences</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
-				<SidebarResumeTree />
 				{children}
 			</SidebarContent>
 			<SidebarFooter>
