@@ -9,7 +9,9 @@
     "start": "nx start",
     "start:direct": "node --loader ts-node/esm -r tsconfig-paths/register src/main.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "docker build -f Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-crdt:${TAG:-latest} ../..",
+    "docker:push": "docker push ${REGISTRY:-registry.mattstrom.com}/resume-builder-crdt:${TAG:-latest}"
   },
   "dependencies": {
     "@hocuspocus/server": "^3.4.3",

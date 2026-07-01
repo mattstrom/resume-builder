@@ -131,3 +131,8 @@ export type ResumeFact = Prisma.ResumeFactModel
  * 
  */
 export type ProfileUpdate = Prisma.ProfileUpdateModel
+/**
+ * Model ResumeDocument
+ * 
+ */
+export type ResumeDocument = Prisma.ResumeDocumentModel

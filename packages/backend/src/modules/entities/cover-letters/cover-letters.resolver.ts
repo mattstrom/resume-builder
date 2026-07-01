@@ -1,7 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoverLetter, CoverLetterInput, CoverLetterUpdateInput } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
-import { type UpdateOneModel } from 'mongoose';
 
 import { CurrentUser } from '../../auth/index.js';
 import { CoverLettersService } from './cover-letters.service.js';
@@ -42,7 +41,7 @@ export class CoverLettersResolver {
 		@CurrentUser('sub') uid: string,
 		@Args('id') id: string,
 		@Args('update', { type: () => GraphQLJSON })
-		update: UpdateOneModel<CoverLetter>,
+		update: Record<string, unknown>,
 	): Promise<void> {
 		return this.coverLettersService.patch(uid, id, update);
 	}

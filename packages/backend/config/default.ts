@@ -5,9 +5,6 @@ const config: Config = {
 		domain: 'login.mattstrom.com',
 		audience: 'https://resume-builder.mattstrom.com',
 	},
-	mongodb: {
-		uri: 'mongodb://localhost:27017/resume-builder',
-	},
 	postgres: {
 		url: 'postgresql://postgres:postgres@localhost:5432/resume-builder',
 	},

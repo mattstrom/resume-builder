@@ -112,6 +112,12 @@ const ProfileUpdateModel = model(
 	'profile_updates',
 );
 
+const DocumentModel = model(
+	'Document',
+	new Schema({ name: String, uid: String, update: Buffer }, { strict: false, timestamps: true }),
+	'documents',
+);
+
 // ─── Migration Functions ─────────────────────────────────────────────────────
 
 async function migrateProfiles(prisma: PrismaClient) {
@@ -670,6 +676,41 @@ async function migrateResumes(prisma: PrismaClient) {
 	summary('resumes', docs.length, errors);
 }
 
+async function migrateResumeDocuments(prisma: PrismaClient) {
+	log('\nMigrating resume documents…');
+	const docs = await DocumentModel.find({ name: /^resume:/ }).lean();
+	log(`  Found ${docs.length} documents`);
+
+	let errors = 0;
+	for (const doc of docs) {
+		if (DRY_RUN) continue;
+		try {
+			const id = mongoId(doc._id);
+			// doc.update comes back as a BSON Binary from lean(); convert to Buffer.
+			const update: Buffer = Buffer.isBuffer(doc.update)
+				? doc.update
+				: Buffer.from((doc.update as { buffer?: Buffer }).buffer ?? doc.update);
+			await prisma.resumeDocument.upsert({
+				where: { id },
+				create: {
+					id,
+					name: doc.name,
+					uid: doc.uid,
+					update,
+					createdAt: doc.createdAt ?? objectIdTs(doc._id),
+					updatedAt: doc.updatedAt ?? doc.createdAt ?? objectIdTs(doc._id),
+				},
+				update: {},
+			});
+		} catch (err) {
+			errors++;
+			console.error(`  Error on resume document ${doc._id}:`, err);
+		}
+	}
+
+	summary('resume_documents', docs.length, errors);
+}
+
 // ─── Entry Point ─────────────────────────────────────────────────────────────
 
 async function main() {
@@ -699,6 +740,7 @@ async function main() {
 		await migrateConversations(prisma);
 		await migrateResumes(prisma);
 		await migrateProfileUpdates(prisma);
+		await migrateResumeDocuments(prisma);
 
 		log('\nMigration complete.');
 	} finally {

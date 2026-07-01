@@ -10,6 +10,6 @@ export default defineConfig({
 		path: 'prisma/migrations',
 	},
 	datasource: {
-		url: `${process.env['DATABASE_URL']}?schema=resume_builder`,
+		url: `${process.env['DATABASE_URL']}?schema=resume_builder&sslmode=disabled`,
 	},
 });

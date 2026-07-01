@@ -1,50 +1,46 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Education, EducationInput } from '@resume-builder/entities';
-import { Model } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
+
+type EducationWithId = Education & { _id: string };
 
 @Injectable()
 export class EducationsService {
-	constructor(
-		@InjectModel(Education.name)
-		private readonly educationModel: Model<Education>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll(uid: string): Promise<Education[]> {
-		const results = await this.educationModel.find({ uid }).exec();
-		return results.map((item) => item.toObject());
+	async findAll(uid: string): Promise<EducationWithId[]> {
+		const results = await this.prisma.education.findMany({ where: { uid } });
+		return results.map((r) => ({ ...r, _id: r.id }) as EducationWithId);
 	}
 
-	async find(uid: string, id: string): Promise<Education | null> {
-		const result = await this.educationModel.findOne({ _id: id, uid }).exec();
+	async find(uid: string, id: string): Promise<EducationWithId> {
+		const result = await this.prisma.education.findFirst({ where: { id, uid } });
 		if (!result) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}
-		return result.toObject();
+		return { ...result, _id: result.id } as EducationWithId;
 	}
 
-	async create(uid: string, educationData: EducationInput): Promise<Education> {
-		const created = new this.educationModel({ ...educationData, uid });
-		const saved = await created.save();
-		return saved.toObject();
+	async create(uid: string, educationData: EducationInput): Promise<EducationWithId> {
+		const result = await this.prisma.education.create({ data: { ...educationData, uid } });
+		return { ...result, _id: result.id } as EducationWithId;
 	}
 
-	async update(uid: string, id: string, educationData: EducationInput): Promise<Education> {
-		const updated = await this.educationModel
-			.findOneAndUpdate({ _id: id, uid }, educationData, { new: true })
-			.exec();
-
-		if (!updated) {
+	async update(uid: string, id: string, educationData: EducationInput): Promise<EducationWithId> {
+		const existing = await this.prisma.education.findFirst({ where: { id, uid } });
+		if (!existing) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}
-
-		return updated.toObject();
+		const result = await this.prisma.education.update({ where: { id }, data: educationData });
+		return { ...result, _id: result.id } as EducationWithId;
 	}
 
 	async delete(uid: string, id: string): Promise<void> {
-		const result = await this.educationModel.findOneAndDelete({ _id: id, uid }).exec();
-		if (!result) {
+		const existing = await this.prisma.education.findFirst({ where: { id, uid } });
+		if (!existing) {
 			throw new NotFoundException(`Education with id ${id} not found`);
 		}
+		await this.prisma.education.delete({ where: { id } });
 	}
 }
