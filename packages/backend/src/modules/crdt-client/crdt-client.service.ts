@@ -18,8 +18,8 @@ export class CrdtClientService {
 	 * ops inside a single transaction, and returns a plain-JS snapshot of
 	 * the resulting resume for the LLM to consume.
 	 *
-	 * The Hocuspocus `onStoreDocument` hook (debounced ~2s) handles Mongo
-	 * persistence automatically — no Mongo writes required here.
+	 * The Hocuspocus `onStoreDocument` hook (debounced ~2s) handles Postgres
+	 * persistence automatically — no writes required here.
 	 */
 	async patchResume(
 		resumeId: string,

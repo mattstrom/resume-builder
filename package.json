@@ -5,6 +5,7 @@
   "license": "BUSL-1.1",
   "workspaces": [
     "packages/backend",
+    "packages/crdt",
     "packages/entities",
     "packages/orchestration",
     "packages/resume-builder"
@@ -12,7 +13,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prestart": "docker compose up -d --wait mongodb redis db",
+    "prestart": "docker compose up -d --wait redis db",
     "start": "nx run-many -t dev -p @resume-builder/entities @resume-builder/backend @resume-builder/crdt @resume-builder/web --parallel=10",
     "start:mcp": "op run --env-file=.env -- sh -c 'docker compose up -d mcp'",
     "build": "tsc && vite build",
@@ -23,7 +24,7 @@
     "format:check": "oxfmt --check",
     "docker:build": "nx run-many -t docker-build",
     "docker:push": "nx run-many -t docker-push",
-    "deploy": "op run --env-file=.env -- sh -c 'helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set orchestration.image.tag=${TAG:-latest} --set mongodb.password=${MONGODB_PASSWORD} --set postgres.password=${POSTGRES_PASSWORD} --set orchestration.anthropicApiKey=${ANTHROPIC_API_KEY} --set orchestration.auth0.clientId=${AUTH_CLIENT_ID} --install'"
+    "deploy": "op run --env-file=.env -- sh -c 'helm upgrade ${RELEASE:-resume-builder} charts/resume-builder --namespace ${NAMESPACE:-resume-builder} --set backend.image.tag=${TAG:-latest} --set web.image.tag=${TAG:-latest} --set orchestration.image.tag=${TAG:-latest} --set crdt.image.tag=${TAG:-latest} --set postgres.password=${POSTGRES_PASSWORD} --set orchestration.anthropicApiKey=${ANTHROPIC_API_KEY} --set orchestration.auth0.clientId=${AUTH_CLIENT_ID} --install'"
   },
   "dependencies": {
     "lightningcss": "^1.30.2",

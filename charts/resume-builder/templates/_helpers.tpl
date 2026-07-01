@@ -168,10 +168,3 @@ CRDT internal HTTP URL
 {{- define "resume-builder.crdtHttpUrl" -}}
 {{- printf "http://%s:%d" (include "resume-builder.crdt.fullname" .) (int .Values.crdt.service.port) }}
 {{- end }}
-
-{{/*
-MongoDB connection URI
-*/}}
-{{- define "resume-builder.mongodbUri" -}}
-{{- printf "mongodb://%s:%s@%s-svc.%s.svc.cluster.local:27017/%s?replicaSet=%s&authSource=admin&ssl=false" .Values.mongodb.username "$(MONGODB_PASSWORD)" .Values.mongodb.name .Release.Namespace .Values.mongodb.database .Values.mongodb.name }}
-{{- end }}

@@ -16,7 +16,7 @@ The project consists of multiple packages working together:
   frontend application with ShadCN, Monaco editor, and Yjs for real-time
   collaborative editing
 - **@resume-builder/backend** (`packages/backend`) - NestJS backend with
-  MongoDB (Mongoose), MCP server integration, and REST API endpoints
+  PostgreSQL (Prisma), MCP server integration, and REST API endpoints
 - **@resume-builder/crdt** (`packages/crdt`) - Hocuspocus CRDT server for
   real-time collaborative document synchronization
 - **@resume-builder/entities** (`packages/entities`) - Shared data models and
@@ -26,7 +26,7 @@ The project consists of multiple packages working together:
 ### Key Technologies
 
 - **Frontend**: React 19, ShadCN, Monaco Editor, Yjs for CRDT
-- **Backend**: NestJS, MongoDB with Typegoose, Model Context Protocol (MCP)
+- **Backend**: NestJS, PostgreSQL with Prisma, Model Context Protocol (MCP)
 - **CRDT Server**: Hocuspocus for collaborative editing
 - **Build System**: Nx monorepo, Vite/Rolldown
 - **Validation**: Zod schemas

@@ -28,13 +28,6 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
-            - name: MONGODB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.mongodb.name }}-password
-                  key: password
-            - name: MONGODB_URI
-              value: {{ include "resume-builder.mongodbUri" . | quote }}
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:

@@ -37,6 +37,11 @@ COPY packages/entities/package.json packages/entities/
 
 RUN npm ci --workspace=packages/crdt --workspace=packages/entities --omit=dev
 
+# npm may hoist all of crdt/entities' deps into the root node_modules with no
+# per-package nesting, depending on whether any versions conflict — ensure
+# these directories exist (possibly empty) so the COPY below never fails.
+RUN mkdir -p packages/crdt/node_modules packages/entities/node_modules
+
 # Stage 4: Production runtime
 FROM node:24.8.0-slim
 

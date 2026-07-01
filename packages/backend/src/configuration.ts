@@ -42,9 +42,6 @@ export interface Config {
 		audience: string;
 		localAudience: string;
 	};
-	mongodb: {
-		uri: string;
-	};
 	postgres: {
 		url: string;
 	};
@@ -176,15 +173,6 @@ const schema = convict<Config>({
 				default: 'claude-haiku-4-5-20251001',
 				env: 'RERANKER_LLM_MODEL',
 			},
-		},
-	},
-	mongodb: {
-		uri: {
-			doc: 'MongoDB connection URI',
-			format: String,
-			default: '',
-			env: 'MONGODB_URI',
-			sensitive: true,
 		},
 	},
 	postgres: {

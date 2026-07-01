@@ -11,10 +11,6 @@ export interface Config {
 		previewPath: string;
 		exportPath: string;
 	};
-	mongodb: {
-		uri: string;
-		database: string;
-	};
 	postgres: {
 		host: string;
 		user: string;
@@ -65,20 +61,6 @@ const schema = convict<Config>({
 			doc: 'The preview URL of the frontend application',
 			format: String,
 			default: '/export/{resumeId}',
-		},
-	},
-	mongodb: {
-		uri: {
-			doc: 'MongoDB connection URI',
-			format: String,
-			default: '',
-			env: 'MONGODB_URI',
-		},
-		database: {
-			doc: 'MongoDB database name',
-			format: String,
-			default: 'vector-store',
-			env: 'MONGODB_DATABASE',
 		},
 	},
 	postgres: {

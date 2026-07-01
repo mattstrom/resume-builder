@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 
 import config from './configuration.js';
 import { AuthModule } from './modules/auth/index.js';
@@ -32,7 +31,6 @@ import { RequestSigningModule } from './modules/request-signing/index.js';
 		GraphQLModule,
 		HealthModule,
 		McpModule,
-		MongooseModule.forRoot(config.mongodb.uri),
 		PrismaModule,
 		PdfModule,
 		LoggingModule,

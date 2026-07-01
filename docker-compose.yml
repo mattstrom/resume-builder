@@ -12,11 +12,9 @@ services:
       - ./packages/backend/config:/app/packages/backend/config
       - ./packages/entities/dist:/app/packages/entities/dist
     environment:
-      MONGODB_URI: mongodb://mongodb:27017/resume-builder
       REDIS_URL: redis://redis:6379
       DATABASE_URL: postgresql://postgres:postgres@db:5432/resume-builder
     depends_on:
-      - mongodb
       - redis
       - db
 
@@ -46,17 +44,7 @@ services:
       - ./schema.gql:/schema.gql
     extra_hosts:
       - 'host.docker.internal:host-gateway'
-    depends_on:
-      - mongodb
     command: /config.yaml
-
-  mongodb:
-    image: mongo:latest
-    ports:
-      - 27017:27017
-    volumes:
-      - mongodb:/data/db
-      - ./backup:/backup
 
   redis:
     image: redis:7-alpine
@@ -82,7 +70,6 @@ services:
       - backend
 
 volumes:
-  mongodb:
   mcp:
   redis:
   postgres:

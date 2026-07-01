@@ -1,56 +1,51 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { CoverLetter, CoverLetterInput, CoverLetterUpdateInput } from '@resume-builder/entities';
-import { Model, UpdateOneModel } from 'mongoose';
+
+import { PrismaService } from '../../prisma/index.js';
+
+type CoverLetterWithId = CoverLetter & { _id: string };
 
 @Injectable()
 export class CoverLettersService {
-	constructor(
-		@InjectModel(CoverLetter.name)
-		private readonly coverLetterModel: Model<CoverLetter>,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll(uid: string): Promise<CoverLetter[]> {
-		const results = await this.coverLetterModel.find({ uid }).exec();
-		return results.map((item) => item.toObject());
+	async findAll(uid: string): Promise<CoverLetterWithId[]> {
+		const results = await this.prisma.coverLetter.findMany({ where: { uid } });
+		return results.map((r) => ({ ...r, _id: r.id }) as CoverLetterWithId);
 	}
 
-	async find(uid: string, id: string): Promise<CoverLetter | null> {
-		const result = await this.coverLetterModel.findOne({ _id: id, uid }).exec();
-
+	async find(uid: string, id: string): Promise<CoverLetterWithId> {
+		const result = await this.prisma.coverLetter.findFirst({ where: { id, uid } });
 		if (!result) {
 			throw new NotFoundException();
 		}
-
-		return result?.toObject() ?? null;
+		return { ...result, _id: result.id } as CoverLetterWithId;
 	}
 
-	async create(uid: string, coverLetterData: CoverLetterInput): Promise<CoverLetter> {
-		const created = new this.coverLetterModel({
-			...coverLetterData,
-			uid,
-		});
-		const saved = await created.save();
-		return saved.toObject();
+	async create(uid: string, coverLetterData: CoverLetterInput): Promise<CoverLetterWithId> {
+		const result = await this.prisma.coverLetter.create({ data: { ...coverLetterData, uid } });
+		return { ...result, _id: result.id } as CoverLetterWithId;
 	}
 
 	async update(
 		uid: string,
 		id: string,
 		updateData: CoverLetterUpdateInput,
-	): Promise<CoverLetter> {
-		const updated = await this.coverLetterModel
-			.findOneAndUpdate({ _id: id, uid }, updateData, { new: true })
-			.exec();
-
-		if (!updated) {
+	): Promise<CoverLetterWithId> {
+		const existing = await this.prisma.coverLetter.findFirst({ where: { id, uid } });
+		if (!existing) {
 			throw new NotFoundException(`Cover letter with id ${id} not found`);
 		}
-
-		return updated.toObject();
+		const result = await this.prisma.coverLetter.update({ where: { id }, data: updateData });
+		return { ...result, _id: result.id } as CoverLetterWithId;
 	}
 
-	async patch(uid: string, id: string, update: UpdateOneModel<CoverLetter>): Promise<void> {
-		const result = await this.coverLetterModel.updateOne({ _id: id, uid }, update).exec();
+	async patch(uid: string, id: string, update: Record<string, unknown>): Promise<void> {
+		const existing = await this.prisma.coverLetter.findFirst({ where: { id, uid } });
+		if (!existing) {
+			throw new NotFoundException(`Cover letter with id ${id} not found`);
+		}
+		const fields = '$set' in update ? (update['$set'] as Record<string, unknown>) : update;
+		await this.prisma.coverLetter.update({ where: { id }, data: fields });
 	}
 }

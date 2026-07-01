@@ -401,7 +401,8 @@ export const ModelName = {
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   ResumeFact: 'ResumeFact',
-  ProfileUpdate: 'ProfileUpdate'
+  ProfileUpdate: 'ProfileUpdate',
+  ResumeDocument: 'ResumeDocument'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "profileUpdate"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "profileUpdate" | "resumeDocument"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1754,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ResumeDocument: {
+      payload: Prisma.$ResumeDocumentPayload<ExtArgs>
+      fields: Prisma.ResumeDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResumeDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResumeDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.ResumeDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResumeDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.ResumeDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.ResumeDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.ResumeDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResumeDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.ResumeDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        update: {
+          args: Prisma.ResumeDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResumeDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResumeDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResumeDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResumeDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.ResumeDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResumeDocument>
+        }
+        groupBy: {
+          args: Prisma.ResumeDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResumeDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResumeDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResumeDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2054,6 +2129,18 @@ export const ProfileUpdateScalarFieldEnum = {
 export type ProfileUpdateScalarFieldEnum = (typeof ProfileUpdateScalarFieldEnum)[keyof typeof ProfileUpdateScalarFieldEnum]
 
 
+export const ResumeDocumentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  uid: 'uid',
+  update: 'update',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResumeDocumentScalarFieldEnum = (typeof ResumeDocumentScalarFieldEnum)[keyof typeof ResumeDocumentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2340,6 +2427,7 @@ export type GlobalOmitConfig = {
   volunteering?: Prisma.VolunteeringOmit
   resumeFact?: Prisma.ResumeFactOmit
   profileUpdate?: Prisma.ProfileUpdateOmit
+  resumeDocument?: Prisma.ResumeDocumentOmit
 }
 
 /* Types for Logging */

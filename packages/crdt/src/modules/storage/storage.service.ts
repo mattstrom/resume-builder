@@ -1,11 +1,8 @@
 import { Extension } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Resume } from '@resume-builder/entities';
-import { Model } from 'mongoose';
 import * as Y from 'yjs';
 
-import { Document as StoredDocument } from './document.js';
 import { PrismaService } from './prisma.service.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -65,12 +62,7 @@ type ParsedDocumentName = { kind: 'resume'; resumeId: string } | { kind: 'profil
 
 @Injectable()
 export class StorageService implements Extension {
-	constructor(
-		@InjectModel(Resume.name) private readonly resumeModel: Model<Resume>,
-		@InjectModel(StoredDocument.name)
-		private readonly documentModel: Model<StoredDocument>,
-		private readonly prisma: PrismaService,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
 	async onLoadDocument({ context, documentName }) {
 		return this.loadDocument(context.user.sub as string, documentName);
@@ -107,7 +99,7 @@ export class StorageService implements Extension {
 	}
 
 	async assertResumeAccess(uid: string, resumeId: string) {
-		const resume = await this.resumeModel.findOne({ _id: resumeId, uid }).exec();
+		const resume = await this.prisma.resume.findFirst({ where: { id: resumeId, uid } });
 
 		if (!resume) {
 			throw new Error(`Resume "${resumeId}" not found`);
@@ -140,7 +132,9 @@ export class StorageService implements Extension {
 
 	private async loadResumeDocument(uid: string, documentName: string, resumeId: string) {
 		const resume = await this.assertResumeAccess(uid, resumeId);
-		const stored = await this.documentModel.findOne({ name: documentName, uid }).exec();
+		const stored = await this.prisma.resumeDocument.findUnique({
+			where: { name: documentName },
+		});
 		const document = new Y.Doc();
 
 		if (stored?.update) {
@@ -149,7 +143,7 @@ export class StorageService implements Extension {
 			return document;
 		}
 
-		this.writeResumeDocument(document, resume.toObject());
+		this.writeResumeDocument(document, resume as unknown as Resume);
 
 		return document;
 	}
@@ -165,24 +159,22 @@ export class StorageService implements Extension {
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 		const snapshot = this.readResumeDocument(document);
 
-		await this.documentModel
-			.findOneAndUpdate(
-				{ name: documentName, uid },
-				{ name: documentName, uid, update },
-				{ upsert: true, new: true },
-			)
-			.exec();
+		await this.prisma.resumeDocument.upsert({
+			where: { name: documentName },
+			create: { name: documentName, uid, update },
+			update: { update },
+		});
 
 		if (!snapshot) {
 			return;
 		}
 
-		const { _id, createdAt, updatedAt, ...resumeUpdate } = snapshot as Resume & {
-			createdAt?: Date;
-			updatedAt?: Date;
-		};
+		const { id, createdAt, updatedAt, ...resumeUpdate } = snapshot as unknown as Record<
+			string,
+			unknown
+		>;
 
-		await this.resumeModel.findOneAndUpdate({ _id: resumeId, uid }, resumeUpdate).exec();
+		await this.prisma.resume.update({ where: { id: resumeId }, data: resumeUpdate });
 	}
 
 	private assertProfileAccess(uid: string, profileUid: string) {

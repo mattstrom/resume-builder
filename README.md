@@ -7,20 +7,20 @@ A full-stack resume builder application built as an Nx monorepo.
 | Package                                          | Description                                                      |
 | ------------------------------------------------ | ---------------------------------------------------------------- |
 | [`@resume-builder/web`](packages/resume-builder) | React frontend with Monaco editor                                |
-| [`@resume-builder/backend`](packages/backend)    | NestJS backend with GraphQL, MongoDB, and MCP server integration |
+| [`@resume-builder/backend`](packages/backend)    | NestJS backend with GraphQL, PostgreSQL (Prisma), and MCP server integration |
 | [`@resume-builder/entities`](packages/entities)  | Shared data models and Zod validation schemas                    |
 
 ## Tech Stack
 
 - **Frontend**: React 19, ShadCN/UI, Monaco Editor, TanStack Router, MobX, Tailwind CSS
-- **Backend**: NestJS, GraphQL (Apollo), MongoDB (Typegoose), Model Context Protocol (MCP)
+- **Backend**: NestJS, GraphQL (Apollo), PostgreSQL (Prisma), Model Context Protocol (MCP)
 - **Build**: Nx 22, Vite, TypeScript (strict mode)
 
 ## Prerequisites
 
 - Node.js 24.8.0 (see `.nvmrc`)
 - npm
-- Docker (for MongoDB)
+- Docker (for PostgreSQL)
 
 ## Getting Started
 
@@ -30,7 +30,7 @@ A full-stack resume builder application built as an Nx monorepo.
 npm install
 ```
 
-### 2. Start MongoDB
+### 2. Start PostgreSQL
 
 ```sh
 docker compose up -d

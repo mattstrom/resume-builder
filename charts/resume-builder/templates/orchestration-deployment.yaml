@@ -38,13 +38,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "resume-builder.fullname" . }}-orchestration
                   key: auth0ClientId
-            - name: MONGODB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.mongodb.name }}-password
-                  key: password
-            - name: MONGODB_URI
-              value: {{ include "resume-builder.mongodbUri" . | quote }}
             - name: POSTGRES_HOST
               value: {{ include "resume-builder.postgresHost" . | quote }}
             - name: POSTGRES_USER

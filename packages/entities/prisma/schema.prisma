@@ -377,3 +377,19 @@ model ProfileUpdate {
   @@index([name, uid, sequence(sort: Desc)])
 }
 
+// ─── ResumeDocument ──────────────────────────────────────────────────────────
+// Latest Yjs CRDT binary snapshot for a resume's collaborative document.
+// One row per document name, upserted in place (not an append log — the CRDT
+// server only ever needs the most recent state to resume a session).
+
+model ResumeDocument {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  uid       String
+  update    Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([uid])
+}
+
