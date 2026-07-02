@@ -4,12 +4,27 @@ import { defineConfig } from 'prisma/config';
 // npm install --save-dev prisma dotenv
 import 'dotenv/config';
 
+function appendUrlParams(url: string, params: Record<string, string>): string {
+	const separator = url.includes('?') ? '&' : '?';
+
+	return `${url}${separator}${new URLSearchParams(params).toString()}`;
+}
+
+const databaseUrl = process.env['DATABASE_URL'];
+
+if (!databaseUrl) {
+	throw new Error('DATABASE_URL is required for Prisma');
+}
+
 export default defineConfig({
 	schema: 'prisma/schema.prisma',
 	migrations: {
 		path: 'prisma/migrations',
 	},
 	datasource: {
-		url: `${process.env['DATABASE_URL']}?schema=resume_builder&sslmode=disabled`,
+		url: appendUrlParams(databaseUrl, {
+			schema: 'resume_builder',
+			sslmode: 'disable',
+		}),
 	},
 });

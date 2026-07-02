@@ -138,6 +138,40 @@ type CoverLetter {
   content: String!
 }
 
+type CompanyAddress {
+  streetAddress: String
+  city: String
+  state: String
+  zip: String
+}
+
+"""Company"""
+type Company {
+  id: ID!
+  name: String!
+  type: CompanyType!
+  website: String!
+  locationType: LocationType!
+  address: CompanyAddress!
+  createdAt: DateTime!
+  createdBy: String!
+  updatedAt: DateTime!
+  updatedBy: String!
+  applications: [Application!]
+}
+
+enum CompanyType {
+  employer
+  recruiter
+  other
+}
+
+enum LocationType {
+  on_site
+  hybrid
+  remote
+}
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -278,6 +312,9 @@ type Application {
   """User ID"""
   uid: String!
 
+  """Linked company record ID"""
+  companyId: String
+
   """Friendly name for this application"""
   name: String!
 
@@ -309,6 +346,7 @@ type Application {
   """Freeform notes"""
   notes: String
   resumes: [Resume!]
+  companyRecord: Company
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -387,6 +425,13 @@ type GenerateNarrativeSummaryResult {
   jobId: String!
 }
 
+input CompanyAddressInput {
+  streetAddress: String
+  city: String
+  state: String
+  zip: String
+}
+
 input ChatModelSelectionInput {
   provider: String!
   model: String!
@@ -397,6 +442,8 @@ type Query {
   getApplication(id: String!): Application!
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
+  listCompanies: [Company!]!
+  getCompany(id: String!): Company!
   getProfile: Profile
   facts(kind: String, entityType: String, entityId: String): [FactType!]!
   fact(id: ID!): FactType!
@@ -452,6 +499,9 @@ type Mutation {
   setResumeField(id: String!, input: ResumeSetFieldInput!, value: JSON!): Resume!
   addResumeCollectionItem(id: String!, input: ResumeAddCollectionItemInput!): Resume!
   removeResumeCollectionItem(id: String!, input: ResumeRemoveCollectionItemInput!): Resume!
+  createCompany(company: CompanyInput!): Company!
+  updateCompany(id: String!, company: CompanyUpdateInput!): Company!
+  deleteCompany(id: String!): Boolean!
   updateProfile(input: ProfileUpdateInput!): Profile!
   generateNarrativeSummary: GenerateNarrativeSummaryResult!
   createFact(input: CreateFactInput!): FactType!
@@ -484,6 +534,7 @@ type Mutation {
 
 input ApplicationInput {
   name: String!
+  companyId: String
   company: String!
   jobPostingUrl: String!
   jobDescription: String
@@ -517,6 +568,7 @@ input AnalysisInput {
 
 input ApplicationUpdateInput {
   name: String
+  companyId: String
   company: String
   jobPostingUrl: String
   jobDescription: String
@@ -693,6 +745,22 @@ input ResumeRemoveCollectionItemInput {
 
   """Index of the item to remove"""
   index: Float!
+}
+
+input CompanyInput {
+  name: String!
+  type: CompanyType! = employer
+  website: String! = ""
+  locationType: LocationType! = remote
+  address: CompanyAddressInput
+}
+
+input CompanyUpdateInput {
+  name: String
+  type: CompanyType
+  website: String
+  locationType: LocationType
+  address: CompanyAddressInput
 }
 
 input ProfileUpdateInput {

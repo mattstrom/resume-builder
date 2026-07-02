@@ -27,6 +27,7 @@ export class CompaniesService {
 			where: { createdBy: uid },
 			orderBy: { updatedAt: 'desc' },
 		});
+
 		return results.map(mapCompany);
 	}
 
@@ -35,6 +36,7 @@ export class CompaniesService {
 		if (!result) {
 			throw new NotFoundException(`Company with id ${id} not found`);
 		}
+
 		return mapCompany(result);
 	}
 
@@ -44,6 +46,7 @@ export class CompaniesService {
 			where: { uid, companyId: id },
 			orderBy: { updatedAt: 'desc' },
 		});
+
 		return results.map((result) => ({ ...result, _id: result.id }) as ApplicationWithId);
 	}
 
@@ -56,6 +59,7 @@ export class CompaniesService {
 				updatedBy: uid,
 			},
 		});
+
 		return mapCompany(result);
 	}
 
@@ -72,6 +76,7 @@ export class CompaniesService {
 				updatedBy: uid,
 			},
 		});
+
 		return mapCompany(result);
 	}
 
