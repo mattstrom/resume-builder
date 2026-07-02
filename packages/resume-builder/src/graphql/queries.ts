@@ -131,6 +131,8 @@ export const applicationFragment = gql`
 		updatedAt
 		resumes {
 			_id
+			name
+			updatedAt
 		}
 		jobSummary {
 			requiredSkills
@@ -189,6 +191,7 @@ export const LIST_RESUMES = gql`
 			company
 			level
 			base
+			applicationId
 			jobPostingUrl
 			createdAt
 			updatedAt
