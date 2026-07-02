@@ -24,7 +24,7 @@ interface CreateApplicationDialogProps {
 
 export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({ children }) => {
 	const navigate = useNavigate();
-	const { applicationStore, resumeStore, editorStore } = useStore();
+	const { applicationStore, resumeStore } = useStore();
 	const [open, setOpen] = useState(false);
 	const [createApplication, { loading }] = useMutation<
 		CreateApplicationData,
@@ -53,9 +53,9 @@ export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({ chil
 
 		const newApplicationId = result.data?.createApplication?._id;
 		if (newApplicationId) {
-			await editorStore.selectApplication(newApplicationId);
+			applicationStore.selectApplication(newApplicationId);
 			navigate({
-				to: '/editor/$applicationId',
+				to: '/applications/$applicationId',
 				params: { applicationId: newApplicationId },
 			});
 		}

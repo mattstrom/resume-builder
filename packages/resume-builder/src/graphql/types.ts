@@ -28,7 +28,28 @@ export interface CreateApplicationVariables {
 
 export interface UpdateApplicationVariables {
 	id: string;
-	applicationData: Partial<Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>>;
+	applicationData: Partial<
+		Omit<
+			Application,
+			| '_id'
+			| 'uid'
+			| 'createdAt'
+			| 'updatedAt'
+			| 'jobDescription'
+			| 'notionId'
+			| 'coverLetterId'
+			| 'jobSummary'
+			| 'analysis'
+			| 'notes'
+		> & {
+			jobDescription?: Application['jobDescription'] | null;
+			notionId?: Application['notionId'] | null;
+			coverLetterId?: Application['coverLetterId'] | null;
+			jobSummary?: Application['jobSummary'] | null;
+			analysis?: Application['analysis'] | null;
+			notes?: Application['notes'] | null;
+		}
+	>;
 }
 
 export interface ListResumesData {

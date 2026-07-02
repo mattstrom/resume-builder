@@ -1,4 +1,5 @@
 import type { Application } from '@resume-builder/entities';
+import { Link } from '@tanstack/react-router';
 import {
 	ArrowUpDown,
 	Building2,
@@ -36,6 +37,8 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
@@ -57,9 +60,15 @@ const sectionLabelClass =
 
 const sectionLabelIconClass = 'size-3 opacity-70';
 
+type ResumeLink = {
+	_id: string;
+	name?: string | null;
+};
+
 export const SidebarResumeTree: FC = observer(() => {
-	const { applicationStore, explorerSidebarStore, editorStore } = useStore();
-	const { selectedApiApplicationId } = editorStore;
+	const { applicationStore, explorerSidebarStore, editorStore, resumeStore } = useStore();
+	const { selectedApplicationId } = applicationStore;
+	const { resumeData, selectedApiApplicationId } = editorStore;
 	const selectApiApplication = (id: string) => void editorStore.selectApplication(id);
 	const [companyBrowserOpen, setCompanyBrowserOpen] = useState(false);
 
@@ -118,20 +127,36 @@ export const SidebarResumeTree: FC = observer(() => {
 		[explorerSidebarStore],
 	);
 
+	const getApplicationResumes = (application: Application): ResumeLink[] => {
+		const linkedResumes = application.resumes ?? [];
+		const linkedResumeIds = new Set(linkedResumes.map((resume) => resume._id));
+		const storedResumes = resumeStore.data.filter(
+			(resume) => resume.applicationId === application._id || linkedResumeIds.has(resume._id),
+		);
+
+		if (storedResumes.length > 0) {
+			return storedResumes;
+		}
+
+		return linkedResumes;
+	};
+
 	const renderApplicationItem = (application: Application, compact = false) => {
 		const isPinned = explorerSidebarStore.isApplicationPinned(application._id);
 		const company = formatApplicationCompany(application.company);
 		const updatedAt = formatApplicationUpdatedAt(application.updatedAt);
+		const resumes = getApplicationResumes(application);
+		const isActive = selectedApplicationId === application._id;
 
 		return (
 			<SidebarMenuItem key={application._id}>
 				<SidebarMenuButton
 					size={compact ? 'sm' : 'default'}
 					className={cn(!compact && 'h-auto min-h-12 items-start px-2 py-1.5 pr-7')}
-					to="/editor/$applicationId"
+					to="/applications/$applicationId"
 					params={{ applicationId: application._id }}
-					isActive={selectedApiApplicationId === application._id}
-					onClick={() => void selectApiApplication(application._id)}
+					isActive={isActive}
+					onClick={() => applicationStore.selectApplication(application._id)}
 					tooltip={application.name}
 				>
 					{compact && <FileIcon />}
@@ -160,22 +185,53 @@ export const SidebarResumeTree: FC = observer(() => {
 				>
 					{isPinned ? <PinOff /> : <Pin />}
 				</SidebarMenuAction>
+				{resumes.length > 0 && (
+					<SidebarMenuSub>
+						{resumes.map((resume) => (
+							<SidebarMenuSubItem key={resume._id}>
+								<SidebarMenuSubButton
+									asChild
+									size="sm"
+									isActive={
+										selectedApiApplicationId === application._id &&
+										resumeData?._id === resume._id
+									}
+								>
+									<Link
+										to="/editor/$applicationId"
+										params={{ applicationId: application._id }}
+										search={(previous) => ({
+											...previous,
+											resumeId: resume._id,
+										})}
+										onClick={() => void selectApiApplication(application._id)}
+									>
+										<FileIcon />
+										<span>{resume.name || 'Untitled resume'}</span>
+									</Link>
+								</SidebarMenuSubButton>
+							</SidebarMenuSubItem>
+						))}
+					</SidebarMenuSub>
+				)}
 			</SidebarMenuItem>
 		);
 	};
 
 	const renderGroupedApplicationItem = (application: Application) => {
 		const isPinned = explorerSidebarStore.isApplicationPinned(application._id);
+		const resumes = getApplicationResumes(application);
+		const isActive = selectedApplicationId === application._id;
 
 		return (
 			<SidebarMenuItem key={application._id} className="list-none">
 				<SidebarMenuButton
 					size="sm"
 					className="pr-7"
-					to="/editor/$applicationId"
+					to="/applications/$applicationId"
 					params={{ applicationId: application._id }}
-					isActive={selectedApiApplicationId === application._id}
-					onClick={() => void selectApiApplication(application._id)}
+					isActive={isActive}
+					onClick={() => applicationStore.selectApplication(application._id)}
 					tooltip={application.name}
 				>
 					<FileIcon />
@@ -188,6 +244,35 @@ export const SidebarResumeTree: FC = observer(() => {
 				>
 					{isPinned ? <PinOff /> : <Pin />}
 				</SidebarMenuAction>
+				{resumes.length > 0 && (
+					<SidebarMenuSub className="mx-2">
+						{resumes.map((resume) => (
+							<SidebarMenuSubItem key={resume._id}>
+								<SidebarMenuSubButton
+									asChild
+									size="sm"
+									isActive={
+										selectedApiApplicationId === application._id &&
+										resumeData?._id === resume._id
+									}
+								>
+									<Link
+										to="/editor/$applicationId"
+										params={{ applicationId: application._id }}
+										search={(previous) => ({
+											...previous,
+											resumeId: resume._id,
+										})}
+										onClick={() => void selectApiApplication(application._id)}
+									>
+										<FileIcon />
+										<span>{resume.name || 'Untitled resume'}</span>
+									</Link>
+								</SidebarMenuSubButton>
+							</SidebarMenuSubItem>
+						))}
+					</SidebarMenuSub>
+				)}
 			</SidebarMenuItem>
 		);
 	};
