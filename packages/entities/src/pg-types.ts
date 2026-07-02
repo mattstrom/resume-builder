@@ -1,4 +1,5 @@
 import type { Analysis, JobSummary } from './models/application.js';
+import type { CompanyAddress, CompanyType, LocationType } from './models/company.js';
 import type { ResumeContent } from './models/resume-content.js';
 
 export interface PgResume {
@@ -20,6 +21,7 @@ export interface PgResume {
 export interface PgApplication {
 	id: string;
 	uid: string;
+	companyId: string | null;
 	name: string;
 	company: string;
 	jobPostingUrl: string;
@@ -31,6 +33,19 @@ export interface PgApplication {
 	notes: string | null;
 	createdAt: Date;
 	updatedAt: Date;
+}
+
+export interface PgCompany {
+	id: string;
+	name: string;
+	type: CompanyType;
+	website: string;
+	locationType: LocationType;
+	address: CompanyAddress;
+	createdAt: Date;
+	createdBy: string;
+	updatedAt: Date;
+	updatedBy: string;
 }
 
 export interface PgCoverLetter {
