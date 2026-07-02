@@ -191,6 +191,7 @@ export const LIST_RESUMES = gql`
 			company
 			level
 			base
+			applicationId
 			jobPostingUrl
 			createdAt
 			updatedAt

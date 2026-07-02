@@ -11,6 +11,7 @@ export enum StorageKey {
 	ApplicationExplorerGroupBy = 'applicationList.groupBy',
 	ApplicationExplorerCollapsedGroups = 'applicationList.collapsedGroups',
 	ApplicationExplorerPinnedApplications = 'applicationList.pinnedApplications',
+	ApplicationExplorerSelectedCompany = 'applicationList.selectedCompany',
 	ResumeListFilterBase = 'resumeList.filterBase',
 	ResumeListFilterCompany = 'resumeList.filterCompany',
 }

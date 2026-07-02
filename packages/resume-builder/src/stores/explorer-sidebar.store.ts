@@ -1,4 +1,5 @@
-import type { Application } from '@resume-builder/entities';
+import type { Application, Company } from '@resume-builder/entities';
+import { normalizeCompanyName } from '@resume-builder/entities';
 import { action, computed, makeObservable, observable, reaction } from 'mobx';
 
 import type { RootStore } from './root.store.ts';
@@ -32,6 +33,9 @@ export class ExplorerSidebarStore {
 	@observable
 	searchQuery = '';
 
+	@observable
+	selectedCompanyName: string | null = null;
+
 	constructor(private readonly rootStore: RootStore) {
 		makeObservable(this);
 
@@ -61,6 +65,10 @@ export class ExplorerSidebarStore {
 				[],
 			) ?? [],
 		);
+		this.selectedCompanyName = this.rootStore.persistence.retrieve<string | null>(
+			StorageKey.ApplicationExplorerSelectedCompany,
+			null,
+		);
 
 		reaction(
 			() => [...this.collapsedGroupKeys].sort(),
@@ -77,6 +85,15 @@ export class ExplorerSidebarStore {
 				this.rootStore.persistence.store(
 					StorageKey.ApplicationExplorerPinnedApplications,
 					applicationIds,
+				);
+			},
+		);
+		reaction(
+			() => this.selectedCompanyName,
+			(companyName) => {
+				this.rootStore.persistence.store(
+					StorageKey.ApplicationExplorerSelectedCompany,
+					companyName,
 				);
 			},
 		);
@@ -97,6 +114,93 @@ export class ExplorerSidebarStore {
 		if (!q) return sorted;
 		return sorted.filter(
 			(a) => a.name.toLowerCase().includes(q) || a.company.toLowerCase().includes(q),
+		);
+	}
+
+	@computed
+	get companies(): Company[] {
+		const companies = new Map<string, Company>();
+
+		for (const application of this.applications) {
+			const companyName = normalizeCompanyName(application.company);
+			const company = companies.get(companyName) ?? {
+				id: companyName,
+				name: companyName,
+				applicationIds: [],
+				resumeIds: [],
+				applicationCount: 0,
+				resumeCount: 0,
+				updatedAt: null,
+			};
+
+			company.applicationIds.push(application._id);
+			company.applicationCount = company.applicationIds.length;
+			company.updatedAt = getLatestDate(company.updatedAt, application.updatedAt);
+
+			for (const resume of application.resumes ?? []) {
+				if (!company.resumeIds.includes(resume._id)) {
+					company.resumeIds.push(resume._id);
+				}
+			}
+
+			companies.set(companyName, company);
+		}
+
+		for (const resume of this.rootStore.resumeStore.data) {
+			const application = resume.applicationId
+				? this.rootStore.applicationStore.data.find(
+						(candidate) => candidate._id === resume.applicationId,
+					)
+				: null;
+			const companyName = normalizeCompanyName(application?.company ?? resume.company);
+			const company = companies.get(companyName);
+			if (!company) continue;
+
+			if (!company.resumeIds.includes(resume._id)) {
+				company.resumeIds.push(resume._id);
+			}
+			company.updatedAt = getLatestDate(company.updatedAt, resume.updatedAt);
+		}
+
+		for (const company of companies.values()) {
+			company.resumeCount = company.resumeIds.length;
+		}
+
+		return [...companies.values()].sort((left, right) => {
+			if (this.groupSortField === 'NAME') {
+				const comparison = left.name.localeCompare(right.name);
+				return this.groupSortAscending ? comparison : -comparison;
+			}
+
+			const leftTimestamp = new Date(left.updatedAt ?? 0).getTime();
+			const rightTimestamp = new Date(right.updatedAt ?? 0).getTime();
+			return this.groupSortAscending
+				? leftTimestamp - rightTimestamp
+				: rightTimestamp - leftTimestamp;
+		});
+	}
+
+	@computed
+	get selectedCompany(): Company | null {
+		if (this.companies.length === 0) {
+			return null;
+		}
+
+		return (
+			this.companies.find((company) => company.name === this.selectedCompanyName) ??
+			this.companies[0]!
+		);
+	}
+
+	@computed
+	get selectedCompanyApplications(): Application[] {
+		const selectedCompany = this.selectedCompany;
+		if (!selectedCompany) {
+			return [];
+		}
+
+		return this.applications.filter(
+			(application) => normalizeCompanyName(application.company) === selectedCompany.name,
 		);
 	}
 
@@ -133,8 +237,17 @@ export class ExplorerSidebarStore {
 			return null;
 		}
 
+		return this.groupApplicationsByCompany(this.applications);
+	}
+
+	@computed
+	get companyGroups(): Map<string, Application[]> {
+		return this.groupApplicationsByCompany(this.applications);
+	}
+
+	private groupApplicationsByCompany(applications: Application[]) {
 		const groups = new Map<string, Application[]>();
-		for (const application of this.applications) {
+		for (const application of applications) {
 			const groupName = application.company || 'Unspecified';
 			const group = groups.get(groupName);
 			if (group) {
@@ -164,12 +277,9 @@ export class ExplorerSidebarStore {
 
 	@computed
 	get groupKeys() {
-		const groups = this.groupedApplications;
-		if (!groups) {
-			return [];
-		}
-
-		return [...groups.keys()].map((groupName) => this.getGroupStorageKey(groupName));
+		return [...this.companyGroups.keys()].map((groupName) =>
+			this.getGroupStorageKey(groupName),
+		);
 	}
 
 	@computed
@@ -183,6 +293,11 @@ export class ExplorerSidebarStore {
 	@action
 	setSearchQuery(q: string) {
 		this.searchQuery = q;
+	}
+
+	@action
+	setSelectedCompany(companyName: string) {
+		this.selectedCompanyName = companyName;
 	}
 
 	@action
@@ -303,4 +418,19 @@ export class ExplorerSidebarStore {
 			},
 		);
 	}
+}
+
+function getLatestDate(
+	left: Date | string | null | undefined,
+	right: Date | string | null | undefined,
+) {
+	if (!left) {
+		return right ?? null;
+	}
+
+	if (!right) {
+		return left;
+	}
+
+	return new Date(left).getTime() >= new Date(right).getTime() ? left : right;
 }
