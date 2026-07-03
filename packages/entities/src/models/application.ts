@@ -3,6 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
+import { Company } from './company.js';
 import { Resume } from './resume.js';
 
 @ObjectType({ description: 'Structured summary of job posting requirements' })
@@ -160,6 +161,10 @@ export class Application {
 	@Prop({ type: String, required: true, index: true })
 	uid: string;
 
+	@Field({ nullable: true, description: 'Linked company record ID' })
+	@Prop({ type: String })
+	companyId?: string;
+
 	@Field({ description: 'Friendly name for this application' })
 	@Prop({ type: String, default: '' })
 	name: string;
@@ -214,6 +219,9 @@ export class Application {
 
 	@Field(() => [Resume], { nullable: true })
 	resumes?: Resume[];
+
+	@Field(() => Company, { nullable: true })
+	companyRecord?: Company;
 
 	@Field()
 	createdAt: Date;
@@ -280,6 +288,9 @@ export class ApplicationInput {
 	@Field()
 	name: string;
 
+	@Field({ nullable: true })
+	companyId?: string;
+
 	@Field()
 	company: string;
 
@@ -345,6 +356,7 @@ export const applicationSchema = z.object({
 		.describe(
 			'Name to use for the application. This might be something like "Software Engineer at Acme Inc."',
 		),
+	companyId: z.string().optional(),
 	company: z.string().describe('Company name for the application'),
 	jobPostingUrl: z.string().describe('URL where the job posting can be found'),
 	jobDescription: z.string().optional(),
@@ -359,6 +371,7 @@ export const applicationSchema = z.object({
 
 export const applicationInputSchema = applicationSchema.pick({
 	name: true,
+	companyId: true,
 	company: true,
 	jobPostingUrl: true,
 });

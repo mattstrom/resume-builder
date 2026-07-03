@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { FactsModule } from '../facts/facts.module.js';
 import { ApplicationsModule } from './applications/applications.module.js';
+import { CompaniesModule } from './companies/companies.module.js';
 import { ContactInformationModule } from './contact-information/contact-information.module.js';
 import { ConversationsModule } from './conversations/conversations.module.js';
 import { CoverLettersModule } from './cover-letters/cover-letters.module.js';
@@ -26,6 +27,7 @@ const imports = [
 	CoverLettersModule,
 	ConversationsModule,
 	ApplicationsModule,
+	CompaniesModule,
 ];
 
 @Module({

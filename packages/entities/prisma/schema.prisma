@@ -194,6 +194,7 @@ model Resume {
 model Application {
   id             String  @id @default(cuid())
   uid            String
+  companyId      String?
   name           String  @default("")
   company        String  @default("")
   jobPostingUrl  String  @default("")
@@ -206,7 +207,43 @@ model Application {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  companyRecord Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
   @@index([uid])
+  @@index([companyId])
+}
+
+// ─── Company ────────────────────────────────────────────────────────────────
+
+enum CompanyType {
+  employer
+  recruiter
+  other
+}
+
+enum LocationType {
+  on_site
+  hybrid
+  remote
+}
+
+model Company {
+  id           String       @id @default(cuid())
+  name         String       @default("")
+  type         CompanyType  @default(employer)
+  website      String       @default("")
+  logoUrl      String       @default("")
+  locationType LocationType @default(remote)
+  address      Json         @default("{}")
+  createdAt    DateTime     @default(now())
+  createdBy    String
+  updatedAt    DateTime     @updatedAt
+  updatedBy    String
+
+  applications Application[]
+
+  @@index([createdBy])
+  @@index([name])
 }
 
 // ─── CoverLetter ─────────────────────────────────────────────────────────────
@@ -392,4 +429,3 @@ model ResumeDocument {
 
   @@index([uid])
 }
-

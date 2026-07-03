@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Application, ApplicationInput, ApplicationUpdateInput } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
+import { CompaniesService } from '../companies/companies.service.js';
 import { ResumesService } from '../resumes/resumes.service.js';
 
 type ApplicationWithId = Application & { _id: string };
@@ -10,6 +11,7 @@ type ApplicationWithId = Application & { _id: string };
 export class ApplicationsService {
 	constructor(
 		private readonly resumeService: ResumesService,
+		private readonly companiesService: CompaniesService,
 		private readonly prisma: PrismaService,
 	) {}
 
@@ -32,6 +34,10 @@ export class ApplicationsService {
 		applicationData: ApplicationInput,
 		includeResume: boolean = true,
 	): Promise<ApplicationWithId> {
+		if (applicationData.companyId) {
+			await this.companiesService.find(uid, applicationData.companyId);
+		}
+
 		const saved = await this.prisma.application.create({
 			data: { ...applicationData, uid },
 		});
@@ -57,6 +63,10 @@ export class ApplicationsService {
 	): Promise<ApplicationWithId> {
 		const existing = await this.prisma.application.findFirst({ where: { id, uid } });
 		if (!existing) throw new NotFoundException(`Application with id ${id} not found`);
+
+		if (updateData.companyId) {
+			await this.companiesService.find(uid, updateData.companyId);
+		}
 
 		const result = await this.prisma.application.update({ where: { id }, data: updateData });
 		return { ...result, _id: result.id } as ApplicationWithId;
@@ -105,6 +115,9 @@ export class ApplicationsService {
 
 	async patch(uid: string, id: string, update: Record<string, unknown>): Promise<void> {
 		const data = '$set' in update ? (update['$set'] as Record<string, unknown>) : update;
+		if (typeof data.companyId === 'string') {
+			await this.companiesService.find(uid, data.companyId);
+		}
 		await this.prisma.application.updateMany({ where: { id, uid }, data });
 	}
 }

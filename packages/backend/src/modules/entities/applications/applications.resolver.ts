@@ -3,12 +3,14 @@ import {
 	Application,
 	ApplicationInput,
 	ApplicationUpdateInput,
+	Company,
 	Resume,
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
 import { type UpdateOneModel } from 'mongoose';
 
 import { CurrentUser } from '../../auth/index.js';
+import { CompaniesService } from '../companies/companies.service.js';
 import { ResumesService } from '../resumes/resumes.service.js';
 import { ApplicationsService } from './applications.service.js';
 
@@ -17,6 +19,7 @@ export class ApplicationsResolver {
 	constructor(
 		private readonly applicationsService: ApplicationsService,
 		private readonly resumesService: ResumesService,
+		private readonly companiesService: CompaniesService,
 	) {}
 
 	@Query(() => [Application])
@@ -70,5 +73,13 @@ export class ApplicationsResolver {
 		return this.resumesService.findAll(application.uid, undefined, {
 			applicationId: application._id,
 		});
+	}
+
+	@ResolveField(() => Company, { nullable: true })
+	async companyRecord(@Parent() application: Application): Promise<Company | null> {
+		if (!application.companyId) {
+			return null;
+		}
+		return this.companiesService.find(application.uid, application.companyId);
 	}
 }
