@@ -6,10 +6,8 @@ import { useStore } from '@/stores/store.provider';
 import { Mode } from '@/stores/ui-state.store';
 
 const MODES: { value: Mode; label: string; num: string }[] = [
-	{ value: Mode.Analysis, label: 'Analysis', num: '01' },
-	{ value: Mode.Tailor, label: 'Tailor', num: '02' },
-	{ value: Mode.Edit, label: 'Edit', num: '03' },
-	{ value: Mode.Review, label: 'Review', num: '04' },
+	{ value: Mode.Edit, label: 'Edit', num: '01' },
+	{ value: Mode.Review, label: 'Review', num: '02' },
 ];
 
 export const ResumePrimaryNav: FC = observer(() => {
