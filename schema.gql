@@ -151,6 +151,7 @@ type Company {
   name: String!
   type: CompanyType!
   website: String!
+  logoUrl: String!
   locationType: LocationType!
   address: CompanyAddress!
   createdAt: DateTime!
@@ -751,6 +752,7 @@ input CompanyInput {
   name: String!
   type: CompanyType! = employer
   website: String! = ""
+  logoUrl: String! = ""
   locationType: LocationType! = remote
   address: CompanyAddressInput
 }
@@ -759,6 +761,7 @@ input CompanyUpdateInput {
   name: String
   type: CompanyType
   website: String
+  logoUrl: String
   locationType: LocationType
   address: CompanyAddressInput
 }

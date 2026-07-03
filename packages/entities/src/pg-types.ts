@@ -40,6 +40,7 @@ export interface PgCompany {
 	name: string;
 	type: CompanyType;
 	website: string;
+	logoUrl: string;
 	locationType: LocationType;
 	address: CompanyAddress;
 	createdAt: Date;

@@ -48,6 +48,9 @@ export class Company {
 	@Field()
 	website: string;
 
+	@Field()
+	logoUrl: string;
+
 	@Field(() => LocationType)
 	locationType: LocationType;
 
@@ -78,6 +81,9 @@ export class CompanyInput {
 	@Field({ defaultValue: '' })
 	website: string;
 
+	@Field({ defaultValue: '' })
+	logoUrl: string;
+
 	@Field(() => LocationType, { defaultValue: LocationType.remote })
 	locationType: LocationType;
 
@@ -95,6 +101,9 @@ export class CompanyUpdateInput {
 
 	@Field({ nullable: true })
 	website?: string;
+
+	@Field({ nullable: true })
+	logoUrl?: string;
 
 	@Field(() => LocationType, { nullable: true })
 	locationType?: LocationType;
@@ -129,6 +138,7 @@ export const companySchema = z.object({
 	name: z.string(),
 	type: z.enum(CompanyType),
 	website: z.string(),
+	logoUrl: z.string(),
 	locationType: z.enum(LocationType),
 	address: companyAddressSchema,
 	createdAt: z.iso.datetime(),
@@ -141,6 +151,7 @@ export const companyInputSchema = companySchema.pick({
 	name: true,
 	type: true,
 	website: true,
+	logoUrl: true,
 	locationType: true,
 	address: true,
 });

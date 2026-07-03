@@ -232,6 +232,7 @@ model Company {
   name         String       @default("")
   type         CompanyType  @default(employer)
   website      String       @default("")
+  logoUrl      String       @default("")
   locationType LocationType @default(remote)
   address      Json         @default("{}")
   createdAt    DateTime     @default(now())
