@@ -6,7 +6,6 @@ import { StorageKey } from '@/stores/services/persistence.service.ts';
 export enum Mode {
 	Analysis = 'analysis',
 	Tailor = 'tailor',
-	Form = 'form',
 	Review = 'review',
 	Edit = 'edit',
 }
@@ -44,6 +43,9 @@ export class UiStateStore {
 		makeObservable(this);
 
 		this.watch('mode', StorageKey.Mode, Mode.Review);
+		if (!Object.values(Mode).includes(this.mode)) {
+			this.mode = Mode.Review;
+		}
 		this.watch('viewMode', StorageKey.ViewMode, ViewMode.Layout);
 		this.watch('sidebarOpen', StorageKey.SidebarOpen, false);
 		this.watch('chatOpen', StorageKey.ChatOpen, false);

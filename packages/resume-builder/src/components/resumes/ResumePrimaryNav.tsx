@@ -8,9 +8,8 @@ import { Mode } from '@/stores/ui-state.store';
 const MODES: { value: Mode; label: string; num: string }[] = [
 	{ value: Mode.Analysis, label: 'Analysis', num: '01' },
 	{ value: Mode.Tailor, label: 'Tailor', num: '02' },
-	{ value: Mode.Form, label: 'Form', num: '03' },
-	{ value: Mode.Edit, label: 'Edit', num: '04' },
-	{ value: Mode.Review, label: 'Review', num: '05' },
+	{ value: Mode.Edit, label: 'Edit', num: '03' },
+	{ value: Mode.Review, label: 'Review', num: '04' },
 ];
 
 export const ResumePrimaryNav: FC = observer(() => {
