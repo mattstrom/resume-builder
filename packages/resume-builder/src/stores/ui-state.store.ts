@@ -5,7 +5,6 @@ import { StorageKey } from '@/stores/services/persistence.service.ts';
 
 export enum Mode {
 	Analysis = 'analysis',
-	Tailor = 'tailor',
 	Review = 'review',
 	Edit = 'edit',
 }
@@ -31,7 +30,7 @@ export class UiStateStore {
 
 	@computed
 	get isResumeEditable() {
-		return [Mode.Tailor, Mode.Edit].includes(this.mode) && !this.isPreviewRoute;
+		return this.mode === Mode.Edit && !this.isPreviewRoute;
 	}
 
 	@computed

@@ -5,9 +5,6 @@ import { type FC } from 'react';
 import { AnalysisView } from '@/components/AnalysisView.tsx';
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
-import { TailorInsightsView } from '@/components/TailorInsightsView.tsx';
-import { TailorView } from '@/components/TailorView.tsx';
-import { ThreeColumnView } from '@/components/ThreeColumnView.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
 
@@ -25,15 +22,6 @@ export const Workspace: FC = observer(() => {
 	return (
 		<div className="workspace">
 			{mode === Mode.Analysis && <AnalysisView />}
-			{mode === Mode.Tailor && (
-				<ThreeColumnView
-					id="workspace-layout"
-					panelIds={['jobDescription', 'jobInsights', 'resume']}
-					left={<TailorView />}
-					center={<TailorInsightsView />}
-					right={<DirectResumeView />}
-				/>
-			)}
 			{mode === Mode.Edit && <DirectResumeView />}
 			{mode === Mode.Review && <ResumeView />}
 		</div>

@@ -76,56 +76,6 @@
 	height: 2px;
 }
 
-.tailor-section {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
-	background-color: hsl(var(--card));
-	color: hsl(var(--card-foreground));
-}
-
-.tailor-section-header {
-	border-bottom: 1px solid hsl(var(--border));
-	padding: 10px 12px;
-	font-size: 12px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: hsl(var(--muted-foreground));
-}
-
-.tailor-section-body {
-	flex: 1;
-	overflow: hidden;
-}
-
-.tailor-empty-state {
-	display: flex;
-	height: 100%;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	padding: 24px;
-	background-color: hsl(var(--card));
-	color: hsl(var(--muted-foreground));
-	text-align: center;
-}
-
-.tailor-empty-state-title {
-	font-size: 14px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.tailor-empty-state-copy {
-	max-width: 320px;
-	font-size: 14px;
-	line-height: 1.5;
-	color: hsl(var(--muted-foreground));
-}
-
 /* Review mode styling */
 .workspace-review {
 	display: flex;
