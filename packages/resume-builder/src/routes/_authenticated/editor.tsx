@@ -2,7 +2,6 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { useEffect } from 'react';
 
-import { AnalysisToolbar } from '@/components/analysis/AnalysisToolbar.tsx';
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
 import { ResumePrimaryNav } from '@/components/resumes/ResumePrimaryNav.tsx';
 import { ResumeSwitcher } from '@/components/resumes/ResumeSwitcher.tsx';
@@ -10,25 +9,21 @@ import { ResumeToolbar } from '@/components/resumes/ResumeToolbar.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
-import { Mode } from '@/stores/ui-state.store.ts';
 
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 
 const EditorLayout = observer(function EditorLayout() {
-	const { editorStore, uiStateStore } = useStore();
+	const { editorStore } = useStore();
 	const { resumeData } = editorStore;
-
-	const modeToolbar =
-		uiStateStore.mode === Mode.Analysis ? <AnalysisToolbar /> : <ResumeToolbar />;
 
 	const toolbar = editorStore.selectedApiApplicationId ? (
 		<>
 			<ResumeSwitcher />
 			<Separator orientation="vertical" className="h-5 shrink-0" />
-			{modeToolbar}
+			<ResumeToolbar />
 		</>
 	) : (
-		modeToolbar
+		<ResumeToolbar />
 	);
 
 	useEffect(() => {

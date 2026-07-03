@@ -17,6 +17,7 @@ import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
+import { ReadonlyDataFields } from '@/components/ReadonlyDataView.tsx';
 import { RouteError } from '@/components/RouteError.tsx';
 import { RouteLoading } from '@/components/RouteLoading.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
@@ -89,6 +90,26 @@ const statusLabels: Record<WorkflowStageStatus, string> = {
 	complete: 'Complete',
 	blocked: 'Blocked',
 };
+
+const compactJobSummaryKeys = [
+	'requiredSkills',
+	'preferredSkills',
+	'requiredEducation',
+	'requiredExperience',
+	'roleLevel',
+	'techStack',
+];
+
+const compactAssessmentScoreKeys = [
+	'overallFit',
+	'skillRelevance',
+	'experienceRelevance',
+	'roleLevelFit',
+	'locationFit',
+	'compensationFit',
+	'companyFit',
+	'logisticalFit',
+];
 
 const getInitialFormState = (application: Application): ApplicationFormState => ({
 	name: application.name ?? '',
@@ -578,131 +599,173 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 						</TabsContent>
 
 						<TabsContent value="fit" className="mt-0">
-							<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]">
-								<Card>
-									<CardHeader>
-										<CardTitle>Fit</CardTitle>
-										<CardDescription>
-											Assess the role against profile facts, preferences, and
-											available resume material.
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="flex flex-col gap-4">
-										{!workflow.hasPosting && (
-											<Alert>
-												<AlertCircle />
-												<AlertTitle>Posting required</AlertTitle>
-												<AlertDescription>
-													Add a job description or posting URL before
-													running assessment.
-												</AlertDescription>
-											</Alert>
-										)}
-										<div className="grid gap-3 md:grid-cols-2">
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Required skills
-												</span>
-												<span className="text-sm">
-													{formatList(jobSummary?.requiredSkills)}
-												</span>
+							<div className="flex flex-col gap-4">
+								<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]">
+									<Card>
+										<CardHeader>
+											<CardTitle>Fit</CardTitle>
+											<CardDescription>
+												Assess the role against profile facts, preferences,
+												and available resume material.
+											</CardDescription>
+										</CardHeader>
+										<CardContent className="flex flex-col gap-4">
+											{!workflow.hasPosting && (
+												<Alert>
+													<AlertCircle />
+													<AlertTitle>Posting required</AlertTitle>
+													<AlertDescription>
+														Add a job description or posting URL before
+														running assessment.
+													</AlertDescription>
+												</Alert>
+											)}
+											<div className="grid gap-3">
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Required skills
+													</span>
+													<span className="text-sm">
+														{formatList(jobSummary?.requiredSkills)}
+													</span>
+												</div>
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Preferred skills
+													</span>
+													<span className="text-sm">
+														{formatList(jobSummary?.preferredSkills)}
+													</span>
+												</div>
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Education
+													</span>
+													<span className="text-sm">
+														{jobSummary?.requiredEducation ||
+															'Not captured'}
+													</span>
+												</div>
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Experience
+													</span>
+													<span className="text-sm">
+														{jobSummary?.requiredExperience ||
+															'Not captured'}
+													</span>
+												</div>
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Role level
+													</span>
+													<span className="text-sm">
+														{jobSummary?.roleLevel || 'Not captured'}
+													</span>
+												</div>
+												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
+													<span className="text-sm text-muted-foreground">
+														Tech stack
+													</span>
+													<span className="text-sm">
+														{formatList(jobSummary?.techStack)}
+													</span>
+												</div>
 											</div>
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Preferred skills
-												</span>
-												<span className="text-sm">
-													{formatList(jobSummary?.preferredSkills)}
-												</span>
+											<Separator />
+											<div className="flex flex-col gap-2">
+												<div>
+													<h3 className="text-sm font-medium">
+														Job summary
+													</h3>
+													<p className="text-sm text-muted-foreground">
+														Structured requirements extracted from the job
+														posting.
+													</p>
+												</div>
+												<ReadonlyDataFields
+													data={jobSummary as Record<string, unknown>}
+													omitKeys={compactJobSummaryKeys}
+													emptyMessage="No additional job summary fields."
+												/>
 											</div>
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Education
-												</span>
-												<span className="text-sm">
-													{jobSummary?.requiredEducation ||
-														'Not captured'}
-												</span>
+										</CardContent>
+										<CardFooter>
+											<div className="flex flex-wrap gap-2">
+												<Button
+													onClick={handleAssess}
+													disabled={!workflow.hasPosting || assessing}
+												>
+													<Sparkles data-icon="inline-start" />
+													{assessing
+														? 'Starting assessment...'
+														: workflow.stages[1].actionLabel}
+												</Button>
+												<Button
+													variant="outline"
+													onClick={handleRefreshResults}
+												>
+													<RefreshCw data-icon="inline-start" />
+													Refresh results
+												</Button>
 											</div>
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Experience
-												</span>
-												<span className="text-sm">
-													{jobSummary?.requiredExperience ||
-														'Not captured'}
-												</span>
-											</div>
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Role level
-												</span>
-												<span className="text-sm">
-													{jobSummary?.roleLevel || 'Not captured'}
-												</span>
-											</div>
-											<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-												<span className="text-sm text-muted-foreground">
-													Tech stack
-												</span>
-												<span className="text-sm">
-													{formatList(jobSummary?.techStack)}
-												</span>
-											</div>
-										</div>
-									</CardContent>
-									<CardFooter>
-										<div className="flex flex-wrap gap-2">
-											<Button
-												onClick={handleAssess}
-												disabled={!workflow.hasPosting || assessing}
-											>
-												<Sparkles data-icon="inline-start" />
-												{assessing
-													? 'Starting assessment...'
-													: workflow.stages[1].actionLabel}
-											</Button>
-											<Button
-												variant="outline"
-												onClick={handleRefreshResults}
-											>
-												<RefreshCw data-icon="inline-start" />
-												Refresh results
-											</Button>
-										</div>
-									</CardFooter>
-								</Card>
+										</CardFooter>
+									</Card>
 
-								<Card>
-									<CardHeader>
-										<CardTitle>Assessment scores</CardTitle>
-										<CardDescription>
-											Current scoring output for this application.
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="flex flex-col gap-2">
-										<ScoreRow label="Overall" value={analysis?.overallFit} />
-										<ScoreRow label="Skills" value={analysis?.skillRelevance} />
-										<ScoreRow
-											label="Experience"
-											value={analysis?.experienceRelevance}
-										/>
-										<ScoreRow
-											label="Role level"
-											value={analysis?.roleLevelFit}
-										/>
-										<ScoreRow label="Location" value={analysis?.locationFit} />
-										<ScoreRow
-											label="Compensation"
-											value={analysis?.compensationFit}
-										/>
-										<ScoreRow label="Company" value={analysis?.companyFit} />
-										<ScoreRow
-											label="Logistics"
-											value={analysis?.logisticalFit}
-										/>
-									</CardContent>
-								</Card>
+									<Card>
+										<CardHeader>
+											<CardTitle>Assessment scores</CardTitle>
+											<CardDescription>
+												Current scoring output for this application.
+											</CardDescription>
+										</CardHeader>
+										<CardContent className="flex flex-col gap-2">
+											<ScoreRow label="Overall" value={analysis?.overallFit} />
+											<ScoreRow
+												label="Skills"
+												value={analysis?.skillRelevance}
+											/>
+											<ScoreRow
+												label="Experience"
+												value={analysis?.experienceRelevance}
+											/>
+											<ScoreRow
+												label="Role level"
+												value={analysis?.roleLevelFit}
+											/>
+											<ScoreRow
+												label="Location"
+												value={analysis?.locationFit}
+											/>
+											<ScoreRow
+												label="Compensation"
+												value={analysis?.compensationFit}
+											/>
+											<ScoreRow label="Company" value={analysis?.companyFit} />
+											<ScoreRow
+												label="Logistics"
+												value={analysis?.logisticalFit}
+											/>
+											<Separator className="my-2" />
+											<div className="flex flex-col gap-2">
+												<div>
+													<h3 className="text-sm font-medium">
+														Job assessment
+													</h3>
+													<p className="text-sm text-muted-foreground">
+														Fit analysis between your profile and the job
+														requirements.
+													</p>
+												</div>
+												<ReadonlyDataFields
+													data={analysis as Record<string, unknown>}
+													omitKeys={compactAssessmentScoreKeys}
+													emptyMessage="No additional assessment details."
+												/>
+											</div>
+										</CardContent>
+									</Card>
+								</div>
 							</div>
 						</TabsContent>
 

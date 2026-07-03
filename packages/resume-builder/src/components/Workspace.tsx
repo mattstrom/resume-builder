@@ -2,7 +2,6 @@ import { useParams } from '@tanstack/react-router';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
-import { AnalysisView } from '@/components/AnalysisView.tsx';
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -21,7 +20,6 @@ export const Workspace: FC = observer(() => {
 
 	return (
 		<div className="workspace">
-			{mode === Mode.Analysis && <AnalysisView />}
 			{mode === Mode.Edit && <DirectResumeView />}
 			{mode === Mode.Review && <ResumeView />}
 		</div>

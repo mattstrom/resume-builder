@@ -4,7 +4,6 @@ import type { RootStore } from '@/stores/root.store.ts';
 import { StorageKey } from '@/stores/services/persistence.service.ts';
 
 export enum Mode {
-	Analysis = 'analysis',
 	Review = 'review',
 	Edit = 'edit',
 }
