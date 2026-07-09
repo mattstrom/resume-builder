@@ -17,15 +17,17 @@ import type * as Y from 'yjs';
 import { useStore } from '@/stores/store.provider.tsx';
 
 import { Details } from './extensions/details.extension.tsx';
+import { Markup } from './extensions/markup.extension.ts';
 import { NarrativeBubbleMenu } from './NarrativeBubbleMenu.tsx';
 import { NarrativeToolbar } from './NarrativeToolbar.tsx';
 
 import './tiptap.css';
 
-// NOTE: The extension set here must match the set used by the server's
-// narrative markdown serializer in
-// packages/crdt/src/modules/storage/narrative-serializer.ts. A mismatch
-// will corrupt the Yjs XmlFragment.
+// NOTE: Marks and nodes here are read generically by the server (see
+// elementToStructured/buildElement in
+// packages/crdt/src/modules/api/api.service.ts), which exposes each text
+// run's marks as a name-keyed record. No server-side change is needed to
+// add a new mark or node here.
 const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: string) => [
 	// Collaboration provides undo/redo via the Yjs undo manager, so disable
 	// StarterKit's history extension.
@@ -34,6 +36,7 @@ const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: str
 		placeholder: 'Describe your work history…',
 	}),
 	Highlight,
+	Markup,
 	TextAlign.configure({ types: ['heading', 'paragraph'] }),
 	Table.configure({ resizable: true }),
 	TableRow,

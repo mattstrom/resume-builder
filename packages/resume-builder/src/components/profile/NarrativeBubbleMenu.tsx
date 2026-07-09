@@ -1,10 +1,12 @@
 import { type Editor, useEditorState } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
-import { Bold, Code, Highlighter, Italic } from 'lucide-react';
-import type { FC } from 'react';
+import { Bold, Code, Highlighter, Italic, Tags } from 'lucide-react';
+import { forwardRef, type FC } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils';
+
+import { MarkupControl } from './MarkupControl.tsx';
 
 interface NarrativeBubbleMenuProps {
 	editor: Editor | null;
@@ -20,6 +22,7 @@ export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({ editor }) =>
 						isItalic: e.isActive('italic'),
 						isCode: e.isActive('code'),
 						isHighlight: e.isActive('highlight'),
+						isMarkup: e.isActive('markup'),
 					}
 				: null,
 	});
@@ -61,6 +64,14 @@ export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({ editor }) =>
 			>
 				<Highlighter className="size-4" />
 			</BubbleButton>
+			<MarkupControl
+				editor={editor}
+				trigger={({ active }) => (
+					<BubbleButton label="Markup" active={active}>
+						<Tags className="size-4" />
+					</BubbleButton>
+				)}
+			/>
 		</BubbleMenu>
 	);
 };
@@ -68,21 +79,25 @@ export const NarrativeBubbleMenu: FC<NarrativeBubbleMenuProps> = ({ editor }) =>
 interface BubbleButtonProps {
 	label: string;
 	active: boolean;
-	onClick: () => void;
+	onClick?: () => void;
 	children: React.ReactNode;
 }
 
-const BubbleButton: FC<BubbleButtonProps> = ({ label, active, onClick, children }) => (
-	<Button
-		type="button"
-		variant="ghost"
-		size="sm"
-		aria-label={label}
-		title={label}
-		aria-pressed={active}
-		onClick={onClick}
-		className={cn('h-8 w-8 p-0', active && 'bg-accent text-accent-foreground')}
-	>
-		{children}
-	</Button>
+const BubbleButton = forwardRef<HTMLButtonElement, BubbleButtonProps>(
+	({ label, active, onClick, children }, ref) => (
+		<Button
+			ref={ref}
+			type="button"
+			variant="ghost"
+			size="sm"
+			aria-label={label}
+			title={label}
+			aria-pressed={active}
+			onClick={onClick}
+			className={cn('h-8 w-8 p-0', active && 'bg-accent text-accent-foreground')}
+		>
+			{children}
+		</Button>
+	),
 );
+BubbleButton.displayName = 'BubbleButton';

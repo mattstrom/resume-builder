@@ -142,6 +142,15 @@
 	color: inherit;
 }
 
+/* Markup */
+.tiptap-content span[data-markup] {
+	background-color: hsl(262 83% 58% / 0.16);
+	outline: 1.5px solid hsl(262 83% 58% / 0.6);
+	outline-offset: -1px;
+	border-radius: 0.15em;
+	padding: 0.05em 0.1em;
+}
+
 /* Table */
 .tiptap-content table {
 	border-collapse: collapse;
