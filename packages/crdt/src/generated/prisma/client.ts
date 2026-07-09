@@ -82,6 +82,11 @@ export type Resume = Prisma.ResumeModel
  */
 export type Application = Prisma.ApplicationModel
 /**
+ * Model Company
+ * 
+ */
+export type Company = Prisma.CompanyModel
+/**
  * Model CoverLetter
  * 
  */

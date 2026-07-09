@@ -9,6 +9,24 @@
 * 🟢 You can import this file directly.
 */
 
+export const CompanyType = {
+  employer: 'employer',
+  recruiter: 'recruiter',
+  other: 'other'
+} as const
+
+export type CompanyType = (typeof CompanyType)[keyof typeof CompanyType]
+
+
+export const LocationType = {
+  on_site: 'on_site',
+  hybrid: 'hybrid',
+  remote: 'remote'
+} as const
+
+export type LocationType = (typeof LocationType)[keyof typeof LocationType]
+
+
 export const ProjectType = {
   professional: 'professional',
   personal: 'personal'

@@ -59,6 +59,7 @@ export const ModelName = {
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
   Application: 'Application',
+  Company: 'Company',
   CoverLetter: 'CoverLetter',
   ContactInformation: 'ContactInformation',
   Job: 'Job',
@@ -106,7 +107,6 @@ export const ConversationScalarFieldEnum = {
   uid: 'uid',
   applicationId: 'applicationId',
   title: 'title',
-  model: 'model',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -192,6 +192,7 @@ export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof 
 export const ApplicationScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
+  companyId: 'companyId',
   name: 'name',
   company: 'company',
   jobPostingUrl: 'jobPostingUrl',
@@ -206,6 +207,23 @@ export const ApplicationScalarFieldEnum = {
 } as const
 
 export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
+
+
+export const CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  website: 'website',
+  logoUrl: 'logoUrl',
+  locationType: 'locationType',
+  address: 'address',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy',
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy'
+} as const
+
+export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
 
 
 export const CoverLetterScalarFieldEnum = {

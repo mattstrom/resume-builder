@@ -1,9 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-	type ChatModelSelection,
-	Conversation,
-	ConversationCreateInput,
-} from '@resume-builder/entities';
+import { Conversation, ConversationCreateInput } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
 
@@ -79,16 +75,6 @@ export class ConversationsService {
 			where: { id },
 			data: { updatedAt: new Date() },
 		});
-	}
-
-	async setModel(uid: string, id: string, model: ChatModelSelection): Promise<void> {
-		const result = await this.prisma.conversation.updateMany({
-			where: { id, uid },
-			data: { model: model as object },
-		});
-		if (result.count === 0) {
-			throw new NotFoundException(`Conversation with id ${id} not found`);
-		}
 	}
 
 	async delete(uid: string, id: string): Promise<void> {
