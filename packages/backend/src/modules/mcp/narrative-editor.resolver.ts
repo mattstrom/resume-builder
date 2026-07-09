@@ -14,9 +14,8 @@ const textRunSchema = z.object({
 		.describe(
 			'Inline marks on this run, e.g. { "bold": true, "italic": true }. ' +
 				'Use the "markup" mark to tag a span with a semantic type, e.g. ' +
-				'{ "markup": { "attributes": { "data-type": "company" } } } — ' +
-				'"data-type" can be any string that describes what the text represents ' +
-				'(e.g. "company", "role", "skill").',
+				'{ "markup": { "data-type": "company" } } — "data-type" can be any string ' +
+				'that describes what the text represents (e.g. "company", "role", "skill").',
 		),
 });
 

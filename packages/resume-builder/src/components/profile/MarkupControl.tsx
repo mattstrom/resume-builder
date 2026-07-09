@@ -21,15 +21,10 @@ export const MarkupControl: FC<MarkupControlProps> = ({ editor, trigger }) => {
 
 	const state = useEditorState({
 		editor,
-		selector: ({ editor: e }) => {
-			const attrs = e.getAttributes('markup').attributes as
-				| Record<string, string>
-				| undefined;
-			return {
-				isActive: e.isActive('markup'),
-				type: attrs?.['data-type'] ?? '',
-			};
-		},
+		selector: ({ editor: e }) => ({
+			isActive: e.isActive('markup'),
+			type: (e.getAttributes('markup')['data-type'] as string | null) ?? '',
+		}),
 	});
 
 	useEffect(() => {

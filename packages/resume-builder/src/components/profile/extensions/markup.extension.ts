@@ -3,9 +3,9 @@ import { Mark, mergeAttributes } from '@tiptap/core';
 declare module '@tiptap/core' {
 	interface Commands<ReturnType> {
 		markup: {
-			setMarkup: (attributes?: Record<string, string>) => ReturnType;
+			setMarkup: (attributes?: { 'data-type'?: string | null }) => ReturnType;
 			unsetMarkup: () => ReturnType;
-			toggleMarkup: (attributes?: Record<string, string>) => ReturnType;
+			toggleMarkup: (attributes?: { 'data-type'?: string | null }) => ReturnType;
 		};
 	}
 }
@@ -15,10 +15,14 @@ export interface MarkupOptions {
 }
 
 /**
- * Generic, schema-less markup mark — the inline equivalent of wrapping text
- * in a plain `<span>`. It carries whatever attributes are put on it rather
- * than a fixed set, so it can serve as the foundation for future extensions
- * bound to more specific semantic tags.
+ * Generic markup mark — the inline equivalent of wrapping text in a plain
+ * `<span>`, so it can serve as the foundation for future extensions bound to
+ * more specific semantic tags.
+ *
+ * Attributes must stay flat (one ProseMirror attr per HTML attr, primitive
+ * values only): the crdt storage service mirrors this document as raw XML
+ * via Yjs's own `Y.XmlFragment.toString()`, which stringifies each mark
+ * attribute with a plain template literal and can't expand a nested object.
  */
 export const Markup = Mark.create<MarkupOptions>({
 	name: 'markup',
@@ -31,21 +35,13 @@ export const Markup = Mark.create<MarkupOptions>({
 
 	addAttributes() {
 		return {
-			attributes: {
-				default: {},
-				parseHTML: (element) => {
-					const attrs: Record<string, string> = {};
-					for (const { name, value } of Array.from(element.attributes)) {
-						if (name === 'data-markup') {
-							continue;
-						}
-
-						attrs[name] = value;
-					}
-
-					return attrs;
+			'data-type': {
+				default: null,
+				parseHTML: (element) => element.getAttribute('data-type'),
+				renderHTML: (markAttrs) => {
+					const type = markAttrs['data-type'] as string | null;
+					return type ? { 'data-type': type } : {};
 				},
-				renderHTML: (markAttrs) => (markAttrs.attributes as Record<string, string>) ?? {},
 			},
 		};
 	},
@@ -67,7 +63,7 @@ export const Markup = Mark.create<MarkupOptions>({
 			setMarkup:
 				(attributes = {}) =>
 				({ commands }) =>
-					commands.setMark(this.name, { attributes }),
+					commands.setMark(this.name, attributes),
 			unsetMarkup:
 				() =>
 				({ commands }) =>
@@ -75,7 +71,7 @@ export const Markup = Mark.create<MarkupOptions>({
 			toggleMarkup:
 				(attributes = {}) =>
 				({ commands }) =>
-					commands.toggleMark(this.name, { attributes }),
+					commands.toggleMark(this.name, attributes),
 		};
 	},
 });
