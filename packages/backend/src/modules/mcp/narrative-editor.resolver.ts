@@ -11,7 +11,12 @@ const textRunSchema = z.object({
 	marks: z
 		.record(z.string(), z.unknown())
 		.optional()
-		.describe('Inline marks on this run, e.g. { "bold": true, "italic": true }'),
+		.describe(
+			'Inline marks on this run, e.g. { "bold": true, "italic": true }. ' +
+				'Use the "markup" mark to tag a span with a semantic type, e.g. ' +
+				'{ "markup": { "data-type": "company" } } — "data-type" can be any string ' +
+				'that describes what the text represents (e.g. "company", "role", "skill").',
+		),
 });
 
 const insertItemSchema = z.object({
@@ -74,7 +79,9 @@ export class NarrativeEditorResolver {
 	@Tool({
 		name: 'read_narrative',
 		description:
-			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing.",
+			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing. " +
+			'A "markup" mark with a { "data-type": "..." } attribute may be present on some ' +
+			'runs — it tags what that text semantically represents (e.g. "company", "role").',
 		annotations: {
 			destructiveHint: false,
 			idempotentHint: true,

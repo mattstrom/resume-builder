@@ -23,9 +23,10 @@ import {
 	Redo,
 	SquareCode,
 	Table,
+	Tags,
 	Undo,
 } from 'lucide-react';
-import type { FC, ReactNode } from 'react';
+import { forwardRef, type FC, type ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -37,6 +38,8 @@ import {
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { cn } from '@/lib/utils';
+
+import { MarkupControl } from './MarkupControl.tsx';
 
 const FONTS = [
 	{ label: 'Default', value: '' },
@@ -77,6 +80,7 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 				isBlockquote: e.isActive('blockquote'),
 				isCodeBlock: e.isActive('codeBlock'),
 				isHighlight: e.isActive('highlight'),
+				isMarkup: e.isActive('markup'),
 				isAlignLeft: e.isActive({ textAlign: 'left' }),
 				isAlignCenter: e.isActive({ textAlign: 'center' }),
 				isAlignRight: e.isActive({ textAlign: 'right' }),
@@ -152,6 +156,14 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 			>
 				<Highlighter className="size-4" />
 			</ToolbarButton>
+			<MarkupControl
+				editor={editor}
+				trigger={({ active }) => (
+					<ToolbarButton label="Markup" active={active}>
+						<Tags className="size-4" />
+					</ToolbarButton>
+				)}
+			/>
 
 			<ToolbarSeparator />
 
@@ -369,24 +381,28 @@ interface ToolbarButtonProps {
 	label: string;
 	active?: boolean;
 	disabled?: boolean;
-	onClick: () => void;
+	onClick?: () => void;
 	children: ReactNode;
 }
 
-const ToolbarButton: FC<ToolbarButtonProps> = ({ label, active, disabled, onClick, children }) => (
-	<Button
-		type="button"
-		variant="ghost"
-		size="sm"
-		aria-label={label}
-		title={label}
-		aria-pressed={active}
-		disabled={disabled}
-		onClick={onClick}
-		className={cn('h-8 min-w-8 px-1', active && 'bg-accent text-accent-foreground')}
-	>
-		{children}
-	</Button>
+const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
+	({ label, active, disabled, onClick, children }, ref) => (
+		<Button
+			ref={ref}
+			type="button"
+			variant="ghost"
+			size="sm"
+			aria-label={label}
+			title={label}
+			aria-pressed={active}
+			disabled={disabled}
+			onClick={onClick}
+			className={cn('h-8 min-w-8 px-1', active && 'bg-accent text-accent-foreground')}
+		>
+			{children}
+		</Button>
+	),
 );
+ToolbarButton.displayName = 'ToolbarButton';
 
 const ToolbarSeparator: FC = () => <Separator orientation="vertical" className="mx-1 h-6" />;
