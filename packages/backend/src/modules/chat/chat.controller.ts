@@ -2,13 +2,12 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
-	Get,
 	Post,
 	Req,
 	Res,
 	UnauthorizedException,
 } from '@nestjs/common';
-import type { ChatModelSelection, ChatModelsResponse, ChatScope } from '@resume-builder/entities';
+import type { ChatScope } from '@resume-builder/entities';
 import type { Request, Response } from 'express';
 import { outdent } from 'outdent';
 
@@ -27,7 +26,6 @@ import { ResumesService } from '../entities/resumes/resumes.service.js';
 import { SkillsService } from '../entities/skills/skills.service.js';
 import { VolunteeringService } from '../entities/volunteering/volunteering.service.js';
 import type { LlmMessage } from '../llm/interfaces/llm-types.js';
-import { getChatModelCatalog, isConfiguredChatModel } from './chat-models.js';
 import { chatTools, executeTool } from './chat-tools.js';
 import { ChatService } from './chat.service.js';
 
@@ -49,11 +47,6 @@ export class ChatController {
 		private readonly crdtClientService: CrdtClientService,
 	) {}
 
-	@Get('models')
-	getModels(): ChatModelsResponse {
-		return getChatModelCatalog();
-	}
-
 	@Post()
 	async chat(
 		@CurrentUser('sub') uid: string,
@@ -65,7 +58,6 @@ export class ChatController {
 				applicationId?: string;
 				conversationId?: string;
 				highlightedPaths?: string[];
-				model?: ChatModelSelection;
 				scope?: ChatScope;
 			};
 		},
@@ -82,7 +74,6 @@ export class ChatController {
 		const { messages, data } = body;
 		const applicationId = data?.applicationId;
 		let conversationId = data?.conversationId;
-		const requestedModel = data?.model;
 		const scope = data?.scope;
 
 		const isProfileScope =
@@ -90,10 +81,6 @@ export class ChatController {
 
 		if (!applicationId && !isProfileScope) {
 			throw new BadRequestException('Application ID is required');
-		}
-
-		if (requestedModel && !isConfiguredChatModel(requestedModel)) {
-			throw new BadRequestException('Invalid chat model selection');
 		}
 
 		let resumeContext = '';
@@ -263,29 +250,8 @@ export class ChatController {
 		const conversation = await this.conversationsService.findOrCreate(uid, conversationId, {
 			applicationId: applicationId ?? undefined,
 			title: userText.slice(0, 50) || 'New Conversation',
-			model: requestedModel,
 		});
 		conversationId = conversation._id;
-
-		const persistedModel =
-			conversation.model && isConfiguredChatModel(conversation.model)
-				? conversation.model
-				: null;
-		const selectedModel = requestedModel ??
-			persistedModel ?? {
-				provider: configuration.llms.defaultLlm.provider,
-				model: configuration.llms.defaultLlm.model,
-			};
-
-		if (requestedModel && conversation._id) {
-			const storedModel = conversation.model;
-			const changed =
-				storedModel?.provider !== requestedModel.provider ||
-				storedModel?.model !== requestedModel.model;
-			if (changed) {
-				await this.conversationsService.setModel(uid, conversation._id, requestedModel);
-			}
-		}
 
 		// Persist user message
 		if (conversation._id) {
@@ -308,8 +274,8 @@ export class ChatController {
 		};
 
 		const assistantText = await this.chatService.streamWithToolLoop(res, {
-			provider: selectedModel.provider,
-			model: selectedModel.model,
+			provider: configuration.llms.defaultLlm.provider,
+			model: configuration.llms.defaultLlm.model,
 			system: systemPrompt,
 			messages: llmMessages,
 			tools: chatTools,

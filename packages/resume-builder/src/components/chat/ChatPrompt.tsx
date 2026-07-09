@@ -15,7 +15,6 @@ import {
 	PromptInputTools,
 	usePromptInputController,
 } from '@/components/ai-elements/prompt-input.tsx';
-import { ChatModelSelector } from '@/components/chat/ChatModelSelector.tsx';
 import { ChatPromptHeader } from '@/components/chat/ChatPromptHeader.tsx';
 
 interface ChatPromptProps {
@@ -53,7 +52,6 @@ export const ChatPrompt: FC<ChatPromptProps> = ({ onSubmit, helpers }) => {
 							{/*<PromptInputActionAddScreenshot />*/}
 						</PromptInputActionMenuContent>
 					</PromptInputActionMenu>
-					<ChatModelSelector />
 				</PromptInputTools>
 				<PromptInputSubmit status={status} onStop={stop} />
 			</PromptInputFooter>

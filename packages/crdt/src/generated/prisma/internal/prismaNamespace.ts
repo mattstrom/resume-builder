@@ -392,6 +392,7 @@ export const ModelName = {
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
   Application: 'Application',
+  Company: 'Company',
   CoverLetter: 'CoverLetter',
   ContactInformation: 'ContactInformation',
   Job: 'Job',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "profileUpdate" | "resumeDocument"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "profileUpdate" | "resumeDocument"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1011,6 +1012,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ApplicationCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ApplicationCountAggregateOutputType> | number
+        }
+      }
+    }
+    Company: {
+      payload: Prisma.$CompanyPayload<ExtArgs>
+      fields: Prisma.CompanyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        update: {
+          args: Prisma.CompanyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompany>
+        }
+        groupBy: {
+          args: Prisma.CompanyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyCountAggregateOutputType> | number
         }
       }
     }
@@ -1885,7 +1960,6 @@ export const ConversationScalarFieldEnum = {
   uid: 'uid',
   applicationId: 'applicationId',
   title: 'title',
-  model: 'model',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1971,6 +2045,7 @@ export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof 
 export const ApplicationScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
+  companyId: 'companyId',
   name: 'name',
   company: 'company',
   jobPostingUrl: 'jobPostingUrl',
@@ -1985,6 +2060,23 @@ export const ApplicationScalarFieldEnum = {
 } as const
 
 export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
+
+
+export const CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  website: 'website',
+  logoUrl: 'logoUrl',
+  locationType: 'locationType',
+  address: 'address',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy',
+  updatedAt: 'updatedAt',
+  updatedBy: 'updatedBy'
+} as const
+
+export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
 
 
 export const CoverLetterScalarFieldEnum = {
@@ -2259,6 +2351,34 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'CompanyType'
+ */
+export type EnumCompanyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyType'>
+    
+
+
+/**
+ * Reference to a field of type 'CompanyType[]'
+ */
+export type ListEnumCompanyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CompanyType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LocationType'
+ */
+export type EnumLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LocationType'>
+    
+
+
+/**
+ * Reference to a field of type 'LocationType[]'
+ */
+export type ListEnumLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LocationType[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2417,6 +2537,7 @@ export type GlobalOmitConfig = {
   jobRequirementFact?: Prisma.JobRequirementFactOmit
   resume?: Prisma.ResumeOmit
   application?: Prisma.ApplicationOmit
+  company?: Prisma.CompanyOmit
   coverLetter?: Prisma.CoverLetterOmit
   contactInformation?: Prisma.ContactInformationOmit
   job?: Prisma.JobOmit

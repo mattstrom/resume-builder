@@ -411,11 +411,6 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-type ChatModelSelectionModel {
-  provider: String!
-  model: String!
-}
-
 type ConversationMessage {
   role: String!
   content: String!
@@ -431,11 +426,6 @@ input CompanyAddressInput {
   city: String
   state: String
   zip: String
-}
-
-input ChatModelSelectionInput {
-  provider: String!
-  model: String!
 }
 
 type Query {
