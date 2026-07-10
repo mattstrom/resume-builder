@@ -8,12 +8,20 @@ function decodeXmlAttribute(value: string): string {
 		.replace(/&amp;/g, '&');
 }
 
-function jobBlockToNarrativeText(attributes: string): string {
+function xmlText(value: string): string {
+	return decodeXmlAttribute(value.replace(/<[^>]+>/g, ' '))
+		.replace(/\s{2,}/g, ' ')
+		.trim();
+}
+
+function jobBlockToNarrativeText(content: string): string {
 	const values = Object.fromEntries(
-		Array.from(attributes.matchAll(/([a-zA-Z][\w-]*)="([^"]*)"/g), ([, key, value]) => [
-			key,
-			decodeXmlAttribute(value),
-		]),
+		Array.from(
+			content.matchAll(
+				/<jobField\b[^>]*\bfield="([^"]+)"[^>]*>([\s\S]*?)<\/jobField>/gi,
+			),
+			([, field, value]) => [field, xmlText(value)],
+		),
 	);
 	const fields = [
 		['Position', values.position],
@@ -24,17 +32,27 @@ function jobBlockToNarrativeText(attributes: string): string {
 	]
 		.filter(([, value]) => value)
 		.map(([label, value]) => `${label}: ${value}`);
-	const narrative = values.narrative?.trim();
+	const narrative =
+		xmlText(
+			content.match(
+				/<jobNarrative\b[^>]*>([\s\S]*?)<\/jobNarrative>/i,
+			)?.[1] ?? '',
+		) ||
+		values.narrative?.trim() ||
+		'';
 
-	return ['Job:', ...fields, ...(narrative ? ['Narrative:', narrative] : [])].join(
-		'\n',
-	);
+	return [
+		'Job:',
+		...fields,
+		...(narrative ? ['Narrative:', narrative] : []),
+	].join('\n');
 }
 
 export function stripXmlTags(xml: string): string {
 	return xml
-		.replace(/<jobBlock\b([^>]*)>(?:<\/jobBlock>)?/g, (_, attributes: string) =>
-			jobBlockToNarrativeText(attributes),
+		.replace(
+			/<jobBlock\b[^>]*>([\s\S]*?)<\/jobBlock>/gi,
+			(_, content: string) => jobBlockToNarrativeText(content),
 		)
 		.replace(/<[^>]+>/g, ' ')
 		.replace(/\s{2,}/g, ' ')

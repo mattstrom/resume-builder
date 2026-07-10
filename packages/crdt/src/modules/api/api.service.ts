@@ -25,6 +25,7 @@ type StructuredNode = {
 	nodeType: string;
 	attrs: Record<string, string>;
 	content: TextRun[];
+	children?: StructuredNode[];
 };
 
 function contextForDocument(documentName: string): { user: { sub: string } } {
@@ -54,7 +55,8 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 
 function elementToStructured(element: Y.XmlElement, index: number): StructuredNode {
 	const content: TextRun[] = [];
-	for (const child of element.toArray()) {
+	const children: StructuredNode[] = [];
+	for (const [childIndex, child] of element.toArray().entries()) {
 		if (child instanceof Y.XmlText) {
 			const delta = child.toDelta() as Array<{
 				insert: string;
@@ -68,6 +70,8 @@ function elementToStructured(element: Y.XmlElement, index: number): StructuredNo
 						: { text: run.insert },
 				);
 			}
+		} else if (child instanceof Y.XmlElement) {
+			children.push(elementToStructured(child, childIndex));
 		}
 	}
 
@@ -76,6 +80,7 @@ function elementToStructured(element: Y.XmlElement, index: number): StructuredNo
 		nodeType: element.nodeName,
 		attrs: (element.getAttributes() ?? {}) as Record<string, string>,
 		content,
+		...(children.length ? { children } : {}),
 	};
 }
 

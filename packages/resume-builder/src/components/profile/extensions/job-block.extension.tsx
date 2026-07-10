@@ -1,32 +1,20 @@
 import { Node, mergeAttributes } from '@tiptap/core';
-import type { NodeViewProps } from '@tiptap/react';
-import { NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
-import { type ChangeEvent, type FC } from 'react';
 
-import { cn } from '@/lib/utils';
+const JOB_FIELD_LABELS = {
+	company: 'Company',
+	location: 'Location',
+	position: 'Position',
+	startDate: 'Start Date',
+	endDate: 'End Date',
+	narrative: 'Narrative',
+} as const;
 
-type JobBlockAttribute =
-	| 'position'
-	| 'company'
-	| 'location'
-	| 'startDate'
-	| 'endDate'
-	| 'narrative';
+type JobFieldName = keyof typeof JOB_FIELD_LABELS;
 
-const JOB_BLOCK_FIELDS: Array<{
-	attribute: Exclude<JobBlockAttribute, 'narrative'>;
-	label: string;
-	placeholder: string;
-	wide?: boolean;
-}> = [
-	{ attribute: 'company', label: 'Company', placeholder: 'Acme, Inc.' },
-	{ attribute: 'location', label: 'Location', placeholder: 'San Francisco, CA' },
-	{
-		attribute: 'position',
-		label: 'Position',
-		placeholder: 'Senior Product Designer',
-	},
-];
+const createJobField = (field: JobFieldName) => ({
+	type: 'jobField',
+	attrs: { field },
+});
 
 declare module '@tiptap/core' {
 	interface Commands<ReturnType> {
@@ -36,86 +24,87 @@ declare module '@tiptap/core' {
 	}
 }
 
-const JobBlockView: FC<NodeViewProps> = ({ node, updateAttributes }) => {
-	const updateField = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-		updateAttributes({ [event.target.name]: event.target.value });
-	};
+export const JobField = Node.create({
+	name: 'jobField',
+	group: 'jobBlockContent',
+	content: 'inline*',
+	defining: true,
 
-	return (
-		<NodeViewWrapper className="job-block" data-type="job-block">
-			<div className="job-block-tab">Job</div>
-			<div className="job-block-fields">
-				{JOB_BLOCK_FIELDS.map(({ attribute, label, placeholder, wide }) => (
-					<label
-						key={attribute}
-						className={cn('job-block-field', wide && 'job-block-field-wide')}
-					>
-						<span>{label}</span>
-						<input
-							name={attribute}
-							type="text"
-							value={(node.attrs[attribute] as string) ?? ''}
-							onChange={updateField}
-							placeholder={placeholder}
-						/>
-					</label>
-				))}
-				<div className="job-block-field job-block-date-range" role="group" aria-label="Dates">
-					<span>Dates</span>
-					<div className="job-block-date-inputs">
-						<label>
-							<span className="sr-only">Start Date</span>
-							<input
-								name="startDate"
-								type="text"
-								value={(node.attrs.startDate as string) ?? ''}
-								onChange={updateField}
-								placeholder="Start Date"
-							/>
-						</label>
-						<label>
-							<span className="sr-only">End Date</span>
-							<input
-								name="endDate"
-								type="text"
-								value={(node.attrs.endDate as string) ?? ''}
-								onChange={updateField}
-								placeholder="End Date"
-							/>
-						</label>
-					</div>
-				</div>
-				<label className="job-block-field job-block-field-wide">
-					<span>Narrative</span>
-					<textarea
-						name="narrative"
-						value={(node.attrs.narrative as string) ?? ''}
-						onChange={updateField}
-						placeholder="Describe your role, scope, accomplishments, and impact."
-						rows={4}
-					/>
-				</label>
-			</div>
-		</NodeViewWrapper>
-	);
-};
+	addAttributes() {
+		return {
+			field: {
+				default: 'narrative',
+				parseHTML: (element) => element.getAttribute('data-job-field') ?? 'narrative',
+				renderHTML: (attributes) => {
+					const field = attributes.field as JobFieldName;
+
+					return {
+						'data-job-field': field,
+						'data-label': JOB_FIELD_LABELS[field],
+					};
+				},
+			},
+		};
+	},
+
+	parseHTML() {
+		return [{ tag: 'div[data-job-field]' }];
+	},
+
+	renderHTML({ HTMLAttributes }) {
+		return ['div', mergeAttributes({ class: 'job-block-field' }, HTMLAttributes), 0];
+	},
+});
+
+export const JobDateRange = Node.create({
+	name: 'jobDateRange',
+	group: 'jobBlockContent',
+	content: 'jobField{2}',
+	defining: true,
+
+	parseHTML() {
+		return [{ tag: 'div[data-job-date-range]' }];
+	},
+
+	renderHTML({ HTMLAttributes }) {
+		return [
+			'div',
+			mergeAttributes(
+				{ class: 'job-block-date-range', 'data-job-date-range': '' },
+				HTMLAttributes,
+			),
+			0,
+		];
+	},
+});
+
+export const JobNarrative = Node.create({
+	name: 'jobNarrative',
+	group: 'jobBlockContent',
+	content: 'block+',
+	defining: true,
+
+	parseHTML() {
+		return [{ tag: 'div[data-job-narrative]' }];
+	},
+
+	renderHTML({ HTMLAttributes }) {
+		return [
+			'div',
+			mergeAttributes(
+				{ class: 'job-block-narrative', 'data-job-narrative': '' },
+				HTMLAttributes,
+			),
+			0,
+		];
+	},
+});
 
 export const JobBlock = Node.create({
 	name: 'jobBlock',
 	group: 'block',
-	atom: true,
-	selectable: true,
-
-	addAttributes() {
-		return {
-			position: { default: '' },
-			company: { default: '' },
-			location: { default: '' },
-			startDate: { default: '' },
-			endDate: { default: '' },
-			narrative: { default: '' },
-		};
-	},
+	content: '(jobField{3} jobDateRange (jobNarrative | jobField))?',
+	defining: true,
 
 	parseHTML() {
 		return [{ tag: 'section[data-type="job-block"]' }];
@@ -124,12 +113,13 @@ export const JobBlock = Node.create({
 	renderHTML({ HTMLAttributes }) {
 		return [
 			'section',
-			mergeAttributes(HTMLAttributes, { 'data-type': 'job-block' }),
+			mergeAttributes(HTMLAttributes, {
+				class: 'job-block',
+				'data-type': 'job-block',
+			}),
+			['div', { class: 'job-block-tab', contenteditable: 'false' }, 'Job'],
+			['div', { class: 'job-block-fields' }, 0],
 		];
-	},
-
-	addNodeView() {
-		return ReactNodeViewRenderer(JobBlockView);
 	},
 
 	addCommands() {
@@ -137,7 +127,22 @@ export const JobBlock = Node.create({
 			insertJobBlock:
 				() =>
 				({ commands }) =>
-					commands.insertContent({ type: this.name }),
+					commands.insertContent({
+						type: this.name,
+						content: [
+							createJobField('company'),
+							createJobField('location'),
+							createJobField('position'),
+							{
+								type: 'jobDateRange',
+								content: [createJobField('startDate'), createJobField('endDate')],
+							},
+							{
+								type: 'jobNarrative',
+								content: [{ type: 'paragraph' }],
+							},
+						],
+					}),
 		};
 	},
 });
