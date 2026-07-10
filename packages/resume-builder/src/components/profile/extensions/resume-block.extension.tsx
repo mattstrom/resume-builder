@@ -337,6 +337,19 @@ const Skill = Mark.create({
 	name: 'skill',
 	inclusive: false,
 
+	addAttributes() {
+		return {
+			itemId: {
+				default: null,
+				parseHTML: (element) => element.getAttribute('data-skill-item'),
+				renderHTML: (attributes) =>
+					attributes.itemId
+						? { 'data-skill-item': attributes.itemId as string }
+						: {},
+			},
+		};
+	},
+
 	parseHTML() {
 		return [{ tag: 'span[data-skill]' }];
 	},

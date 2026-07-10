@@ -403,9 +403,20 @@
 }
 
 .tiptap-content .job-block-technologies {
-	grid-area: technologies;
 	padding: 0.4rem 0.5rem;
 	border-bottom: 1px solid hsl(var(--border));
+}
+
+.tiptap-content .job-block-technology-pills {
+	display: flex;
+	min-height: 1.75rem;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.tiptap-content .job-block-technologies-content {
+	display: none;
 }
 
 .tiptap-content .job-block-fields > .node-jobField[data-job-field='company'] {
@@ -426,6 +437,10 @@
 
 .tiptap-content .job-block-fields > .node-jobField[data-job-field='endDate'] {
 	grid-area: end-date;
+}
+
+.tiptap-content .job-block-fields > .node-jobTechnologies {
+	grid-area: technologies;
 }
 
 .tiptap-content .job-block-narrative::before {

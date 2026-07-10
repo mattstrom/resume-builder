@@ -5,8 +5,17 @@ import {
 	NodeViewWrapper,
 	ReactNodeViewRenderer,
 } from '@tiptap/react';
+import { X } from 'lucide-react';
 import type { NodeViewProps } from '@tiptap/react';
-import type { FC } from 'react';
+import {
+	useState,
+	type ClipboardEvent,
+	type FC,
+	type KeyboardEvent,
+} from 'react';
+
+import { Badge } from '@/components/ui/badge.tsx';
+import { Input } from '@/components/ui/input.tsx';
 
 const JOB_FIELD_LABELS = {
 	company: 'Company',
@@ -72,8 +81,15 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 			node.type.name === 'jobTechnologies' ||
 			node.type.name === 'jobNarrative'
 		) {
-			// Its first paragraph starts one position into the section node.
-			targets.push({ node, pos: jobBlockStart + pos + 3 });
+			// The technologies section contains inline skill tokens, while the
+			// narrative section starts with a paragraph.
+			targets.push({
+				node,
+				pos:
+					node.type.name === 'jobTechnologies'
+						? jobBlockStart + pos + 2
+						: jobBlockStart + pos + 3,
+			});
 
 			return false;
 		}
@@ -229,10 +245,114 @@ export const JobNarrative = Node.create({
 	},
 });
 
+const JobTechnologiesView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
+	const [draft, setDraft] = useState('');
+	const technologies = node.content.content
+		.map((child) => child.textContent.trim())
+		.filter(Boolean);
+
+	const updateTechnologies = (nextTechnologies: string[]) => {
+		const position = typeof getPos === 'function' ? getPos() : getPos;
+		if (position === undefined) return;
+
+		const content = nextTechnologies.map((technology, index) =>
+			editor.schema.text(technology, [
+				editor.schema.marks.skill.create({ itemId: String(index) }),
+			]),
+		);
+
+		editor.view.dispatch(
+			editor.state.tr.replaceWith(
+				position + 1,
+				position + node.nodeSize - 1,
+				content,
+			),
+		);
+	};
+
+	const addTechnologies = (values: string[]) => {
+		const additions = values.map((value) => value.trim()).filter(Boolean);
+		if (!additions.length) return;
+
+		updateTechnologies([...technologies, ...additions]);
+		setDraft('');
+	};
+
+	const addTechnology = () => addTechnologies([draft]);
+
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			addTechnology();
+			return;
+		}
+
+		if (event.key === 'Backspace' && !draft && technologies.length) {
+			event.preventDefault();
+			updateTechnologies(technologies.slice(0, -1));
+		}
+	};
+
+	const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
+		const pastedText = event.clipboardData.getData('text');
+		if (!pastedText.includes(',')) return;
+
+		event.preventDefault();
+		addTechnologies([draft, ...pastedText.split(',')]);
+	};
+
+	return (
+		<NodeViewWrapper
+			className="job-block-technologies"
+			data-job-technologies=""
+		>
+			<div className="job-block-technology-pills" contentEditable={false}>
+				{technologies.map((technology, index) => (
+					<Badge
+						key={`${technology}-${index}`}
+						variant="secondary"
+						className="gap-1 pr-1 text-xs font-normal"
+					>
+						{technology}
+						<button
+							aria-label={`Remove ${technology}`}
+							className="rounded-sm opacity-60 hover:opacity-100"
+							onClick={() =>
+								updateTechnologies(
+									technologies.filter(
+										(_, itemIndex) => itemIndex !== index,
+									),
+								)
+							}
+							type="button"
+						>
+							<X className="size-3" />
+						</button>
+					</Badge>
+				))}
+				<Input
+					aria-label="Add technology"
+					className="h-7 min-w-32 flex-1 border-0 bg-transparent px-1 text-xs shadow-none focus-visible:ring-0"
+					onChange={(event) => setDraft(event.target.value)}
+					onKeyDown={handleKeyDown}
+					onPaste={handlePaste}
+					placeholder={
+						technologies.length
+							? 'Add technology…'
+							: 'Type a technology…'
+					}
+					value={draft}
+				/>
+			</div>
+			<NodeViewContent className="job-block-technologies-content" />
+		</NodeViewWrapper>
+	);
+};
+
 export const JobTechnologies = Node.create({
 	name: 'jobTechnologies',
 	group: 'jobBlockContent',
-	content: 'block+',
+	content: 'inline*',
 	defining: true,
 
 	parseHTML() {
@@ -251,6 +371,10 @@ export const JobTechnologies = Node.create({
 			),
 			0,
 		];
+	},
+
+	addNodeView() {
+		return ReactNodeViewRenderer(JobTechnologiesView);
 	},
 });
 
@@ -301,7 +425,6 @@ export const JobBlock = Node.create({
 							},
 							{
 								type: 'jobTechnologies',
-								content: [{ type: 'paragraph' }],
 							},
 							{
 								type: 'jobNarrative',
