@@ -2,7 +2,10 @@ import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
-import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service.js';
+import {
+	type DeltaOp,
+	CrdtApiService,
+} from '../crdt-client/crdt-api.service.js';
 import { McpGuard } from './mcp.guard.js';
 import { type McpExtra, type McpToolParams } from './types.js';
 
@@ -38,6 +41,10 @@ const insertItemSchema = z.object({
 			'taskList',
 			'taskItem',
 			'details',
+			'jobBlock',
+			'jobDateRange',
+			'jobField',
+			'jobNarrative',
 		])
 		.describe('Type of block node'),
 	attrs: z
@@ -56,7 +63,9 @@ const deltaOpSchema = z.union([
 	z.object({ retain: z.number().int().describe('Skip N nodes') }),
 	z.object({ delete: z.number().int().describe('Delete N nodes') }),
 	z.object({
-		insert: z.array(insertItemSchema).describe('Nodes to insert at current position'),
+		insert: z
+			.array(insertItemSchema)
+			.describe('Nodes to insert at current position'),
 	}),
 ]);
 
@@ -71,6 +80,23 @@ const editParamsShape = {
 		),
 };
 
+type NestedNarrativeNode = {
+	index: number;
+	nodeType: string;
+	attrs: Record<string, string>;
+	content: Array<z.infer<typeof textRunSchema>>;
+	children?: NestedNarrativeNode[];
+};
+
+function formatNarrativeNode(node: NestedNarrativeNode, indent = ''): string[] {
+	return [
+		`${indent}[${node.index}] ${node.nodeType}${Object.keys(node.attrs).length ? ' ' + JSON.stringify(node.attrs) : ''}: ${JSON.stringify(node.content)}`,
+		...(node.children?.flatMap((child) =>
+			formatNarrativeNode(child, `${indent}  `),
+		) ?? []),
+	];
+}
+
 @Resolver()
 @UseGuards(McpGuard)
 export class NarrativeEditorResolver {
@@ -81,7 +107,9 @@ export class NarrativeEditorResolver {
 		description:
 			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing. " +
 			'A "markup" mark with a { "data-type": "..." } attribute may be present on some ' +
-			'runs — it tags what that text semantically represents (e.g. "company", "role").',
+			'runs — it tags what that text semantically represents (e.g. "company", "role"). ' +
+			'A "jobBlock" node contains nested "jobField" nodes for company, location, ' +
+			'position, startDate, and endDate, plus a rich-text "jobNarrative" node.',
 		annotations: {
 			destructiveHint: false,
 			idempotentHint: true,
@@ -90,11 +118,8 @@ export class NarrativeEditorResolver {
 	async readNarrative({ user }: McpExtra): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
 		const { nodes } = await this.crdtApiService.readDocument(documentName);
-		const text = nodes
-			.map(
-				(n) =>
-					`[${n.index}] ${n.nodeType}${Object.keys(n.attrs).length ? ' ' + JSON.stringify(n.attrs) : ''}: ${JSON.stringify(n.content)}`,
-			)
+		const text = (nodes as NestedNarrativeNode[])
+			.flatMap((node) => formatNarrativeNode(node))
 			.join('\n');
 
 		return {
@@ -120,7 +145,10 @@ export class NarrativeEditorResolver {
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
-		const result = await this.crdtApiService.applyDelta(documentName, delta as DeltaOp[]);
+		const result = await this.crdtApiService.applyDelta(
+			documentName,
+			delta as DeltaOp[],
+		);
 
 		return {
 			content: [

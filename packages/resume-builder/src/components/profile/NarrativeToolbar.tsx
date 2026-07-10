@@ -5,6 +5,8 @@ import {
 	AlignLeft,
 	AlignRight,
 	Bold,
+	BriefcaseBusiness,
+	ChevronDown,
 	CheckSquare,
 	ChevronRight,
 	Code,
@@ -30,6 +32,13 @@ import { forwardRef, type FC, type ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
 import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx';
+import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -54,6 +63,14 @@ const FONTS = [
 interface NarrativeToolbarProps {
 	editor: Editor | null;
 }
+
+const INSERTABLE_BLOCKS = [
+	{
+		label: 'Job',
+		Icon: BriefcaseBusiness,
+		insert: (editor: Editor) => editor.chain().focus().insertJobBlock().run(),
+	},
+] as const;
 
 export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 	// useEditorState re-renders this component on every relevant transaction
@@ -127,6 +144,32 @@ export const NarrativeToolbar: FC<NarrativeToolbarProps> = ({ editor }) => {
 			</Select>
 
 			<ToolbarSeparator />
+
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						className="h-8 px-2"
+						aria-label="Insert block"
+					>
+						<BriefcaseBusiness data-icon="inline-start" />
+						Insert block
+						<ChevronDown data-icon="inline-end" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="start">
+					<DropdownMenuGroup>
+						{INSERTABLE_BLOCKS.map(({ label, Icon, insert }) => (
+							<DropdownMenuItem key={label} onSelect={() => insert(editor)}>
+								<Icon />
+								{label}
+							</DropdownMenuItem>
+						))}
+					</DropdownMenuGroup>
+				</DropdownMenuContent>
+			</DropdownMenu>
 
 			<ToolbarButton
 				label="Bold"

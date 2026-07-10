@@ -58,7 +58,80 @@ function syncYMap(target: Y.Map<unknown>, values: Record<string, unknown>) {
 	}
 }
 
-type ParsedDocumentName = { kind: 'resume'; resumeId: string } | { kind: 'profile'; uid: string };
+function escapeXml(value: string): string {
+	return value.replace(/[&<>'"]/g, (character) => {
+		switch (character) {
+			case '&':
+				return '&amp;';
+			case '<':
+				return '&lt;';
+			case '>':
+				return '&gt;';
+			case "'":
+				return '&apos;';
+			case '"':
+				return '&quot;';
+			default:
+				return character;
+		}
+	});
+}
+
+function serializeXmlAttributes(attributes: Record<string, unknown>): string {
+	return Object.entries(attributes)
+		.map(([name, value]) => ` ${name}="${escapeXml(String(value))}"`)
+		.join('');
+}
+
+function serializeXmlText(text: Y.XmlText): string {
+	const delta = text.toDelta() as Array<{
+		insert: string;
+		attributes?: Record<string, unknown>;
+	}>;
+
+	return delta
+		.map(({ insert, attributes }) =>
+			Object.entries(attributes ?? {}).reduce(
+				(content, [markName, markAttributes]) =>
+					`<${markName}${isPlainObject(markAttributes) ? serializeXmlAttributes(markAttributes) : ''}>${content}</${markName}>`,
+				escapeXml(insert),
+			),
+		)
+		.join('');
+}
+
+function serializeXmlElement(element: Y.XmlElement): string {
+	const content = element
+		.toArray()
+		.map((child) => {
+			if (child instanceof Y.XmlElement) {
+				return serializeXmlElement(child);
+			}
+
+			if (child instanceof Y.XmlText) {
+				return serializeXmlText(child);
+			}
+
+			return '';
+		})
+		.join('');
+	const nodeName = element.nodeName;
+
+	return `<${nodeName}${serializeXmlAttributes(element.getAttributes())}>${content}</${nodeName}>`;
+}
+
+function serializeXmlFragment(fragment: Y.XmlFragment): string {
+	return fragment
+		.toArray()
+		.map((child) =>
+			child instanceof Y.XmlElement ? serializeXmlElement(child) : '',
+		)
+		.join('');
+}
+
+type ParsedDocumentName =
+	| { kind: 'resume'; resumeId: string }
+	| { kind: 'profile'; uid: string };
 
 @Injectable()
 export class StorageService implements Extension {
@@ -69,7 +142,11 @@ export class StorageService implements Extension {
 	}
 
 	async onStoreDocument({ context, documentName, document }) {
-		await this.storeDocument(context.user.sub as string, documentName, document);
+		await this.storeDocument(
+			context.user.sub as string,
+			documentName,
+			document,
+		);
 	}
 
 	private parseDocumentName(documentName: string): ParsedDocumentName {
@@ -95,11 +172,16 @@ export class StorageService implements Extension {
 	}
 
 	private writeResumeDocument(document: Y.Doc, resume: Resume) {
-		syncYMap(document.getMap('resume'), resume as unknown as Record<string, unknown>);
+		syncYMap(
+			document.getMap('resume'),
+			resume as unknown as Record<string, unknown>,
+		);
 	}
 
 	async assertResumeAccess(uid: string, resumeId: string) {
-		const resume = await this.prisma.resume.findFirst({ where: { id: resumeId, uid } });
+		const resume = await this.prisma.resume.findFirst({
+			where: { id: resumeId, uid },
+		});
 
 		if (!resume) {
 			throw new Error(`Resume "${resumeId}" not found`);
@@ -122,15 +204,29 @@ export class StorageService implements Extension {
 		const parsed = this.parseDocumentName(documentName);
 
 		if (parsed.kind === 'resume') {
-			await this.storeResumeDocument(uid, documentName, parsed.resumeId, document);
+			await this.storeResumeDocument(
+				uid,
+				documentName,
+				parsed.resumeId,
+				document,
+			);
 
 			return;
 		}
 
-		await this.storeProfileDocument(uid, documentName, parsed.uid, document);
+		await this.storeProfileDocument(
+			uid,
+			documentName,
+			parsed.uid,
+			document,
+		);
 	}
 
-	private async loadResumeDocument(uid: string, documentName: string, resumeId: string) {
+	private async loadResumeDocument(
+		uid: string,
+		documentName: string,
+		resumeId: string,
+	) {
 		const resume = await this.assertResumeAccess(uid, resumeId);
 		const stored = await this.prisma.resumeDocument.findUnique({
 			where: { name: documentName },
@@ -169,21 +265,28 @@ export class StorageService implements Extension {
 			return;
 		}
 
-		const { id, createdAt, updatedAt, ...resumeUpdate } = snapshot as unknown as Record<
-			string,
-			unknown
-		>;
+		const { id, createdAt, updatedAt, ...resumeUpdate } =
+			snapshot as unknown as Record<string, unknown>;
 
-		await this.prisma.resume.update({ where: { id: resumeId }, data: resumeUpdate });
+		await this.prisma.resume.update({
+			where: { id: resumeId },
+			data: resumeUpdate,
+		});
 	}
 
 	private assertProfileAccess(uid: string, profileUid: string) {
 		if (uid !== profileUid) {
-			throw new Error(`Profile "${profileUid}" is not accessible to user "${uid}"`);
+			throw new Error(
+				`Profile "${profileUid}" is not accessible to user "${uid}"`,
+			);
 		}
 	}
 
-	private async loadProfileDocument(uid: string, documentName: string, profileUid: string) {
+	private async loadProfileDocument(
+		uid: string,
+		documentName: string,
+		profileUid: string,
+	) {
 		this.assertProfileAccess(uid, profileUid);
 
 		const document = new Y.Doc();
@@ -230,11 +333,14 @@ export class StorageService implements Extension {
 		});
 
 		// Mirror the narrative as XML to Profile.narrative for downstream
-		// consumers (LLM extraction, etc). Y.XmlFragment.toString() returns
-		// the Tiptap/ProseMirror doc serialized as XML without needing a
-		// schema on the server.
-		const narrative = document.getXmlFragment('narrative').toString();
-		const jobPreferences = fromYValue(document.getMap('jobPreferences')) as object;
+		// consumers (LLM extraction, etc). Y.XmlFragment.toString() lowercases
+		// tags, so preserve the exact ProseMirror node names ourselves.
+		const narrative = serializeXmlFragment(
+			document.getXmlFragment('narrative'),
+		);
+		const jobPreferences = fromYValue(
+			document.getMap('jobPreferences'),
+		) as object;
 
 		await this.prisma.profile.upsert({
 			where: { uid },
