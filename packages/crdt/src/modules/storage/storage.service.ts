@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Resume } from '@resume-builder/entities';
 import * as Y from 'yjs';
 
+import { migrateProfileDocument } from './document-migrations.js';
 import { PrismaService } from './prisma.service.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -138,7 +139,20 @@ export class StorageService implements Extension {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async onLoadDocument({ context, documentName }) {
-		return this.loadDocument(context.user.sub as string, documentName);
+		const uid = context.user.sub as string;
+		const document = await this.loadDocument(uid, documentName);
+		const parsed = this.parseDocumentName(documentName);
+
+		if (parsed.kind === 'profile' && migrateProfileDocument(document)) {
+			await this.storeProfileDocument(
+				uid,
+				documentName,
+				parsed.uid,
+				document,
+			);
+		}
+
+		return document;
 	}
 
 	async onStoreDocument({ context, documentName, document }) {
