@@ -59,6 +59,22 @@ DO NOT start the backend yourself. I will start it myself.
 
 - `nx start @resume-builder/crdt` - Start Hocuspocus server on port 1234
 
+### CRDT Document Schema Migrations
+
+Tiptap nodes and marks stored in a Yjs document are durable document schema.
+When adding, removing, renaming, or changing the required structure/order of
+these nodes or marks, add a versioned, idempotent CRDT migration in
+`packages/crdt/src/modules/storage/document-migrations.ts`.
+
+- Run migrations server-side when the profile document loads, before it is
+  returned to Hocuspocus; never rely on client UI fallbacks to backfill data.
+- Record completed migration IDs in the document's `schemaMigrations` Y.Map and
+  make the structural transformation safe to run repeatedly.
+- Persist a migrated Yjs snapshot immediately through the normal storage path
+  so the derived `Profile.narrative` XML mirror stays in sync.
+- Add or update migration coverage for legacy documents, already-migrated
+  documents, and multiple matching nodes.
+
 ## Code Style
 
 Prettier is configured with:
