@@ -277,7 +277,7 @@
 	margin-top: 1.5rem;
 	border: 1.5px solid hsl(262 83% 58% / 0.65);
 	border-radius: 0.375rem;
-	padding: 1.25rem 0.875rem 0.875rem;
+	padding: 0;
 	background: hsl(262 83% 58% / 0.04);
 }
 
@@ -300,7 +300,11 @@
 
 .tiptap-content .job-block-fields {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-areas:
+		'company company company company'
+		'position location start-date end-date'
+		'narrative narrative narrative narrative';
 	gap: 0.75rem;
 }
 
@@ -319,6 +323,32 @@
 	outline: none;
 }
 
+.tiptap-content .job-block-field-content {
+	min-width: 0;
+}
+
+.tiptap-content .job-block-month-picker {
+	position: absolute;
+	right: 0.5rem;
+	bottom: 0.4rem;
+	width: 1.25rem;
+	height: 1.25rem;
+	border: 0;
+	background: transparent;
+	color: transparent;
+	cursor: pointer;
+	outline: none;
+}
+
+.tiptap-content .job-block-month-picker::-webkit-datetime-edit {
+	display: none;
+}
+
+.tiptap-content .job-block-month-picker::-webkit-calendar-picker-indicator {
+	cursor: pointer;
+	opacity: 0.7;
+}
+
 .tiptap-content .job-block-field::before {
 	content: attr(data-label);
 	color: hsl(var(--muted-foreground));
@@ -327,24 +357,68 @@
 	line-height: 1.2;
 }
 
+.tiptap-content .job-block-field-company {
+	padding-top: 0.2rem;
+	font-family: 'Roboto Serif', serif;
+	font-size: 1.5rem;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.tiptap-content .job-block-field-company::before {
+	font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.tiptap-content .job-block-field-startDate,
+.tiptap-content .job-block-field-endDate {
+	position: relative;
+	padding-right: 2rem;
+}
+
+.tiptap-content .job-block-field-position {
+}
+
+.tiptap-content .job-block-field-location {
+}
+
+.tiptap-content .job-block-field-startDate {
+}
+
+.tiptap-content .job-block-field-endDate {
+}
+
 .tiptap-content .job-block-field-wide {
 	grid-column: 1 / -1;
 }
 
 .tiptap-content .job-block-date-range {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.375rem;
-}
-
-.tiptap-content .job-block-date-range .job-block-field {
-	border-bottom: 0;
+	display: contents;
 }
 
 .tiptap-content .job-block-narrative {
-	grid-column: 1 / -1;
+	grid-area: narrative;
 	padding: 0.4rem 0.5rem;
 	border-bottom: 1px solid hsl(var(--border));
+}
+
+.tiptap-content .job-block-fields > .node-jobField[data-job-field='company'] {
+	grid-area: company;
+}
+
+.tiptap-content .job-block-fields > .node-jobField[data-job-field='position'] {
+	grid-area: position;
+}
+
+.tiptap-content .job-block-fields > .node-jobField[data-job-field='location'] {
+	grid-area: location;
+}
+
+.tiptap-content .job-block-fields > .node-jobField[data-job-field='startDate'] {
+	grid-area: start-date;
+}
+
+.tiptap-content .job-block-fields > .node-jobField[data-job-field='endDate'] {
+	grid-area: end-date;
 }
 
 .tiptap-content .job-block-narrative::before {
@@ -369,6 +443,13 @@
 @media (max-width: 36rem) {
 	.tiptap-content .job-block-fields {
 		grid-template-columns: 1fr;
+		grid-template-areas:
+			'company'
+			'position'
+			'location'
+			'start-date'
+			'end-date'
+			'narrative';
 	}
 }
 
