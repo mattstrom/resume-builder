@@ -1,6 +1,10 @@
 import { Node, mergeAttributes, type Editor } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
-import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
+import {
+	NodeViewContent,
+	NodeViewWrapper,
+	ReactNodeViewRenderer,
+} from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import type { FC } from 'react';
 
@@ -35,7 +39,11 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 	for (let depth = $from.depth; depth > 0; depth--) {
 		const node = $from.node(depth);
 
-		if (node.type.name === 'jobField' || node.type.name === 'jobNarrative') {
+		if (
+			node.type.name === 'jobField' ||
+			node.type.name === 'jobTechnologies' ||
+			node.type.name === 'jobNarrative'
+		) {
 			currentNode = node;
 		}
 
@@ -60,8 +68,11 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 			return false;
 		}
 
-		if (node.type.name === 'jobNarrative') {
-			// Its first paragraph starts one position into the narrative node.
+		if (
+			node.type.name === 'jobTechnologies' ||
+			node.type.name === 'jobNarrative'
+		) {
+			// Its first paragraph starts one position into the section node.
 			targets.push({ node, pos: jobBlockStart + pos + 3 });
 
 			return false;
@@ -78,7 +89,9 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 	}
 
 	editor.view.dispatch(
-		editor.state.tr.setSelection(TextSelection.create(editor.state.doc, nextTarget.pos)),
+		editor.state.tr.setSelection(
+			TextSelection.create(editor.state.doc, nextTarget.pos),
+		),
 	);
 
 	return true;
@@ -137,7 +150,8 @@ export const JobField = Node.create({
 		return {
 			field: {
 				default: 'narrative',
-				parseHTML: (element) => element.getAttribute('data-job-field') ?? 'narrative',
+				parseHTML: (element) =>
+					element.getAttribute('data-job-field') ?? 'narrative',
 				renderHTML: (attributes) => {
 					const field = attributes.field as JobFieldName;
 
@@ -155,7 +169,11 @@ export const JobField = Node.create({
 	},
 
 	renderHTML({ HTMLAttributes }) {
-		return ['div', mergeAttributes({ class: 'job-block-field' }, HTMLAttributes), 0];
+		return [
+			'div',
+			mergeAttributes({ class: 'job-block-field' }, HTMLAttributes),
+			0,
+		];
 	},
 
 	addNodeView() {
@@ -211,10 +229,36 @@ export const JobNarrative = Node.create({
 	},
 });
 
+export const JobTechnologies = Node.create({
+	name: 'jobTechnologies',
+	group: 'jobBlockContent',
+	content: 'block+',
+	defining: true,
+
+	parseHTML() {
+		return [{ tag: 'div[data-job-technologies]' }];
+	},
+
+	renderHTML({ HTMLAttributes }) {
+		return [
+			'div',
+			mergeAttributes(
+				{
+					class: 'job-block-technologies',
+					'data-job-technologies': '',
+				},
+				HTMLAttributes,
+			),
+			0,
+		];
+	},
+});
+
 export const JobBlock = Node.create({
 	name: 'jobBlock',
 	group: 'block',
-	content: '(jobField{3} jobDateRange (jobNarrative | jobField))?',
+	content:
+		'(jobField{3} jobDateRange jobTechnologies? (jobNarrative | jobField)?)?',
 	defining: true,
 
 	parseHTML() {
@@ -228,7 +272,11 @@ export const JobBlock = Node.create({
 				class: 'job-block',
 				'data-type': 'job-block',
 			}),
-			['div', { class: 'job-block-tab', contenteditable: 'false' }, 'Job'],
+			[
+				'div',
+				{ class: 'job-block-tab', contenteditable: 'false' },
+				'Job',
+			],
 			['div', { class: 'job-block-fields' }, 0],
 		];
 	},
@@ -246,7 +294,14 @@ export const JobBlock = Node.create({
 							createJobField('location'),
 							{
 								type: 'jobDateRange',
-								content: [createJobField('startDate'), createJobField('endDate')],
+								content: [
+									createJobField('startDate'),
+									createJobField('endDate'),
+								],
+							},
+							{
+								type: 'jobTechnologies',
+								content: [{ type: 'paragraph' }],
 							},
 							{
 								type: 'jobNarrative',

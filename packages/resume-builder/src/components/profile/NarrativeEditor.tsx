@@ -27,6 +27,7 @@ import {
 	JobDateRange,
 	JobField,
 	JobNarrative,
+	JobTechnologies,
 } from './extensions/job-block.extension.tsx';
 import { Markup } from './extensions/markup.extension.ts';
 import {
@@ -75,6 +76,7 @@ const buildExtensions = (
 	JobField,
 	JobDateRange,
 	JobNarrative,
+	JobTechnologies,
 	JobBlock,
 	...EducationBlockExtensions,
 	...CertificateBlockExtensions,
