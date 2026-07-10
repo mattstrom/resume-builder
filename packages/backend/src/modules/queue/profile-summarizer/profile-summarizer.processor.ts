@@ -11,6 +11,7 @@ import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service.js'
 import { QUEUES } from '../queues.js';
 import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric.js';
 import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event.js';
+import { stripXmlTags } from './narrative-xml.js';
 
 interface ProfileNarrativeSummaryJobData {
 	uid: string;
@@ -86,13 +87,6 @@ const EXTRACT_NARRATIVE_SUMMARY_TOOL: LlmToolDefinition = {
 		required: ['headline', 'summary', 'skills', 'workExperience', 'education', 'projects'],
 	},
 };
-
-function stripXmlTags(xml: string): string {
-	return xml
-		.replace(/<[^>]+>/g, ' ')
-		.replace(/\s{2,}/g, ' ')
-		.trim();
-}
 
 @Processor(QUEUES.PROFILE_NARRATIVE_SUMMARY)
 export class ProfileNarrativeSummaryProcessor extends WorkerHost {

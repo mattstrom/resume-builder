@@ -17,6 +17,7 @@ import type * as Y from 'yjs';
 import { useStore } from '@/stores/store.provider.tsx';
 
 import { Details } from './extensions/details.extension.tsx';
+import { JobBlock } from './extensions/job-block.extension.tsx';
 import { Markup } from './extensions/markup.extension.ts';
 import { NarrativeBubbleMenu } from './NarrativeBubbleMenu.tsx';
 import { NarrativeToolbar } from './NarrativeToolbar.tsx';
@@ -47,6 +48,7 @@ const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: str
 	TaskList,
 	TaskItem.configure({ nested: true }),
 	Details,
+	JobBlock,
 	Collaboration.configure({
 		document: doc,
 		field: 'narrative',

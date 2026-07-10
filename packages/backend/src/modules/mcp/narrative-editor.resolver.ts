@@ -38,6 +38,7 @@ const insertItemSchema = z.object({
 			'taskList',
 			'taskItem',
 			'details',
+			'jobBlock',
 		])
 		.describe('Type of block node'),
 	attrs: z
@@ -81,7 +82,9 @@ export class NarrativeEditorResolver {
 		description:
 			"Read the current user's narrative document. Returns an indexed list of nodes with their content and inline marks, so you can identify positions and reproduce formatting when editing. " +
 			'A "markup" mark with a { "data-type": "..." } attribute may be present on some ' +
-			'runs — it tags what that text semantically represents (e.g. "company", "role").',
+			'runs — it tags what that text semantically represents (e.g. "company", "role"). ' +
+			'A "jobBlock" node stores position, company, location, startDate, endDate, and ' +
+			'a free-form narrative as string attributes.',
 		annotations: {
 			destructiveHint: false,
 			idempotentHint: true,
