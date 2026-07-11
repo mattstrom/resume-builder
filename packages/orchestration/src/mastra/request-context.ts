@@ -63,7 +63,7 @@ export function parseFocusedPaths(headerValue?: string | null): FocusedRegion[] 
  */
 export function renderFocusBlock(requestContext: ReadableRequestContext): string {
 	const regions = (requestContext.get(FOCUSED_PATHS_KEY) as FocusedRegion[]) ?? [];
-	if (regions.length === 0) {
+	if (!Array.isArray(regions) || regions.length === 0) {
 		return '';
 	}
 
