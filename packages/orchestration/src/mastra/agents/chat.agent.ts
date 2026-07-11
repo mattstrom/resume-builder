@@ -1,16 +1,16 @@
 import { Agent } from '@mastra/core/agent';
+import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { fastembed } from '@mastra/fastembed';
 import { LibSQLVector } from '@mastra/libsql';
 import { Memory } from '@mastra/memory';
 import { chatWorkingMemorySchema } from '@resume-builder/entities';
 
+import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 import { renderFocusBlock } from '../request-context';
 import { scorers } from '../scorers/weather-scorer';
 import { md } from '../utils';
-import { careerAdvisorAgent } from './career-advisor.agent';
-import { fitAssessmentAgent } from './fit-assessment.agent';
-import { narrativeCoachAgent } from './narrative-coach.agent';
-import { resumeWriterAgent } from './resume-writer.agent';
+import { careerContextWorkflow } from '../workflows/career-context.workflow';
+import { fitAssessmentWorkflow } from '../workflows/fit-assessment.workflow';
 
 export const chatAgent = new Agent({
 	id: 'chat-agent',
@@ -18,55 +18,35 @@ export const chatAgent = new Agent({
 	model: 'anthropic/claude-sonnet-4-6',
 
 	instructions: async ({ requestContext }) => md`
-		You coordinate specialists for a resume-building app. You talk to the
-		user directly and delegate to a specialist when their expertise is
-		needed.
+		You help the user build their resume, tailor it to specific job
+		applications, and manage their career narrative and preferences. Use the
+		available tools to read and write their data directly — don't ask for
+		information a tool can retrieve, and don't guess at data you can look up.
 
-		You have structured working memory for this conversation:
+		Working memory tracks applicationId, resumeId, and durable facts (goals,
+		preferences, constraints) for this conversation. Treat it as the source
+		of truth — don't ask for an id already stored there. Add new durable
+		facts as you learn them.
 
-		- applicationId — the job application the user is working on (may be null)
-		- resumeId — the resume the user is working on (may be null)
-		- facts — durable facts about the user, their goals, and preferences
-
-		Treat working memory as the source of truth for which application and
-		resume the conversation is about. Never ask the user for an id that is
-		already present in working memory. When the user reveals a new durable
-		fact (a goal, preference, or constraint), add it to the facts list.
-
-		## Specialists
-
-		- narrativeCoach — assemble or refine the user's professional narrative.
-		- resumeWriter — create or prepare a tailored resume for an application.
-		- fitAssessor — assess how well the user fits a specific role or posting.
-		- careerAdvisor — advise on career path or job-search preferences.
-
-		## Delegating
-
-		Specialists do not see your working memory. When you delegate, include
-		the relevant context in the delegation prompt: the applicationId and
-		resumeId when they are set, plus any facts that bear on the request.
-		Delegate to one specialist per intent; for a compound request (e.g.
-		"assess this role, then build a resume for it"), delegate in sequence.
-		Handle small talk and clarification yourself; only clarify before
-		delegating if the intent is genuinely ambiguous.
-
-		## Relaying results
-
-		- resumeWriter and fitAssessor produce artifacts — preview/export URLs and
-		  numeric fit scores. Relay their output VERBATIM. Never paraphrase,
-		  re-summarize, or alter URLs or scores.
-		- narrativeCoach and careerAdvisor are conversational. You may weave and
-		  synthesize their output into your reply.
+		A few things that aren't obvious from the data itself:
+		- The user has 15+ years of experience. State that plainly; don't derive
+		  years of experience from the jobs included in a resume.
+		- Don't fabricate or inflate skills, responsibilities, or accomplishments
+		  — use only what's in their actual data.
+		- When you return a resume preview/export URL or a fit-assessment score,
+		  relay it exactly as returned — don't alter or paraphrase it.
 		${renderFocusBlock(requestContext)}
 	`,
 
-	agents: {
-		narrativeCoach: narrativeCoachAgent,
-		resumeWriter: resumeWriterAgent,
-		fitAssessor: fitAssessmentAgent,
-		careerAdvisor: careerAdvisorAgent,
+	tools: async ({ requestContext }) => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+
+		return createResumeBuilderMcpClient(token).listTools();
 	},
-	tools: {},
+	workflows: {
+		careerContext: careerContextWorkflow,
+		fitAssessment: fitAssessmentWorkflow,
+	},
 	memory: new Memory({
 		vector: new LibSQLVector({
 			id: 'resume-builder-chat-vector',
