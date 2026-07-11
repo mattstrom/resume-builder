@@ -48,18 +48,25 @@ export const HighlightRegion: FC<HighlightRegionProps> = observer(({ path, label
 					? 'ring-2 ring-blue-400/70 ring-inset'
 					: undefined,
 		);
-		childProps.onMouseEnter = (e: MouseEvent<HTMLElement>) => {
-			handlers.onMouseEnter(e);
-			child.props.onMouseEnter?.(e);
-		};
-		childProps.onMouseLeave = (e: MouseEvent<HTMLElement>) => {
-			handlers.onMouseLeave(e);
-			child.props.onMouseLeave?.(e);
-		};
-		childProps.onClick = (e: MouseEvent<HTMLElement>) => {
-			handlers.onClick(e);
-			child.props.onClick?.(e);
-		};
+
+		// A selected region remains highlighted after it has been added to chat, but
+		// it must not consume regular edit clicks once inspection is turned off.
+		// This mirrors InlineEditor and lets nested regions, such as skill items,
+		// continue to bubble their clicks to the list editor.
+		if (isInspectMode) {
+			childProps.onMouseEnter = (e: MouseEvent<HTMLElement>) => {
+				handlers.onMouseEnter(e);
+				child.props.onMouseEnter?.(e);
+			};
+			childProps.onMouseLeave = (e: MouseEvent<HTMLElement>) => {
+				handlers.onMouseLeave(e);
+				child.props.onMouseLeave?.(e);
+			};
+			childProps.onClick = (e: MouseEvent<HTMLElement>) => {
+				handlers.onClick(e);
+				child.props.onClick?.(e);
+			};
+		}
 	}
 
 	return (

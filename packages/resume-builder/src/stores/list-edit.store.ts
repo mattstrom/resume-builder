@@ -5,6 +5,8 @@ import { reorderItems } from '@/lib/reorder.ts';
 import type { RootStore } from '@/stores/root.store.ts';
 
 export class ListEditStore {
+	private commitItems: ((items: string[]) => void | Promise<void>) | null = null;
+
 	@observable
 	activePath: string | null = null;
 
@@ -45,10 +47,16 @@ export class ListEditStore {
 	}
 
 	@action
-	beginEdit(resumeId: string, path: string, currentItems: string[]) {
+	beginEdit(
+		resumeId: string,
+		path: string,
+		currentItems: string[],
+		onCommit?: (items: string[]) => void | Promise<void>,
+	) {
 		this.resumeId = resumeId;
 		this.activePath = path;
 		this.items = [...currentItems];
+		this.commitItems = onCommit ?? null;
 		this.editingIndex = null;
 		this.editValue = '';
 		this.isAdding = false;
@@ -59,6 +67,7 @@ export class ListEditStore {
 	discard() {
 		this.activePath = null;
 		this.items = [];
+		this.commitItems = null;
 		this.resumeId = null;
 		this.editingIndex = null;
 		this.editValue = '';
@@ -165,7 +174,7 @@ export class ListEditStore {
 		this.addValue = '';
 	}
 
-	async commit() {
+	async persist() {
 		if (!this.activePath || !this.resumeId) {
 			return;
 		}
@@ -179,18 +188,20 @@ export class ListEditStore {
 		});
 
 		try {
-			getActiveResumeController(resumeId)?.setField(path, value);
+			if (this.commitItems) {
+				await this.commitItems(value);
+			} else {
+				getActiveResumeController(resumeId)?.setField(path, value);
+			}
 		} finally {
 			runInAction(() => {
 				this.isSaving = false;
-				this.activePath = null;
-				this.items = [];
-				this.resumeId = null;
-				this.editingIndex = null;
-				this.editValue = '';
-				this.isAdding = false;
-				this.addValue = '';
 			});
 		}
+	}
+
+	async commit() {
+		await this.persist();
+		this.discard();
 	}
 }
