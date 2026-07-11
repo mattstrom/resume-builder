@@ -1,9 +1,9 @@
-import { Plus, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { observer } from 'mobx-react';
 import {
 	type FC,
 	Fragment,
-	type KeyboardEvent,
+	type KeyboardEvent as ReactKeyboardEvent,
 	type ReactNode,
 	useEffect,
 	useRef,
@@ -22,6 +22,7 @@ interface ListEditorProps {
 	variant: 'block' | 'inline';
 	className?: string;
 	emptyPlaceholder?: string;
+	onCommit?: (items: string[]) => void | Promise<void>;
 }
 
 interface EditModeProps {
@@ -36,6 +37,7 @@ interface DraggableListItemProps {
 	onMove: (fromIndex: number, toIndex: number) => void;
 	onRemove?: () => void;
 	inline?: boolean;
+	controlsPosition?: 'left' | 'bottom';
 	children: ReactNode;
 }
 
@@ -63,7 +65,7 @@ const HighlightableInlineItems: FC<{ path: string; items: string[] }> = ({ path,
 );
 
 export const ListEditor: FC<ListEditorProps> = observer(
-	({ path, items, resumeId, variant, className, emptyPlaceholder }) => {
+	({ path, items, resumeId, variant, className, emptyPlaceholder, onCommit }) => {
 		const { listEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
@@ -71,14 +73,7 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 		const handleClick = () => {
 			if (isEditable && !isEditing) {
-				store.beginEdit(resumeId, path, items);
-			}
-		};
-
-		const handleBeginAdd = () => {
-			if (isEditable && !isEditing) {
-				store.beginEdit(resumeId, path, items);
-				store.beginAdd();
+				store.beginEdit(resumeId, path, items, onCommit);
 			}
 		};
 
@@ -100,16 +95,7 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 		if (!isEditing) {
 			if (!hasItems) {
-				return (
-					<button
-						type="button"
-						onClick={handleBeginAdd}
-						className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-zinc-300 px-2 py-0.5 text-sm font-normal text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
-					>
-						<Plus className="h-3.5 w-3.5" />
-						{emptyPlaceholder ?? 'Add item'}
-					</button>
-				);
+				return <span className={className}>{emptyPlaceholder}</span>;
 			}
 
 			return variant === 'block' ? (
@@ -138,6 +124,7 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 	onMove,
 	onRemove,
 	inline = false,
+	controlsPosition = 'left',
 	children,
 }) => {
 	const WrapperTag = inline ? 'span' : 'div';
@@ -145,7 +132,14 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 	return (
 		<WrapperTag className={cn('group/reorder relative', inline ? 'inline-block' : 'block')}>
 			<WrapperTag className="min-w-0">{children}</WrapperTag>
-			<span className="absolute right-full top-0 z-10 mr-1 inline-flex items-center rounded-md border border-border bg-popover/95 opacity-0 shadow-md transition-opacity focus-within:opacity-100 group-hover/reorder:opacity-100">
+			<span
+				className={cn(
+					'absolute z-10 inline-flex items-center rounded-md border border-border bg-popover/95 opacity-0 shadow-md transition-opacity focus-within:opacity-100 group-hover/reorder:opacity-100',
+					controlsPosition === 'bottom'
+						? 'left-0 top-full mt-1'
+						: 'right-full top-0 mr-1',
+				)}
+			>
 				<ReorderControls
 					direction={direction}
 					canMoveBackward={index > 0}
@@ -247,8 +241,44 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 });
 
 const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
+	const editorRef = useRef<HTMLSpanElement>(null);
+
+	useEffect(() => {
+		const handlePointerDown = (event: PointerEvent) => {
+			if (!editorRef.current?.contains(event.target as Node)) {
+				store.discard();
+			}
+		};
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && store.editingIndex === null) {
+				store.discard();
+			}
+		};
+
+		document.addEventListener('pointerdown', handlePointerDown);
+		document.addEventListener('keydown', handleKeyDown, true);
+		return () => {
+			document.removeEventListener('pointerdown', handlePointerDown);
+			document.removeEventListener('keydown', handleKeyDown, true);
+		};
+	}, [store]);
+
+	const persist = () => void store.persist();
+	const moveItem = (fromIndex: number, toIndex: number) => {
+		store.moveItem(fromIndex, toIndex);
+		persist();
+	};
+	const removeItem = (index: number) => {
+		store.removeItem(index);
+		persist();
+	};
+	const commitEditItem = () => {
+		store.commitEditItem();
+		persist();
+	};
+
 	return (
-		<span className={cn('relative inline-block', className)}>
+		<span ref={editorRef} className={cn('relative inline-block', className)}>
 			<span className="inline-flex flex-wrap items-center gap-2">
 				{store.items.map((item, index) => (
 					<span key={`${index}:${item}`} className="inline-flex items-center">
@@ -258,14 +288,15 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 							length={store.items.length}
 							direction="horizontal"
 							inline
-							onMove={(fromIndex, toIndex) => store.moveItem(fromIndex, toIndex)}
-							onRemove={() => store.removeItem(index)}
+							controlsPosition="bottom"
+							onMove={moveItem}
+							onRemove={() => removeItem(index)}
 						>
 							{store.editingIndex === index ? (
 								<ItemInput
 									value={store.editValue}
 									onChange={(value) => store.updateEditValue(value)}
-									onCommit={() => store.commitEditItem()}
+									onCommit={commitEditItem}
 									onCancel={() => store.cancelEditItem()}
 									inline
 								/>
@@ -280,46 +311,6 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 						</DraggableListItem>
 					</span>
 				))}
-			</span>
-
-			<span className="absolute left-0 top-full z-10 mt-1 inline-flex">
-				{store.isAdding ? (
-					<ItemInput
-						value={store.addValue}
-						onChange={(value) => store.updateAddValue(value)}
-						onCommit={() => store.commitAdd()}
-						onCancel={() => store.cancelAdd()}
-						placeholder="New..."
-						inline
-					/>
-				) : (
-					<span className="inline-flex items-center rounded-md border border-border bg-popover/95 shadow-md">
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => store.beginAdd()}
-						>
-							Add item
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => store.commit()}
-						>
-							Save
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							onClick={() => store.discard()}
-						>
-							Cancel
-						</Button>
-					</span>
-				)}
 			</span>
 		</span>
 	);
@@ -348,7 +339,7 @@ const ItemInput: FC<ItemInputProps> = ({
 		inputRef.current?.focus();
 	}, []);
 
-	const handleKeyDown = (event: KeyboardEvent) => {
+	const handleKeyDown = (event: ReactKeyboardEvent) => {
 		if (event.key === 'Enter') {
 			event.preventDefault();
 			onCommit();

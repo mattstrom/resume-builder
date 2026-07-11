@@ -5,7 +5,7 @@ import type { FC, ReactNode } from 'react';
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import { ReorderControls } from '@/components/ReorderControls.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
+import { cn } from '@/lib/utils.ts';
 
 interface CollectionEditorItemProps {
 	index: number;
@@ -14,6 +14,7 @@ interface CollectionEditorItemProps {
 	/** Resume data path for this item, enabling it to be highlighted. */
 	path?: string;
 	isEditable?: boolean;
+	controlsPosition?: 'left' | 'right';
 	onMove: (fromIndex: number, toIndex: number) => void;
 	onInsertAbove?: () => void;
 	onInsertBelow?: () => void;
@@ -28,14 +29,13 @@ export const CollectionEditorItem: FC<CollectionEditorItemProps> = observer(
 		label,
 		path,
 		isEditable = true,
+		controlsPosition = 'right',
 		onMove,
 		onInsertAbove,
 		onInsertBelow,
 		actions,
 		children,
 	}) => {
-		const { listEditStore } = useStore();
-
 		const content = <div className="min-w-0">{children}</div>;
 
 		return (
@@ -50,8 +50,13 @@ export const CollectionEditorItem: FC<CollectionEditorItemProps> = observer(
 				) : (
 					content
 				)}
-				{isEditable && !listEditStore.isActive ? (
-					<div className="absolute right-0 top-0 z-10 flex items-center gap-1 rounded-md border border-border bg-popover/95 px-1 py-0.5 opacity-0 shadow-md transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+				{isEditable ? (
+					<div
+						className={cn(
+							'absolute top-0 z-10 flex items-center gap-1 rounded-md border border-border bg-popover/95 px-1 py-0.5 opacity-0 shadow-md transition-opacity focus-within:opacity-100 group-hover:opacity-100',
+							controlsPosition === 'left' ? 'right-full mr-1' : 'right-0',
+						)}
+					>
 						{onInsertAbove ? (
 							<Button
 								type="button"
