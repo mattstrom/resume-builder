@@ -20,6 +20,12 @@ type InsertItem = {
 
 type DeltaOp = { retain: number } | { delete: number } | { insert: InsertItem[] };
 
+type JsonPatchOp =
+	| { op: 'set'; path: string; value: unknown }
+	| { op: 'delete'; path: string }
+	| { op: 'insert'; path: string; index: number; value: unknown }
+	| { op: 'remove'; path: string; index: number };
+
 type StructuredNode = {
 	index: number;
 	nodeType: string;
@@ -28,9 +34,12 @@ type StructuredNode = {
 	children?: StructuredNode[];
 };
 
-function contextForDocument(documentName: string): { user: { sub: string } } {
+function contextForDocument(documentName: string, uid?: string): { user: { sub: string } } {
 	if (documentName.startsWith('profile:')) {
 		return { user: { sub: documentName.slice('profile:'.length) } };
+	}
+	if (documentName.startsWith('resume:') && uid) {
+		return { user: { sub: uid } };
 	}
 	throw new Error(`Unsupported document name: ${documentName}`);
 }
@@ -118,6 +127,127 @@ function applyDelta(fragment: Y.XmlFragment, delta: DeltaOp[]) {
 	}
 }
 
+function toYValue(value: unknown): unknown {
+	if (Array.isArray(value)) {
+		const array = new Y.Array<unknown>();
+		array.insert(0, value.map(toYValue));
+		return array;
+	}
+	if (value !== null && typeof value === 'object') {
+		const map = new Y.Map<unknown>();
+		for (const [key, entry] of Object.entries(value)) {
+			map.set(key, toYValue(entry));
+		}
+		return map;
+	}
+	return value ?? null;
+}
+
+function fromYValue(value: unknown): unknown {
+	if (value instanceof Y.Map) {
+		const object: Record<string, unknown> = {};
+		for (const [key, entry] of value.entries()) {
+			object[key] = fromYValue(entry);
+		}
+		return object;
+	}
+	if (value instanceof Y.Array) {
+		return value.toArray().map(fromYValue);
+	}
+	return value;
+}
+
+function getChild(container: Y.Map<unknown> | Y.Array<unknown>, segment: string): unknown {
+	if (container instanceof Y.Array) {
+		const index = Number(segment);
+		if (!Number.isInteger(index)) {
+			throw new Error(`Expected numeric index for array segment, got "${segment}"`);
+		}
+		return container.get(index);
+	}
+	return container.get(segment);
+}
+
+function getParent(
+	root: Y.Map<unknown>,
+	path: string,
+	createMissing: boolean,
+): {
+	parent: Y.Map<unknown> | Y.Array<unknown>;
+	lastSegment: string;
+} {
+	const segments = path.split(/[./]/).filter(Boolean);
+	if (segments.length === 0) {
+		throw new Error('Patch path must not be empty');
+	}
+
+	let current: Y.Map<unknown> | Y.Array<unknown> = root;
+	for (const [index, segment] of segments.slice(0, -1).entries()) {
+		let child = getChild(current, segment);
+		if (child === undefined || child === null) {
+			if (!createMissing) {
+				throw new Error(`Path segment "${segment}" not found at index ${index}`);
+			}
+			if (current instanceof Y.Array) {
+				throw new Error(`Cannot auto-create children inside a Y.Array at "${segment}"`);
+			}
+			const next = new Y.Map<unknown>();
+			current.set(segment, next);
+			child = next;
+		}
+		if (!(child instanceof Y.Map) && !(child instanceof Y.Array)) {
+			throw new Error(`Path segment "${segment}" is a leaf value, not a container`);
+		}
+		current = child;
+	}
+
+	return { parent: current, lastSegment: segments.at(-1)! };
+}
+
+function applyJsonPatch(root: Y.Map<unknown>, ops: JsonPatchOp[]) {
+	for (const op of ops) {
+		const { parent, lastSegment } = getParent(root, op.path, op.op === 'set');
+		if (op.op === 'set') {
+			if (parent instanceof Y.Array) {
+				const index = Number(lastSegment);
+				if (!Number.isInteger(index)) {
+					throw new Error(`Expected numeric index for array set, got "${lastSegment}"`);
+				}
+				if (index < parent.length) {
+					parent.delete(index, 1);
+				}
+				parent.insert(index, [toYValue(op.value)]);
+			} else {
+				parent.set(lastSegment, toYValue(op.value));
+			}
+			continue;
+		}
+		if (op.op === 'delete') {
+			if (parent instanceof Y.Array) {
+				const index = Number(lastSegment);
+				if (!Number.isInteger(index)) {
+					throw new Error(
+						`Expected numeric index for array delete, got "${lastSegment}"`,
+					);
+				}
+				parent.delete(index, 1);
+			} else {
+				parent.delete(lastSegment);
+			}
+			continue;
+		}
+		const target = getChild(parent, lastSegment);
+		if (!(target instanceof Y.Array)) {
+			throw new Error(`${op.op} target at "${op.path}" is not a Y.Array`);
+		}
+		if (op.op === 'insert') {
+			target.insert(op.index, [toYValue(op.value)]);
+		} else {
+			target.delete(op.index, 1);
+		}
+	}
+}
+
 @Injectable()
 export class ApiService implements Extension {
 	private readonly internalKey = process.env.CRDT_INTERNAL_KEY ?? '';
@@ -199,6 +329,37 @@ export class ApiService implements Extension {
 					await conn.disconnect();
 				}
 				sendJson(response, 200, { ok: true, length });
+
+				return;
+			}
+
+			const patchMatch = url.pathname.match(/^\/api\/documents\/([^/]+)\/apply-patch$/);
+
+			if (patchMatch && request.method === 'POST') {
+				const name = decodeURIComponent(patchMatch[1]);
+				const body = JSON.parse(await readBody(request)) as {
+					ops: JsonPatchOp[];
+					uid: string;
+				};
+				if (!name.startsWith('resume:') || !Array.isArray(body.ops) || !body.uid) {
+					throw new Error('Invalid resume patch request');
+				}
+
+				const conn = await instance.openDirectConnection(
+					name,
+					contextForDocument(name, body.uid),
+				);
+				let resume: unknown;
+				try {
+					await conn.transact((doc) => {
+						const root = doc.getMap('resume') as Y.Map<unknown>;
+						applyJsonPatch(root, body.ops);
+						resume = fromYValue(root);
+					});
+				} finally {
+					await conn.disconnect();
+				}
+				sendJson(response, 200, { ok: true, resume });
 
 				return;
 			}

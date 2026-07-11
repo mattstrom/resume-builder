@@ -4,6 +4,12 @@ import { DeltaOp, NarrativeNode } from '@resume-builder/entities';
 import configuration from '../../configuration.js';
 import { RequestSigningService } from '../request-signing/index.js';
 
+export type ResumePatchOp =
+	| { op: 'set'; path: string; value: unknown }
+	| { op: 'delete'; path: string }
+	| { op: 'insert'; path: string; index: number; value: unknown }
+	| { op: 'remove'; path: string; index: number };
+
 @Injectable()
 export class CrdtApiService {
 	private readonly logger = new Logger(CrdtApiService.name);
@@ -47,5 +53,29 @@ export class CrdtApiService {
 		}
 
 		return (await res.json()) as Promise<{ ok: boolean; length: number }>;
+	}
+
+	async applyResumePatch(
+		documentName: string,
+		uid: string,
+		ops: ResumePatchOp[],
+	): Promise<{ ok: boolean; resume: unknown }> {
+		const url = `${this.baseUrl}/api/documents/${encodeURIComponent(documentName)}/apply-patch`;
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...this.signing.getSigningHeaders(),
+			},
+			body: JSON.stringify({ uid, ops }),
+		});
+
+		if (!res.ok) {
+			const body = await res.text();
+			this.logger.error(`CRDT API resume patch failed: ${res.status} ${body}`);
+			throw new Error(`CRDT API error: ${res.status}`);
+		}
+
+		return (await res.json()) as Promise<{ ok: boolean; resume: unknown }>;
 	}
 }
