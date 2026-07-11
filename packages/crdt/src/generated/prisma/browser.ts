@@ -108,12 +108,7 @@ export type Volunteering = Prisma.VolunteeringModel
  */
 export type ResumeFact = Prisma.ResumeFactModel
 /**
- * Model ProfileUpdate
+ * Model DocumentUpdate
  * 
  */
-export type ProfileUpdate = Prisma.ProfileUpdateModel
-/**
- * Model ResumeDocument
- * 
- */
-export type ResumeDocument = Prisma.ResumeDocumentModel
+export type DocumentUpdate = Prisma.DocumentUpdateModel

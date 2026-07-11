@@ -2,9 +2,8 @@ import type { Application, Resume } from '@resume-builder/entities';
 import { action, makeObservable, observable, runInAction, toJS } from 'mobx';
 
 import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
-import { ApiResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
+import { CrdtResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
 
-import { client as apolloClient } from '../apollo-client.ts';
 import { CREATE_BLANK_RESUME } from '../graphql/mutations.ts';
 import { GET_APPLICATION, LIST_RESUMES } from '../graphql/queries.ts';
 import type {
@@ -30,7 +29,7 @@ export class EditorStore {
 	@observable selectedFile: string | null = null;
 	readonly isSupported = 'showDirectoryPicker' in window;
 
-	private controller: ApiResumeController | LocalResumeController | null = null;
+	private controller: CrdtResumeController | LocalResumeController | null = null;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -81,7 +80,7 @@ export class EditorStore {
 			const targetResume =
 				(resumeId ? resumes.find((r) => r._id === resumeId) : null) ?? resumes[0] ?? null;
 			if (targetResume) {
-				await this.setupApiController(targetResume);
+				await this.setupCrdtController(targetResume);
 			} else {
 				runInAction(() => {
 					this.resumeData = null;
@@ -116,7 +115,7 @@ export class EditorStore {
 		this.controller = null;
 		setActiveResumeController(null);
 
-		await this.setupApiController(resume);
+		await this.setupCrdtController(resume);
 	}
 
 	@action
@@ -194,13 +193,15 @@ export class EditorStore {
 		setActiveResumeController(null);
 	}
 
-	private async setupApiController(resume: Resume) {
+	private async setupCrdtController(resume: Resume) {
 		// Resumes pulled from observable state are MobX proxies, which the
 		// controller's structuredClone cannot handle — unwrap to plain data.
 		const plainResume = toJS(resume);
-		const controller = new ApiResumeController({
+		const token = await this.rootStore.authStore.ensureToken();
+		const controller = await CrdtResumeController.connect({
 			resume: plainResume,
-			client: apolloClient,
+			collaborationUrl: __CONFIG__.collaborationUrl,
+			token,
 			onSnapshotChange: (r) => {
 				runInAction(() => {
 					this.resumeData = r;
@@ -215,7 +216,7 @@ export class EditorStore {
 		this.controller = controller;
 		setActiveResumeController(controller);
 		runInAction(() => {
-			this.resumeData = plainResume;
+			this.resumeData = controller.getSnapshot() ?? plainResume;
 		});
 	}
 }

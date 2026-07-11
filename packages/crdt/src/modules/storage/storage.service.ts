@@ -242,13 +242,14 @@ export class StorageService implements Extension {
 		resumeId: string,
 	) {
 		const resume = await this.assertResumeAccess(uid, resumeId);
-		const stored = await this.prisma.resumeDocument.findUnique({
-			where: { name: documentName },
+		const latest = await this.prisma.documentUpdate.findFirst({
+			where: { name: documentName, uid },
+			orderBy: { sequence: 'desc' },
 		});
 		const document = new Y.Doc();
 
-		if (stored?.update) {
-			Y.applyUpdate(document, new Uint8Array(stored.update));
+		if (latest?.update) {
+			Y.applyUpdate(document, new Uint8Array(latest.update));
 
 			return document;
 		}
@@ -269,10 +270,19 @@ export class StorageService implements Extension {
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 		const snapshot = this.readResumeDocument(document);
 
-		await this.prisma.resumeDocument.upsert({
-			where: { name: documentName },
-			create: { name: documentName, uid, update },
-			update: { update },
+		const previous = await this.prisma.documentUpdate.findFirst({
+			where: { name: documentName, uid },
+			orderBy: { sequence: 'desc' },
+			select: { sequence: true },
+		});
+
+		await this.prisma.documentUpdate.create({
+			data: {
+				name: documentName,
+				uid,
+				sequence: (previous?.sequence ?? 0) + 1,
+				update,
+			},
 		});
 
 		if (!snapshot) {
@@ -304,7 +314,7 @@ export class StorageService implements Extension {
 		this.assertProfileAccess(uid, profileUid);
 
 		const document = new Y.Doc();
-		const latest = await this.prisma.profileUpdate.findFirst({
+		const latest = await this.prisma.documentUpdate.findFirst({
 			where: { name: documentName, uid },
 			orderBy: { sequence: 'desc' },
 		});
@@ -334,7 +344,7 @@ export class StorageService implements Extension {
 
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 
-		const previous = await this.prisma.profileUpdate.findFirst({
+		const previous = await this.prisma.documentUpdate.findFirst({
 			where: { name: documentName, uid },
 			orderBy: { sequence: 'desc' },
 			select: { sequence: true },
@@ -342,7 +352,7 @@ export class StorageService implements Extension {
 
 		const nextSequence = (previous?.sequence ?? 0) + 1;
 
-		await this.prisma.profileUpdate.create({
+		await this.prisma.documentUpdate.create({
 			data: { name: documentName, uid, sequence: nextSequence, update },
 		});
 

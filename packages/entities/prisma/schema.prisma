@@ -396,12 +396,12 @@ model ResumeFact {
   @@index([resumeId])
 }
 
-// ─── ProfileUpdate ───────────────────────────────────────────────────────────
-// Append-only log of Yjs CRDT binary state snapshots for profile documents.
+// ─── DocumentUpdate ──────────────────────────────────────────────────────────
+// Append-only log of Yjs CRDT binary state snapshots for collaborative documents.
 // Each row is immutable — never updated, only inserted. The highest sequence
 // for a given (name, uid) is the current state.
 
-model ProfileUpdate {
+model DocumentUpdate {
   id        String   @id @default(cuid())
   name      String
   uid       String
@@ -411,20 +411,4 @@ model ProfileUpdate {
   updatedAt DateTime @updatedAt
 
   @@index([name, uid, sequence(sort: Desc)])
-}
-
-// ─── ResumeDocument ──────────────────────────────────────────────────────────
-// Latest Yjs CRDT binary snapshot for a resume's collaborative document.
-// One row per document name, upserted in place (not an append log — the CRDT
-// server only ever needs the most recent state to resume a session).
-
-model ResumeDocument {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  uid       String
-  update    Bytes
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([uid])
 }

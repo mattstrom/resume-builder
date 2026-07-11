@@ -402,8 +402,7 @@ export const ModelName = {
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   ResumeFact: 'ResumeFact',
-  ProfileUpdate: 'ProfileUpdate',
-  ResumeDocument: 'ResumeDocument'
+  DocumentUpdate: 'DocumentUpdate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "profileUpdate" | "resumeDocument"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "documentUpdate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1755,151 +1754,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ProfileUpdate: {
-      payload: Prisma.$ProfileUpdatePayload<ExtArgs>
-      fields: Prisma.ProfileUpdateFieldRefs
+    DocumentUpdate: {
+      payload: Prisma.$DocumentUpdatePayload<ExtArgs>
+      fields: Prisma.DocumentUpdateFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ProfileUpdateFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload> | null
+          args: Prisma.DocumentUpdateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ProfileUpdateFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         findFirst: {
-          args: Prisma.ProfileUpdateFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload> | null
+          args: Prisma.DocumentUpdateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ProfileUpdateFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         findMany: {
-          args: Prisma.ProfileUpdateFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>[]
+          args: Prisma.DocumentUpdateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>[]
         }
         create: {
-          args: Prisma.ProfileUpdateCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         createMany: {
-          args: Prisma.ProfileUpdateCreateManyArgs<ExtArgs>
+          args: Prisma.DocumentUpdateCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ProfileUpdateCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>[]
+          args: Prisma.DocumentUpdateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>[]
         }
         delete: {
-          args: Prisma.ProfileUpdateDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         update: {
-          args: Prisma.ProfileUpdateUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         deleteMany: {
-          args: Prisma.ProfileUpdateDeleteManyArgs<ExtArgs>
+          args: Prisma.DocumentUpdateDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ProfileUpdateUpdateManyArgs<ExtArgs>
+          args: Prisma.DocumentUpdateUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ProfileUpdateUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>[]
+          args: Prisma.DocumentUpdateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>[]
         }
         upsert: {
-          args: Prisma.ProfileUpdateUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileUpdatePayload>
+          args: Prisma.DocumentUpdateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DocumentUpdatePayload>
         }
         aggregate: {
-          args: Prisma.ProfileUpdateAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProfileUpdate>
+          args: Prisma.DocumentUpdateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDocumentUpdate>
         }
         groupBy: {
-          args: Prisma.ProfileUpdateGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProfileUpdateGroupByOutputType>[]
+          args: Prisma.DocumentUpdateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentUpdateGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ProfileUpdateCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProfileUpdateCountAggregateOutputType> | number
-        }
-      }
-    }
-    ResumeDocument: {
-      payload: Prisma.$ResumeDocumentPayload<ExtArgs>
-      fields: Prisma.ResumeDocumentFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ResumeDocumentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ResumeDocumentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        findFirst: {
-          args: Prisma.ResumeDocumentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ResumeDocumentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        findMany: {
-          args: Prisma.ResumeDocumentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
-        }
-        create: {
-          args: Prisma.ResumeDocumentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        createMany: {
-          args: Prisma.ResumeDocumentCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ResumeDocumentCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
-        }
-        delete: {
-          args: Prisma.ResumeDocumentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        update: {
-          args: Prisma.ResumeDocumentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        deleteMany: {
-          args: Prisma.ResumeDocumentDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ResumeDocumentUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ResumeDocumentUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>[]
-        }
-        upsert: {
-          args: Prisma.ResumeDocumentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeDocumentPayload>
-        }
-        aggregate: {
-          args: Prisma.ResumeDocumentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateResumeDocument>
-        }
-        groupBy: {
-          args: Prisma.ResumeDocumentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ResumeDocumentGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ResumeDocumentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ResumeDocumentCountAggregateOutputType> | number
+          args: Prisma.DocumentUpdateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DocumentUpdateCountAggregateOutputType> | number
         }
       }
     }
@@ -2208,7 +2133,7 @@ export const ResumeFactScalarFieldEnum = {
 export type ResumeFactScalarFieldEnum = (typeof ResumeFactScalarFieldEnum)[keyof typeof ResumeFactScalarFieldEnum]
 
 
-export const ProfileUpdateScalarFieldEnum = {
+export const DocumentUpdateScalarFieldEnum = {
   id: 'id',
   name: 'name',
   uid: 'uid',
@@ -2218,19 +2143,7 @@ export const ProfileUpdateScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type ProfileUpdateScalarFieldEnum = (typeof ProfileUpdateScalarFieldEnum)[keyof typeof ProfileUpdateScalarFieldEnum]
-
-
-export const ResumeDocumentScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  uid: 'uid',
-  update: 'update',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ResumeDocumentScalarFieldEnum = (typeof ResumeDocumentScalarFieldEnum)[keyof typeof ResumeDocumentScalarFieldEnum]
+export type DocumentUpdateScalarFieldEnum = (typeof DocumentUpdateScalarFieldEnum)[keyof typeof DocumentUpdateScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2547,8 +2460,7 @@ export type GlobalOmitConfig = {
   skillGroup?: Prisma.SkillGroupOmit
   volunteering?: Prisma.VolunteeringOmit
   resumeFact?: Prisma.ResumeFactOmit
-  profileUpdate?: Prisma.ProfileUpdateOmit
-  resumeDocument?: Prisma.ResumeDocumentOmit
+  documentUpdate?: Prisma.DocumentUpdateOmit
 }
 
 /* Types for Logging */
