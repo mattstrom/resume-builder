@@ -69,8 +69,7 @@ export const ModelName = {
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   ResumeFact: 'ResumeFact',
-  ProfileUpdate: 'ProfileUpdate',
-  ResumeDocument: 'ResumeDocument'
+  DocumentUpdate: 'DocumentUpdate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -355,7 +354,7 @@ export const ResumeFactScalarFieldEnum = {
 export type ResumeFactScalarFieldEnum = (typeof ResumeFactScalarFieldEnum)[keyof typeof ResumeFactScalarFieldEnum]
 
 
-export const ProfileUpdateScalarFieldEnum = {
+export const DocumentUpdateScalarFieldEnum = {
   id: 'id',
   name: 'name',
   uid: 'uid',
@@ -365,19 +364,7 @@ export const ProfileUpdateScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type ProfileUpdateScalarFieldEnum = (typeof ProfileUpdateScalarFieldEnum)[keyof typeof ProfileUpdateScalarFieldEnum]
-
-
-export const ResumeDocumentScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  uid: 'uid',
-  update: 'update',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ResumeDocumentScalarFieldEnum = (typeof ResumeDocumentScalarFieldEnum)[keyof typeof ResumeDocumentScalarFieldEnum]
+export type DocumentUpdateScalarFieldEnum = (typeof DocumentUpdateScalarFieldEnum)[keyof typeof DocumentUpdateScalarFieldEnum]
 
 
 export const SortOrder = {

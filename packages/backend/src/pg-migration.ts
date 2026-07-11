@@ -603,7 +603,7 @@ async function migrateProfileUpdates(prisma: PrismaClient) {
 			const update: Buffer = Buffer.isBuffer(doc.update)
 				? doc.update
 				: Buffer.from((doc.update as { buffer?: Buffer }).buffer ?? doc.update);
-			await prisma.profileUpdate.upsert({
+			await prisma.documentUpdate.upsert({
 				where: { id },
 				create: {
 					id,
@@ -690,12 +690,13 @@ async function migrateResumeDocuments(prisma: PrismaClient) {
 			const update: Buffer = Buffer.isBuffer(doc.update)
 				? doc.update
 				: Buffer.from((doc.update as { buffer?: Buffer }).buffer ?? doc.update);
-			await prisma.resumeDocument.upsert({
+			await prisma.documentUpdate.upsert({
 				where: { id },
 				create: {
 					id,
 					name: doc.name,
 					uid: doc.uid,
+					sequence: 1,
 					update,
 					createdAt: doc.createdAt ?? objectIdTs(doc._id),
 					updatedAt: doc.updatedAt ?? doc.createdAt ?? objectIdTs(doc._id),

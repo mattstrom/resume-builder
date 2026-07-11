@@ -32,10 +32,8 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = ({
 	const [isSaving, setIsSaving] = useState(false);
 
 	useEffect(() => {
-		if (!autoFocus) {
-			setDraft(value);
-		}
-	}, [autoFocus, value]);
+		setDraft(value);
+	}, [value]);
 
 	const commit = async () => {
 		if (!isEditable || isSaving) {

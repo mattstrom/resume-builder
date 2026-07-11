@@ -1,5 +1,7 @@
 import { ApolloClient } from '@apollo/client';
+import { HocuspocusProvider } from '@hocuspocus/provider';
 import type { Resume } from '@resume-builder/entities';
+import * as Y from 'yjs';
 
 import {
 	ADD_RESUME_COLLECTION_ITEM,
@@ -47,6 +49,41 @@ type ResumeCollectionValue = (typeof ResumeCollections)[keyof typeof ResumeColle
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function toYValue(value: unknown): unknown {
+	if (Array.isArray(value)) {
+		const array = new Y.Array<unknown>();
+		array.insert(
+			0,
+			value.map((entry) => toYValue(entry)),
+		);
+		return array;
+	}
+
+	if (isPlainObject(value)) {
+		const map = new Y.Map<unknown>();
+		for (const [key, entry] of Object.entries(value)) {
+			map.set(key, toYValue(entry));
+		}
+		return map;
+	}
+
+	return value === undefined ? null : value;
+}
+
+function fromYValue(value: unknown): unknown {
+	if (value instanceof Y.Map) {
+		return Object.fromEntries(
+			[...value.entries()].map(([key, entry]) => [key, fromYValue(entry)]),
+		);
+	}
+
+	if (value instanceof Y.Array) {
+		return value.toArray().map((entry) => fromYValue(entry));
+	}
+
+	return value;
 }
 
 function parsePath(path: string) {
@@ -578,5 +615,227 @@ export class ApiResumeController extends LocalResumeController {
 
 			return undefined;
 		}, source);
+	}
+}
+
+const LOCAL_ORIGIN = Symbol('resume-editor');
+const CONNECT_TIMEOUT_MS = 10_000;
+
+interface CrdtResumeControllerOptions extends LocalResumeControllerOptions {
+	collaborationUrl: string;
+	token: string;
+	onError?: (error: Error) => void;
+}
+
+/**
+ * The editor's authoritative resume state. Every mutation is made directly to
+ * the shared Yjs document, so UI edits and agent edits cannot overwrite one
+ * another through the legacy GraphQL persistence path.
+ */
+export class CrdtResumeController implements ResumeDocumentController {
+	readonly resumeId: string;
+	private readonly doc = new Y.Doc();
+	private readonly root = this.doc.getMap<unknown>('resume');
+	private readonly undoManager = new Y.UndoManager(this.root, {
+		trackedOrigins: new Set([LOCAL_ORIGIN]),
+	});
+	private readonly provider: HocuspocusProvider;
+	private snapshot: Resume | null = null;
+	private destroyed = false;
+
+	private constructor(private readonly options: CrdtResumeControllerOptions) {
+		this.resumeId = options.resume._id;
+		this.provider = new HocuspocusProvider({
+			url: options.collaborationUrl,
+			name: `resume:${this.resumeId}`,
+			document: this.doc,
+			token: options.token,
+		});
+	}
+
+	static async connect(options: CrdtResumeControllerOptions) {
+		const controller = new CrdtResumeController(options);
+
+		try {
+			await controller.waitForSync();
+			controller.root.observeDeep(controller.handleDocumentChange);
+			controller.updateSnapshot();
+			return controller;
+		} catch (error) {
+			await controller.destroy();
+			throw error;
+		}
+	}
+
+	getSnapshot() {
+		return this.snapshot;
+	}
+
+	replaceResume(resume: Resume) {
+		this.doc.transact(() => {
+			for (const key of [...this.root.keys()]) {
+				this.root.delete(key);
+			}
+
+			for (const [key, value] of Object.entries(resume)) {
+				if (key !== '_id') {
+					this.root.set(key, toYValue(value));
+				}
+			}
+			this.root.set('id', this.resumeId);
+		}, LOCAL_ORIGIN);
+	}
+
+	setField(path: string, value: unknown) {
+		this.doc.transact(() => {
+			this.setPathValue(path, value);
+		}, LOCAL_ORIGIN);
+	}
+
+	addCollectionItem(collection: ResumeCollectionValue) {
+		const snapshot = this.getSnapshot();
+		if (!snapshot) return;
+
+		const path = getResumeCollectionPath(collection);
+		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		this.setField(path, [...items, createDefaultCollectionItem(collection, snapshot)]);
+	}
+
+	insertCollectionItem(collection: ResumeCollectionValue, index: number) {
+		const snapshot = this.getSnapshot();
+		if (!snapshot) return;
+
+		const path = getResumeCollectionPath(collection);
+		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		const position = Math.max(0, Math.min(index, items.length));
+		this.setField(path, [
+			...items.slice(0, position),
+			createDefaultCollectionItem(collection, snapshot),
+			...items.slice(position),
+		]);
+	}
+
+	removeCollectionItem(collection: ResumeCollectionValue, index: number) {
+		const path = getResumeCollectionPath(collection);
+		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		this.setField(
+			path,
+			items.filter((_, itemIndex) => itemIndex !== index),
+		);
+	}
+
+	moveArrayItem(path: string, fromIndex: number, toIndex: number) {
+		const items = fromYValue(this.getPathValue(path)) as unknown[] | undefined;
+		if (!items) return;
+
+		const reordered = reorderItems(items, fromIndex, toIndex);
+		if (JSON.stringify(items) !== JSON.stringify(reordered)) {
+			this.setField(path, reordered);
+		}
+	}
+
+	undo() {
+		this.undoManager.undo();
+	}
+
+	redo() {
+		this.undoManager.redo();
+	}
+
+	async destroy() {
+		if (this.destroyed) return;
+		this.destroyed = true;
+		this.root.unobserveDeep(this.handleDocumentChange);
+		this.undoManager.destroy();
+		this.provider.destroy();
+		this.doc.destroy();
+	}
+
+	private async waitForSync() {
+		if (this.provider.isSynced) {
+			return;
+		}
+
+		await new Promise<void>((resolve, reject) => {
+			const timeout = window.setTimeout(() => {
+				reject(new Error(`Timed out connecting to resume:${this.resumeId}`));
+			}, CONNECT_TIMEOUT_MS);
+			const complete = (callback: () => void) => {
+				window.clearTimeout(timeout);
+				callback();
+			};
+
+			this.provider.on('synced', () => complete(resolve));
+			this.provider.on('authenticationFailed', ({ reason }: { reason: string }) =>
+				complete(() => reject(new Error(`CRDT authentication failed: ${reason}`))),
+			);
+		});
+	}
+
+	private readonly handleDocumentChange = () => {
+		this.updateSnapshot();
+	};
+
+	private updateSnapshot() {
+		const stored = fromYValue(this.root) as Record<string, unknown>;
+		const { id, ...resume } = stored;
+		this.snapshot = {
+			...resume,
+			_id: String(id ?? this.resumeId),
+		} as Resume;
+		this.options.onSnapshotChange?.(this.snapshot);
+	}
+
+	private getPathValue(path: string) {
+		return parsePath(path).reduce<unknown>((current, segment) => {
+			if (current instanceof Y.Map) return current.get(String(segment));
+			if (current instanceof Y.Array && typeof segment === 'number') {
+				return current.get(segment);
+			}
+			return undefined;
+		}, this.root);
+	}
+
+	private setPathValue(path: string, value: unknown) {
+		const segments = parsePath(path);
+		let current: Y.Map<unknown> | Y.Array<unknown> = this.root;
+
+		for (let index = 0; index < segments.length - 1; index += 1) {
+			const segment = segments[index]!;
+			const nextSegment = segments[index + 1]!;
+			const existing: unknown =
+				current instanceof Y.Map
+					? current.get(String(segment))
+					: typeof segment === 'number'
+						? current.get(segment)
+						: undefined;
+			const next: Y.Map<unknown> | Y.Array<unknown> =
+				existing instanceof Y.Map || existing instanceof Y.Array
+					? existing
+					: typeof nextSegment === 'number'
+						? new Y.Array<unknown>()
+						: new Y.Map<unknown>();
+
+			if (next !== existing) {
+				if (current instanceof Y.Map) {
+					current.set(String(segment), next);
+				} else if (typeof segment === 'number') {
+					current.delete(segment, 1);
+					current.insert(segment, [next]);
+				}
+			}
+
+			current = next;
+		}
+
+		const last = segments.at(-1);
+		if (last === undefined) return;
+
+		if (current instanceof Y.Map) {
+			current.set(String(last), toYValue(value));
+		} else if (typeof last === 'number') {
+			current.delete(last, 1);
+			current.insert(last, [toYValue(value)]);
+		}
 	}
 }
