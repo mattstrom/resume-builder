@@ -13,6 +13,7 @@ import {
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
+import { CrdtApiService, type ResumePatchOp } from '../crdt-client/crdt-api.service.js';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
 import { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
 import { EducationsService } from '../entities/educations/educations.service.js';
@@ -62,12 +63,29 @@ const createVolunteeringSchema = {
 	relevance: z.number().min(0).max(1).optional(),
 };
 
+const resumePatchOpSchema = z.union([
+	z.object({ op: z.literal('set'), path: z.string().min(1), value: z.unknown() }),
+	z.object({ op: z.literal('delete'), path: z.string().min(1) }),
+	z.object({
+		op: z.literal('insert'),
+		path: z.string().min(1),
+		index: z.number().int().nonnegative(),
+		value: z.unknown(),
+	}),
+	z.object({
+		op: z.literal('remove'),
+		path: z.string().min(1),
+		index: z.number().int().nonnegative(),
+	}),
+]);
+
 @Resolver()
 @UseGuards(McpGuard)
 export class ResumesResolver {
 	constructor(
 		private contactInformationService: ContactInformationService,
 		private coverLettersService: CoverLettersService,
+		private crdtApiService: CrdtApiService,
 		private educationsService: EducationsService,
 		private jobsService: JobsService,
 		private projectsService: ProjectsService,
@@ -75,6 +93,35 @@ export class ResumesResolver {
 		private skillsService: SkillsService,
 		private volunteeringService: VolunteeringService,
 	) {}
+
+	@Tool({
+		name: 'patch_resume',
+		description:
+			'Apply targeted changes to an existing resume without resubmitting the full document. ' +
+			'Use set for a field, delete for a map key, and insert/remove for array items. ' +
+			'Call get_resume first to confirm paths and current array indices. Changes appear live ' +
+			'in connected collaborative editors.',
+		paramsSchema: {
+			id: z.string().describe('Resume ID'),
+			ops: z.array(resumePatchOpSchema).min(1).describe('Ordered patch operations'),
+		},
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: false,
+		},
+	})
+	async patchResume(
+		{ id, ops }: McpToolParams<{ id: string; ops: ResumePatchOp[] }>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		await this.resumesService.find(user.sub, id);
+		const result = await this.crdtApiService.applyResumePatch(`resume:${id}`, user.sub, ops);
+
+		return {
+			content: [{ type: 'text', text: `Patched resume ${id}.` }],
+			structuredContent: { resume: result.resume },
+		};
+	}
 
 	/**
 	 * Simple health check tool
