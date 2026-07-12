@@ -4,14 +4,8 @@ import { type FC, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-import { authFetch } from '../utils/auth';
-
-interface ConversationSummary {
-	_id: string;
-	title: string;
-	updatedAt: string;
-}
+import { type ConversationSummary } from '@/stores/chat/conversation.service.ts';
+import { useStore } from '@/stores/store.provider.tsx';
 
 interface ConversationListProps {
 	applicationId: string | undefined;
@@ -26,18 +20,13 @@ export const ConversationList: FC<ConversationListProps> = ({
 	onSelect,
 	onNewChat,
 }) => {
+	const { conversationService } = useStore();
 	const [conversations, setConversations] = useState<ConversationSummary[]>([]);
 	const [open, setOpen] = useState(false);
 
 	const fetchConversations = async () => {
-		if (!applicationId) return;
 		try {
-			const res = await authFetch(
-				`http://localhost:3000/api/conversations?applicationId=${applicationId}`,
-			);
-			if (res.ok) {
-				setConversations(await res.json());
-			}
+			setConversations(await conversationService.listConversations());
 		} catch {
 			// ignore fetch errors
 		}
@@ -47,15 +36,13 @@ export const ConversationList: FC<ConversationListProps> = ({
 		if (open) {
 			void fetchConversations();
 		}
-	}, [open, applicationId]);
+	}, [open, applicationId, conversationService]);
 
 	const handleDelete = async (e: React.MouseEvent, id: string) => {
 		e.stopPropagation();
 		try {
-			await authFetch(`http://localhost:3000/api/conversations/${id}`, {
-				method: 'DELETE',
-			});
-			setConversations((prev) => prev.filter((c) => c._id !== id));
+			await conversationService.deleteConversation(id);
+			setConversations((prev) => prev.filter((c) => c.id !== id));
 		} catch {
 			// ignore
 		}
@@ -95,11 +82,11 @@ export const ConversationList: FC<ConversationListProps> = ({
 						) : (
 							conversations.map((conv) => (
 								<div
-									key={conv._id}
+									key={conv.id}
 									role="button"
 									tabIndex={0}
 									className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent transition-colors cursor-pointer ${
-										conv._id === activeConversationId
+										conv.id === activeConversationId
 											? 'bg-accent text-accent-foreground'
 											: 'text-muted-foreground'
 									}`}
@@ -125,7 +112,7 @@ export const ConversationList: FC<ConversationListProps> = ({
 										variant="ghost"
 										size="icon"
 										className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive hover:bg-transparent"
-										onClick={(e) => handleDelete(e, conv._id)}
+										onClick={(e) => handleDelete(e, conv.id)}
 									>
 										<Trash2 className="h-3 w-3" />
 									</Button>

@@ -9,10 +9,20 @@ import { authFetch } from '@/utils/auth.ts';
 const MASTRA_API_BASE = 'http://localhost:4111';
 
 interface ConversationPayload {
-	_id: string;
+	id: string;
+	title?: string;
+	createdAt: string | Date;
+	messages: {
+		id: string;
+		role: string;
+		content: { parts?: { type: string; text?: string }[] };
+	}[];
+}
+
+export interface ConversationSummary {
+	id: string;
 	title: string;
-	createdAt: string;
-	messages: { role: string; content: string; createdAt?: string }[];
+	updatedAt: string | Date;
 }
 
 export interface Message {
@@ -38,20 +48,29 @@ export class Conversation {
 		const conversation = new Conversation();
 
 		Object.assign(conversation, {
-			id: payload._id,
-			title: payload.title,
+			id: payload.id,
+			title: payload.title ?? 'New Conversation',
 			createdAt: payload.createdAt,
 		});
 
-		payload.messages.forEach((message, index) => {
+		payload.messages.forEach((message) => {
+			if (message.role !== 'user' && message.role !== 'assistant') {
+				return;
+			}
+
+			const content = message.content.parts
+				?.filter((part) => part.type === 'text')
+				.map((part) => part.text ?? '')
+				.join('') ?? '';
+
 			conversation.messages.push({
-				id: `${payload._id}-${index}`,
+				id: message.id,
 				role: message.role as 'user' | 'assistant',
-				content: message.content,
+				content,
 				parts: [
 					{
 						type: 'text',
-						text: message.content,
+						text: content,
 					},
 				],
 			});
@@ -134,19 +153,22 @@ export class ConversationService {
 		return applicationId ? getStorageKey(applicationId) : null;
 	}
 
+	private async getMastraClient(): Promise<MastraClient> {
+		const token = await this.rootStore.authStore.getTokenSilently();
+
+		return new MastraClient({
+			baseUrl: MASTRA_API_BASE,
+			headers: { Authorization: `Bearer ${token}` },
+		});
+	}
+
 	get transport() {
 		return new DefaultChatTransport({
 			api: `${MASTRA_API_BASE}/chat/chatAgent`,
 			body: { metadata: this.requestContext },
 			prepareSendMessagesRequest: async ({ messages }) => {
 				const { sub } = this.rootStore.authStore.user!;
-				const token = await this.rootStore.authStore.getTokenSilently();
-				const mastra = new MastraClient({
-					baseUrl: MASTRA_API_BASE,
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
+				const mastra = await this.getMastraClient();
 
 				let threadId: string | undefined;
 
@@ -154,7 +176,8 @@ export class ConversationService {
 					const thread = await mastra.createMemoryThread({
 						agentId: 'chatAgent',
 						resourceId: sub!,
-						metadata: this.requestContext,
+						title: createConversationTitle(messages),
+						metadata: { ...this.requestContext, scope: this.chatScope },
 					});
 
 					threadId = thread.id;
@@ -206,7 +229,7 @@ export class ConversationService {
 						conversationId: this.activeConversationId,
 					};
 
-					// init = { ...init, body: JSON.stringify(parsed) };
+					init = { ...init, body: JSON.stringify(parsed) };
 				}
 
 				const regions = this.rootStore.inspectStore.selectedRegions;
@@ -276,19 +299,14 @@ export class ConversationService {
 		const { persistence } = this.rootStore;
 
 		try {
-			const res = await authFetch(`${MASTRA_API_BASE}/api/conversations/${conversationId}`);
-
-			if (!res.ok) {
-				throw new Error(`Failed to load conversation: ${res.status} ${res.statusText}`);
-			}
-
-			const data = await res.json();
-
-			if (!data) {
-				throw new Error('Invalid response from server');
-			}
-
-			const conversation = Conversation.createFrom(data);
+			const mastra = await this.getMastraClient();
+			const thread = await mastra
+				.getMemoryThread({ threadId: conversationId, agentId: 'chatAgent' })
+				.get();
+			const { messages } = await mastra.listThreadMessages(conversationId, {
+				agentId: 'chatAgent',
+			});
+			const conversation = Conversation.createFrom({ ...thread, messages });
 			this.conversations.set(conversationId, conversation);
 			this.activeConversationId = conversationId;
 
@@ -322,8 +340,69 @@ export class ConversationService {
 
 		return false;
 	}
+
+	async listConversations(): Promise<ConversationSummary[]> {
+		const { sub } = this.rootStore.authStore.user ?? {};
+		if (!sub) {
+			return [];
+		}
+
+		const mastra = await this.getMastraClient();
+		const { threads } = await mastra.listMemoryThreads({
+			agentId: 'chatAgent',
+			resourceId: sub,
+			orderBy: { field: 'updatedAt', direction: 'DESC' },
+		});
+
+		return threads
+			.filter((thread) => this.isInActiveScope(thread.metadata))
+			.map((thread) => ({
+				id: thread.id,
+				title: thread.title ?? 'New Conversation',
+				updatedAt: thread.updatedAt,
+			}));
+	}
+
+	async deleteConversation(conversationId: string): Promise<void> {
+		const mastra = await this.getMastraClient();
+		await mastra.deleteThread(conversationId, { agentId: 'chatAgent' });
+		this.conversations.delete(conversationId);
+
+		if (this.activeConversationId === conversationId) {
+			this.addNewConversation();
+		}
+	}
+
+	private isInActiveScope(metadata: Record<string, unknown> | undefined): boolean {
+		const scope = this.chatScope;
+		if (scope) {
+			return metadata?.scope === scope;
+		}
+
+		return metadata?.applicationId === this.requestContext.applicationId;
+	}
 }
 
 function getStorageKey(applicationId: string): string {
 	return `chat:lastConversation:${applicationId}`;
+}
+
+function createConversationTitle(messages: unknown[]): string {
+	const latestUserMessage = [...messages]
+		.reverse()
+		.find((message) => (message as { role?: string }).role === 'user') as
+		| { parts?: { type?: string; text?: string }[] }
+		| undefined;
+	const text = latestUserMessage?.parts
+		?.filter((part) => part.type === 'text')
+		.map((part) => part.text ?? '')
+		.join('')
+		.replace(/\s+/g, ' ')
+		.trim();
+
+	if (!text) {
+		return 'New Conversation';
+	}
+
+	return text.length > 60 ? `${text.slice(0, 57).trimEnd()}...` : text;
 }
