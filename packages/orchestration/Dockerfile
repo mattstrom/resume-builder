@@ -38,7 +38,7 @@ RUN npm run build --workspace=packages/entities
 
 WORKDIR /app/packages/orchestration
 
-RUN mastra build --studio
+RUN npm run build
 
 # Stage 3: Prune devDependencies — reuses the compiled native modules from deps,
 # no re-install needed
