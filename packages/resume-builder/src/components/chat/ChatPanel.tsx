@@ -3,7 +3,7 @@ import { useParams } from '@tanstack/react-router';
 import { X } from 'lucide-react';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { type FC, useEffect, useRef, useState } from 'react';
+import { type FC, useEffect, useState } from 'react';
 
 import { PromptInputProvider } from '@/components/ai-elements/prompt-input.tsx';
 import { ChatPrompt } from '@/components/chat/ChatPrompt.tsx';
@@ -24,7 +24,6 @@ export const ChatPanel: FC = observer(() => {
 	const { conversationService, uiStateStore } = useStore();
 
 	const { applicationId } = useParams({ strict: false });
-	const conversationIdRef = useRef<string | null>(null);
 	const [conversationInfo] = useState<{
 		title: string;
 		createdAt: string;
@@ -66,8 +65,8 @@ export const ChatPanel: FC = observer(() => {
 		conversationService.addNewConversation();
 	};
 
-	const handleSelectConversation = (conv: { _id: string }) =>
-		conversationService.loadConversation(conv._id);
+	const handleSelectConversation = (conv: { id: string }) =>
+		conversationService.loadConversation(conv.id);
 
 	return (
 		<div className="flex flex-col h-full w-full border-l border-border bg-card text-card-foreground">
@@ -85,7 +84,7 @@ export const ChatPanel: FC = observer(() => {
 				<div className="flex items-center gap-1">
 					<ConversationList
 						applicationId={applicationId}
-						activeConversationId={conversationIdRef.current}
+						activeConversationId={conversationService.activeConversationId}
 						onSelect={handleSelectConversation}
 						onNewChat={handleNewChat}
 					/>
