@@ -1,21 +1,15 @@
-import type { Education, Job, Project, Skill, Volunteering } from '@resume-builder/entities';
-import { Loader2, Plus, Sparkles } from 'lucide-react';
-import { observer } from 'mobx-react';
-import { type FC, type KeyboardEvent, useEffect, useRef, useState } from 'react';
+import type { Education, Job, Project, Skill, Volunteering } from "@resume-builder/entities";
+import { Loader2, Plus, Sparkles } from "lucide-react";
+import { observer } from "mobx-react";
+import { type FC, type KeyboardEvent, useEffect, useRef, useState } from "react";
 
-import { ExpandableCard } from '@/components/FormEditor/components/ExpandableCard.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { Input } from '@/components/ui/input.tsx';
-import { Label } from '@/components/ui/label.tsx';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select.tsx';
-import { Textarea } from '@/components/ui/textarea.tsx';
-import { useStore } from '@/stores/store.provider.tsx';
+import { ExpandableCard } from "@/components/FormEditor/components/ExpandableCard.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
+import { useStore } from "@/stores/store.provider.tsx";
 
 // ─── Auto-save field ─────────────────────────────────────────────────────────
 
@@ -26,7 +20,7 @@ interface FieldProps {
 	type?: string;
 }
 
-const Field: FC<FieldProps> = ({ label, value, onCommit, type = 'text' }) => {
+const Field: FC<FieldProps> = ({ label, value, onCommit, type = "text" }) => {
 	const [draft, setDraft] = useState(value);
 	const focused = useRef(false);
 
@@ -50,7 +44,7 @@ const Field: FC<FieldProps> = ({ label, value, onCommit, type = 'text' }) => {
 					if (draft !== value) onCommit(draft);
 				}}
 				onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
-					if (e.key === 'Enter') {
+					if (e.key === "Enter") {
 						focused.current = false;
 						if (draft !== value) onCommit(draft);
 						(e.target as HTMLInputElement).blur();
@@ -69,11 +63,11 @@ interface TextareaFieldProps {
 }
 
 const TextareaField: FC<TextareaFieldProps> = ({ label, value, onCommit, placeholder }) => {
-	const [draft, setDraft] = useState(value.join('\n'));
+	const [draft, setDraft] = useState(value.join("\n"));
 	const focused = useRef(false);
 
 	useEffect(() => {
-		if (!focused.current) setDraft(value.join('\n'));
+		if (!focused.current) setDraft(value.join("\n"));
 	}, [value]);
 
 	return (
@@ -90,7 +84,7 @@ const TextareaField: FC<TextareaFieldProps> = ({ label, value, onCommit, placeho
 				onBlur={() => {
 					focused.current = false;
 					const parsed = draft
-						.split('\n')
+						.split("\n")
 						.map((s) => s.trim())
 						.filter(Boolean);
 					onCommit(parsed);
@@ -120,21 +114,20 @@ const AutoFillButton: FC<AutoFillButtonProps> = ({ isLoading, onAutofill }) => (
 
 // ─── Contact Information section ──────────────────────────────────────────────
 
-const ContactSection: FC = observer(() => {
+export const ContactSection: FC = observer(() => {
 	const { contactInformationStore } = useStore();
 	const info = contactInformationStore.data;
 
 	const current = {
-		email: info?.email ?? '',
-		phoneNumber: info?.phoneNumber ?? '',
-		location: info?.location ?? '',
-		linkedInProfile: info?.linkedInProfile ?? '',
-		githubProfile: info?.githubProfile ?? '',
-		personalWebsite: info?.personalWebsite ?? '',
+		email: info?.email ?? "",
+		phoneNumber: info?.phoneNumber ?? "",
+		location: info?.location ?? "",
+		linkedInProfile: info?.linkedInProfile ?? "",
+		githubProfile: info?.githubProfile ?? "",
+		personalWebsite: info?.personalWebsite ?? "",
 	};
 
-	const commit = (patch: Partial<typeof current>) =>
-		void contactInformationStore.upsert({ ...current, ...patch });
+	const commit = (patch: Partial<typeof current>) => void contactInformationStore.upsert({ ...current, ...patch });
 
 	return (
 		<section className="flex flex-col gap-4">
@@ -143,33 +136,20 @@ const ContactSection: FC = observer(() => {
 				<p className="text-sm text-muted-foreground">How recruiters can reach you.</p>
 			</div>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<Field
-					label="Email"
-					type="email"
-					value={current.email}
-					onCommit={(v) => commit({ email: v })}
-				/>
+				<Field label="Email" type="email" value={current.email} onCommit={(v) => commit({ email: v })} />
 				<Field
 					label="Phone"
 					type="tel"
 					value={current.phoneNumber}
 					onCommit={(v) => commit({ phoneNumber: v })}
 				/>
-				<Field
-					label="Location"
-					value={current.location}
-					onCommit={(v) => commit({ location: v })}
-				/>
+				<Field label="Location" value={current.location} onCommit={(v) => commit({ location: v })} />
 				<Field
 					label="LinkedIn"
 					value={current.linkedInProfile}
 					onCommit={(v) => commit({ linkedInProfile: v })}
 				/>
-				<Field
-					label="GitHub"
-					value={current.githubProfile}
-					onCommit={(v) => commit({ githubProfile: v })}
-				/>
+				<Field label="GitHub" value={current.githubProfile} onCommit={(v) => commit({ githubProfile: v })} />
 				<Field
 					label="Website"
 					value={current.personalWebsite}
@@ -191,9 +171,9 @@ interface EducationCardProps {
 const EducationCard: FC<EducationCardProps> = observer(({ entry, expanded, onExpandChange }) => {
 	const { educationStore } = useStore();
 
-	const title = [entry.institution, entry.degree].filter(Boolean).join(' · ') || 'New entry';
+	const title = [entry.institution, entry.degree].filter(Boolean).join(" · ") || "New entry";
 
-	const commit = (patch: Partial<Omit<Education, '_id' | 'uid'>>) =>
+	const commit = (patch: Partial<Omit<Education, "_id" | "uid">>) =>
 		void educationStore.update(entry._id, {
 			degree: entry.degree,
 			field: entry.field,
@@ -210,26 +190,10 @@ const EducationCard: FC<EducationCardProps> = observer(({ entry, expanded, onExp
 			onDelete={() => void educationStore.delete(entry._id)}
 		>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<Field
-					label="Institution"
-					value={entry.institution}
-					onCommit={(v) => commit({ institution: v })}
-				/>
-				<Field
-					label="Degree"
-					value={entry.degree}
-					onCommit={(v) => commit({ degree: v })}
-				/>
-				<Field
-					label="Field of Study"
-					value={entry.field}
-					onCommit={(v) => commit({ field: v })}
-				/>
-				<Field
-					label="Graduation Date"
-					value={entry.graduated}
-					onCommit={(v) => commit({ graduated: v })}
-				/>
+				<Field label="Institution" value={entry.institution} onCommit={(v) => commit({ institution: v })} />
+				<Field label="Degree" value={entry.degree} onCommit={(v) => commit({ degree: v })} />
+				<Field label="Field of Study" value={entry.field} onCommit={(v) => commit({ field: v })} />
+				<Field label="Graduation Date" value={entry.graduated} onCommit={(v) => commit({ graduated: v })} />
 			</div>
 		</ExpandableCard>
 	);
@@ -237,7 +201,7 @@ const EducationCard: FC<EducationCardProps> = observer(({ entry, expanded, onExp
 
 // ─── Education section ────────────────────────────────────────────────────────
 
-const EducationSection: FC = observer(() => {
+export const EducationSection: FC = observer(() => {
 	const { educationStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -250,10 +214,10 @@ const EducationSection: FC = observer(() => {
 
 	const addEntry = async () => {
 		await educationStore.create({
-			institution: '',
-			degree: '',
-			field: '',
-			graduated: '',
+			institution: "",
+			degree: "",
+			field: "",
+			graduated: "",
 		});
 		const latest = educationStore.educations[educationStore.educations.length - 1];
 		if (latest) {
@@ -296,9 +260,9 @@ interface JobCardProps {
 const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange }) => {
 	const { jobsStore } = useStore();
 
-	const title = [entry.company, entry.position].filter(Boolean).join(' · ') || 'New entry';
+	const title = [entry.company, entry.position].filter(Boolean).join(" · ") || "New entry";
 
-	const commit = (patch: Partial<Omit<Job, '_id' | 'uid'>>) =>
+	const commit = (patch: Partial<Omit<Job, "_id" | "uid">>) =>
 		void jobsStore.update(entry._id, {
 			company: entry.company,
 			position: entry.position,
@@ -319,29 +283,13 @@ const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange })
 		>
 			<div className="flex flex-col gap-3">
 				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-					<Field
-						label="Company"
-						value={entry.company}
-						onCommit={(v) => commit({ company: v })}
-					/>
-					<Field
-						label="Position"
-						value={entry.position}
-						onCommit={(v) => commit({ position: v })}
-					/>
-					<Field
-						label="Location"
-						value={entry.location}
-						onCommit={(v) => commit({ location: v })}
-					/>
-					<Field
-						label="Start Date"
-						value={entry.startDate}
-						onCommit={(v) => commit({ startDate: v })}
-					/>
+					<Field label="Company" value={entry.company} onCommit={(v) => commit({ company: v })} />
+					<Field label="Position" value={entry.position} onCommit={(v) => commit({ position: v })} />
+					<Field label="Location" value={entry.location} onCommit={(v) => commit({ location: v })} />
+					<Field label="Start Date" value={entry.startDate} onCommit={(v) => commit({ startDate: v })} />
 					<Field
 						label="End Date"
-						value={entry.endDate ?? ''}
+						value={entry.endDate ?? ""}
 						onCommit={(v) => commit({ endDate: v || undefined })}
 					/>
 				</div>
@@ -356,7 +304,11 @@ const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange })
 	);
 });
 
-const JobsSection: FC = observer(() => {
+interface BackgroundSectionProps {
+	showHeader?: boolean;
+}
+
+export const JobsSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
 	const { jobsStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -369,10 +321,10 @@ const JobsSection: FC = observer(() => {
 
 	const addEntry = async () => {
 		await jobsStore.create({
-			company: '',
-			position: '',
-			location: '',
-			startDate: '',
+			company: "",
+			position: "",
+			location: "",
+			startDate: "",
 			endDate: undefined,
 			responsibilities: [],
 			relevance: undefined,
@@ -383,10 +335,12 @@ const JobsSection: FC = observer(() => {
 
 	return (
 		<section className="flex flex-col gap-4">
-			<div>
-				<h2 className="text-lg font-medium">Work History</h2>
-				<p className="text-sm text-muted-foreground">Previous and current roles.</p>
-			</div>
+			{showHeader && (
+				<div>
+					<h2 className="text-lg font-medium">Work History</h2>
+					<p className="text-sm text-muted-foreground">Previous and current roles.</p>
+				</div>
+			)}
 			<div>
 				{jobsStore.jobs.map((entry) => (
 					<JobCard
@@ -397,19 +351,11 @@ const JobsSection: FC = observer(() => {
 					/>
 				))}
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-8"
-						onClick={() => void addEntry()}
-					>
+					<Button variant="outline" size="sm" className="h-8" onClick={() => void addEntry()}>
 						<Plus className="mr-1.5 h-3.5 w-3.5" />
 						Add entry
 					</Button>
-					<AutoFillButton
-						isLoading={jobsStore.isAutoFilling}
-						onAutofill={() => void jobsStore.autofill()}
-					/>
+					<AutoFillButton isLoading={jobsStore.isAutoFilling} onAutofill={() => void jobsStore.autofill()} />
 				</div>
 			</div>
 		</section>
@@ -427,9 +373,9 @@ interface ProjectCardProps {
 const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandChange }) => {
 	const { projectsStore } = useStore();
 
-	const title = entry.name || 'New entry';
+	const title = entry.name || "New entry";
 
-	const commit = (patch: Partial<Omit<Project, '_id' | 'uid'>>) =>
+	const commit = (patch: Partial<Omit<Project, "_id" | "uid">>) =>
 		void projectsStore.update(entry._id, {
 			name: entry.name,
 			technologies: entry.technologies,
@@ -452,10 +398,8 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 					<div className="flex flex-col gap-1">
 						<Label className="text-xs text-muted-foreground">Type</Label>
 						<Select
-							value={entry.type ?? ''}
-							onValueChange={(v) =>
-								commit({ type: (v as 'professional' | 'personal') || undefined })
-							}
+							value={entry.type ?? ""}
+							onValueChange={(v) => commit({ type: (v as "professional" | "personal") || undefined })}
 						>
 							<SelectTrigger className="h-8 text-sm">
 								<SelectValue placeholder="Select type" />
@@ -469,11 +413,11 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 					<div className="sm:col-span-2">
 						<Field
 							label="Technologies (comma-separated)"
-							value={entry.technologies.join(', ')}
+							value={entry.technologies.join(", ")}
 							onCommit={(v) =>
 								commit({
 									technologies: v
-										.split(',')
+										.split(",")
 										.map((s) => s.trim())
 										.filter(Boolean),
 								})
@@ -492,7 +436,7 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 	);
 });
 
-const ProjectsSection: FC = observer(() => {
+export const ProjectsSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
 	const { projectsStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -505,7 +449,7 @@ const ProjectsSection: FC = observer(() => {
 
 	const addEntry = async () => {
 		await projectsStore.create({
-			name: '',
+			name: "",
 			technologies: [],
 			items: [],
 			type: undefined,
@@ -517,10 +461,12 @@ const ProjectsSection: FC = observer(() => {
 
 	return (
 		<section className="flex flex-col gap-4">
-			<div>
-				<h2 className="text-lg font-medium">Projects</h2>
-				<p className="text-sm text-muted-foreground">Personal and professional projects.</p>
-			</div>
+			{showHeader && (
+				<div>
+					<h2 className="text-lg font-medium">Projects</h2>
+					<p className="text-sm text-muted-foreground">Personal and professional projects.</p>
+				</div>
+			)}
 			<div>
 				{projectsStore.projects.map((entry) => (
 					<ProjectCard
@@ -531,12 +477,7 @@ const ProjectsSection: FC = observer(() => {
 					/>
 				))}
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-8"
-						onClick={() => void addEntry()}
-					>
+					<Button variant="outline" size="sm" className="h-8" onClick={() => void addEntry()}>
 						<Plus className="mr-1.5 h-3.5 w-3.5" />
 						Add entry
 					</Button>
@@ -561,9 +502,9 @@ interface SkillCardProps {
 const SkillCard: FC<SkillCardProps> = observer(({ entry, expanded, onExpandChange }) => {
 	const { skillsStore } = useStore();
 
-	const title = [entry.name, entry.category].filter(Boolean).join(' · ') || 'New entry';
+	const title = [entry.name, entry.category].filter(Boolean).join(" · ") || "New entry";
 
-	const commit = (patch: Partial<Omit<Skill, '_id' | 'uid'>>) =>
+	const commit = (patch: Partial<Omit<Skill, "_id" | "uid">>) =>
 		void skillsStore.update(entry._id, {
 			name: entry.name,
 			category: entry.category,
@@ -580,17 +521,13 @@ const SkillCard: FC<SkillCardProps> = observer(({ entry, expanded, onExpandChang
 		>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				<Field label="Skill" value={entry.name} onCommit={(v) => commit({ name: v })} />
-				<Field
-					label="Category"
-					value={entry.category}
-					onCommit={(v) => commit({ category: v })}
-				/>
+				<Field label="Category" value={entry.category} onCommit={(v) => commit({ category: v })} />
 			</div>
 		</ExpandableCard>
 	);
 });
 
-const SkillsSection: FC = observer(() => {
+export const SkillsSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
 	const { skillsStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -602,17 +539,19 @@ const SkillsSection: FC = observer(() => {
 		});
 
 	const addEntry = async () => {
-		await skillsStore.create({ name: '', category: '', relevance: undefined });
+		await skillsStore.create({ name: "", category: "", relevance: undefined });
 		const latest = skillsStore.skills[skillsStore.skills.length - 1];
 		if (latest) setExpandedIds((prev) => new Set([...prev, latest._id]));
 	};
 
 	return (
 		<section className="flex flex-col gap-4">
-			<div>
-				<h2 className="text-lg font-medium">Skills</h2>
-				<p className="text-sm text-muted-foreground">Technical and professional skills.</p>
-			</div>
+			{showHeader && (
+				<div>
+					<h2 className="text-lg font-medium">Skills</h2>
+					<p className="text-sm text-muted-foreground">Technical and professional skills.</p>
+				</div>
+			)}
 			<div>
 				{skillsStore.skills.map((entry) => (
 					<SkillCard
@@ -623,12 +562,7 @@ const SkillsSection: FC = observer(() => {
 					/>
 				))}
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-8"
-						onClick={() => void addEntry()}
-					>
+					<Button variant="outline" size="sm" className="h-8" onClick={() => void addEntry()}>
 						<Plus className="mr-1.5 h-3.5 w-3.5" />
 						Add entry
 					</Button>
@@ -650,73 +584,62 @@ interface VolunteeringCardProps {
 	onExpandChange: () => void;
 }
 
-const VolunteeringCard: FC<VolunteeringCardProps> = observer(
-	({ entry, expanded, onExpandChange }) => {
-		const { volunteeringStore } = useStore();
+const VolunteeringCard: FC<VolunteeringCardProps> = observer(({ entry, expanded, onExpandChange }) => {
+	const { volunteeringStore } = useStore();
 
-		const title =
-			[entry.organization, entry.position].filter(Boolean).join(' · ') || 'New entry';
+	const title = [entry.organization, entry.position].filter(Boolean).join(" · ") || "New entry";
 
-		const commit = (patch: Partial<Omit<Volunteering, '_id' | 'uid'>>) =>
-			void volunteeringStore.update(entry._id, {
-				organization: entry.organization,
-				position: entry.position,
-				location: entry.location,
-				startDate: entry.startDate,
-				endDate: entry.endDate,
-				responsibilities: entry.responsibilities,
-				relevance: entry.relevance,
-				...patch,
-			});
+	const commit = (patch: Partial<Omit<Volunteering, "_id" | "uid">>) =>
+		void volunteeringStore.update(entry._id, {
+			organization: entry.organization,
+			position: entry.position,
+			location: entry.location,
+			startDate: entry.startDate,
+			endDate: entry.endDate,
+			responsibilities: entry.responsibilities,
+			relevance: entry.relevance,
+			...patch,
+		});
 
-		return (
-			<ExpandableCard
-				title={title}
-				expanded={expanded}
-				onExpandChange={onExpandChange}
-				onDelete={() => void volunteeringStore.delete(entry._id)}
-			>
-				<div className="flex flex-col gap-3">
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-						<Field
-							label="Organization"
-							value={entry.organization ?? ''}
-							onCommit={(v) => commit({ organization: v || undefined })}
-						/>
-						<Field
-							label="Position"
-							value={entry.position}
-							onCommit={(v) => commit({ position: v })}
-						/>
-						<Field
-							label="Location"
-							value={entry.location ?? ''}
-							onCommit={(v) => commit({ location: v || undefined })}
-						/>
-						<Field
-							label="Start Date"
-							value={entry.startDate}
-							onCommit={(v) => commit({ startDate: v })}
-						/>
-						<Field
-							label="End Date"
-							value={entry.endDate ?? ''}
-							onCommit={(v) => commit({ endDate: v || undefined })}
-						/>
-					</div>
-					<TextareaField
-						label="Responsibilities (one per line)"
-						value={entry.responsibilities}
-						onCommit={(v) => commit({ responsibilities: v })}
-						placeholder="Organized weekly food drives&#10;Mentored at-risk youth"
+	return (
+		<ExpandableCard
+			title={title}
+			expanded={expanded}
+			onExpandChange={onExpandChange}
+			onDelete={() => void volunteeringStore.delete(entry._id)}
+		>
+			<div className="flex flex-col gap-3">
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+					<Field
+						label="Organization"
+						value={entry.organization ?? ""}
+						onCommit={(v) => commit({ organization: v || undefined })}
+					/>
+					<Field label="Position" value={entry.position} onCommit={(v) => commit({ position: v })} />
+					<Field
+						label="Location"
+						value={entry.location ?? ""}
+						onCommit={(v) => commit({ location: v || undefined })}
+					/>
+					<Field label="Start Date" value={entry.startDate} onCommit={(v) => commit({ startDate: v })} />
+					<Field
+						label="End Date"
+						value={entry.endDate ?? ""}
+						onCommit={(v) => commit({ endDate: v || undefined })}
 					/>
 				</div>
-			</ExpandableCard>
-		);
-	},
-);
+				<TextareaField
+					label="Responsibilities (one per line)"
+					value={entry.responsibilities}
+					onCommit={(v) => commit({ responsibilities: v })}
+					placeholder="Organized weekly food drives&#10;Mentored at-risk youth"
+				/>
+			</div>
+		</ExpandableCard>
+	);
+});
 
-const VolunteeringSection: FC = observer(() => {
+export const VolunteeringSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
 	const { volunteeringStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
@@ -730,9 +653,9 @@ const VolunteeringSection: FC = observer(() => {
 	const addEntry = async () => {
 		await volunteeringStore.create({
 			organization: undefined,
-			position: '',
+			position: "",
 			location: undefined,
-			startDate: '',
+			startDate: "",
 			endDate: undefined,
 			responsibilities: [],
 			relevance: undefined,
@@ -743,10 +666,12 @@ const VolunteeringSection: FC = observer(() => {
 
 	return (
 		<section className="flex flex-col gap-4">
-			<div>
-				<h2 className="text-lg font-medium">Volunteering</h2>
-				<p className="text-sm text-muted-foreground">Community and volunteer work.</p>
-			</div>
+			{showHeader && (
+				<div>
+					<h2 className="text-lg font-medium">Volunteering</h2>
+					<p className="text-sm text-muted-foreground">Community and volunteer work.</p>
+				</div>
+			)}
 			<div>
 				{volunteeringStore.volunteering.map((entry) => (
 					<VolunteeringCard
@@ -757,12 +682,7 @@ const VolunteeringSection: FC = observer(() => {
 					/>
 				))}
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						className="h-8"
-						onClick={() => void addEntry()}
-					>
+					<Button variant="outline" size="sm" className="h-8" onClick={() => void addEntry()}>
 						<Plus className="mr-1.5 h-3.5 w-3.5" />
 						Add entry
 					</Button>
