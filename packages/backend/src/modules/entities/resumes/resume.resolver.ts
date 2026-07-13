@@ -2,16 +2,10 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	BlankResumeCreateInput,
 	Resume,
-	ResumeAddCollectionItemInput,
 	ResumeCreateInput,
 	ResumeFilterInput,
-	ResumeRemoveCollectionItemInput,
-	ResumeSetFieldInput,
 	ResumeSortInput,
-	ResumeUpdateInput,
 } from '@resume-builder/entities';
-import GraphQLJSON from 'graphql-type-json';
-import { type UpdateOneModel } from 'mongoose';
 
 import { CurrentUser } from '../../auth/index.js';
 import { ResumesService } from './resumes.service.js';
@@ -50,52 +44,5 @@ export class ResumeResolver {
 		@Args('resumeData') resumeData: BlankResumeCreateInput,
 	) {
 		return this.resumesService.createBlank(uid, resumeData);
-	}
-
-	@Mutation(() => Resume)
-	async updateResume(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-		@Args('resumeData') resumeData: ResumeUpdateInput,
-	) {
-		return this.resumesService.update(uid, id, resumeData);
-	}
-
-	@Mutation(() => Resume)
-	async patchResume(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-		@Args('update', { type: () => GraphQLJSON })
-		update: UpdateOneModel<Resume>,
-	): Promise<Resume> {
-		return this.resumesService.patch(uid, id, update);
-	}
-
-	@Mutation(() => Resume)
-	async setResumeField(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-		@Args('input') input: ResumeSetFieldInput,
-		@Args('value', { type: () => GraphQLJSON }) value: unknown,
-	) {
-		return this.resumesService.setField(uid, id, input.path, value);
-	}
-
-	@Mutation(() => Resume)
-	async addResumeCollectionItem(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-		@Args('input') input: ResumeAddCollectionItemInput,
-	) {
-		return this.resumesService.addCollectionItem(uid, id, input.collection);
-	}
-
-	@Mutation(() => Resume)
-	async removeResumeCollectionItem(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-		@Args('input') input: ResumeRemoveCollectionItemInput,
-	) {
-		return this.resumesService.removeCollectionItem(uid, id, input.collection, input.index);
 	}
 }

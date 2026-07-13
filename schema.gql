@@ -486,11 +486,6 @@ type Mutation {
   patchApplication(id: String!, update: JSON!): Application!
   createResume(resumeData: ResumeCreateInput!): Resume!
   createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
-  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
-  patchResume(id: String!, update: JSON!): Resume!
-  setResumeField(id: String!, input: ResumeSetFieldInput!, value: JSON!): Resume!
-  addResumeCollectionItem(id: String!, input: ResumeAddCollectionItemInput!): Resume!
-  removeResumeCollectionItem(id: String!, input: ResumeRemoveCollectionItemInput!): Resume!
   createCompany(company: CompanyInput!): Company!
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
@@ -687,57 +682,6 @@ input BlankResumeCreateInput {
 
   """Existing resume to copy content from"""
   sourceResumeId: String
-}
-
-input ResumeUpdateInput {
-  """Resume identifier"""
-  id: String
-
-  """Name of the resume"""
-  name: String
-
-  """Company name"""
-  company: String
-
-  """Job level"""
-  level: String
-
-  """URL to the job posting"""
-  jobPostingUrl: String
-
-  """Whether this is a base resume for targeted versions"""
-  base: Boolean
-
-  """Application this resume belongs to"""
-  applicationId: String
-
-  """Resume content data"""
-  data: ResumeContentInput
-}
-
-input ResumeSetFieldInput {
-  """Path to the field to set"""
-  path: String!
-}
-
-input ResumeAddCollectionItemInput {
-  """Collection to add an item to"""
-  collection: ResumeCollection!
-}
-
-"""Editable nested resume collections"""
-enum ResumeCollection {
-  WORK_EXPERIENCE
-  PROJECTS
-  VOLUNTEERING
-}
-
-input ResumeRemoveCollectionItemInput {
-  """Collection to remove an item from"""
-  collection: ResumeCollection!
-
-  """Index of the item to remove"""
-  index: Float!
 }
 
 input CompanyInput {

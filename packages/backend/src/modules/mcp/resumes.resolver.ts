@@ -196,7 +196,9 @@ export class ResumesResolver {
 	@Tool({
 		name: 'save_resume',
 		description:
-			'Saves a resume to the database. If an id is provided, updates the existing resume; otherwise creates a new one.',
+			'Saves a resume to the database. If an id is provided, updates the existing resume; otherwise creates a new one. ' +
+			'Updates to an existing resume are applied through the collaborative document, so changes appear live in ' +
+			'connected editors. Prefer patch_resume for small, targeted edits.',
 		paramsSchema: {
 			id: z.string().optional(),
 			resume: resumeInputSchema,
@@ -210,19 +212,39 @@ export class ResumesResolver {
 		{ id, resume }: McpToolParams<{ id?: string; resume: ResumeCreateInput }>,
 		{ user }: McpExtra,
 	) {
-		const savedResume = id
-			? await this.resumesService.update(user.sub, id, resume)
-			: await this.resumesService.create(user.sub, resume);
+		if (!id) {
+			const savedResume = await this.resumesService.create(user.sub, resume);
+
+			return {
+				content: [
+					{
+						type: 'text',
+						text: `Resume saved successfully. ID: ${savedResume._id}`,
+					},
+				],
+				structuredContent: {
+					resume: savedResume,
+				},
+			};
+		}
+
+		await this.resumesService.find(user.sub, id);
+
+		const ops: ResumePatchOp[] = Object.entries(resume)
+			.filter(([key]) => key !== 'id')
+			.map(([key, value]) => ({ op: 'set', path: key, value }));
+
+		const result = await this.crdtApiService.applyResumePatch(`resume:${id}`, user.sub, ops);
 
 		return {
 			content: [
 				{
 					type: 'text',
-					text: `Resume saved successfully. ID: ${savedResume._id}`,
+					text: `Resume saved successfully. ID: ${id}`,
 				},
 			],
 			structuredContent: {
-				resume: savedResume,
+				resume: result.resume,
 			},
 		};
 	}

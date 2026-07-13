@@ -43,16 +43,4 @@ describe('ResumesService', () => {
 			expect(resume).toBeDefined();
 		});
 	});
-
-	describe('patch()', () => {
-		it('should not allow patching read-only resumes', async () => {
-			const uid = 'test-user-id';
-			const id = 'test-resume-id';
-			const update = { $set: { name: 'New name' } };
-
-			const resume = await service.patch(uid, id, update);
-
-			expect(resume.readonly).toBe(true);
-		});
-	});
 });
