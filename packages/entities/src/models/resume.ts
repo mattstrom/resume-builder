@@ -1,12 +1,4 @@
-import {
-	Field,
-	ID,
-	InputType,
-	ObjectType,
-	OmitType,
-	PartialType,
-	registerEnumType,
-} from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType, OmitType, registerEnumType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { z } from 'zod';
@@ -185,36 +177,16 @@ export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, ['data',
 	sourceResumeId?: string;
 }
 
-@InputType()
-export class ResumeUpdateInput extends PartialType(ResumeCreateInput) {}
-
 export enum ResumeSortBy {
 	COMPANY = 'COMPANY',
 	LEVEL = 'LEVEL',
 	DATE = 'DATE',
 }
 
-export enum ResumeCollection {
-	WORK_EXPERIENCE = 'WORK_EXPERIENCE',
-	PROJECTS = 'PROJECTS',
-	VOLUNTEERING = 'VOLUNTEERING',
-}
-
 registerEnumType(ResumeSortBy, {
 	name: 'ResumeSortBy',
 	description: 'Fields available for sorting resumes',
 });
-
-registerEnumType(ResumeCollection, {
-	name: 'ResumeCollection',
-	description: 'Editable nested resume collections',
-});
-
-@InputType()
-export class ResumeSetFieldInput {
-	@Field({ description: 'Path to the field to set' })
-	path: string;
-}
 
 @InputType()
 export class ResumeSortInput {
@@ -244,25 +216,6 @@ export class ResumeFilterInput {
 		description: 'Filter by application ID',
 	})
 	applicationId?: string;
-}
-
-@InputType()
-export class ResumeAddCollectionItemInput {
-	@Field(() => ResumeCollection, {
-		description: 'Collection to add an item to',
-	})
-	collection: ResumeCollection;
-}
-
-@InputType()
-export class ResumeRemoveCollectionItemInput {
-	@Field(() => ResumeCollection, {
-		description: 'Collection to remove an item from',
-	})
-	collection: ResumeCollection;
-
-	@Field({ description: 'Index of the item to remove' })
-	index: number;
 }
 
 export const ResumeSchema = SchemaFactory.createForClass(Resume);

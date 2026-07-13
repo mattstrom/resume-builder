@@ -1,22 +1,8 @@
-import { ApolloClient } from '@apollo/client';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import type { Resume } from '@resume-builder/entities';
 import * as Y from 'yjs';
 
-import {
-	ADD_RESUME_COLLECTION_ITEM,
-	REMOVE_RESUME_COLLECTION_ITEM,
-	SET_RESUME_FIELD,
-} from '../graphql/mutations.ts';
 import { getResumeCollectionPath, ResumeCollections } from '../graphql/resume-collections.ts';
-import type {
-	AddResumeCollectionItemData,
-	AddResumeCollectionItemVariables,
-	RemoveResumeCollectionItemData,
-	RemoveResumeCollectionItemVariables,
-	SetResumeFieldData,
-	SetResumeFieldVariables,
-} from '../graphql/types.ts';
 import { reorderItems } from './reorder.ts';
 
 export type ResumeConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error';
@@ -38,11 +24,6 @@ export interface ResumeDocumentController {
 interface LocalResumeControllerOptions {
 	resume: Resume;
 	onSnapshotChange?: (resume: Resume | null) => void;
-}
-
-interface ApiResumeControllerOptions extends LocalResumeControllerOptions {
-	client: ApolloClient;
-	onError?: (error: Error) => void;
 }
 
 type ResumeCollectionValue = (typeof ResumeCollections)[keyof typeof ResumeCollections];
@@ -338,293 +319,14 @@ export class LocalResumeController implements ResumeDocumentController {
 	async destroy() {}
 }
 
-export class ApiResumeController extends LocalResumeController {
-	private lastPersistedSnapshot: Resume;
-	private writeQueue = Promise.resolve();
-	private destroyed = false;
-
-	constructor(private readonly apiOptions: ApiResumeControllerOptions) {
-		super(apiOptions);
-		this.lastPersistedSnapshot = structuredClone(apiOptions.resume);
-	}
-
-	override replaceResume(resume: Resume) {
-		super.replaceResume(resume);
-		this.lastPersistedSnapshot = structuredClone(resume);
-	}
-
-	override setField(path: string, value: unknown) {
-		const previousSnapshot = this.getSnapshot();
-		super.setField(path, value);
-
-		if (!previousSnapshot || !this.snapshot) {
-			return;
-		}
-
-		this.enqueueWrite(previousSnapshot, async () => {
-			const result = await this.apiOptions.client.mutate<
-				SetResumeFieldData,
-				SetResumeFieldVariables
-			>({
-				mutation: SET_RESUME_FIELD,
-				variables: {
-					id: this.resumeId,
-					input: { path },
-					value,
-				},
-			});
-
-			return result.data?.setResumeField ?? null;
-		});
-	}
-
-	override addCollectionItem(collection: ResumeCollectionValue) {
-		const previousSnapshot = this.getSnapshot();
-		super.addCollectionItem(collection);
-
-		if (!previousSnapshot || !this.snapshot) {
-			return;
-		}
-
-		this.enqueueWrite(previousSnapshot, async () => {
-			const result = await this.apiOptions.client.mutate<
-				AddResumeCollectionItemData,
-				AddResumeCollectionItemVariables
-			>({
-				mutation: ADD_RESUME_COLLECTION_ITEM,
-				variables: {
-					id: this.resumeId,
-					input: { collection },
-				},
-			});
-
-			return result.data?.addResumeCollectionItem ?? null;
-		});
-	}
-
-	override insertCollectionItem(collection: ResumeCollectionValue, index: number) {
-		const previousSnapshot = this.getSnapshot();
-		super.insertCollectionItem(collection, index);
-
-		if (!previousSnapshot || !this.snapshot) {
-			return;
-		}
-
-		const path = getResumeCollectionPath(collection);
-		const nextValue = this.getValueAtPath(path);
-
-		this.enqueueWrite(previousSnapshot, async () => {
-			const result = await this.apiOptions.client.mutate<
-				SetResumeFieldData,
-				SetResumeFieldVariables
-			>({
-				mutation: SET_RESUME_FIELD,
-				variables: {
-					id: this.resumeId,
-					input: { path },
-					value: nextValue,
-				},
-			});
-
-			return result.data?.setResumeField ?? null;
-		});
-	}
-
-	override removeCollectionItem(collection: ResumeCollectionValue, index: number) {
-		const previousSnapshot = this.getSnapshot();
-		super.removeCollectionItem(collection, index);
-
-		if (!previousSnapshot || !this.snapshot) {
-			return;
-		}
-
-		this.enqueueWrite(previousSnapshot, async () => {
-			const result = await this.apiOptions.client.mutate<
-				RemoveResumeCollectionItemData,
-				RemoveResumeCollectionItemVariables
-			>({
-				mutation: REMOVE_RESUME_COLLECTION_ITEM,
-				variables: {
-					id: this.resumeId,
-					input: { collection, index },
-				},
-			});
-
-			return result.data?.removeResumeCollectionItem ?? null;
-		});
-	}
-
-	override moveArrayItem(path: string, fromIndex: number, toIndex: number) {
-		const previousSnapshot = this.getSnapshot();
-		const beforeMove = structuredClone(previousSnapshot);
-		super.moveArrayItem(path, fromIndex, toIndex);
-
-		if (
-			!previousSnapshot ||
-			!this.snapshot ||
-			JSON.stringify(beforeMove) === JSON.stringify(this.snapshot)
-		) {
-			return;
-		}
-
-		const nextValue = this.getValueAtPath(path);
-		this.enqueueWrite(previousSnapshot, async () => {
-			const result = await this.apiOptions.client.mutate<
-				SetResumeFieldData,
-				SetResumeFieldVariables
-			>({
-				mutation: SET_RESUME_FIELD,
-				variables: {
-					id: this.resumeId,
-					input: { path },
-					value: nextValue,
-				},
-			});
-
-			return result.data?.setResumeField ?? null;
-		});
-	}
-
-	override undo() {
-		const previousSnapshot = this.getSnapshot();
-		super.undo();
-		this.persistCurrentSnapshot(previousSnapshot);
-	}
-
-	override redo() {
-		const previousSnapshot = this.getSnapshot();
-		super.redo();
-		this.persistCurrentSnapshot(previousSnapshot);
-	}
-
-	override async destroy() {
-		this.destroyed = true;
-		await this.writeQueue.catch(() => {});
-	}
-
-	private persistCurrentSnapshot(previousSnapshot: Resume | null) {
-		if (!previousSnapshot || !this.snapshot) {
-			return;
-		}
-
-		const currentSnapshot = structuredClone(this.snapshot);
-		this.enqueueWrite(previousSnapshot, async () => {
-			const changes = this.collectChangedFields(previousSnapshot, currentSnapshot);
-
-			if (changes.length === 0) {
-				return currentSnapshot;
-			}
-
-			let latestSnapshot: Resume | null = null;
-
-			for (const change of changes) {
-				const result = await this.apiOptions.client.mutate<
-					SetResumeFieldData,
-					SetResumeFieldVariables
-				>({
-					mutation: SET_RESUME_FIELD,
-					variables: {
-						id: this.resumeId,
-						input: { path: change.path },
-						value: change.value,
-					},
-				});
-
-				latestSnapshot = result.data?.setResumeField ?? latestSnapshot;
-			}
-
-			return latestSnapshot ?? currentSnapshot;
-		});
-	}
-
-	private enqueueWrite(previousSnapshot: Resume, write: () => Promise<Resume | null>) {
-		this.writeQueue = this.writeQueue.then(async () => {
-			if (this.destroyed) {
-				return;
-			}
-
-			try {
-				const nextSnapshot = await write();
-
-				if (nextSnapshot) {
-					this.lastPersistedSnapshot = structuredClone(nextSnapshot);
-					this.snapshot = structuredClone(nextSnapshot);
-					this.emitSnapshot();
-				} else if (this.snapshot) {
-					this.lastPersistedSnapshot = structuredClone(this.snapshot);
-				}
-			} catch (error) {
-				this.snapshot = structuredClone(this.lastPersistedSnapshot);
-				this.undoStack = [];
-				this.redoStack = [];
-				this.emitSnapshot();
-				this.apiOptions.onError?.(
-					error instanceof Error ? error : new Error('Failed to persist resume changes'),
-				);
-				throw error;
-			}
-		});
-
-		this.writeQueue = this.writeQueue.catch(() => {
-			this.lastPersistedSnapshot = structuredClone(previousSnapshot);
-		});
-	}
-
-	private collectChangedFields(previousSnapshot: Resume, nextSnapshot: Resume) {
-		const fields = [
-			'data.name',
-			'data.title',
-			'data.summary',
-			'data.contactInformation',
-			'data.workExperience',
-			'data.education',
-			'data.skills',
-			'data.skillGroups',
-			'data.projects',
-			'data.volunteering',
-			'name',
-			'company',
-			'level',
-			'jobPostingUrl',
-		] as const;
-
-		return fields.flatMap((path) => {
-			const previousValue = this.readPathValue(previousSnapshot, path);
-			const nextValue = this.readPathValue(nextSnapshot, path);
-
-			if (JSON.stringify(previousValue) === JSON.stringify(nextValue)) {
-				return [];
-			}
-
-			return [{ path, value: nextValue }];
-		});
-	}
-
-	private readPathValue(source: Resume, path: string) {
-		return parsePath(path).reduce<unknown>((current, segment) => {
-			if (current == null) {
-				return undefined;
-			}
-
-			if (typeof segment === 'number' && Array.isArray(current)) {
-				return current[segment];
-			}
-
-			if (isPlainObject(current)) {
-				return current[String(segment)];
-			}
-
-			return undefined;
-		}, source);
-	}
-}
-
 const LOCAL_ORIGIN = Symbol('resume-editor');
 const CONNECT_TIMEOUT_MS = 10_000;
 
-interface CrdtResumeControllerOptions extends LocalResumeControllerOptions {
+interface CrdtResumeControllerOptions {
+	resumeId: string;
 	collaborationUrl: string;
 	token: string;
+	onSnapshotChange?: (resume: Resume | null) => void;
 	onError?: (error: Error) => void;
 }
 
@@ -645,7 +347,7 @@ export class CrdtResumeController implements ResumeDocumentController {
 	private destroyed = false;
 
 	private constructor(private readonly options: CrdtResumeControllerOptions) {
-		this.resumeId = options.resume._id;
+		this.resumeId = options.resumeId;
 		this.provider = new HocuspocusProvider({
 			url: options.collaborationUrl,
 			name: `resume:${this.resumeId}`,

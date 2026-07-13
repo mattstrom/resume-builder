@@ -8,6 +8,7 @@ import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
 import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
+import { CrdtResumeController } from '../../lib/resume-document-controller.ts';
 
 // Import CSS for proper styling
 import '../../App.css';
@@ -26,13 +27,14 @@ export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 	validateSearch: previewSearchSchema,
 
 	loader: async ({ context, params }) => {
-		const { client } = context.store;
+		const { client, authStore } = context.store;
 		const { applicationId } = params;
 
 		try {
 			const resumesResult = await client.query<ListResumesData, ListResumesVariables>({
 				query: LIST_RESUMES,
 				variables: { filter: { applicationId } },
+				fetchPolicy: 'network-only',
 			});
 
 			const resume = resumesResult.data?.listResumes[0];
@@ -41,7 +43,21 @@ export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 				throw new Error('Application has no linked resume');
 			}
 
-			return resume;
+			// Postgres only holds a debounced mirror of the CRDT document, so
+			// connect and read the authoritative live snapshot instead of
+			// trusting the mirrored row.
+			const token = await authStore.ensureToken();
+			const controller = await CrdtResumeController.connect({
+				resumeId: resume._id,
+				collaborationUrl: __CONFIG__.collaborationUrl,
+				token,
+			});
+
+			try {
+				return controller.getSnapshot() ?? resume;
+			} finally {
+				await controller.destroy();
+			}
 		} catch (error) {
 			if (
 				error instanceof Error &&

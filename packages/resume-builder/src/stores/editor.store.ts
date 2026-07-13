@@ -188,6 +188,19 @@ export class EditorStore {
 		}
 	}
 
+	/**
+	 * Devtools helper: `rootStore.editorStore.loadJson(<pasted JSON>)`
+	 * replaces the active YDoc's contents with an arbitrary JSON blob.
+	 */
+	loadJson(json: string | Resume) {
+		if (!this.controller) {
+			throw new Error('No active resume controller to load into');
+		}
+
+		const resume = typeof json === 'string' ? JSON.parse(json) : json;
+		this.controller.replaceResume(resume);
+	}
+
 	async destroy() {
 		await this.controller?.destroy();
 		setActiveResumeController(null);
@@ -199,7 +212,7 @@ export class EditorStore {
 		const plainResume = toJS(resume);
 		const token = await this.rootStore.authStore.ensureToken();
 		const controller = await CrdtResumeController.connect({
-			resume: plainResume,
+			resumeId: plainResume._id,
 			collaborationUrl: __CONFIG__.collaborationUrl,
 			token,
 			onSnapshotChange: (r) => {

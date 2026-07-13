@@ -1,18 +1,9 @@
-import { useMutation } from '@apollo/client/react';
 import Editor, { type Monaco } from '@monaco-editor/react';
 import { Resume } from '@resume-builder/entities';
 import resumeSchema from '@resume-builder/entities/schemas/resume.schema.json';
 import { observer } from 'mobx-react';
 import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { CREATE_RESUME, UPDATE_RESUME } from '../../graphql/mutations';
-import { LIST_RESUMES } from '../../graphql/queries';
-import type {
-	CreateResumeData,
-	CreateResumeVariables,
-	UpdateResumeData,
-	UpdateResumeVariables,
-} from '../../graphql/types';
 import { useStore } from '../../stores/store.provider.tsx';
 
 // Debounce utility
@@ -27,39 +18,16 @@ function debounce<T extends (...args: any[]) => any>(
 	};
 }
 
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
-
 export const JsonEditor: FC = observer(() => {
 	const { themeStore, editorStore } = useStore();
 	const { resumeData } = editorStore;
 	const updateResumeData = (r: Resume) => editorStore.updateResumeData(r);
 	const [jsonString, setJsonString] = useState<string>('');
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
-	// @ts-expect-error - Reserved for future use
-	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const isInternalUpdate = useRef(false);
 	const lastResumeData = useRef<Resume | null>(null);
 	const hasInitialized = useRef(false);
-	// @ts-expect-error - Reserved for future use
-	const autoSaveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const isDirty = useRef(false); // Track if user has made unsaved changes
-	// @ts-expect-error - Reserved for future use
-	const isSaving = useRef(false); // Track if currently saving
-
-	// @ts-expect-error - Mutations prepared for future use
-	const [createResumeMutation] = useMutation<CreateResumeData, CreateResumeVariables>(
-		CREATE_RESUME,
-		{
-			refetchQueries: [{ query: LIST_RESUMES }],
-		},
-	);
-	// @ts-expect-error - Mutations prepared for future use
-	const [updateResumeMutation] = useMutation<UpdateResumeData, UpdateResumeVariables>(
-		UPDATE_RESUME,
-		{
-			refetchQueries: [{ query: LIST_RESUMES }],
-		},
-	);
 
 	// Sync resumeData to jsonString when it changes externally (not from editor)
 	useEffect(() => {
@@ -161,21 +129,6 @@ export const JsonEditor: FC = observer(() => {
 							<li key={idx}>{error}</li>
 						))}
 					</ul>
-				</div>
-			)}
-			{saveStatus !== 'idle' && (
-				<div
-					className={`px-2 py-1 text-[11px] text-center ${
-						saveStatus === 'saving'
-							? 'bg-info text-info-foreground'
-							: saveStatus === 'saved'
-								? 'bg-success text-success-foreground'
-								: 'bg-destructive text-destructive-foreground'
-					}`}
-				>
-					{saveStatus === 'saving' && '💾 Auto-saving...'}
-					{saveStatus === 'saved' && '✓ Saved'}
-					{saveStatus === 'error' && '✗ Auto-save failed'}
 				</div>
 			)}
 		</div>

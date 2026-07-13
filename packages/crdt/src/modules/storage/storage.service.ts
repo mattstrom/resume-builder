@@ -124,15 +124,11 @@ function serializeXmlElement(element: Y.XmlElement): string {
 function serializeXmlFragment(fragment: Y.XmlFragment): string {
 	return fragment
 		.toArray()
-		.map((child) =>
-			child instanceof Y.XmlElement ? serializeXmlElement(child) : '',
-		)
+		.map((child) => (child instanceof Y.XmlElement ? serializeXmlElement(child) : ''))
 		.join('');
 }
 
-type ParsedDocumentName =
-	| { kind: 'resume'; resumeId: string }
-	| { kind: 'profile'; uid: string };
+type ParsedDocumentName = { kind: 'resume'; resumeId: string } | { kind: 'profile'; uid: string };
 
 @Injectable()
 export class StorageService implements Extension {
@@ -144,23 +140,14 @@ export class StorageService implements Extension {
 		const parsed = this.parseDocumentName(documentName);
 
 		if (parsed.kind === 'profile' && migrateProfileDocument(document)) {
-			await this.storeProfileDocument(
-				uid,
-				documentName,
-				parsed.uid,
-				document,
-			);
+			await this.storeProfileDocument(uid, documentName, parsed.uid, document);
 		}
 
 		return document;
 	}
 
 	async onStoreDocument({ context, documentName, document }) {
-		await this.storeDocument(
-			context.user.sub as string,
-			documentName,
-			document,
-		);
+		await this.storeDocument(context.user.sub as string, documentName, document);
 	}
 
 	private parseDocumentName(documentName: string): ParsedDocumentName {
@@ -186,10 +173,7 @@ export class StorageService implements Extension {
 	}
 
 	private writeResumeDocument(document: Y.Doc, resume: Resume) {
-		syncYMap(
-			document.getMap('resume'),
-			resume as unknown as Record<string, unknown>,
-		);
+		syncYMap(document.getMap('resume'), resume as unknown as Record<string, unknown>);
 	}
 
 	async assertResumeAccess(uid: string, resumeId: string) {
@@ -218,29 +202,15 @@ export class StorageService implements Extension {
 		const parsed = this.parseDocumentName(documentName);
 
 		if (parsed.kind === 'resume') {
-			await this.storeResumeDocument(
-				uid,
-				documentName,
-				parsed.resumeId,
-				document,
-			);
+			await this.storeResumeDocument(uid, documentName, parsed.resumeId, document);
 
 			return;
 		}
 
-		await this.storeProfileDocument(
-			uid,
-			documentName,
-			parsed.uid,
-			document,
-		);
+		await this.storeProfileDocument(uid, documentName, parsed.uid, document);
 	}
 
-	private async loadResumeDocument(
-		uid: string,
-		documentName: string,
-		resumeId: string,
-	) {
+	private async loadResumeDocument(uid: string, documentName: string, resumeId: string) {
 		const resume = await this.assertResumeAccess(uid, resumeId);
 		const latest = await this.prisma.documentUpdate.findFirst({
 			where: { name: documentName, uid },
@@ -255,6 +225,19 @@ export class StorageService implements Extension {
 		}
 
 		this.writeResumeDocument(document, resume as unknown as Resume);
+
+		// Persist the genesis snapshot immediately. Without this, the seeded
+		// state only exists in memory until Hocuspocus's debounced store
+		// fires, and a restart or eviction before then silently drops it,
+		// reverting to whatever Postgres had at the next load.
+		await this.prisma.documentUpdate.create({
+			data: {
+				name: documentName,
+				uid,
+				sequence: (latest?.sequence ?? 0) + 1,
+				update: Buffer.from(Y.encodeStateAsUpdate(document)),
+			},
+		});
 
 		return document;
 	}
@@ -289,8 +272,10 @@ export class StorageService implements Extension {
 			return;
 		}
 
-		const { id, createdAt, updatedAt, ...resumeUpdate } =
-			snapshot as unknown as Record<string, unknown>;
+		const { id, createdAt, updatedAt, ...resumeUpdate } = snapshot as unknown as Record<
+			string,
+			unknown
+		>;
 
 		await this.prisma.resume.update({
 			where: { id: resumeId },
@@ -300,17 +285,11 @@ export class StorageService implements Extension {
 
 	private assertProfileAccess(uid: string, profileUid: string) {
 		if (uid !== profileUid) {
-			throw new Error(
-				`Profile "${profileUid}" is not accessible to user "${uid}"`,
-			);
+			throw new Error(`Profile "${profileUid}" is not accessible to user "${uid}"`);
 		}
 	}
 
-	private async loadProfileDocument(
-		uid: string,
-		documentName: string,
-		profileUid: string,
-	) {
+	private async loadProfileDocument(uid: string, documentName: string, profileUid: string) {
 		this.assertProfileAccess(uid, profileUid);
 
 		const document = new Y.Doc();
@@ -359,12 +338,8 @@ export class StorageService implements Extension {
 		// Mirror the narrative as XML to Profile.narrative for downstream
 		// consumers (LLM extraction, etc). Y.XmlFragment.toString() lowercases
 		// tags, so preserve the exact ProseMirror node names ourselves.
-		const narrative = serializeXmlFragment(
-			document.getXmlFragment('narrative'),
-		);
-		const jobPreferences = fromYValue(
-			document.getMap('jobPreferences'),
-		) as object;
+		const narrative = serializeXmlFragment(document.getXmlFragment('narrative'));
+		const jobPreferences = fromYValue(document.getMap('jobPreferences')) as object;
 
 		await this.prisma.profile.upsert({
 			where: { uid },
