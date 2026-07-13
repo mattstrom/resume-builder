@@ -16,6 +16,10 @@ export class Project {
 	@Prop({ type: String, default: '' })
 	name: string;
 
+	@Field({ nullable: true })
+	@Prop({ type: String, default: '' })
+	description: string;
+
 	@Field(() => [String], { nullable: true })
 	@Prop({ type: [String], default: [] })
 	technologies: string[];
@@ -41,6 +45,7 @@ export class Project {
 
 		return (
 			typeof obj.name === 'string' &&
+			(obj.description === undefined || typeof obj.description === 'string') &&
 			Array.isArray(obj.technologies) &&
 			Array.isArray(obj.items)
 		);
@@ -59,6 +64,7 @@ export const projectSchema = z.object({
 	_id: z.any(),
 	uid: z.string(),
 	name: z.string(),
+	description: z.string().default(''),
 	technologies: z.array(z.string()),
 	items: z.array(z.string()),
 	type: z.enum(['professional', 'personal']).optional(),

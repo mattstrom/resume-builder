@@ -46,6 +46,7 @@ const jobFragment = gql`
 const projectFragment = gql`
 	fragment Project on Project {
 		name
+		description
 		technologies
 		items
 		type
@@ -267,6 +268,7 @@ export const LIST_PROJECTS = gql`
 		listProjects {
 			_id
 			name
+			description
 			technologies
 			items
 			type

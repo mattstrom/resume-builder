@@ -87,6 +87,7 @@ export const CREATE_PROJECT = gql`
 		createProject(project: $project) {
 			_id
 			name
+			description
 			technologies
 			items
 			type
@@ -100,6 +101,7 @@ export const UPDATE_PROJECT = gql`
 		updateProject(id: $id, project: $project) {
 			_id
 			name
+			description
 			technologies
 			items
 			type

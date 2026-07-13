@@ -94,6 +94,41 @@ const TextareaField: FC<TextareaFieldProps> = ({ label, value, onCommit, placeho
 	);
 };
 
+interface DescriptionFieldProps {
+	label: string;
+	value: string;
+	onCommit: (v: string) => void;
+	placeholder?: string;
+}
+
+const DescriptionField: FC<DescriptionFieldProps> = ({ label, value, onCommit, placeholder }) => {
+	const [draft, setDraft] = useState(value);
+	const focused = useRef(false);
+
+	useEffect(() => {
+		if (!focused.current) setDraft(value);
+	}, [value]);
+
+	return (
+		<div className="flex flex-col gap-1">
+			<Label className="text-xs text-muted-foreground">{label}</Label>
+			<Textarea
+				value={draft}
+				placeholder={placeholder}
+				className="min-h-[80px] text-sm"
+				onChange={(e) => setDraft(e.target.value)}
+				onFocus={() => {
+					focused.current = true;
+				}}
+				onBlur={() => {
+					focused.current = false;
+					if (draft !== value) onCommit(draft);
+				}}
+			/>
+		</div>
+	);
+};
+
 // ─── Auto-fill button ─────────────────────────────────────────────────────────
 
 interface AutoFillButtonProps {
@@ -378,6 +413,7 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 	const commit = (patch: Partial<Omit<Project, "_id" | "uid">>) =>
 		void projectsStore.update(entry._id, {
 			name: entry.name,
+			description: entry.description,
 			technologies: entry.technologies,
 			items: entry.items,
 			type: entry.type,
@@ -425,6 +461,12 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 						/>
 					</div>
 				</div>
+				<DescriptionField
+					label="Description"
+					value={entry.description}
+					onCommit={(v) => commit({ description: v })}
+					placeholder="Briefly describe the project and its purpose"
+				/>
 				<TextareaField
 					label="Highlights (one per line)"
 					value={entry.items}
@@ -450,6 +492,7 @@ export const ProjectsSection: FC<BackgroundSectionProps> = observer(({ showHeade
 	const addEntry = async () => {
 		await projectsStore.create({
 			name: "",
+			description: "",
 			technologies: [],
 			items: [],
 			type: undefined,

@@ -323,6 +323,7 @@ model Project {
   id           String      @id @default(cuid())
   uid          String
   name         String      @default("")
+  description  String      @default("")
   technologies String[]
   items        String[]
   type         ProjectType?
