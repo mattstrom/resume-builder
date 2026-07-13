@@ -38,6 +38,7 @@ export type ProjectMinAggregateOutputType = {
   id: string | null
   uid: string | null
   name: string | null
+  description: string | null
   type: $Enums.ProjectType | null
   relevance: number | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type ProjectMaxAggregateOutputType = {
   id: string | null
   uid: string | null
   name: string | null
+  description: string | null
   type: $Enums.ProjectType | null
   relevance: number | null
   createdAt: Date | null
@@ -58,6 +60,7 @@ export type ProjectCountAggregateOutputType = {
   id: number
   uid: number
   name: number
+  description: number
   technologies: number
   items: number
   type: number
@@ -80,6 +83,7 @@ export type ProjectMinAggregateInputType = {
   id?: true
   uid?: true
   name?: true
+  description?: true
   type?: true
   relevance?: true
   createdAt?: true
@@ -90,6 +94,7 @@ export type ProjectMaxAggregateInputType = {
   id?: true
   uid?: true
   name?: true
+  description?: true
   type?: true
   relevance?: true
   createdAt?: true
@@ -100,6 +105,7 @@ export type ProjectCountAggregateInputType = {
   id?: true
   uid?: true
   name?: true
+  description?: true
   technologies?: true
   items?: true
   type?: true
@@ -199,6 +205,7 @@ export type ProjectGroupByOutputType = {
   id: string
   uid: string
   name: string
+  description: string
   technologies: string[]
   items: string[]
   type: $Enums.ProjectType | null
@@ -234,6 +241,7 @@ export type ProjectWhereInput = {
   id?: Prisma.StringFilter<"Project"> | string
   uid?: Prisma.StringFilter<"Project"> | string
   name?: Prisma.StringFilter<"Project"> | string
+  description?: Prisma.StringFilter<"Project"> | string
   technologies?: Prisma.StringNullableListFilter<"Project">
   items?: Prisma.StringNullableListFilter<"Project">
   type?: Prisma.EnumProjectTypeNullableFilter<"Project"> | $Enums.ProjectType | null
@@ -246,6 +254,7 @@ export type ProjectOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   items?: Prisma.SortOrder
   type?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -261,6 +270,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
   uid?: Prisma.StringFilter<"Project"> | string
   name?: Prisma.StringFilter<"Project"> | string
+  description?: Prisma.StringFilter<"Project"> | string
   technologies?: Prisma.StringNullableListFilter<"Project">
   items?: Prisma.StringNullableListFilter<"Project">
   type?: Prisma.EnumProjectTypeNullableFilter<"Project"> | $Enums.ProjectType | null
@@ -273,6 +283,7 @@ export type ProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   items?: Prisma.SortOrder
   type?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -293,6 +304,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Project"> | string
   uid?: Prisma.StringWithAggregatesFilter<"Project"> | string
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  description?: Prisma.StringWithAggregatesFilter<"Project"> | string
   technologies?: Prisma.StringNullableListFilter<"Project">
   items?: Prisma.StringNullableListFilter<"Project">
   type?: Prisma.EnumProjectTypeNullableWithAggregatesFilter<"Project"> | $Enums.ProjectType | null
@@ -305,6 +317,7 @@ export type ProjectCreateInput = {
   id?: string
   uid: string
   name?: string
+  description?: string
   technologies?: Prisma.ProjectCreatetechnologiesInput | string[]
   items?: Prisma.ProjectCreateitemsInput | string[]
   type?: $Enums.ProjectType | null
@@ -317,6 +330,7 @@ export type ProjectUncheckedCreateInput = {
   id?: string
   uid: string
   name?: string
+  description?: string
   technologies?: Prisma.ProjectCreatetechnologiesInput | string[]
   items?: Prisma.ProjectCreateitemsInput | string[]
   type?: $Enums.ProjectType | null
@@ -329,6 +343,7 @@ export type ProjectUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.ProjectUpdatetechnologiesInput | string[]
   items?: Prisma.ProjectUpdateitemsInput | string[]
   type?: Prisma.NullableEnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType | null
@@ -341,6 +356,7 @@ export type ProjectUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.ProjectUpdatetechnologiesInput | string[]
   items?: Prisma.ProjectUpdateitemsInput | string[]
   type?: Prisma.NullableEnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType | null
@@ -353,6 +369,7 @@ export type ProjectCreateManyInput = {
   id?: string
   uid: string
   name?: string
+  description?: string
   technologies?: Prisma.ProjectCreatetechnologiesInput | string[]
   items?: Prisma.ProjectCreateitemsInput | string[]
   type?: $Enums.ProjectType | null
@@ -365,6 +382,7 @@ export type ProjectUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.ProjectUpdatetechnologiesInput | string[]
   items?: Prisma.ProjectUpdateitemsInput | string[]
   type?: Prisma.NullableEnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType | null
@@ -377,6 +395,7 @@ export type ProjectUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.ProjectUpdatetechnologiesInput | string[]
   items?: Prisma.ProjectUpdateitemsInput | string[]
   type?: Prisma.NullableEnumProjectTypeFieldUpdateOperationsInput | $Enums.ProjectType | null
@@ -389,6 +408,7 @@ export type ProjectCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   items?: Prisma.SortOrder
   type?: Prisma.SortOrder
@@ -405,6 +425,7 @@ export type ProjectMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   relevance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -415,6 +436,7 @@ export type ProjectMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   type?: Prisma.SortOrder
   relevance?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -453,6 +475,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   uid?: boolean
   name?: boolean
+  description?: boolean
   technologies?: boolean
   items?: boolean
   type?: boolean
@@ -465,6 +488,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   uid?: boolean
   name?: boolean
+  description?: boolean
   technologies?: boolean
   items?: boolean
   type?: boolean
@@ -477,6 +501,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   uid?: boolean
   name?: boolean
+  description?: boolean
   technologies?: boolean
   items?: boolean
   type?: boolean
@@ -489,6 +514,7 @@ export type ProjectSelectScalar = {
   id?: boolean
   uid?: boolean
   name?: boolean
+  description?: boolean
   technologies?: boolean
   items?: boolean
   type?: boolean
@@ -497,7 +523,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "name" | "technologies" | "items" | "type" | "relevance" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "name" | "description" | "technologies" | "items" | "type" | "relevance" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
@@ -506,6 +532,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     uid: string
     name: string
+    description: string
     technologies: string[]
     items: string[]
     type: $Enums.ProjectType | null
@@ -938,6 +965,7 @@ export interface ProjectFieldRefs {
   readonly id: Prisma.FieldRef<"Project", 'String'>
   readonly uid: Prisma.FieldRef<"Project", 'String'>
   readonly name: Prisma.FieldRef<"Project", 'String'>
+  readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly technologies: Prisma.FieldRef<"Project", 'String[]'>
   readonly items: Prisma.FieldRef<"Project", 'String[]'>
   readonly type: Prisma.FieldRef<"Project", 'ProjectType'>

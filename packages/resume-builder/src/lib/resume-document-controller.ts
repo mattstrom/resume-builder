@@ -144,6 +144,7 @@ function createDefaultCollectionItem(collection: ResumeCollectionValue, resume: 
 			return {
 				...base,
 				name: 'New Project',
+				description: '',
 				technologies: [],
 				items: [],
 				type: '',

@@ -102,6 +102,7 @@ export interface PgProject {
 	id: string;
 	uid: string;
 	name: string;
+	description: string;
 	technologies: string[];
 	items: string[];
 	type: 'professional' | 'personal' | null;

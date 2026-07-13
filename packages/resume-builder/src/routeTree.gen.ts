@@ -19,6 +19,10 @@ import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
+import { Route as AuthenticatedProfileWorkHistoryRouteImport } from './routes/_authenticated/profile/work-history'
+import { Route as AuthenticatedProfileVolunteeringRouteImport } from './routes/_authenticated/profile/volunteering'
+import { Route as AuthenticatedProfileSkillsRouteImport } from './routes/_authenticated/profile/skills'
+import { Route as AuthenticatedProfileProjectsRouteImport } from './routes/_authenticated/profile/projects'
 import { Route as AuthenticatedProfilePreferencesRouteImport } from './routes/_authenticated/profile/preferences'
 import { Route as AuthenticatedProfileFactsRouteImport } from './routes/_authenticated/profile/facts'
 import { Route as AuthenticatedProfileBackgroundRouteImport } from './routes/_authenticated/profile/background'
@@ -77,6 +81,30 @@ const AuthenticatedEditorIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedEditorRoute,
   } as any)
+const AuthenticatedProfileWorkHistoryRoute =
+  AuthenticatedProfileWorkHistoryRouteImport.update({
+    id: '/work-history',
+    path: '/work-history',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
+const AuthenticatedProfileVolunteeringRoute =
+  AuthenticatedProfileVolunteeringRouteImport.update({
+    id: '/volunteering',
+    path: '/volunteering',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
+const AuthenticatedProfileSkillsRoute =
+  AuthenticatedProfileSkillsRouteImport.update({
+    id: '/skills',
+    path: '/skills',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
+const AuthenticatedProfileProjectsRoute =
+  AuthenticatedProfileProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
 const AuthenticatedProfilePreferencesRoute =
   AuthenticatedProfilePreferencesRouteImport.update({
     id: '/preferences',
@@ -134,6 +162,10 @@ export interface FileRoutesByFullPath {
   '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/facts': typeof AuthenticatedProfileFactsRoute
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
+  '/profile/projects': typeof AuthenticatedProfileProjectsRoute
+  '/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
+  '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
 }
@@ -149,6 +181,10 @@ export interface FileRoutesByTo {
   '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/facts': typeof AuthenticatedProfileFactsRoute
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
+  '/profile/projects': typeof AuthenticatedProfileProjectsRoute
+  '/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
+  '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
 }
@@ -169,6 +205,10 @@ export interface FileRoutesById {
   '/_authenticated/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/_authenticated/profile/facts': typeof AuthenticatedProfileFactsRoute
   '/_authenticated/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
+  '/_authenticated/profile/projects': typeof AuthenticatedProfileProjectsRoute
+  '/_authenticated/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/_authenticated/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
+  '/_authenticated/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
 }
@@ -188,6 +228,10 @@ export interface FileRouteTypes {
     | '/profile/background'
     | '/profile/facts'
     | '/profile/preferences'
+    | '/profile/projects'
+    | '/profile/skills'
+    | '/profile/volunteering'
+    | '/profile/work-history'
     | '/editor/'
     | '/profile/'
   fileRoutesByTo: FileRoutesByTo
@@ -203,6 +247,10 @@ export interface FileRouteTypes {
     | '/profile/background'
     | '/profile/facts'
     | '/profile/preferences'
+    | '/profile/projects'
+    | '/profile/skills'
+    | '/profile/volunteering'
+    | '/profile/work-history'
     | '/editor'
     | '/profile'
   id:
@@ -222,6 +270,10 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/background'
     | '/_authenticated/profile/facts'
     | '/_authenticated/profile/preferences'
+    | '/_authenticated/profile/projects'
+    | '/_authenticated/profile/skills'
+    | '/_authenticated/profile/volunteering'
+    | '/_authenticated/profile/work-history'
     | '/_authenticated/editor/'
     | '/_authenticated/profile/'
   fileRoutesById: FileRoutesById
@@ -305,6 +357,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEditorIndexRouteImport
       parentRoute: typeof AuthenticatedEditorRoute
     }
+    '/_authenticated/profile/work-history': {
+      id: '/_authenticated/profile/work-history'
+      path: '/work-history'
+      fullPath: '/profile/work-history'
+      preLoaderRoute: typeof AuthenticatedProfileWorkHistoryRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
+    '/_authenticated/profile/volunteering': {
+      id: '/_authenticated/profile/volunteering'
+      path: '/volunteering'
+      fullPath: '/profile/volunteering'
+      preLoaderRoute: typeof AuthenticatedProfileVolunteeringRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
+    '/_authenticated/profile/skills': {
+      id: '/_authenticated/profile/skills'
+      path: '/skills'
+      fullPath: '/profile/skills'
+      preLoaderRoute: typeof AuthenticatedProfileSkillsRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
+    '/_authenticated/profile/projects': {
+      id: '/_authenticated/profile/projects'
+      path: '/projects'
+      fullPath: '/profile/projects'
+      preLoaderRoute: typeof AuthenticatedProfileProjectsRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
     '/_authenticated/profile/preferences': {
       id: '/_authenticated/profile/preferences'
       path: '/preferences'
@@ -374,6 +454,10 @@ interface AuthenticatedProfileRouteChildren {
   AuthenticatedProfileBackgroundRoute: typeof AuthenticatedProfileBackgroundRoute
   AuthenticatedProfileFactsRoute: typeof AuthenticatedProfileFactsRoute
   AuthenticatedProfilePreferencesRoute: typeof AuthenticatedProfilePreferencesRoute
+  AuthenticatedProfileProjectsRoute: typeof AuthenticatedProfileProjectsRoute
+  AuthenticatedProfileSkillsRoute: typeof AuthenticatedProfileSkillsRoute
+  AuthenticatedProfileVolunteeringRoute: typeof AuthenticatedProfileVolunteeringRoute
+  AuthenticatedProfileWorkHistoryRoute: typeof AuthenticatedProfileWorkHistoryRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
 }
 
@@ -381,6 +465,10 @@ const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
   AuthenticatedProfileBackgroundRoute: AuthenticatedProfileBackgroundRoute,
   AuthenticatedProfileFactsRoute: AuthenticatedProfileFactsRoute,
   AuthenticatedProfilePreferencesRoute: AuthenticatedProfilePreferencesRoute,
+  AuthenticatedProfileProjectsRoute: AuthenticatedProfileProjectsRoute,
+  AuthenticatedProfileSkillsRoute: AuthenticatedProfileSkillsRoute,
+  AuthenticatedProfileVolunteeringRoute: AuthenticatedProfileVolunteeringRoute,
+  AuthenticatedProfileWorkHistoryRoute: AuthenticatedProfileWorkHistoryRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
 }
 

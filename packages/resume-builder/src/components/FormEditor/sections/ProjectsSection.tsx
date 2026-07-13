@@ -16,6 +16,7 @@ import { ExpandableCard } from '../components/ExpandableCard';
 
 interface Project {
 	name: string;
+	description: string;
 	technologies: string[];
 	items: string[];
 }
@@ -29,7 +30,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({ projects, onChange }
 	const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
 	const handleAdd = () => {
-		onChange([...projects, { name: '', technologies: [], items: [] }]);
+		onChange([...projects, { name: '', description: '', technologies: [], items: [] }]);
 		setExpandedIndex(projects.length);
 	};
 
@@ -76,6 +77,15 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({ projects, onChange }
 							}
 							onDelete={() => handleDelete(index)}
 						>
+							<div className="space-y-2">
+								<Label htmlFor={`description-${index}`}>Description</Label>
+								<Textarea
+									id={`description-${index}`}
+									value={project.description}
+									onChange={handleChange(index, 'description')}
+									rows={3}
+								/>
+							</div>
 							<div className="space-y-2">
 								<Label htmlFor={`name-${index}`}>Name</Label>
 								<Input

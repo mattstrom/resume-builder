@@ -1,11 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute } from "@tanstack/react-router";
 
-import { BackgroundEditor } from '@/components/profile/BackgroundEditor.tsx';
+import { ContactSection, EducationSection } from "@/components/profile/BackgroundEditor.tsx";
+import { ProfileSectionPage } from "@/components/profile/ProfileSectionPage.tsx";
 
-export const Route = createFileRoute('/_authenticated/profile/background')({
+export const Route = createFileRoute("/_authenticated/profile/background")({
 	component: BackgroundComponent,
 });
 
 function BackgroundComponent() {
-	return <BackgroundEditor />;
+	return (
+		<ProfileSectionPage
+			title="Personal Details"
+			description="Your contact details and education. Changes save automatically."
+		>
+			<ContactSection />
+			<EducationSection />
+		</ProfileSectionPage>
+	);
 }

@@ -92,6 +92,7 @@ type Project {
   _id: ID!
   uid: String
   name: String
+  description: String
   technologies: [String!]
   items: [String!]
   type: String
@@ -633,6 +634,7 @@ input ContactInformationInput {
 
 input ProjectInput {
   name: String
+  description: String
   technologies: [String!]
   items: [String!]
   type: String
