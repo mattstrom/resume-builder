@@ -98,7 +98,7 @@ export const SkillsSection: FC<SkillsSectionProps> = observer(() => {
 										value={group.name}
 										resumeId={resumeId}
 									/>
-									:
+									:{' '}
 								</dt>
 								<dd>
 									<ListEditor

@@ -6,8 +6,13 @@ import { GridLayout } from '../../components/layouts/GridLayout.tsx';
 import { ResumeProvider } from '../../components/Resume.provider.tsx';
 import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
-import { LIST_RESUMES } from '../../graphql/queries.ts';
-import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
+import { GET_RESUME, LIST_RESUMES } from '../../graphql/queries.ts';
+import type {
+	GetResumeData,
+	GetResumeVariables,
+	ListResumesData,
+	ListResumesVariables,
+} from '../../graphql/types.ts';
 import { CrdtResumeController } from '../../lib/resume-document-controller.ts';
 
 // Import CSS for proper styling
@@ -17,6 +22,7 @@ const previewSearchSchema = z
 	.object({
 		template: z.enum(['basic', 'column', 'grid']).optional().default('basic'),
 		showMarginPattern: z.coerce.boolean().optional().default(true),
+		resumeId: z.string().optional(),
 	})
 	.catch({
 		template: 'basic',
@@ -26,18 +32,32 @@ const previewSearchSchema = z
 export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 	validateSearch: previewSearchSchema,
 
-	loader: async ({ context, params }) => {
+	loaderDeps: ({ search }) => ({ resumeId: search.resumeId }),
+
+	loader: async ({ context, params, deps }) => {
 		const { client, authStore } = context.store;
 		const { applicationId } = params;
+		const { resumeId } = deps;
 
 		try {
-			const resumesResult = await client.query<ListResumesData, ListResumesVariables>({
-				query: LIST_RESUMES,
-				variables: { filter: { applicationId } },
-				fetchPolicy: 'network-only',
-			});
-
-			const resume = resumesResult.data?.listResumes[0];
+			// Prefer the resume currently open in the editor. Falling back to
+			// "the application's first resume" silently shows the wrong resume
+			// whenever an application has more than one linked.
+			const resume = resumeId
+				? (
+						await client.query<GetResumeData, GetResumeVariables>({
+							query: GET_RESUME,
+							variables: { id: resumeId },
+							fetchPolicy: 'network-only',
+						})
+					).data?.getResume
+				: (
+						await client.query<ListResumesData, ListResumesVariables>({
+							query: LIST_RESUMES,
+							variables: { filter: { applicationId } },
+							fetchPolicy: 'network-only',
+						})
+					).data?.listResumes[0];
 
 			if (!resume) {
 				throw new Error('Application has no linked resume');

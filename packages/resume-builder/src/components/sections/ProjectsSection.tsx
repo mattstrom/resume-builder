@@ -19,7 +19,8 @@ import { Section } from './Section.tsx';
 interface ProjectsSectionProps {}
 
 export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
-	const { projects = [] } = useResume();
+	const { projects } = useResume();
+	const items = projects ?? [];
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
@@ -30,7 +31,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 		<CollectionEditor<Project>
 			path="data.projects"
 			label="Projects"
-			items={projects}
+			items={items}
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {

@@ -18,7 +18,8 @@ import { Section } from './Section.tsx';
 interface WorkExperienceProps extends PropsWithChildren {}
 
 export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
-	const { workExperience = [] } = useResume();
+	const { workExperience } = useResume();
+	const items = workExperience ?? [];
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
@@ -29,7 +30,7 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 		<CollectionEditor<Job>
 			path="data.workExperience"
 			label="Work Experience"
-			items={workExperience}
+			items={items}
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {
