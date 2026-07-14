@@ -175,6 +175,13 @@ export class LocalResumeController implements ResumeDocumentController {
 	}
 
 	replaceResume(resume: Resume) {
+		if (!isPlainObject(resume.data)) {
+			throw new Error(
+				'replaceResume() requires a full Resume object with a `data` property ' +
+					'containing the resume content (e.g. `{ data: { name, workExperience, ... } }`).',
+			);
+		}
+
 		this.snapshot = structuredClone(resume);
 		this.undoStack = [];
 		this.redoStack = [];
@@ -375,6 +382,15 @@ export class CrdtResumeController implements ResumeDocumentController {
 	}
 
 	replaceResume(resume: Resume) {
+		if (!isPlainObject(resume.data)) {
+			throw new Error(
+				'replaceResume() requires a full Resume object with a `data` property ' +
+					'containing the resume content (e.g. `{ data: { name, workExperience, ... } }`). ' +
+					'Passing resume content directly writes it to the top level of the document ' +
+					'instead of under `data`, which breaks every reader of the document.',
+			);
+		}
+
 		this.doc.transact(() => {
 			for (const key of [...this.root.keys()]) {
 				this.root.delete(key);
@@ -482,6 +498,18 @@ export class CrdtResumeController implements ResumeDocumentController {
 	private updateSnapshot() {
 		const stored = fromYValue(this.root) as Record<string, unknown>;
 		const { id, ...resume } = stored;
+
+		// A document without a `data` payload isn't a usable resume snapshot
+		// (e.g. it was never hydrated, or `replaceResume` was given malformed
+		// content that landed at the top level instead of under `data`).
+		// Report it as absent so callers fall back to the Postgres-sourced
+		// resume instead of handing readers a snapshot with no content.
+		if (!isPlainObject(resume.data)) {
+			this.snapshot = null;
+			this.options.onSnapshotChange?.(null);
+			return;
+		}
+
 		this.snapshot = {
 			...resume,
 			_id: String(id ?? this.resumeId),

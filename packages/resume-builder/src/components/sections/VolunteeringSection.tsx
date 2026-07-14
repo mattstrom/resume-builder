@@ -36,14 +36,15 @@ function formatDate(dateString: string): string {
 interface VolunteeringSectionProps {}
 
 export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => {
-	const { volunteering = [] } = useResume();
+	const { volunteering } = useResume();
+	const items = volunteering ?? [];
 	const resumeId = useResumeId();
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
 	const controller = getActiveResumeController(resumeId);
 	const isSaving = false;
 
-	if (!isEditable && (!volunteering || volunteering.length === 0)) {
+	if (!isEditable && items.length === 0) {
 		return null;
 	}
 
@@ -51,7 +52,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 		<CollectionEditor<Volunteering>
 			path="data.volunteering"
 			label="Volunteering"
-			items={volunteering}
+			items={items}
 			isSaving={isSaving}
 			isEditable={isEditable}
 			onAdd={async () => {

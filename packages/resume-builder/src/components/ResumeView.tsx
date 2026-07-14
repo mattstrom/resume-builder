@@ -13,7 +13,7 @@ interface ResumeViewProps {}
 export const ResumeView: FC<ResumeViewProps> = observer(() => {
 	const { applicationId } = useParams({ strict: false });
 
-	const { uiStateStore } = useStore();
+	const { uiStateStore, editorStore } = useStore();
 	const { viewMode } = uiStateStore;
 
 	if (!applicationId) {
@@ -29,7 +29,10 @@ export const ResumeView: FC<ResumeViewProps> = observer(() => {
 			{viewMode === ViewMode.Data ? (
 				<JsonEditor />
 			) : (
-				<PreviewFrame applicationId={applicationId} />
+				<PreviewFrame
+					applicationId={applicationId}
+					resumeId={editorStore.resumeData?._id}
+				/>
 			)}
 		</div>
 	);

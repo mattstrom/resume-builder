@@ -5,14 +5,16 @@ import { useSettings } from './Settings.provider.tsx';
 
 interface PreviewFrameProps {
 	applicationId: string;
+	resumeId?: string;
 }
 
-export const PreviewFrame: FC<PreviewFrameProps> = observer(({ applicationId }) => {
+export const PreviewFrame: FC<PreviewFrameProps> = observer(({ applicationId, resumeId }) => {
 	const { template, showMarginPattern } = useSettings();
 
 	const params = new URLSearchParams({
 		template,
 		showMarginPattern: String(showMarginPattern),
+		...(resumeId ? { resumeId } : {}),
 	});
 
 	const iframeSrc = `/preview/${applicationId}?${params}`;

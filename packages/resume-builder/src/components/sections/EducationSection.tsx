@@ -11,7 +11,8 @@ import { Section } from './Section.tsx';
 interface EducationSectionProps {}
 
 export const EducationSection: FC<EducationSectionProps> = () => {
-	const { education = [] } = useResume();
+	const { education } = useResume();
+	const items = education ?? [];
 	const resumeId = useResumeId();
 	const { data } = useQuery<{ listEducations: Education[] }>(LIST_EDUCATIONS, {
 		fetchPolicy: 'network-only',
@@ -19,13 +20,8 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 	const options = data?.listEducations ?? [];
 
 	return (
-		<Section
-			heading="Education"
-			className="education"
-			path="data.education"
-			label="Education"
-		>
-			{education.map((item, index) => (
+		<Section heading="Education" className="education" path="data.education" label="Education">
+			{items.map((item, index) => (
 				<LookupFieldEditor<Education, Education>
 					key={index}
 					as="section"
