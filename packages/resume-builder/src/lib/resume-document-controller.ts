@@ -1,5 +1,6 @@
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import type { Resume } from '@resume-builder/entities';
+import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
 import { getResumeCollectionPath, ResumeCollections } from '../graphql/resume-collections.ts';
@@ -124,6 +125,7 @@ function createDefaultCollectionItem(collection: ResumeCollectionValue, resume: 
 		case ResumeCollections.PROJECTS:
 			return {
 				...base,
+				_id: nanoid(),
 				name: 'New Project',
 				description: '',
 				technologies: [],

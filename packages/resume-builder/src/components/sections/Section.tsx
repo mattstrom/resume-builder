@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { type FC, type HTMLAttributes, type PropsWithChildren } from 'react';
 
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
+import type { ResumeSectionId } from '@/components/sections/section-anchors.ts';
 
 interface SectionProps extends PropsWithChildren, HTMLAttributes<HTMLElement> {
 	heading: string;
@@ -10,6 +11,8 @@ interface SectionProps extends PropsWithChildren, HTMLAttributes<HTMLElement> {
 	path?: string;
 	/** Human-readable label shown in the chat focus chips. */
 	label?: string;
+	/** Stable destination used by web and exported PDF fragment links. */
+	anchorId?: ResumeSectionId;
 }
 
 export const Section: FC<SectionProps> = ({
@@ -18,13 +21,11 @@ export const Section: FC<SectionProps> = ({
 	className,
 	path,
 	label,
+	anchorId,
 	...rest
 }) => {
-	const anchorName = heading.toLowerCase().replace(' ', '-');
-
 	const section = (
-		<section className={clsx('section', 'major', className)} {...rest}>
-			<a id={anchorName}></a>
+		<section id={anchorId} className={clsx('section', 'major', className)} {...rest}>
 			<header>
 				<h2>{heading}</h2>
 			</header>

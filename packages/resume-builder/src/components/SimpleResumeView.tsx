@@ -13,9 +13,15 @@ import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
+import { LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
 import { ResumeProvider, useResume, useResumeId } from '@/components/Resume.provider.tsx';
+import {
+	getProjectAnchorId,
+	RESUME_SECTION_IDS,
+	type ResumeSectionId,
+} from '@/components/sections/section-anchors.ts';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
@@ -64,11 +70,12 @@ function formatYear(dateString?: string): string {
 interface SimpleSectionProps extends PropsWithChildren {
 	title: string;
 	actions?: ReactNode;
+	id?: ResumeSectionId;
 }
 
-const SimpleSection: FC<SimpleSectionProps> = ({ title, actions, children }) => {
+const SimpleSection: FC<SimpleSectionProps> = ({ title, actions, children, id }) => {
 	return (
-		<section className="simple-resume-section">
+		<section id={id} className="simple-resume-section">
 			<header className="simple-resume-section-header">
 				<h2>{title}</h2>
 				{actions}
@@ -136,7 +143,7 @@ const SimpleResumeContent: FC = observer(() => {
 
 	return (
 		<div className="simple-resume-shell">
-			<header className="simple-resume-hero">
+			<header id={RESUME_SECTION_IDS.contactInformation} className="simple-resume-hero">
 				<div className="simple-resume-identity">
 					<TextFieldEditor
 						path="data.name"
@@ -213,17 +220,20 @@ const SimpleResumeContent: FC = observer(() => {
 const SummarySection: FC = () => {
 	const { summary } = useResume();
 	const resumeId = useResumeId();
+	const { uiStateStore } = useStore();
 
 	return (
-		<SimpleSection title="Professional Summary">
+		<SimpleSection title="Professional Summary" id={RESUME_SECTION_IDS.professionalSummary}>
 			<TextFieldEditor
 				path="data.summary"
 				value={summary}
 				resumeId={resumeId}
 				className="simple-resume-summary"
 				multiline
+				linkMarkup
 				placeholder="Add a professional summary"
 			/>
+			{uiStateStore.isResumeEditable && <LinkMarkupHint />}
 		</SimpleSection>
 	);
 };
@@ -270,6 +280,7 @@ const WorkExperienceSection: FC = observer(() => {
 			{({ items, addItem, removeItem, moveItem, isSaving }) => (
 				<SimpleSection
 					title="Work Experience"
+					id={RESUME_SECTION_IDS.workHistory}
 					actions={
 						isEditable ? (
 							<Button
@@ -362,6 +373,7 @@ const JobEntry: FC<{ job: Job; index: number }> = ({ job, index }) => {
 				variant="block"
 				className="simple-resume-list"
 				emptyPlaceholder="Add responsibility"
+				linkMarkup
 			/>
 		</article>
 	);
@@ -376,7 +388,7 @@ const EducationSection: FC = () => {
 	const options = data?.listEducations ?? [];
 
 	return (
-		<SimpleSection title="Education">
+		<SimpleSection title="Education" id={RESUME_SECTION_IDS.education}>
 			{education.length === 0 ? (
 				<EmptyState copy="No education entries linked." />
 			) : (
@@ -431,7 +443,7 @@ const SkillsSection: FC = () => {
 
 	if (skillGroups && skillGroups.length > 0) {
 		return (
-			<SimpleSection title="Skills">
+			<SimpleSection title="Skills" id={RESUME_SECTION_IDS.skills}>
 				{skillGroups.map((group: SkillGroup, index) => (
 					<article key={index} className="simple-resume-entry">
 						<div className="simple-resume-skill-group">
@@ -458,7 +470,7 @@ const SkillsSection: FC = () => {
 
 	if (skills && skills.length > 0) {
 		return (
-			<SimpleSection title="Skills">
+			<SimpleSection title="Skills" id={RESUME_SECTION_IDS.skills}>
 				{skills.map((skill: Skill, index) => (
 					<article key={index} className="simple-resume-entry">
 						<div className="simple-resume-entry-title-row">
@@ -483,7 +495,7 @@ const SkillsSection: FC = () => {
 	}
 
 	return (
-		<SimpleSection title="Skills">
+		<SimpleSection title="Skills" id={RESUME_SECTION_IDS.skills}>
 			<EmptyState copy="No skills listed yet." />
 		</SimpleSection>
 	);
@@ -509,6 +521,7 @@ const ProjectsSection: FC = observer(() => {
 			{({ items, addItem, removeItem, moveItem, isSaving }) => (
 				<SimpleSection
 					title="Projects"
+					id={RESUME_SECTION_IDS.projects}
 					actions={
 						isEditable ? (
 							<Button
@@ -564,9 +577,10 @@ const ProjectEntry: FC<{
 	index: number;
 }> = ({ project, index }) => {
 	const resumeId = useResumeId();
+	const anchorId = getProjectAnchorId(project._id, index);
 
 	return (
-		<article className="simple-resume-entry">
+		<article id={anchorId} data-link-target={`#${anchorId}`} className="simple-resume-entry">
 			<EntryHeader
 				title={
 					<TextFieldEditor
@@ -600,6 +614,7 @@ const ProjectEntry: FC<{
 				variant="block"
 				className="simple-resume-list"
 				emptyPlaceholder="Add project detail"
+				linkMarkup
 			/>
 		</article>
 	);
@@ -626,6 +641,7 @@ const VolunteeringSection: FC = observer(() => {
 			{({ items: collectionItems, addItem, removeItem, moveItem, isSaving }) => (
 				<SimpleSection
 					title="Volunteering"
+					id={RESUME_SECTION_IDS.volunteering}
 					actions={
 						isEditable ? (
 							<Button
@@ -720,6 +736,7 @@ const VolunteeringEntry: FC<{
 				variant="block"
 				className="simple-resume-list"
 				emptyPlaceholder="Add responsibility"
+				linkMarkup
 			/>
 		</article>
 	);

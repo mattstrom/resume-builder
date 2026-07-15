@@ -1,6 +1,7 @@
 import type { Resume } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
 
+import { getProjectAnchorId } from '../components/sections/section-anchors.ts';
 import { ResumeCollections } from '../graphql/resume-collections.ts';
 import { reorderItems } from './reorder.ts';
 import { LocalResumeController } from './resume-document-controller.ts';
@@ -130,6 +131,18 @@ describe('LocalResumeController.moveArrayItem', () => {
 });
 
 describe('LocalResumeController.insertCollectionItem', () => {
+	it('assigns new projects an ID that can be used as a stable link destination', () => {
+		const controller = new LocalResumeController({
+			resume: createResume(),
+		});
+
+		controller.insertCollectionItem(ResumeCollections.PROJECTS, 0);
+
+		const project = controller.getSnapshot()?.data.projects[0];
+		expect(project?._id).toEqual(expect.any(String));
+		expect(getProjectAnchorId(project?._id, 0)).toMatch(/^project-[\w.-]+$/);
+	});
+
 	it('inserts a new item at the given index and supports undo', () => {
 		const controller = new LocalResumeController({
 			resume: createResume(),

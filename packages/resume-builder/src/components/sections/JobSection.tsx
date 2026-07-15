@@ -69,6 +69,7 @@ export const JobSection: FC<JobProps> = ({ job, index, actions }) => {
 					resumeId={resumeId}
 					variant="block"
 					className="responsibilities"
+					linkMarkup
 				/>
 			)}
 		</section>

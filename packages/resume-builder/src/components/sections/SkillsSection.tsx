@@ -11,6 +11,7 @@ import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 import { useResume, useResumeId } from '../Resume.provider.tsx';
+import { RESUME_SECTION_IDS } from './section-anchors.ts';
 import { Section } from './Section.tsx';
 
 interface SkillsSectionProps {}
@@ -24,7 +25,13 @@ export const SkillsSection: FC<SkillsSectionProps> = observer(() => {
 	// Prefer skillGroups if available
 	if (skillGroups && skillGroups.length > 0) {
 		return (
-			<Section heading="Skills" className="skills" path="data.skillGroups" label="Skills">
+			<Section
+				heading="Skills"
+				className="skills"
+				path="data.skillGroups"
+				label="Skills"
+				anchorId={RESUME_SECTION_IDS.skills}
+			>
 				<dfn>
 					{skillGroups.map((group: SkillGroup, index: number) => (
 						<CollectionEditorItem
@@ -132,7 +139,13 @@ export const SkillsSection: FC<SkillsSectionProps> = observer(() => {
 		);
 
 		return (
-			<Section heading="Skills" className="skills" path="data.skills" label="Skills">
+			<Section
+				heading="Skills"
+				className="skills"
+				path="data.skills"
+				label="Skills"
+				anchorId={RESUME_SECTION_IDS.skills}
+			>
 				<dfn>
 					{Object.entries(groupedSkills).map(
 						([category, categorySkills], index: number) => (

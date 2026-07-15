@@ -2,6 +2,8 @@ import clsx from 'clsx';
 import { observer } from 'mobx-react';
 import { type FC, type MouseEvent, type ReactNode, createElement } from 'react';
 
+import { InlineMarkdown, LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
+import { ResumeLink } from '@/components/ResumeLink.tsx';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { useInspectRegion } from '@/hooks/useInspectRegion.ts';
 import { cn } from '@/lib/utils.ts';
@@ -30,6 +32,10 @@ interface InlineEditorProps {
 	children?: ReactNode;
 	/** Placeholder shown when the current value is empty */
 	placeholder?: string;
+	/** Render Markdown-style links while the field is not being edited. */
+	linkMarkup?: boolean;
+	/** Render the displayed value as a link to this target. */
+	href?: string;
 }
 
 export const InlineEditor: FC<InlineEditorProps> = observer(
@@ -42,6 +48,8 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		className,
 		children,
 		placeholder,
+		linkMarkup = false,
+		href,
 	}) => {
 		const { inlineEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
@@ -61,7 +69,20 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 			}
 		};
 
-		const readContent = children ?? (value || placeholder);
+		const beginEdit = () => store.beginEdit(resumeId, path, value);
+		const fallbackContent = value || placeholder;
+		const renderedContent = linkMarkup ? (
+			<InlineMarkdown value={value} isEditable={isEditable} onEditRequest={beginEdit} />
+		) : (
+			(children ?? fallbackContent)
+		);
+		const readContent = href ? (
+			<ResumeLink href={href} isEditable={isEditable} onEditRequest={beginEdit}>
+				{renderedContent}
+			</ResumeLink>
+		) : (
+			renderedContent
+		);
 
 		return (
 			<span
@@ -92,22 +113,29 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 				)}
 
 				{isEditing && (
-					<TextFieldEditor
-						path={path}
-						value={value}
-						resumeId={resumeId}
-						multiline={multiline}
-						placeholder={placeholder}
-						autoFocus
-						onCommitSuccess={() => store.discard()}
-						onCancel={() => store.discard()}
-						className={cn(
-							'z-50 rounded border border-border bg-white p-1 text-sm text-zinc-900 shadow-md placeholder:text-zinc-400',
-							multiline
-								? 'absolute -top-1 left-0 h-[calc(100%+0.5rem)] w-full resize-none'
-								: 'absolute left-0 top-full mt-1 w-full',
+					<>
+						<TextFieldEditor
+							path={path}
+							value={value}
+							resumeId={resumeId}
+							multiline={multiline}
+							placeholder={placeholder}
+							autoFocus
+							onCommitSuccess={() => store.discard()}
+							onCancel={() => store.discard()}
+							className={cn(
+								'z-50 rounded border border-border bg-white p-1 text-sm text-zinc-900 shadow-md placeholder:text-zinc-400',
+								multiline
+									? 'absolute -top-1 left-0 h-[calc(100%+0.5rem)] w-full resize-none'
+									: 'absolute left-0 top-full mt-1 w-full',
+							)}
+						/>
+						{linkMarkup && (
+							<span className="absolute left-0 top-full z-50 mt-1 whitespace-nowrap rounded bg-popover px-2 py-1 shadow-sm">
+								<LinkMarkupHint />
+							</span>
 						)}
-					/>
+					</>
 				)}
 			</span>
 		);
