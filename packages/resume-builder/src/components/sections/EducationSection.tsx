@@ -6,6 +6,7 @@ import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
 import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
 
 import { useResume, useResumeId } from '../Resume.provider.tsx';
+import { RESUME_SECTION_IDS } from './section-anchors.ts';
 import { Section } from './Section.tsx';
 
 interface EducationSectionProps {}
@@ -20,7 +21,13 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 	const options = data?.listEducations ?? [];
 
 	return (
-		<Section heading="Education" className="education" path="data.education" label="Education">
+		<Section
+			heading="Education"
+			className="education"
+			path="data.education"
+			label="Education"
+			anchorId={RESUME_SECTION_IDS.education}
+		>
 			{items.map((item, index) => (
 				<LookupFieldEditor<Education, Education>
 					key={index}

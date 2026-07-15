@@ -14,6 +14,7 @@ import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 import { useResume, useResumeId } from '../Resume.provider.tsx';
+import { RESUME_SECTION_IDS } from './section-anchors.ts';
 import { Section } from './Section.tsx';
 
 function formatDate(dateString: string): string {
@@ -73,7 +74,11 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 			}}
 		>
 			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
-				<Section heading="Volunteering" className="volunteering">
+				<Section
+					heading="Volunteering"
+					className="volunteering"
+					anchorId={RESUME_SECTION_IDS.volunteering}
+				>
 					{items.length === 0 && isEditable ? (
 						<AddItemGhostRow
 							label="role"
@@ -154,6 +159,7 @@ const VolunteeringPosition: FC<VolunteeringProps> = ({ volunteering, index }) =>
 					resumeId={resumeId}
 					variant="block"
 					className="responsibilities"
+					linkMarkup
 				/>
 			)}
 		</section>

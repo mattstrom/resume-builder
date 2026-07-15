@@ -1,5 +1,6 @@
 import { type FC, type KeyboardEvent, useEffect, useState } from 'react';
 
+import { InlineMarkdown } from '@/components/InlineMarkdown.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -13,6 +14,7 @@ interface TextFieldEditorProps {
 	autoFocus?: boolean;
 	onCommitSuccess?: () => void;
 	onCancel?: () => void;
+	linkMarkup?: boolean;
 }
 
 export const TextFieldEditor: FC<TextFieldEditorProps> = ({
@@ -25,6 +27,7 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = ({
 	autoFocus = false,
 	onCommitSuccess,
 	onCancel,
+	linkMarkup = false,
 }) => {
 	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
@@ -65,6 +68,14 @@ export const TextFieldEditor: FC<TextFieldEditorProps> = ({
 			void commit();
 		}
 	};
+
+	if (!isEditable && linkMarkup) {
+		return (
+			<span className={className}>
+				<InlineMarkdown value={value} />
+			</span>
+		);
+	}
 
 	if (multiline) {
 		return (

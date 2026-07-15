@@ -13,6 +13,7 @@ import { useStore } from '@/stores/store.provider.tsx';
 
 import { useResume, useResumeId } from '../Resume.provider.tsx';
 import { JobSection } from './JobSection.tsx';
+import { RESUME_SECTION_IDS } from './section-anchors.ts';
 import { Section } from './Section.tsx';
 
 interface WorkExperienceProps extends PropsWithChildren {}
@@ -51,7 +52,11 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 			}}
 		>
 			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
-				<Section heading="Work History" className="work-experience">
+				<Section
+					heading="Work History"
+					className="work-experience"
+					anchorId={RESUME_SECTION_IDS.workHistory}
+				>
 					{items.length === 0 && isEditable ? (
 						<AddItemGhostRow
 							label="job"

@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
+import { InlineMarkdown, LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
 import { ReorderControls } from '@/components/ReorderControls.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -23,11 +24,14 @@ interface ListEditorProps {
 	className?: string;
 	emptyPlaceholder?: string;
 	onCommit?: (items: string[]) => void | Promise<void>;
+	/** Render Markdown-style links in list items. */
+	linkMarkup?: boolean;
 }
 
 interface EditModeProps {
 	store: ReturnType<typeof useStore>['listEditStore'];
 	className?: string;
+	linkMarkup: boolean;
 }
 
 interface DraggableListItemProps {
@@ -41,23 +45,55 @@ interface DraggableListItemProps {
 	children: ReactNode;
 }
 
-const HighlightableBlockItems: FC<{ path: string; items: string[] }> = ({ path, items }) => (
+const HighlightableBlockItems: FC<{
+	path: string;
+	items: string[];
+	linkMarkup: boolean;
+	isEditable: boolean;
+	onEditRequest: () => void;
+}> = ({ path, items, linkMarkup, isEditable, onEditRequest }) => (
 	<>
 		{items.map((item, i) => (
 			<HighlightRegion key={i} path={`${path}.${i}`} label={item}>
-				<li>{item}</li>
+				<li>
+					{linkMarkup ? (
+						<InlineMarkdown
+							value={item}
+							isEditable={isEditable}
+							onEditRequest={onEditRequest}
+						/>
+					) : (
+						item
+					)}
+				</li>
 			</HighlightRegion>
 		))}
 	</>
 );
 
-const HighlightableInlineItems: FC<{ path: string; items: string[] }> = ({ path, items }) => (
+const HighlightableInlineItems: FC<{
+	path: string;
+	items: string[];
+	linkMarkup: boolean;
+	isEditable: boolean;
+	onEditRequest: () => void;
+}> = ({ path, items, linkMarkup, isEditable, onEditRequest }) => (
 	<>
 		{items.map((item, i) => (
 			<Fragment key={i}>
 				{i > 0 && ', '}
 				<HighlightRegion path={`${path}.${i}`} label={item}>
-					<span>{item}</span>
+					<span>
+						{linkMarkup ? (
+							<InlineMarkdown
+								value={item}
+								isEditable={isEditable}
+								onEditRequest={onEditRequest}
+							/>
+						) : (
+							item
+						)}
+					</span>
 				</HighlightRegion>
 			</Fragment>
 		))}
@@ -65,7 +101,16 @@ const HighlightableInlineItems: FC<{ path: string; items: string[] }> = ({ path,
 );
 
 export const ListEditor: FC<ListEditorProps> = observer(
-	({ path, items, resumeId, variant, className, emptyPlaceholder, onCommit }) => {
+	({
+		path,
+		items,
+		resumeId,
+		variant,
+		className,
+		emptyPlaceholder,
+		onCommit,
+		linkMarkup = false,
+	}) => {
 		const { listEditStore: store, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
@@ -84,11 +129,23 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 			return variant === 'block' ? (
 				<ul className={className}>
-					<HighlightableBlockItems path={path} items={items} />
+					<HighlightableBlockItems
+						path={path}
+						items={items}
+						linkMarkup={linkMarkup}
+						isEditable={false}
+						onEditRequest={handleClick}
+					/>
 				</ul>
 			) : (
 				<span className={className}>
-					<HighlightableInlineItems path={path} items={items} />
+					<HighlightableInlineItems
+						path={path}
+						items={items}
+						linkMarkup={linkMarkup}
+						isEditable={false}
+						onEditRequest={handleClick}
+					/>
 				</span>
 			);
 		}
@@ -100,19 +157,31 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 			return variant === 'block' ? (
 				<ul className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
-					<HighlightableBlockItems path={path} items={items} />
+					<HighlightableBlockItems
+						path={path}
+						items={items}
+						linkMarkup={linkMarkup}
+						isEditable
+						onEditRequest={handleClick}
+					/>
 				</ul>
 			) : (
 				<span className={className} onClick={handleClick} style={{ cursor: 'pointer' }}>
-					<HighlightableInlineItems path={path} items={items} />
+					<HighlightableInlineItems
+						path={path}
+						items={items}
+						linkMarkup={linkMarkup}
+						isEditable
+						onEditRequest={handleClick}
+					/>
 				</span>
 			);
 		}
 
 		return variant === 'block' ? (
-			<BlockEditMode store={store} className={className} />
+			<BlockEditMode store={store} className={className} linkMarkup={linkMarkup} />
 		) : (
-			<InlineEditMode store={store} className={className} />
+			<InlineEditMode store={store} className={className} linkMarkup={linkMarkup} />
 		);
 	},
 );
@@ -165,7 +234,7 @@ const DraggableListItem: FC<DraggableListItemProps> = ({
 	);
 };
 
-const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
+const BlockEditMode: FC<EditModeProps> = observer(({ store, className, linkMarkup }) => {
 	return (
 		<div className={cn('relative', className)}>
 			<ul className="space-y-1">
@@ -197,6 +266,11 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 					</li>
 				))}
 			</ul>
+			{linkMarkup && (
+				<div className="mt-1">
+					<LinkMarkupHint />
+				</div>
+			)}
 
 			<div className="absolute left-0 top-full z-10 mt-1">
 				{store.isAdding ? (
@@ -240,7 +314,7 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 	);
 });
 
-const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
+const InlineEditMode: FC<EditModeProps> = observer(({ store, className, linkMarkup }) => {
 	const editorRef = useRef<HTMLSpanElement>(null);
 
 	useEffect(() => {
@@ -312,6 +386,11 @@ const InlineEditMode: FC<EditModeProps> = observer(({ store, className }) => {
 					</span>
 				))}
 			</span>
+			{linkMarkup && (
+				<span className="mt-1 block">
+					<LinkMarkupHint />
+				</span>
+			)}
 		</span>
 	);
 });

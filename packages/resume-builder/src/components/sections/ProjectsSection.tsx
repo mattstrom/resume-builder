@@ -14,6 +14,7 @@ import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 import { useResume, useResumeId } from '../Resume.provider.tsx';
+import { getProjectAnchorId, RESUME_SECTION_IDS } from './section-anchors.ts';
 import { Section } from './Section.tsx';
 
 interface ProjectsSectionProps {}
@@ -52,7 +53,11 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 			}}
 		>
 			{({ items, insertItem, removeItem, moveItem, isSaving }) => (
-				<Section heading="Projects" className="projects">
+				<Section
+					heading="Projects"
+					className="projects"
+					anchorId={RESUME_SECTION_IDS.projects}
+				>
 					{items.length === 0 && isEditable ? (
 						<AddItemGhostRow
 							label="project"
@@ -105,9 +110,10 @@ interface ProjectProps {
 
 const ProjectSection: FC<ProjectProps> = ({ project, index }) => {
 	const resumeId = useResumeId();
+	const anchorId = getProjectAnchorId(project._id, index);
 
 	return (
-		<section className="project">
+		<section id={anchorId} data-link-target={`#${anchorId}`} className="project">
 			<header className="flex items-center gap-2">
 				<InlineEditor
 					as="h3"
@@ -127,6 +133,7 @@ const ProjectSection: FC<ProjectProps> = ({ project, index }) => {
 				items={project.items}
 				resumeId={resumeId}
 				variant="block"
+				linkMarkup
 			/>
 		</section>
 	);
