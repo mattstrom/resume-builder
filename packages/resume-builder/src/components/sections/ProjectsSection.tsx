@@ -72,6 +72,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 								length={items.length}
 								label="project"
 								path={`data.projects.${index}`}
+								paginationUnit={`project-${item._id ?? index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								onInsertAbove={() => void insertItem(index)}

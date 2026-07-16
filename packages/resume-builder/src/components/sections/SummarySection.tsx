@@ -19,6 +19,7 @@ export const SummarySection: FC<SummaryProps> = () => {
 			path="data.summary"
 			label="Summary"
 			anchorId={RESUME_SECTION_IDS.professionalSummary}
+			paginationUnit="professional-summary"
 		>
 			<InlineEditor
 				path="data.summary"

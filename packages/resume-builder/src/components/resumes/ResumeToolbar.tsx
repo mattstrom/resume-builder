@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 import { ViewMode } from '@/stores/ui-state.store.ts';
-import { generatePDF } from '@/utils/pdfExport.ts';
+import { generatePDF, waitForPaginationReady } from '@/utils/pdfExport.ts';
 
 interface ResumeToolbarProps {}
 
@@ -32,12 +32,21 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	const { showSnackbar } = useSnackbar();
 	const [isExporting, setIsExporting] = useState(false);
 
-	const onPrint = () => {
+	const onPrint = async () => {
 		const iframe = document.getElementById('resume-preview-iframe') as HTMLIFrameElement;
-		if (iframe?.contentWindow) {
-			iframe.contentWindow.print();
-		} else {
+		if (!iframe?.contentWindow || !iframe.contentDocument) {
 			console.error('Preview iframe not found or not ready');
+			return;
+		}
+
+		try {
+			await waitForPaginationReady(iframe.contentDocument);
+			iframe.contentWindow.print();
+		} catch (error) {
+			showSnackbar(
+				error instanceof Error ? error.message : 'Resume pagination failed',
+				'error',
+			);
 		}
 	};
 

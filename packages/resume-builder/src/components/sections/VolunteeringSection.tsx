@@ -93,6 +93,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 								length={items.length}
 								label="role"
 								path={`data.volunteering.${index}`}
+								paginationUnit={`volunteering-${item._id ?? index}`}
 								isEditable={isEditable}
 								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								onInsertAbove={() => void insertItem(index)}
