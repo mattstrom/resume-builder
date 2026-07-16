@@ -43,8 +43,8 @@
 				grid-template-columns: 24px 1fr;
 				grid-template-rows: min-content;
 
-				& > svg {
-					align-self: center;
+				.icon > svg {
+					visibility: hidden;
 				}
 			}
 		}
