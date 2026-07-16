@@ -5,6 +5,7 @@ import {
 	AlertCircle,
 	ArrowRight,
 	CheckCircle2,
+	CopyPlus,
 	ExternalLink,
 	FileCheck2,
 	FileText,
@@ -283,6 +284,85 @@ function CreateWorkflowResumeDialog({
 	);
 }
 
+function DuplicateResumeDialog({
+	application,
+	resume,
+	onCreated,
+}: {
+	application: Application;
+	resume: ResumeLink;
+	onCreated: (resume: Resume) => Promise<void>;
+}) {
+	const [open, setOpen] = useState(false);
+	const [duplicating, setDuplicating] = useState(false);
+	const [createBlankResume] = useMutation<CreateBlankResumeData, CreateBlankResumeVariables>(
+		CREATE_BLANK_RESUME,
+	);
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const name = (new FormData(event.currentTarget).get('name') as string).trim();
+		if (!name) return;
+
+		setDuplicating(true);
+		try {
+			const result = await createBlankResume({
+				variables: {
+					resumeData: {
+						name,
+						company: application.company,
+						jobPostingUrl: application.jobPostingUrl,
+						base: false,
+						applicationId: application._id,
+						sourceResumeId: resume._id,
+					},
+				},
+			});
+			const duplicatedResume = result.data?.createBlankResume;
+			if (duplicatedResume) {
+				await onCreated(duplicatedResume);
+				setOpen(false);
+				toast.success('Resume duplicated');
+			}
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to duplicate resume');
+		} finally {
+			setDuplicating(false);
+		}
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+				<CopyPlus data-icon="inline-start" />
+				Duplicate
+			</Button>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Duplicate resume</DialogTitle>
+				</DialogHeader>
+				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+					<div className="flex flex-col gap-2">
+						<Label htmlFor={`duplicate-resume-name-${resume._id}`}>Name</Label>
+						<Input
+							id={`duplicate-resume-name-${resume._id}`}
+							name="name"
+							defaultValue={`${resume.name || 'Untitled resume'} (copy)`}
+							required
+							autoFocus
+						/>
+					</div>
+					<DialogFooter>
+						<Button type="submit" disabled={duplicating}>
+							{duplicating ? 'Duplicating...' : 'Duplicate resume'}
+						</Button>
+					</DialogFooter>
+				</form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 const ApplicationRouteComponent = observer(function ApplicationRouteComponent() {
 	const { applicationId } = Route.useParams();
 	const { application: loadedApplication } = Route.useLoaderData();
@@ -387,7 +467,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 		toast.success('Application data refreshed');
 	};
 
-	const handleResumeCreated = async () => {
+	const handleResumeCreated = async (_resume: Resume) => {
 		await Promise.all([refreshApplication(), resumeStore.refetch()]);
 	};
 
@@ -804,6 +884,12 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														</span>
 													</div>
 												</div>
+											<div className="flex shrink-0 items-center gap-2">
+												<DuplicateResumeDialog
+													application={application}
+													resume={resume}
+													onCreated={handleResumeCreated}
+												/>
 												<Button variant="outline" size="sm" asChild>
 													<Link
 														to="/editor/$applicationId"
@@ -816,6 +902,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														Open
 													</Link>
 												</Button>
+											</div>
 											</div>
 										))
 									) : (
