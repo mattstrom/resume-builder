@@ -11,7 +11,7 @@ import {
 
 import { useSettings } from '@/components/Settings.provider.tsx';
 
-import { type PaginationBlock, planPagination } from './pagination-planner.ts';
+import { getPrintableOverflowTarget, type PaginationBlock, planPagination } from './pagination-planner.ts';
 
 import './PaginatedDocument.css';
 
@@ -111,6 +111,69 @@ function collectBlocks(root: HTMLElement, origin: number): PaginationBlock[] {
 	return blocks;
 }
 
+function applyRenderedBreak(root: HTMLElement, element: HTMLElement, target: number): void {
+	const rootTop = root.getBoundingClientRect().top;
+	const renderedTop = element.getBoundingClientRect().top - rootTop;
+	const existingOffset = Number.parseFloat(element.style.getPropertyValue('--pagination-break-offset'));
+	const naturalMargin =
+		element.style.getPropertyValue('--pagination-natural-margin') || getComputedStyle(element).marginBlockStart;
+
+	element.style.setProperty('--pagination-natural-margin', naturalMargin);
+	element.style.setProperty(
+		'--pagination-break-offset',
+		`${(Number.isFinite(existingOffset) ? existingOffset : 0) + target - renderedTop}px`,
+	);
+	element.setAttribute('data-pagination-break-before', 'true');
+
+	const correctedTop = element.getBoundingClientRect().top - rootTop;
+	const correction = target - correctedTop;
+	if (Math.abs(correction) <= 0.5) return;
+
+	const offset = Number.parseFloat(element.style.getPropertyValue('--pagination-break-offset'));
+	element.style.setProperty('--pagination-break-offset', `${offset + correction}px`);
+}
+
+function findRenderedOverflow(
+	root: HTMLElement,
+	pageHeight: number,
+	pageMargin: number,
+	pageGap: number,
+): { element: HTMLElement; target: number } | null {
+	const rootTop = root.getBoundingClientRect().top;
+	const targetFor = (element: HTMLElement, endElement = element) => {
+		const start = element.getBoundingClientRect().top - rootTop;
+		const end = endElement.getBoundingClientRect().bottom - rootTop;
+		return getPrintableOverflowTarget({
+			start,
+			end,
+			pageHeight,
+			pageMargin,
+			pageGap,
+		});
+	};
+
+	for (const heading of root.querySelectorAll<HTMLElement>('[data-pagination-heading]')) {
+		const section = heading.closest<HTMLElement>('[data-pagination-section]');
+		const firstUnit = section?.querySelector<HTMLElement>('[data-pagination-unit]');
+		const target = targetFor(heading, firstUnit ?? heading);
+		if (target !== null) return { element: heading, target };
+	}
+
+	for (const unit of root.querySelectorAll<HTMLElement>('[data-pagination-unit]:not([data-pagination-oversized])')) {
+		const target = targetFor(unit);
+		if (target !== null) return { element: unit, target };
+	}
+
+	for (const subunit of root.querySelectorAll<HTMLElement>(
+		'[data-pagination-unit][data-pagination-oversized] [data-pagination-subunit]',
+	)) {
+		const target = targetFor(subunit);
+		if (target !== null) return { element: subunit, target };
+	}
+
+	return null;
+}
+
 export const PaginatedDocument: FC<PropsWithChildren> = ({ children }) => {
 	const { showMarginPattern } = useSettings();
 	const rootRef = useRef<HTMLDivElement>(null);
@@ -173,7 +236,19 @@ export const PaginatedDocument: FC<PropsWithChildren> = ({ children }) => {
 			}
 		}
 
-		setPageCount((current) => (current === plan.pageCount ? current : plan.pageCount));
+		const candidateCount = root.querySelectorAll(
+			'[data-pagination-heading], [data-pagination-unit], [data-pagination-subunit]',
+		).length;
+		for (let index = 0; index <= candidateCount; index += 1) {
+			const overflow = findRenderedOverflow(root, pageHeight, margin, pageGap);
+			if (!overflow) break;
+			applyRenderedBreak(root, overflow.element, overflow.target);
+		}
+
+		const sheetStride = pageHeight + margin * 2 + pageGap;
+		const renderedPageCount = Math.max(1, Math.ceil(root.scrollHeight / sheetStride));
+		const nextPageCount = Math.max(plan.pageCount, renderedPageCount);
+		setPageCount((current) => (current === nextPageCount ? current : nextPageCount));
 		setReady(true);
 	}, []);
 

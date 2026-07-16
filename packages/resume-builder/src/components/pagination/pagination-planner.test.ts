@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { planPagination } from './pagination-planner.ts';
+import { getPrintableOverflowTarget, planPagination } from './pagination-planner.ts';
 
 describe('planPagination', () => {
 	it('keeps content that fits on one page together', () => {
@@ -93,5 +93,43 @@ describe('planPagination', () => {
 		};
 
 		expect(planPagination(input)).toEqual(planPagination(input));
+	});
+});
+
+describe('getPrintableOverflowTarget', () => {
+	it('moves a block crossing the bottom margin to the next printable area', () => {
+		expect(
+			getPrintableOverflowTarget({
+				start: 900,
+				end: 1020,
+				pageHeight: 960,
+				pageMargin: 48,
+				pageGap: 32,
+			}),
+		).toBe(1136);
+	});
+
+	it('moves content from a page gap to the following printable area', () => {
+		expect(
+			getPrintableOverflowTarget({
+				start: 1064,
+				end: 1080,
+				pageHeight: 960,
+				pageMargin: 48,
+				pageGap: 32,
+			}),
+		).toBe(1136);
+	});
+
+	it('leaves content inside the printable area unchanged', () => {
+		expect(
+			getPrintableOverflowTarget({
+				start: 100,
+				end: 900,
+				pageHeight: 960,
+				pageMargin: 48,
+				pageGap: 32,
+			}),
+		).toBeNull();
 	});
 });

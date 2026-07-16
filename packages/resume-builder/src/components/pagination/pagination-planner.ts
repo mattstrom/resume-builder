@@ -30,7 +30,50 @@ interface PlanPaginationOptions {
 	blocks: PaginationBlock[];
 }
 
+interface PrintableOverflowOptions {
+	start: number;
+	end: number;
+	pageHeight: number;
+	pageMargin: number;
+	pageGap: number;
+}
+
 const FIT_TOLERANCE = 0.5;
+
+/**
+ * Returns the physical screen position where a block should resume when it
+ * intersects a preview-only page margin or gap. Unlike the logical planner,
+ * this works on the final rendered page-sheet coordinates.
+ */
+export function getPrintableOverflowTarget({
+	start,
+	end,
+	pageHeight,
+	pageMargin,
+	pageGap,
+}: PrintableOverflowOptions): number | null {
+	const sheetStride = pageHeight + pageMargin * 2 + pageGap;
+	if (sheetStride <= 0 || pageHeight <= 0) return null;
+
+	const pageIndex = Math.floor(Math.max(0, start) / sheetStride);
+	const printableStart = pageIndex * sheetStride + pageMargin;
+	const printableEnd = printableStart + pageHeight;
+
+	if (start < printableStart - FIT_TOLERANCE) {
+		return printableStart;
+	}
+
+	const nextPrintableStart = (pageIndex + 1) * sheetStride + pageMargin;
+	if (start >= printableEnd - FIT_TOLERANCE) {
+		return nextPrintableStart;
+	}
+
+	if (end > printableEnd + FIT_TOLERANCE && end - start <= pageHeight + FIT_TOLERANCE) {
+		return nextPrintableStart;
+	}
+
+	return null;
+}
 
 function pageStart(position: number, pageHeight: number): number {
 	return Math.floor(Math.max(0, position) / pageHeight) * pageHeight;
@@ -48,11 +91,7 @@ function crossesPage(end: number, start: number, pageHeight: number): boolean {
  * Plans page breaks in logical content coordinates. The caller is responsible
  * for adding the screen-only paper margins and gap to each returned offset.
  */
-export function planPagination({
-	pageHeight,
-	contentHeight,
-	blocks,
-}: PlanPaginationOptions): PaginationPlan {
+export function planPagination({ pageHeight, contentHeight, blocks }: PlanPaginationOptions): PaginationPlan {
 	if (pageHeight <= 0) {
 		return { breaks: [], oversizedUnitIds: [], pageCount: 1 };
 	}
