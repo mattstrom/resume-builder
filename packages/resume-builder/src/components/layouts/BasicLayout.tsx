@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 
-import { Page } from '../Page.tsx';
+import { PaginatedDocument } from '../pagination/PaginatedDocument.tsx';
 import {
 	EducationSection,
 	Masthead,
@@ -17,17 +17,15 @@ import './BasicLayout.css';
 export const BasicLayout: FC = () => {
 	return (
 		<Layout name="basic">
-			<Page>
+			<PaginatedDocument>
 				<Masthead />
 				<SummarySection />
 				<WorkExperience />
 				<EducationSection />
 				<SkillsSection />
-			</Page>
-			<Page>
 				<ProjectsSection />
 				<VolunteeringSection />
-			</Page>
+			</PaginatedDocument>
 		</Layout>
 	);
 };

@@ -13,6 +13,8 @@ interface SectionProps extends PropsWithChildren, HTMLAttributes<HTMLElement> {
 	label?: string;
 	/** Stable destination used by web and exported PDF fragment links. */
 	anchorId?: ResumeSectionId;
+	/** Treat the complete section as one preferred pagination unit. */
+	paginationUnit?: string;
 }
 
 export const Section: FC<SectionProps> = ({
@@ -22,11 +24,18 @@ export const Section: FC<SectionProps> = ({
 	path,
 	label,
 	anchorId,
+	paginationUnit,
 	...rest
 }) => {
 	const section = (
-		<section id={anchorId} className={clsx('section', 'major', className)} {...rest}>
-			<header>
+		<section
+			id={anchorId}
+			className={clsx('section', 'major', className)}
+			data-pagination-section
+			data-pagination-unit={paginationUnit}
+			{...rest}
+		>
+			<header data-pagination-heading={anchorId ? `${anchorId}-heading` : undefined}>
 				<h2>{heading}</h2>
 			</header>
 			<div>{children}</div>

@@ -20,6 +20,8 @@ interface CollectionEditorItemProps {
 	onInsertBelow?: () => void;
 	actions?: ReactNode;
 	children: ReactNode;
+	/** Stable identifier used by the print paginator. */
+	paginationUnit?: string;
 }
 
 export const CollectionEditorItem: FC<CollectionEditorItemProps> = observer(
@@ -35,11 +37,12 @@ export const CollectionEditorItem: FC<CollectionEditorItemProps> = observer(
 		onInsertBelow,
 		actions,
 		children,
+		paginationUnit,
 	}) => {
 		const content = <div className="min-w-0">{children}</div>;
 
 		return (
-			<div className="group relative">
+			<div className="group relative" data-pagination-unit={paginationUnit}>
 				{path ? (
 					<HighlightRegion
 						path={path}

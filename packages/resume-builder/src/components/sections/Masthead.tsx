@@ -14,7 +14,7 @@ export const Masthead: FC<MastheadProps> = () => {
 
 	return (
 		<HighlightRegion path="data" label="Masthead">
-			<section className="masthead">
+			<section className="masthead" data-pagination-unit="masthead">
 				<section className="left">
 					<header className="name">
 						<InlineEditor as="h1" path="data.name" value={name} resumeId={resumeId} />

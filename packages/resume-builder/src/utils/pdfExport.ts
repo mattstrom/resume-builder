@@ -18,6 +18,7 @@ export async function generatePDF(
 	sourceDocument?: Document,
 ): Promise<void> {
 	const doc = sourceDocument ?? getPreviewDocument();
+	await waitForPaginationReady(doc);
 	const html = doc.documentElement.outerHTML;
 
 	const response = await authFetch('/api/pdf', {
@@ -41,6 +42,33 @@ export async function generatePDF(
 	a.click();
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
+}
+
+/** Wait until a measured Basic layout has committed its page breaks. */
+export async function waitForPaginationReady(doc: Document): Promise<void> {
+	const paginatedDocument = doc.querySelector<HTMLElement>('[data-pagination-ready]');
+
+	if (!paginatedDocument || paginatedDocument.dataset.paginationReady === 'true') {
+		return;
+	}
+
+	await new Promise<void>((resolve, reject) => {
+		const timeout = window.setTimeout(() => {
+			observer.disconnect();
+			reject(new Error('Resume pagination did not finish in time.'));
+		}, 10000);
+		const observer = new MutationObserver(() => {
+			if (paginatedDocument.dataset.paginationReady !== 'true') return;
+			window.clearTimeout(timeout);
+			observer.disconnect();
+			resolve();
+		});
+
+		observer.observe(paginatedDocument, {
+			attributes: true,
+			attributeFilter: ['data-pagination-ready'],
+		});
+	});
 }
 
 /**

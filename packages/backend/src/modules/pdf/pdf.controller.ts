@@ -12,7 +12,9 @@ export class PdfController {
 			const page = await browser.newPage();
 
 			await page.setContent(html, { waitUntil: 'networkidle0' });
-			await page.waitForSelector('.page', { timeout: 10000 });
+			await page.waitForSelector('.page, [data-pagination-ready="true"]', {
+				timeout: 10000,
+			});
 
 			const pdfBuffer = await page.pdf({
 				format: 'letter',

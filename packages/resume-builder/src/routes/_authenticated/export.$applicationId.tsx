@@ -9,7 +9,7 @@ import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
 import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
-import { generatePDFFromHTML } from '../../utils/pdfExport';
+import { generatePDFFromHTML, waitForPaginationReady } from '../../utils/pdfExport';
 
 import '../../App.css';
 
@@ -68,7 +68,15 @@ function ExportComponent() {
 
 		// Defer to next frame so the resume content renders first,
 		// then snapshot the HTML before the overlay can interfere.
-		requestAnimationFrame(() => {
+		requestAnimationFrame(async () => {
+			try {
+				await waitForPaginationReady(document);
+			} catch (err) {
+				setErrorMessage(err instanceof Error ? err.message : 'Resume pagination failed');
+				setStatus('error');
+				return;
+			}
+
 			const clone = document.documentElement.cloneNode(true) as HTMLElement;
 			// Remove the overlay from the cloned document
 			const overlay = clone.querySelector('[data-export-overlay]');

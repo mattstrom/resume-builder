@@ -40,6 +40,7 @@ export const SkillsSection: FC<SkillsSectionProps> = observer(() => {
 							length={skillGroups.length}
 							label="skill group"
 							path={`data.skillGroups.${index}`}
+							paginationUnit={`skill-group-${group._id ?? index}`}
 							controlsPosition="left"
 							onMove={(fromIndex, toIndex) =>
 								void controller?.moveArrayItem(

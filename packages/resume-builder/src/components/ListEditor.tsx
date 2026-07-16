@@ -55,7 +55,7 @@ const HighlightableBlockItems: FC<{
 	<>
 		{items.map((item, i) => (
 			<HighlightRegion key={i} path={`${path}.${i}`} label={item}>
-				<li>
+				<li data-pagination-subunit={`${path}.${i}`}>
 					{linkMarkup ? (
 						<InlineMarkdown
 							value={item}
@@ -239,7 +239,11 @@ const BlockEditMode: FC<EditModeProps> = observer(({ store, className, linkMarku
 		<div className={cn('relative', className)}>
 			<ul className="space-y-1">
 				{store.items.map((item, index) => (
-					<li key={`${index}:${item}`} className="list-none">
+					<li
+						key={`${index}:${item}`}
+						className="list-none"
+						data-pagination-subunit={`${store.activePath ?? 'list'}.${index}`}
+					>
 						<DraggableListItem
 							index={index}
 							length={store.items.length}
