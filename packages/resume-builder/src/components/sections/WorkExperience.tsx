@@ -1,5 +1,5 @@
 import type { Job } from '@resume-builder/entities';
-import { Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
 
@@ -22,7 +22,7 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 	const { workExperience } = useResume();
 	const items = workExperience ?? [];
 	const resumeId = useResumeId();
-	const { uiStateStore } = useStore();
+	const { listEditStore, uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
 	const controller = getActiveResumeController(resumeId);
 	const isSaving = false;
@@ -78,18 +78,38 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 								onInsertBelow={() => void insertItem(index + 1)}
 								actions={
 									isEditable ? (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className="h-7 w-7"
-											onClick={() => void removeItem(index)}
-											disabled={isSaving}
-											aria-label="Remove job"
-											title="Remove job"
-										>
-											<Trash2 />
-										</Button>
+										<>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												onClick={() =>
+													listEditStore.beginAddToList(
+														resumeId,
+														`data.workExperience.${index}.responsibilities`,
+														item.responsibilities,
+													)
+												}
+												disabled={isSaving}
+												aria-label="Add responsibility"
+												title="Add responsibility"
+											>
+												<Plus />
+											</Button>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												onClick={() => void removeItem(index)}
+												disabled={isSaving}
+												aria-label="Remove job"
+												title="Remove job"
+											>
+												<Trash2 />
+											</Button>
+										</>
 									) : null
 								}
 							>

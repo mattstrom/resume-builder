@@ -4,20 +4,7 @@ import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { useResumeId } from '@/components/Resume.provider.tsx';
-
-function formatDate(dateString: string): string {
-	if (!dateString) {
-		return 'Date TBD';
-	}
-
-	const date = new Date(dateString);
-
-	if (Number.isNaN(date.getTime())) {
-		return dateString;
-	}
-
-	return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-}
+import { formatMonthYear } from '@/lib/date-format.ts';
 
 interface JobProps extends PropsWithChildren {
 	job: Job;
@@ -55,10 +42,10 @@ export const JobSection: FC<JobProps> = ({ job, index, actions }) => {
 				/>
 				<span>{' | '}</span>
 				<time>
-					<span className="start-date">{formatDate(job.startDate)}</span>
+					<span className="start-date">{formatMonthYear(job.startDate)}</span>
 					{'–'}
 					<span className="end-date">
-						{job.endDate ? formatDate(job.endDate) : 'Present'}
+						{job.endDate ? formatMonthYear(job.endDate) : 'Present'}
 					</span>
 				</time>
 			</div>

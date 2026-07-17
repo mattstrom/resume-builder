@@ -64,6 +64,17 @@ export class ListEditStore {
 	}
 
 	@action
+	beginAddToList(
+		resumeId: string,
+		path: string,
+		currentItems: string[],
+		onCommit?: (items: string[]) => void | Promise<void>,
+	) {
+		this.beginEdit(resumeId, path, currentItems, onCommit);
+		this.beginAdd();
+	}
+
+	@action
 	discard() {
 		this.activePath = null;
 		this.items = [];
