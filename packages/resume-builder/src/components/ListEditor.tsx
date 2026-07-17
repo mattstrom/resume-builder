@@ -121,10 +121,9 @@ export const ListEditor: FC<ListEditorProps> = observer(
 				store.beginEdit(resumeId, path, items, onCommit);
 			}
 		};
-
 		if (!isEditable) {
-			if (!hasItems && emptyPlaceholder) {
-				return <span className={className}>{emptyPlaceholder}</span>;
+			if (!hasItems) {
+				return null;
 			}
 
 			return variant === 'block' ? (
@@ -152,7 +151,9 @@ export const ListEditor: FC<ListEditorProps> = observer(
 
 		if (!isEditing) {
 			if (!hasItems) {
-				return <span className={className}>{emptyPlaceholder}</span>;
+				return emptyPlaceholder ? (
+					<span className={className}>{emptyPlaceholder}</span>
+				) : null;
 			}
 
 			return variant === 'block' ? (
