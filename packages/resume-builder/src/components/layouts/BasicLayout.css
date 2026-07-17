@@ -9,7 +9,7 @@
 		grid-template-rows: min-content;
 		grid-template-columns: 1fr min-content;
 
-		margin-bottom: 1rem;
+		margin-bottom: 0.8rem;
 
 		h1 {
 			margin: 0;
@@ -50,7 +50,7 @@
 		}
 
 		.name {
-			font-variant: small-caps;
+			text-transform: uppercase;
 		}
 
 		.phone-number {
@@ -76,10 +76,10 @@
 	}
 
 	.section.major {
-		margin-bottom: 1rem;
+		margin-bottom: 0.8rem;
 
 		> header {
-			font-variant: small-caps;
+			text-transform: uppercase;
 			border-bottom: 1px solid black;
 			margin-bottom: 0.5rem;
 		}
