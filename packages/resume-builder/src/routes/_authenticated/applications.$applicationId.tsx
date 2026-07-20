@@ -262,11 +262,13 @@ function CreateWorkflowResumeDialog({
 									<SelectContent>
 										<SelectGroup>
 											<SelectItem value="blank">Blank resume</SelectItem>
-											{editorStore.baseResumes.map((resume) => (
-												<SelectItem key={resume._id} value={resume._id}>
-													{resume.name || 'Untitled resume'}
-												</SelectItem>
-											))}
+											{editorStore.baseResumes
+												.filter((resume) => resume._id)
+												.map((resume) => (
+													<SelectItem key={resume._id} value={resume._id}>
+														{resume.name || 'Untitled resume'}
+													</SelectItem>
+												))}
 										</SelectGroup>
 									</SelectContent>
 								</Select>
@@ -759,8 +761,8 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														Job summary
 													</h3>
 													<p className="text-sm text-muted-foreground">
-														Structured requirements extracted from the job
-														posting.
+														Structured requirements extracted from the
+														job posting.
 													</p>
 												</div>
 												<ReadonlyDataFields
@@ -800,7 +802,10 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 											</CardDescription>
 										</CardHeader>
 										<CardContent className="flex flex-col gap-2">
-											<ScoreRow label="Overall" value={analysis?.overallFit} />
+											<ScoreRow
+												label="Overall"
+												value={analysis?.overallFit}
+											/>
 											<ScoreRow
 												label="Skills"
 												value={analysis?.skillRelevance}
@@ -821,7 +826,10 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 												label="Compensation"
 												value={analysis?.compensationFit}
 											/>
-											<ScoreRow label="Company" value={analysis?.companyFit} />
+											<ScoreRow
+												label="Company"
+												value={analysis?.companyFit}
+											/>
 											<ScoreRow
 												label="Logistics"
 												value={analysis?.logisticalFit}
@@ -833,8 +841,8 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														Job assessment
 													</h3>
 													<p className="text-sm text-muted-foreground">
-														Fit analysis between your profile and the job
-														requirements.
+														Fit analysis between your profile and the
+														job requirements.
 													</p>
 												</div>
 												<ReadonlyDataFields
@@ -884,25 +892,25 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														</span>
 													</div>
 												</div>
-											<div className="flex shrink-0 items-center gap-2">
-												<DuplicateResumeDialog
-													application={application}
-													resume={resume}
-													onCreated={handleResumeCreated}
-												/>
-												<Button variant="outline" size="sm" asChild>
-													<Link
-														to="/editor/$applicationId"
-														params={{ applicationId }}
-														search={(previous) => ({
-															...previous,
-															resumeId: resume._id,
-														})}
-													>
-														Open
-													</Link>
-												</Button>
-											</div>
+												<div className="flex shrink-0 items-center gap-2">
+													<DuplicateResumeDialog
+														application={application}
+														resume={resume}
+														onCreated={handleResumeCreated}
+													/>
+													<Button variant="outline" size="sm" asChild>
+														<Link
+															to="/editor/$applicationId"
+															params={{ applicationId }}
+															search={(previous) => ({
+																...previous,
+																resumeId: resume._id,
+															})}
+														>
+															Open
+														</Link>
+													</Button>
+												</div>
 											</div>
 										))
 									) : (

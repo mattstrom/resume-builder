@@ -33,7 +33,6 @@ describe('ResumesService', () => {
 
 			// Act
 			const resume = await service.createBlank('auth0|test', {
-				id: '',
 				name: 'New Resume',
 				company: 'Acme',
 				jobPostingUrl: '',

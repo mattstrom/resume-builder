@@ -80,11 +80,13 @@ export const ResumeSwitcher: FC = observer(() => {
 						<SelectValue placeholder="Select resume" />
 					</SelectTrigger>
 					<SelectContent>
-						{applicationResumes.map((r) => (
-							<SelectItem key={r._id} value={r._id} className="text-xs">
-								{r.name}
-							</SelectItem>
-						))}
+						{applicationResumes
+							.filter((r) => r._id)
+							.map((r) => (
+								<SelectItem key={r._id} value={r._id} className="text-xs">
+									{r.name}
+								</SelectItem>
+							))}
 					</SelectContent>
 				</Select>
 			) : (
@@ -128,11 +130,13 @@ export const ResumeSwitcher: FC = observer(() => {
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="blank">Blank resume</SelectItem>
-										{editorStore.baseResumes.map((r) => (
-											<SelectItem key={r._id} value={r._id}>
-												{r.name}
-											</SelectItem>
-										))}
+										{editorStore.baseResumes
+											.filter((r) => r._id)
+											.map((r) => (
+												<SelectItem key={r._id} value={r._id}>
+													{r.name}
+												</SelectItem>
+											))}
 									</SelectContent>
 								</Select>
 							</div>
