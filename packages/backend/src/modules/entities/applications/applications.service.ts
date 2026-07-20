@@ -44,7 +44,6 @@ export class ApplicationsService {
 
 		if (includeResume) {
 			await this.resumeService.createBlank(uid, {
-				id: '',
 				name: 'Untitled Resume',
 				company: applicationData.company,
 				jobPostingUrl: applicationData.jobPostingUrl,
