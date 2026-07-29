@@ -85,6 +85,14 @@ export interface CreateBlankResumeVariables {
 	};
 }
 
+export interface DeleteResumeData {
+	deleteResume: boolean;
+}
+
+export interface DeleteResumeVariables {
+	id: string;
+}
+
 export interface GetResumeVariables {
 	id: string;
 }

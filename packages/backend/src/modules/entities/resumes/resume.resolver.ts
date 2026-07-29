@@ -45,4 +45,10 @@ export class ResumeResolver {
 	) {
 		return this.resumesService.createBlank(uid, resumeData);
 	}
+
+	@Mutation(() => Boolean)
+	async deleteResume(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
+		await this.resumesService.delete(uid, id);
+		return true;
+	}
 }

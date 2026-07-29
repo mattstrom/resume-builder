@@ -486,6 +486,7 @@ type Mutation {
   patchApplication(id: String!, update: JSON!): Application!
   createResume(resumeData: ResumeCreateInput!): Resume!
   createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
+  deleteResume(id: String!): Boolean!
   createCompany(company: CompanyInput!): Company!
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!

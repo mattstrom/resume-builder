@@ -12,10 +12,12 @@ import {
 	RefreshCw,
 	Save,
 	Sparkles,
+	Trash2,
 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
 import { ReadonlyDataFields } from '@/components/ReadonlyDataView.tsx';
@@ -35,6 +37,7 @@ import {
 import {
 	Dialog,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -53,11 +56,13 @@ import {
 import { Separator } from '@/components/ui/separator.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import { CREATE_BLANK_RESUME, UPDATE_APPLICATION } from '@/graphql/mutations.ts';
+import { CREATE_BLANK_RESUME, DELETE_RESUME, UPDATE_APPLICATION } from '@/graphql/mutations.ts';
 import { GET_APPLICATION } from '@/graphql/queries.ts';
 import type {
 	CreateBlankResumeData,
 	CreateBlankResumeVariables,
+	DeleteResumeData,
+	DeleteResumeVariables,
 	GetApplicationData,
 	GetApplicationVariables,
 	UpdateApplicationData,
@@ -65,6 +70,7 @@ import type {
 } from '@/graphql/types.ts';
 import {
 	deriveApplicationWorkflow,
+	WORKFLOW_STAGE_IDS,
 	type WorkflowStage,
 	type WorkflowStageId,
 	type WorkflowStageStatus,
@@ -83,6 +89,12 @@ type ApplicationFormState = {
 };
 
 type ResumeLink = Pick<Resume, '_id' | 'name' | 'updatedAt'>;
+
+const applicationSearchSchema = z
+	.object({
+		stage: z.enum(WORKFLOW_STAGE_IDS).optional().default('posting'),
+	})
+	.catch({ stage: 'posting' });
 
 const statusLabels: Record<WorkflowStageStatus, string> = {
 	empty: 'Empty',
@@ -363,12 +375,68 @@ function DuplicateResumeDialog({
 	);
 }
 
+function DeleteResumeDialog({
+	resume,
+	onDeleted,
+}: {
+	resume: ResumeLink;
+	onDeleted: () => Promise<void>;
+}) {
+	const [open, setOpen] = useState(false);
+	const [deleteResume, { loading: deleting }] = useMutation<
+		DeleteResumeData,
+		DeleteResumeVariables
+	>(DELETE_RESUME);
+
+	const handleDelete = async () => {
+		try {
+			await deleteResume({ variables: { id: resume._id } });
+			await onDeleted();
+			setOpen(false);
+			toast.success('Resume deleted');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to delete resume');
+		}
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<Button
+				variant="outline"
+				size="sm"
+				onClick={() => setOpen(true)}
+				aria-label={`Delete ${resume.name || 'untitled resume'}`}
+			>
+				<Trash2 data-icon="inline-start" />
+				Delete
+			</Button>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Delete resume?</DialogTitle>
+					<DialogDescription>
+						{`“${resume.name || 'Untitled resume'}” will be permanently deleted. This action cannot be undone.`}
+					</DialogDescription>
+				</DialogHeader>
+				<DialogFooter>
+					<Button variant="outline" onClick={() => setOpen(false)} disabled={deleting}>
+						Cancel
+					</Button>
+					<Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+						{deleting ? 'Deleting...' : 'Delete resume'}
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 const ApplicationRouteComponent = observer(function ApplicationRouteComponent() {
 	const { applicationId } = Route.useParams();
+	const { stage: selectedStage } = Route.useSearch();
 	const { application: loadedApplication } = Route.useLoaderData();
 	const { applicationStore, client, resumeStore } = useStore();
+	const navigate = Route.useNavigate();
 	const [application, setApplication] = useState<Application>(loadedApplication);
-	const [selectedStage, setSelectedStage] = useState<WorkflowStageId>('posting');
 	const [formState, setFormState] = useState(() => getInitialFormState(loadedApplication));
 	const [assessing, setAssessing] = useState(false);
 	const [updateApplication, { loading: saving }] = useMutation<
@@ -447,12 +515,18 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 		await saveApplication();
 	};
 
+	const handleStageChange = (stage: WorkflowStageId) => {
+		void navigate({
+			search: (previous) => ({ ...previous, stage }),
+		});
+	};
+
 	const handleAssess = async () => {
 		setAssessing(true);
 		try {
 			await saveApplication(false);
 			await applicationStore.assess(applicationId);
-			setSelectedStage('fit');
+			handleStageChange('fit');
 			await refreshApplication();
 			toast.success('Assessment queued. Refresh results after it finishes.');
 		} catch (error) {
@@ -468,6 +542,10 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	};
 
 	const handleResumeCreated = async (_resume: Resume) => {
+		await Promise.all([refreshApplication(), resumeStore.refetch()]);
+	};
+
+	const handleResumeDeleted = async () => {
 		await Promise.all([refreshApplication(), resumeStore.refetch()]);
 	};
 
@@ -511,10 +589,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 										<Link
 											to="/editor/$applicationId"
 											params={{ applicationId }}
-											search={(previous) => ({
-												...previous,
-												resumeId: firstResume._id,
-											})}
+											search={{ resumeId: firstResume._id }}
 										>
 											Open resume
 											<ArrowRight data-icon="inline-end" />
@@ -550,7 +625,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 								<Tabs
 									value={selectedStage}
 									onValueChange={(value) =>
-										setSelectedStage(value as WorkflowStageId)
+										handleStageChange(value as WorkflowStageId)
 									}
 								>
 									<TabsList className="h-auto w-full items-stretch justify-start gap-1 bg-muted/50 p-1">
@@ -565,7 +640,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 
 					<Tabs
 						value={selectedStage}
-						onValueChange={(value) => setSelectedStage(value as WorkflowStageId)}
+						onValueChange={(value) => handleStageChange(value as WorkflowStageId)}
 						className="flex flex-col gap-4"
 					>
 						<TabsContent value="posting" className="mt-0">
@@ -877,9 +952,16 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 										resumes.map((resume) => (
 											<div
 												key={resume._id}
-												className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2"
+												className="group relative flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 transition-colors hover:bg-muted/50"
 											>
-												<div className="flex min-w-0 items-center gap-3">
+												<Link
+													to="/editor/$applicationId"
+													params={{ applicationId }}
+													search={{ resumeId: resume._id }}
+													className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+													aria-label={`Open ${resume.name || 'untitled resume'}`}
+												/>
+												<div className="pointer-events-none flex min-w-0 items-center gap-3">
 													<FileText />
 													<div className="flex min-w-0 flex-col">
 														<span className="truncate text-sm font-medium">
@@ -890,24 +972,16 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														</span>
 													</div>
 												</div>
-												<div className="flex shrink-0 items-center gap-2">
+												<div className="relative z-10 flex shrink-0 items-center gap-2">
 													<DuplicateResumeDialog
 														application={application}
 														resume={resume}
 														onCreated={handleResumeCreated}
 													/>
-													<Button variant="outline" size="sm" asChild>
-														<Link
-															to="/editor/$applicationId"
-															params={{ applicationId }}
-															search={(previous) => ({
-																...previous,
-																resumeId: resume._id,
-															})}
-														>
-															Open
-														</Link>
-													</Button>
+													<DeleteResumeDialog
+														resume={resume}
+														onDeleted={handleResumeDeleted}
+													/>
 												</div>
 											</div>
 										))
@@ -1032,10 +1106,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 													<Link
 														to="/editor/$applicationId"
 														params={{ applicationId }}
-														search={(previous) => ({
-															...previous,
-															resumeId: firstResume._id,
-														})}
+														search={{ resumeId: firstResume._id }}
 													>
 														Open editor
 													</Link>
@@ -1044,6 +1115,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 													<Link
 														to="/preview/$applicationId"
 														params={{ applicationId }}
+														search={{ resumeId: firstResume._id }}
 													>
 														Preview
 													</Link>
@@ -1106,6 +1178,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 });
 
 export const Route = createFileRoute('/_authenticated/applications/$applicationId')({
+	validateSearch: applicationSearchSchema,
 	component: ApplicationRouteComponent,
 	errorComponent: RouteError,
 	pendingComponent: RouteLoading,

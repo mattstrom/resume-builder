@@ -111,4 +111,27 @@ export class ResumesService {
 
 		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
 	}
+
+	async delete(uid: string, id: string): Promise<void> {
+		const resume = await this.prisma.resume.findFirst({
+			where: { id, uid },
+			select: { id: true },
+		});
+
+		if (!resume) {
+			throw new NotFoundException();
+		}
+
+		await this.prisma.$transaction([
+			this.prisma.resume.updateMany({
+				where: { sourceResumeId: id },
+				data: { sourceResumeId: null },
+			}),
+			this.prisma.resumeFact.deleteMany({ where: { resumeId: id } }),
+			this.prisma.documentUpdate.deleteMany({
+				where: { name: `resume:${id}`, uid },
+			}),
+			this.prisma.resume.delete({ where: { id } }),
+		]);
+	}
 }

@@ -217,3 +217,9 @@ export const CREATE_BLANK_RESUME = gql`
 
 	${resumeContentFragment}
 `;
+
+export const DELETE_RESUME = gql`
+	mutation DeleteResume($id: String!) {
+		deleteResume(id: $id)
+	}
+`;
