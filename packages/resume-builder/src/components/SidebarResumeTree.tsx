@@ -110,10 +110,7 @@ export const SidebarResumeTree: FC = observer(() => {
 				size="sm"
 				to="/editor/$applicationId"
 				params={{ applicationId: application._id }}
-				search={(previous) => ({
-					...previous,
-					resumeId: resume._id,
-				})}
+				search={{ resumeId: resume._id }}
 				isActive={
 					selectedApiApplicationId === application._id && resumeData?._id === resume._id
 				}

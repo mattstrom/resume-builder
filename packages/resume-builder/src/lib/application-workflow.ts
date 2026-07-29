@@ -1,6 +1,8 @@
 import type { Application } from '@resume-builder/entities';
 
-export type WorkflowStageId = 'posting' | 'fit' | 'resume' | 'coverLetter' | 'review';
+export const WORKFLOW_STAGE_IDS = ['posting', 'fit', 'resume', 'coverLetter', 'review'] as const;
+
+export type WorkflowStageId = (typeof WORKFLOW_STAGE_IDS)[number];
 
 export type WorkflowStageStatus = 'empty' | 'ready' | 'inProgress' | 'complete' | 'blocked';
 
