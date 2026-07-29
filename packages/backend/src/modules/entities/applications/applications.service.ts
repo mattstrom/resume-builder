@@ -33,9 +33,14 @@ export class ApplicationsService {
 		uid: string,
 		applicationData: ApplicationInput,
 		includeResume: boolean = true,
+		sourceResumeId?: string,
 	): Promise<ApplicationWithId> {
 		if (applicationData.companyId) {
 			await this.companiesService.find(uid, applicationData.companyId);
+		}
+
+		if (includeResume && sourceResumeId) {
+			await this.resumeService.find(uid, sourceResumeId);
 		}
 
 		const saved = await this.prisma.application.create({
@@ -49,6 +54,7 @@ export class ApplicationsService {
 				jobPostingUrl: applicationData.jobPostingUrl,
 				base: false,
 				applicationId: saved.id,
+				sourceResumeId,
 			});
 		}
 

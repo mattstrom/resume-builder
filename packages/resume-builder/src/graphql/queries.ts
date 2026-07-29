@@ -205,6 +205,16 @@ export const LIST_RESUMES = gql`
 	${resumeContentFragment}
 `;
 
+export const LIST_BASE_RESUMES = gql`
+	query ListBaseResumes {
+		listResumes(filter: { base: true }) {
+			_id
+			name
+			base
+		}
+	}
+`;
+
 export const GET_RESUME = gql`
 	query GetResume($id: String!) {
 		getResume(id: $id) {

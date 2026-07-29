@@ -22,6 +22,7 @@ export interface GetApplicationVariables {
 
 export interface CreateApplicationVariables {
 	applicationData: Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>;
+	sourceResumeId?: string;
 }
 
 export interface UpdateApplicationVariables {
@@ -52,6 +53,12 @@ export interface UpdateApplicationVariables {
 
 export interface ListResumesData {
 	listResumes: Resume[];
+}
+
+export type BaseResumeSummary = Pick<Resume, '_id' | 'name' | 'base'>;
+
+export interface ListBaseResumesData {
+	listResumes: BaseResumeSummary[];
 }
 
 export interface ListResumesVariables {

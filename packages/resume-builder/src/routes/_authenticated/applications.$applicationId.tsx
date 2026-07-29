@@ -252,28 +252,26 @@ function CreateWorkflowResumeDialog({
 								autoFocus
 							/>
 						</div>
-						{editorStore.baseResumes.length > 0 && (
-							<div className="flex flex-col gap-2">
-								<Label htmlFor="base-resume">Base resume</Label>
-								<Select value={baseResumeId} onValueChange={setBaseResumeId}>
-									<SelectTrigger id="base-resume">
-										<SelectValue placeholder="Blank resume" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectGroup>
-											<SelectItem value="blank">Blank resume</SelectItem>
-											{editorStore.baseResumes
-												.filter((resume) => resume._id)
-												.map((resume) => (
-													<SelectItem key={resume._id} value={resume._id}>
-														{resume.name || 'Untitled resume'}
-													</SelectItem>
-												))}
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							</div>
-						)}
+						<div className="flex flex-col gap-2">
+							<Label htmlFor="base-resume">Base resume</Label>
+							<Select value={baseResumeId} onValueChange={setBaseResumeId}>
+								<SelectTrigger id="base-resume">
+									<SelectValue placeholder="Blank resume" />
+								</SelectTrigger>
+								<SelectContent position="item-aligned">
+									<SelectGroup>
+										<SelectItem value="blank">Blank resume</SelectItem>
+										{editorStore.baseResumes
+											.filter((resume) => resume._id)
+											.map((resume) => (
+												<SelectItem key={resume._id} value={resume._id}>
+													{resume.name || 'Untitled resume'}
+												</SelectItem>
+											))}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</div>
 						<DialogFooter>
 							<Button type="submit" disabled={creating}>
 								{creating ? 'Creating...' : 'Create resume'}

@@ -181,8 +181,8 @@ export const DELETE_VOLUNTEERING = gql`
 `;
 
 export const CREATE_APPLICATION = gql`
-	mutation CreateApplication($applicationData: ApplicationInput!) {
-		createApplication(applicationData: $applicationData) {
+	mutation CreateApplication($applicationData: ApplicationInput!, $sourceResumeId: String) {
+		createApplication(applicationData: $applicationData, sourceResumeId: $sourceResumeId) {
 			...ApplicationFields
 		}
 	}

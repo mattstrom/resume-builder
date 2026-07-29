@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client/react';
 import { useNavigate } from '@tanstack/react-router';
+import { observer } from 'mobx-react';
 import { type FC, type FormEvent, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 
 import { CREATE_APPLICATION } from '../graphql/mutations';
 import type { CreateApplicationData, CreateApplicationVariables } from '../graphql/types';
@@ -22,78 +31,110 @@ interface CreateApplicationDialogProps {
 	children: React.ReactNode;
 }
 
-export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = ({ children }) => {
-	const navigate = useNavigate();
-	const { applicationStore, resumeStore } = useStore();
-	const [open, setOpen] = useState(false);
-	const [createApplication, { loading }] = useMutation<
-		CreateApplicationData,
-		CreateApplicationVariables
-	>(CREATE_APPLICATION);
+export const CreateApplicationDialog: FC<CreateApplicationDialogProps> = observer(
+	({ children }) => {
+		const navigate = useNavigate();
+		const { applicationStore, editorStore, resumeStore } = useStore();
+		const [open, setOpen] = useState(false);
+		const [baseResumeId, setBaseResumeId] = useState('blank');
+		const [createApplication, { loading }] = useMutation<
+			CreateApplicationData,
+			CreateApplicationVariables
+		>(CREATE_APPLICATION);
 
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		const formData = new FormData(e.currentTarget);
-		const name = (formData.get('name') as string).trim();
-		const company = (formData.get('company') as string).trim();
-		const jobPostingUrl = (formData.get('jobPostingUrl') as string).trim();
+		const handleOpenChange = (nextOpen: boolean) => {
+			if (nextOpen) {
+				setBaseResumeId('blank');
+				void editorStore.loadBaseResumes();
+			}
+			setOpen(nextOpen);
+		};
 
-		const result = await createApplication({
-			variables: {
-				applicationData: {
-					name,
-					company,
-					jobPostingUrl,
+		const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
+			const formData = new FormData(e.currentTarget);
+			const name = (formData.get('name') as string).trim();
+			const company = (formData.get('company') as string).trim();
+			const jobPostingUrl = (formData.get('jobPostingUrl') as string).trim();
+
+			const result = await createApplication({
+				variables: {
+					applicationData: {
+						name,
+						company,
+						jobPostingUrl,
+					},
+					sourceResumeId: baseResumeId === 'blank' ? undefined : baseResumeId,
 				},
-			},
-		});
-
-		setOpen(false);
-		await Promise.all([applicationStore.refetch(), resumeStore.refetch()]);
-
-		const newApplicationId = result.data?.createApplication?._id;
-		if (newApplicationId) {
-			applicationStore.selectApplication(newApplicationId);
-			navigate({
-				to: '/applications/$applicationId',
-				params: { applicationId: newApplicationId },
 			});
-		}
-	};
 
-	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>New Application</DialogTitle>
-				</DialogHeader>
-				<form onSubmit={handleSubmit} className="grid gap-4">
-					<div className="grid gap-2">
-						<Label htmlFor="name">Name</Label>
-						<Input id="name" name="name" placeholder="Frontend Engineer" required />
-					</div>
-					<div className="grid gap-2">
-						<Label htmlFor="company">Company</Label>
-						<Input id="company" name="company" placeholder="Acme Corp" required />
-					</div>
-					<div className="grid gap-2">
-						<Label htmlFor="jobPostingUrl">Job Posting URL</Label>
-						<Input
-							id="jobPostingUrl"
-							name="jobPostingUrl"
-							type="url"
-							placeholder="https://example.com/job/123"
-							required
-						/>
-					</div>
-					<DialogFooter>
-						<Button type="submit" disabled={loading}>
-							{loading ? 'Creating...' : 'Create'}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
-	);
-};
+			setOpen(false);
+			await Promise.all([applicationStore.refetch(), resumeStore.refetch()]);
+
+			const newApplicationId = result.data?.createApplication?._id;
+			if (newApplicationId) {
+				applicationStore.selectApplication(newApplicationId);
+				navigate({
+					to: '/applications/$applicationId',
+					params: { applicationId: newApplicationId },
+				});
+			}
+		};
+
+		return (
+			<Dialog open={open} onOpenChange={handleOpenChange}>
+				<DialogTrigger asChild>{children}</DialogTrigger>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>New Application</DialogTitle>
+					</DialogHeader>
+					<form onSubmit={handleSubmit} className="grid gap-4">
+						<div className="grid gap-2">
+							<Label htmlFor="name">Name</Label>
+							<Input id="name" name="name" placeholder="Frontend Engineer" required />
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="company">Company</Label>
+							<Input id="company" name="company" placeholder="Acme Corp" required />
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="jobPostingUrl">Job Posting URL</Label>
+							<Input
+								id="jobPostingUrl"
+								name="jobPostingUrl"
+								type="url"
+								placeholder="https://example.com/job/123"
+								required
+							/>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="application-base-resume">Base resume</Label>
+							<Select value={baseResumeId} onValueChange={setBaseResumeId}>
+								<SelectTrigger id="application-base-resume">
+									<SelectValue placeholder="Blank resume" />
+								</SelectTrigger>
+								<SelectContent position="item-aligned">
+									<SelectGroup>
+										<SelectItem value="blank">Blank resume</SelectItem>
+										{editorStore.baseResumes
+											.filter((resume) => resume._id)
+											.map((resume) => (
+												<SelectItem key={resume._id} value={resume._id}>
+													{resume.name || 'Untitled resume'}
+												</SelectItem>
+											))}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</div>
+						<DialogFooter>
+							<Button type="submit" disabled={loading}>
+								{loading ? 'Creating...' : 'Create'}
+							</Button>
+						</DialogFooter>
+					</form>
+				</DialogContent>
+			</Dialog>
+		);
+	},
+);

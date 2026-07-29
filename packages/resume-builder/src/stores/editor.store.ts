@@ -5,12 +5,14 @@ import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { CrdtResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
 
 import { CREATE_BLANK_RESUME } from '../graphql/mutations.ts';
-import { GET_APPLICATION, LIST_RESUMES } from '../graphql/queries.ts';
+import { GET_APPLICATION, LIST_BASE_RESUMES, LIST_RESUMES } from '../graphql/queries.ts';
 import type {
+	BaseResumeSummary,
 	CreateBlankResumeData,
 	CreateBlankResumeVariables,
 	GetApplicationData,
 	GetApplicationVariables,
+	ListBaseResumesData,
 	ListResumesData,
 	ListResumesVariables,
 } from '../graphql/types.ts';
@@ -19,7 +21,7 @@ import type { RootStore } from './root.store.ts';
 export class EditorStore {
 	@observable resumeData: Resume | null = null;
 	@observable applicationResumes: Resume[] = [];
-	@observable baseResumes: Resume[] = [];
+	@observable baseResumes: BaseResumeSummary[] = [];
 	@observable selectedApiApplicationId: string | null = null;
 	@observable selectedApplication: Application | null = null;
 	@observable isLoading = false;
@@ -121,19 +123,17 @@ export class EditorStore {
 	@action
 	async loadBaseResumes() {
 		try {
-			const result = await this.rootStore.client.query<ListResumesData, ListResumesVariables>(
-				{
-					query: LIST_RESUMES,
-					variables: { filter: { base: true } },
-					fetchPolicy: 'network-only',
-				},
-			);
+			const result = await this.rootStore.client.query<ListBaseResumesData>({
+				query: LIST_BASE_RESUMES,
+				fetchPolicy: 'network-only',
+			});
 			runInAction(() => {
 				this.baseResumes = result.data?.listResumes ?? [];
 			});
-		} catch {
+		} catch (err) {
 			runInAction(() => {
 				this.baseResumes = [];
+				this.error = err instanceof Error ? err.message : 'Failed to load base resumes';
 			});
 		}
 	}
