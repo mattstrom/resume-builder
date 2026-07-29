@@ -36,8 +36,10 @@ export class ApplicationsResolver {
 	async createApplication(
 		@CurrentUser('sub') uid: string,
 		@Args('applicationData') applicationData: ApplicationInput,
+		@Args('sourceResumeId', { type: () => String, nullable: true })
+		sourceResumeId?: string,
 	) {
-		return this.applicationsService.create(uid, applicationData);
+		return this.applicationsService.create(uid, applicationData, true, sourceResumeId);
 	}
 
 	@Mutation(() => Application)

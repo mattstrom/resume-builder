@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
+	SelectGroup,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
@@ -121,14 +122,14 @@ export const ResumeSwitcher: FC = observer(() => {
 								autoFocus
 							/>
 						</div>
-						{editorStore.baseResumes.length > 0 && (
-							<div className="grid gap-2">
-								<Label htmlFor="base-resume">Base resume</Label>
-								<Select value={baseResumeId} onValueChange={setBaseResumeId}>
-									<SelectTrigger id="base-resume">
-										<SelectValue placeholder="Blank resume" />
-									</SelectTrigger>
-									<SelectContent>
+						<div className="grid gap-2">
+							<Label htmlFor="base-resume">Base resume</Label>
+							<Select value={baseResumeId} onValueChange={setBaseResumeId}>
+								<SelectTrigger id="base-resume">
+									<SelectValue placeholder="Blank resume" />
+								</SelectTrigger>
+								<SelectContent position="item-aligned">
+									<SelectGroup>
 										<SelectItem value="blank">Blank resume</SelectItem>
 										{editorStore.baseResumes
 											.filter((r) => r._id)
@@ -137,10 +138,10 @@ export const ResumeSwitcher: FC = observer(() => {
 													{r.name}
 												</SelectItem>
 											))}
-									</SelectContent>
-								</Select>
-							</div>
-						)}
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+						</div>
 						<DialogFooter>
 							<Button type="submit" disabled={creating}>
 								{creating ? 'Creating...' : 'Create'}

@@ -480,7 +480,7 @@ input ResumeFilterInput {
 }
 
 type Mutation {
-  createApplication(applicationData: ApplicationInput!): Application!
+  createApplication(applicationData: ApplicationInput!, sourceResumeId: String): Application!
   updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
   deleteApplication(id: String!): Boolean!
   patchApplication(id: String!, update: JSON!): Application!
