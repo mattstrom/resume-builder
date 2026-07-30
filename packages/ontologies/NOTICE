@@ -1,0 +1,17 @@
+@resume-builder/ontologies — third-party data attribution
+
+src/generated/technology-lexicon.ts and
+src/vocabularies/technology-category.generated.ts are derived from the O*NET
+30.0 Database.
+
+This product includes information from the O*NET 30.0 Database by the U.S.
+Department of Labor, Employment and Training Administration (USDOL/ETA). Used
+under the CC BY 4.0 license <https://creativecommons.org/licenses/by/4.0/>.
+O*NET® is a trademark of USDOL/ETA.
+
+Neither USDOL/ETA nor this project's authors imply endorsement of one another.
+The O*NET-derived content here has been modified: technology examples were
+deduplicated across occupations, and categories were regrouped under authored
+buckets.
+
+Source: https://www.onetcenter.org/database.html
