@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { technology } from '@resume-builder/ontologies';
 
 import type { Expression, Fact, ResumeFact } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
@@ -58,10 +59,50 @@ export interface SimilarFact extends FactWithoutEmbedding {
 
 @Injectable()
 export class FactsService {
+	private readonly logger = new Logger(FactsService.name);
+
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly embedding: EmbeddingService,
 	) {}
+
+	/**
+	 * Collapse technology spellings onto their canonical names before storage.
+	 *
+	 * Names that aren't recognized are kept exactly as supplied — this only
+	 * unifies spellings, it never drops data. The unrecognized ones are logged
+	 * instead, because that list is the evidence for whether the vocabulary
+	 * actually fits the facts we extract in practice.
+	 *
+	 * The immediate payoff is embedding quality: `factToEmbeddingText` folds
+	 * technologies into the text we embed, so `React.js` and `React` currently
+	 * produce different vectors for the same underlying fact.
+	 */
+	private canonicalizeTechnologies(technologies: string[]): string[] {
+		const output: string[] = [];
+		const seen = new Set<string>();
+		const unrecognized: string[] = [];
+
+		for (const label of technologies) {
+			const record = technology.resolve(label);
+			const name = record?.name ?? label;
+
+			if (record === undefined) {
+				unrecognized.push(label);
+			}
+
+			if (!seen.has(name)) {
+				seen.add(name);
+				output.push(name);
+			}
+		}
+
+		if (unrecognized.length > 0) {
+			this.logger.log(`[technology-normalization] unrecognized: ${unrecognized.join(', ')}`);
+		}
+
+		return output;
+	}
 
 	// ─── Facts ────────────────────────────────────────────────────────────────
 
@@ -78,7 +119,7 @@ export class FactsService {
 				citation: dto.citation,
 				citationNodeIndex: dto.citationNodeIndex,
 				tags: dto.tags ?? [],
-				technologies: dto.technologies ?? [],
+				technologies: this.canonicalizeTechnologies(dto.technologies ?? []),
 			},
 		});
 
@@ -116,7 +157,14 @@ export class FactsService {
 	async update(uid: string, id: string, dto: UpdateFactDto): Promise<FactWithoutEmbedding> {
 		await this.findById(uid, id);
 
-		const fact = await this.prisma.fact.update({ where: { id }, data: dto });
+		// Only touch technologies when the caller actually supplied them —
+		// otherwise a partial update would rewrite the column with an empty array.
+		const data =
+			dto.technologies === undefined
+				? dto
+				: { ...dto, technologies: this.canonicalizeTechnologies(dto.technologies) };
+
+		const fact = await this.prisma.fact.update({ where: { id }, data });
 
 		const vector = await this.embedding.embed(this.factToEmbeddingText(fact));
 		await this.setEmbedding(uid, fact.id, vector);
