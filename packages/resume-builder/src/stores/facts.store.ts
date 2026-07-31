@@ -36,12 +36,15 @@ export interface FactConcept {
 	concept: Concept;
 }
 
-export interface FactConceptInput {
-	vocabulary: string;
-	key: string;
-	label: string;
+export interface FactMeaningInput {
 	relation: string;
+	concept: {
+		vocabulary: string;
+		key: string;
+		label: string;
+	};
 	source?: string;
+	confidence?: number;
 }
 
 export interface ConceptSuggestion {
@@ -55,7 +58,7 @@ export class FactsStore {
 	private query: ApolloMobxWrapper<{ facts: Fact[] }>;
 
 	@observable isExtracting = false;
-	@observable isUpdatingConcept = false;
+	@observable isUpdatingMeaning = false;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -86,22 +89,22 @@ export class FactsStore {
 	}
 
 	@action
-	async upsertConcept(factId: string, input: FactConceptInput): Promise<void> {
-		this.isUpdatingConcept = true;
+	async upsertMeaning(factId: string, meaning: FactMeaningInput): Promise<void> {
+		this.isUpdatingMeaning = true;
 		try {
 			await this.rootStore.client.mutate({
 				mutation: UPSERT_FACT_CONCEPT,
-				variables: { factId, input },
+				variables: { factId, meaning },
 			});
 			await this.query.refetch();
 		} finally {
-			this.isUpdatingConcept = false;
+			this.isUpdatingMeaning = false;
 		}
 	}
 
 	@action
-	async deleteConcept(factId: string, conceptId: string, relation: string): Promise<void> {
-		this.isUpdatingConcept = true;
+	async deleteMeaning(factId: string, conceptId: string, relation: string): Promise<void> {
+		this.isUpdatingMeaning = true;
 		try {
 			await this.rootStore.client.mutate({
 				mutation: DELETE_FACT_CONCEPT,
@@ -109,7 +112,7 @@ export class FactsStore {
 			});
 			await this.query.refetch();
 		} finally {
-			this.isUpdatingConcept = false;
+			this.isUpdatingMeaning = false;
 		}
 	}
 

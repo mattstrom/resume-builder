@@ -4,35 +4,41 @@ import { FactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import { EmbeddingService } from '../facts/embedding.service.js';
-import { type CreateFactDto, type UpdateFactDto, FactsService } from '../facts/facts.service.js';
+import {
+	ConceptVocabulary,
+	type CreateFactDto,
+	type FactMeaningDto,
+	FactRelation,
+	FactsService,
+	type UpdateFactDto,
+} from '../facts/facts.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
 import { type McpToolParams } from './types.js';
 
-const factCreateSchema = FactSchema.omit({
+const factEvidenceSchema = FactSchema.omit({
 	id: true,
 	uid: true,
 	createdAt: true,
-}).extend({
-	kind: z.string().describe('Fact type; stored as an is-a relationship to a fact-type concept'),
-	entityType: z
-		.string()
-		.nullable()
-		.optional()
-		.describe('Related entity type; combined with entityId into a relates-to concept'),
-	entityId: z
-		.string()
-		.nullable()
-		.optional()
-		.describe('Related entity ID; combined with entityType into a relates-to concept'),
-	tags: z.string().array().optional().describe('Tags for classification'),
-	technologies: z
-		.string()
-		.array()
-		.optional()
-		.describe('Technologies stored as uses relationships'),
 });
-const factUpdateSchema = factCreateSchema.partial();
+const factMeaningSchema = z.object({
+	relation: z.enum(FactRelation).describe('The semantic relationship from the fact'),
+	concept: z.object({
+		vocabulary: z.enum(ConceptVocabulary).describe('The controlled concept vocabulary'),
+		key: z.string().min(1).describe('Stable, normalized concept key'),
+		label: z.string().min(1).describe('Human-readable concept label'),
+	}),
+	source: z.string().optional().describe('Assertion provenance, such as extractor or user'),
+	confidence: z.number().min(0).max(1).nullable().optional(),
+});
+const meaningsSchema = z
+	.array(factMeaningSchema)
+	.min(2)
+	.describe('Complete semantic assertions for the fact, including its type and entity');
+const factCreateSchema = factEvidenceSchema.extend({ meanings: meaningsSchema });
+const factUpdateSchema = factEvidenceSchema
+	.partial()
+	.extend({ meanings: meaningsSchema.optional() });
 
 @Resolver()
 @UseGuards(McpGuard)
@@ -45,31 +51,23 @@ export class FactsResolver {
 	@Tool({
 		name: 'get_facts',
 		description:
-			'Retrieve facts for the current user, optionally filtered through their semantic type or entity relationships',
+			'Retrieve facts for the current user, optionally filtered by a semantic relationship',
 		paramsSchema: {
-			kind: z.string().optional().describe('Filter by fact kind'),
-			entityType: z.string().optional().describe('Filter by entity type'),
-			entityId: z.string().optional().describe('Filter by entity ID'),
+			relation: z.enum(FactRelation).optional(),
+			vocabulary: z.enum(ConceptVocabulary).optional(),
+			conceptKey: z.string().optional().describe('Exact stable concept key'),
 		},
 		annotations: { destructiveHint: false, idempotentHint: true },
 	})
 	async getFacts(
-		{
-			kind,
-			entityType,
-			entityId,
-		}: McpToolParams<{
-			kind?: string;
-			entityType?: string;
-			entityId?: string;
+		filters: McpToolParams<{
+			relation?: FactRelation;
+			vocabulary?: ConceptVocabulary;
+			conceptKey?: string;
 		}>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
-		const facts = await this.factsService.findAll(user.sub, {
-			kind,
-			entityType,
-			entityId,
-		});
+		const facts = await this.factsService.findAll(user.sub, filters);
 
 		return {
 			content: [{ type: 'text', text: `Found ${facts.length} facts.` }],
@@ -119,7 +117,8 @@ export class FactsResolver {
 
 	@Tool({
 		name: 'create_facts',
-		description: 'Create multiple facts at once to avoid hitting tool call limits',
+		description:
+			'Create atomic evidence records with their complete semantic meanings in one batch',
 		paramsSchema: {
 			facts: z.array(factCreateSchema).describe('List of facts to create'),
 		},
@@ -139,7 +138,8 @@ export class FactsResolver {
 
 	@Tool({
 		name: 'update_fact',
-		description: 'Update an existing fact',
+		description:
+			'Update fact evidence; when meanings are supplied they replace the complete semantic set',
 		paramsSchema: {
 			id: z.string().describe('Fact ID'),
 			...factUpdateSchema.shape,
@@ -203,36 +203,24 @@ export class FactsResolver {
 		description: 'Add or update a semantic relationship between a fact and a concept',
 		paramsSchema: {
 			factId: z.string().describe('Fact ID'),
-			vocabulary: z.string().describe('Concept vocabulary, such as technology or role'),
-			key: z.string().describe('Stable concept key'),
-			label: z.string().describe('Human-readable concept label'),
-			relation: z
-				.string()
-				.describe('Relationship, such as uses, demonstrates, supports, or produced'),
-			source: z.string().optional().describe('Assertion provenance'),
-			confidence: z.number().min(0).max(1).optional().describe('Inference confidence'),
+			meaning: factMeaningSchema,
 		},
 		annotations: { destructiveHint: true, idempotentHint: true },
 	})
 	async upsertFactConcept(
 		{
 			factId,
-			...dto
+			meaning,
 		}: McpToolParams<{
 			factId: string;
-			vocabulary: string;
-			key: string;
-			label: string;
-			relation: string;
-			source?: string;
-			confidence?: number;
+			meaning: FactMeaningDto;
 		}>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
-		const concept = await this.factsService.upsertFactConcept(user.sub, factId, dto);
+		const concept = await this.factsService.upsertFactConcept(user.sub, factId, meaning);
 
 		return {
-			content: [{ type: 'text', text: `Linked ${dto.key} to fact ${factId}.` }],
+			content: [{ type: 'text', text: `Linked ${meaning.concept.key} to fact ${factId}.` }],
 			structuredContent: { concept },
 		};
 	}

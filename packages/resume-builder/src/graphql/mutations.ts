@@ -3,8 +3,8 @@ import { gql } from '@apollo/client';
 import { applicationFragment, resumeContentFragment } from './queries.ts';
 
 export const UPSERT_FACT_CONCEPT = gql`
-	mutation UpsertFactConcept($factId: ID!, $input: UpsertFactConceptInput!) {
-		upsertFactConcept(factId: $factId, input: $input) {
+	mutation UpsertFactConcept($factId: ID!, $meaning: FactMeaningInput!) {
+		upsertFactConcept(factId: $factId, meaning: $meaning) {
 			factId
 			conceptId
 			relation

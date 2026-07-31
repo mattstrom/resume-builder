@@ -297,17 +297,19 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 		if (!fact || !trimmedLabel) return;
 
 		try {
-			await factsStore.upsertConcept(fact.id, {
-				vocabulary: details.vocabulary,
-				key:
-					selectedSuggestion?.key ??
-					(details.vocabulary === 'technology'
-						? trimmedLabel
-						: details.vocabulary === 'entity'
-							? `unknown:${conceptKey(trimmedLabel)}`
-							: conceptKey(trimmedLabel)),
-				label: trimmedLabel,
+			await factsStore.upsertMeaning(fact.id, {
 				relation,
+				concept: {
+					vocabulary: details.vocabulary,
+					key:
+						selectedSuggestion?.key ??
+						(details.vocabulary === 'technology'
+							? trimmedLabel
+							: details.vocabulary === 'entity'
+								? `unknown:${conceptKey(trimmedLabel)}`
+								: conceptKey(trimmedLabel)),
+					label: trimmedLabel,
+				},
 				source: 'user',
 			});
 			setLabel('');
@@ -321,7 +323,7 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 	const removeConcept = async (link: FactConcept) => {
 		if (!fact) return;
 		try {
-			await factsStore.deleteConcept(fact.id, link.conceptId, link.relation);
+			await factsStore.deleteMeaning(fact.id, link.conceptId, link.relation);
 			toast.success('Meaning removed');
 		} catch {
 			toast.error('Could not remove meaning');
@@ -349,7 +351,7 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 									<Button
 										variant="ghost"
 										size="sm"
-										disabled={factsStore.isUpdatingConcept}
+										disabled={factsStore.isUpdatingMeaning}
 										onClick={() => removeConcept(link)}
 									>
 										<Trash2 data-icon="inline-start" />
@@ -421,8 +423,8 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 						/>
 					</div>
 
-					<Button type="submit" disabled={!label.trim() || factsStore.isUpdatingConcept}>
-						{factsStore.isUpdatingConcept ? (
+					<Button type="submit" disabled={!label.trim() || factsStore.isUpdatingMeaning}>
+						{factsStore.isUpdatingMeaning ? (
 							<Spinner data-icon="inline-start" />
 						) : (
 							<Plus data-icon="inline-start" />

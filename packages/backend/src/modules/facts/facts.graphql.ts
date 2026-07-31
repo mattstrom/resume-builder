@@ -1,5 +1,7 @@
 import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 
+import type { ConceptVocabulary, FactRelation } from './facts.service.js';
+
 @ObjectType()
 export class FactType {
 	@Field(() => ID)
@@ -133,10 +135,34 @@ export class ResumeFactType {
 }
 
 @InputType()
-export class CreateFactInput {
-	@Field()
-	kind: string;
+export class FactConceptReferenceInput {
+	@Field(() => String)
+	vocabulary: ConceptVocabulary;
 
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+}
+
+@InputType()
+export class FactMeaningInput {
+	@Field(() => String)
+	relation: FactRelation;
+
+	@Field(() => FactConceptReferenceInput)
+	concept: FactConceptReferenceInput;
+
+	@Field({ nullable: true })
+	source?: string;
+
+	@Field({ nullable: true })
+	confidence?: number;
+}
+
+@InputType()
+export class CreateFactInput {
 	@Field()
 	what: string;
 
@@ -152,24 +178,12 @@ export class CreateFactInput {
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
 
-	@Field(() => [String], { nullable: true })
-	tags?: string[];
-
-	@Field(() => [String], { nullable: true })
-	technologies?: string[];
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
+	@Field(() => [FactMeaningInput])
+	meanings: FactMeaningInput[];
 }
 
 @InputType()
 export class UpdateFactInput {
-	@Field({ nullable: true })
-	kind?: string;
-
 	@Field({ nullable: true })
 	what?: string;
 
@@ -185,17 +199,8 @@ export class UpdateFactInput {
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
 
-	@Field(() => [String], { nullable: true })
-	tags?: string[];
-
-	@Field(() => [String], { nullable: true })
-	technologies?: string[];
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
+	@Field(() => [FactMeaningInput], { nullable: true })
+	meanings?: FactMeaningInput[];
 }
 
 @InputType()
@@ -208,27 +213,6 @@ export class CreateExpressionInput {
 
 	@Field({ nullable: true })
 	tone?: string;
-}
-
-@InputType()
-export class UpsertFactConceptInput {
-	@Field()
-	vocabulary: string;
-
-	@Field()
-	key: string;
-
-	@Field()
-	label: string;
-
-	@Field()
-	relation: string;
-
-	@Field({ nullable: true })
-	source?: string;
-
-	@Field({ nullable: true })
-	confidence?: number;
 }
 
 @InputType()

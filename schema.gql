@@ -549,7 +549,7 @@ type Query {
   listCompanies: [Company!]!
   getCompany(id: String!): Company!
   getProfile: Profile
-  facts(kind: String, entityType: String, entityId: String): [FactType!]!
+  facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
   conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
@@ -620,7 +620,7 @@ type Mutation {
   createFact(input: CreateFactInput!): FactType!
   updateFact(id: ID!, input: UpdateFactInput!): FactType!
   deleteFact(id: ID!): Boolean!
-  upsertFactConcept(factId: ID!, input: UpsertFactConceptInput!): FactConceptType!
+  upsertFactConcept(factId: ID!, meaning: FactMeaningInput!): FactConceptType!
   deleteFactConcept(factId: ID!, conceptId: ID!, relation: String!): Boolean!
   createExpression(factId: ID!, input: CreateExpressionInput!): ExpressionType!
   deleteExpression(factId: ID!, expressionId: ID!): Boolean!
@@ -852,38 +852,34 @@ input ProfileUpdateInput {
 }
 
 input CreateFactInput {
-  kind: String!
   what: String!
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]
-  technologies: [String!]
-  entityType: String
-  entityId: String
+  meanings: [FactMeaningInput!]!
+}
+
+input FactMeaningInput {
+  relation: String!
+  concept: FactConceptReferenceInput!
+  source: String
+  confidence: Float
+}
+
+input FactConceptReferenceInput {
+  vocabulary: String!
+  key: String!
+  label: String!
 }
 
 input UpdateFactInput {
-  kind: String
   what: String
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]
-  technologies: [String!]
-  entityType: String
-  entityId: String
-}
-
-input UpsertFactConceptInput {
-  vocabulary: String!
-  key: String!
-  label: String!
-  relation: String!
-  source: String
-  confidence: Float
+  meanings: [FactMeaningInput!]
 }
 
 input CreateExpressionInput {

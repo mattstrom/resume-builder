@@ -7,13 +7,13 @@ import {
 	ConceptSuggestionType,
 	ExpressionType,
 	FactConceptType,
+	FactMeaningInput,
 	FactType,
 	LinkFactInput,
 	ResumeFactType,
 	UpdateFactInput,
-	UpsertFactConceptInput,
 } from './facts.graphql.js';
-import { FactsService } from './facts.service.js';
+import { ConceptVocabulary, FactRelation, FactsService } from './facts.service.js';
 
 @Resolver(() => FactType)
 export class FactsResolver {
@@ -22,11 +22,12 @@ export class FactsResolver {
 	@Query(() => [FactType])
 	async facts(
 		@CurrentUser('sub') uid: string,
-		@Args('kind', { nullable: true }) kind?: string,
-		@Args('entityType', { nullable: true }) entityType?: string,
-		@Args('entityId', { nullable: true }) entityId?: string,
+		@Args('relation', { type: () => String, nullable: true }) relation?: FactRelation,
+		@Args('vocabulary', { type: () => String, nullable: true })
+		vocabulary?: ConceptVocabulary,
+		@Args('conceptKey', { nullable: true }) conceptKey?: string,
 	) {
-		return this.factsService.findAll(uid, { kind, entityType, entityId });
+		return this.factsService.findAll(uid, { relation, vocabulary, conceptKey });
 	}
 
 	@Query(() => FactType)
@@ -80,9 +81,9 @@ export class FactsResolver {
 	async upsertFactConcept(
 		@CurrentUser('sub') uid: string,
 		@Args('factId', { type: () => ID }) factId: string,
-		@Args('input') input: UpsertFactConceptInput,
+		@Args('meaning') meaning: FactMeaningInput,
 	) {
-		return this.factsService.upsertFactConcept(uid, factId, input);
+		return this.factsService.upsertFactConcept(uid, factId, meaning);
 	}
 
 	@Mutation(() => Boolean)

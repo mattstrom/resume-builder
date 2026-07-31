@@ -1,6 +1,11 @@
 import type { PrismaService } from '../prisma';
 import type { EmbeddingService } from './embedding.service';
-import { FactsService } from './facts.service';
+import {
+	ConceptVocabulary,
+	type FactMeaningDto,
+	FactRelation,
+	FactsService,
+} from './facts.service';
 
 jest.mock('../prisma/index.js', () => ({ PrismaService: class {} }));
 jest.mock('./embedding.service.js', () => ({ EmbeddingService: class {} }));
@@ -25,6 +30,7 @@ describe('FactsService semantic persistence', () => {
 			create: jest.fn(),
 			update: jest.fn(),
 			findFirst: jest.fn(),
+			findMany: jest.fn(),
 		},
 		concept: {
 			findMany: jest.fn(),
@@ -32,9 +38,11 @@ describe('FactsService semantic persistence', () => {
 		},
 		factConcept: {
 			create: jest.fn(),
+			count: jest.fn(),
 			deleteMany: jest.fn(),
 			upsert: jest.fn(),
 		},
+		$queryRawUnsafe: jest.fn(),
 		$executeRaw: jest.fn(),
 		$executeRawUnsafe: jest.fn(),
 		$transaction: jest.fn(),
@@ -42,6 +50,33 @@ describe('FactsService semantic persistence', () => {
 	const embedding = { embed: jest.fn() };
 
 	let service: FactsService;
+
+	function meaning(
+		relation: FactRelation,
+		vocabulary: ConceptVocabulary,
+		key: string,
+		label = key,
+	): FactMeaningDto {
+		return {
+			relation,
+			concept: { vocabulary, key, label },
+			source: 'extractor',
+			confidence: 1,
+		};
+	}
+
+	function requiredMeanings(...additional: FactMeaningDto[]): FactMeaningDto[] {
+		return [
+			meaning(FactRelation.IsA, ConceptVocabulary.FactType, 'achievement', 'Achievement'),
+			meaning(
+				FactRelation.RelatesTo,
+				ConceptVocabulary.Entity,
+				'project:resume-builder',
+				'Resume Builder',
+			),
+			...additional,
+		];
+	}
 
 	function conceptKeys(vocabulary: string): string[] {
 		return prisma.concept.upsert.mock.calls
@@ -84,6 +119,7 @@ describe('FactsService semantic persistence', () => {
 				concept: concepts.get(link.conceptId),
 			})),
 		}));
+		prisma.fact.findMany.mockResolvedValue([]);
 		prisma.concept.upsert.mockImplementation(
 			async ({ create }: { create: { vocabulary: string; key: string; label: string } }) => {
 				const id = `concept:${create.vocabulary}:${create.key}`;
@@ -98,20 +134,12 @@ describe('FactsService semantic persistence', () => {
 				return data;
 			},
 		);
-		prisma.factConcept.deleteMany.mockImplementation(
-			async ({ where }: { where: { relation: string; concept: { vocabulary: string } } }) => {
-				for (let index = links.length - 1; index >= 0; index -= 1) {
-					const concept = concepts.get(links[index].conceptId);
-					if (
-						links[index].relation === where.relation &&
-						concept?.vocabulary === where.concept.vocabulary
-					) {
-						links.splice(index, 1);
-					}
-				}
-				return { count: 0 };
-			},
-		);
+		prisma.factConcept.count.mockResolvedValue(1);
+		prisma.$queryRawUnsafe.mockResolvedValue([]);
+		prisma.factConcept.deleteMany.mockImplementation(async () => {
+			links.length = 0;
+			return { count: 0 };
+		});
 		prisma.$transaction.mockImplementation(
 			async (operation: (client: typeof prisma) => Promise<unknown>) => operation(prisma),
 		);
@@ -124,14 +152,18 @@ describe('FactsService semantic persistence', () => {
 		jest.spyOn(service, 'setEmbedding').mockResolvedValue(undefined);
 	});
 
-	it('stores classification only as concept relationships', async () => {
+	it('stores evidence and explicit semantic meanings atomically', async () => {
 		await service.create(uid, {
-			kind: 'achievement',
-			entityType: 'project',
-			entityId: 'resume-builder',
 			what: 'Built the fact graph',
-			tags: ['knowledge-graph'],
-			technologies: ['react.js'],
+			meanings: requiredMeanings(
+				meaning(
+					FactRelation.About,
+					ConceptVocabulary.Topic,
+					'knowledge graph',
+					'Knowledge Graph',
+				),
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+			),
 		});
 
 		expect(prisma.fact.create.mock.calls[0][0].data).toEqual({
@@ -142,147 +174,175 @@ describe('FactsService semantic persistence', () => {
 			citation: undefined,
 			citationNodeIndex: undefined,
 		});
-		expect(links.map((link) => link.relation)).toEqual(['is-a', 'about', 'uses', 'relates-to']);
-		expect(conceptKeys('fact-type')).toEqual(['achievement']);
+		expect(links.map((link) => link.relation)).toEqual(['is-a', 'relates-to', 'about', 'uses']);
 		expect(conceptKeys('topic')).toEqual(['knowledge-graph']);
-		expect(conceptKeys('entity')).toEqual(['project:resume-builder']);
-	});
-
-	it('collapses technology spellings onto canonical concept keys', async () => {
-		await service.create(uid, {
-			kind: 'skill',
-			what: 'Built the web client',
-			technologies: ['react.js', 'k8s', 'postgres'],
-		});
-
-		expect(conceptKeys('technology')).toEqual(['React', 'Kubernetes', 'PostgreSQL']);
-	});
-
-	it('keeps unrecognized technologies rather than dropping them', async () => {
-		await service.create(uid, {
-			kind: 'skill',
-			what: 'Used an internal tool',
-			technologies: ['Blorptron 9000', 'React'],
-		});
-
-		expect(conceptKeys('technology')).toEqual(['Blorptron 9000', 'React']);
-	});
-
-	it('deduplicates variants that collapse onto the same concept', async () => {
-		await service.create(uid, {
-			kind: 'skill',
-			what: 'Built the web client',
-			technologies: ['React', 'react.js', 'ReactJS'],
-		});
-
 		expect(conceptKeys('technology')).toEqual(['React']);
 	});
 
-	it('replaces semantic technology relationships on update', async () => {
-		await service.update(uid, 'fact-1', { technologies: ['k8s'] });
+	it('normalizes recognized technology concepts without changing assertion provenance', async () => {
+		await service.create(uid, {
+			what: 'Built the web client',
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'k8s', 'k8s'),
+			),
+		});
 
+		expect(conceptKeys('technology')).toEqual(['React', 'Kubernetes']);
+		expect(links.filter((link) => link.relation === 'uses')).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ source: 'extractor', confidence: 1 }),
+			]),
+		);
+	});
+
+	it('keeps unrecognized technology concepts', async () => {
+		await service.create(uid, {
+			what: 'Used an internal tool',
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'Blorptron 9000'),
+			),
+		});
+
+		expect(conceptKeys('technology')).toEqual(['Blorptron 9000']);
+	});
+
+	it('deduplicates equivalent meanings after normalization', async () => {
+		await service.create(uid, {
+			what: 'Built the web client',
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'React', 'React'),
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+			),
+		});
+
+		expect(conceptKeys('technology')).toEqual(['React']);
+		expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(3);
+	});
+
+	it('locks shared concept keys before upserting them', async () => {
+		await service.create(uid, {
+			what: 'Built the web client',
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+			),
+		});
+
+		expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(3);
+		expect(prisma.$queryRawUnsafe.mock.invocationCallOrder.at(-1)).toBeLessThan(
+			prisma.concept.upsert.mock.invocationCallOrder[0],
+		);
+	});
+
+	it('rejects invalid relation and vocabulary pairs', async () => {
+		await expect(
+			service.create(uid, {
+				what: 'Invalid fact',
+				meanings: requiredMeanings(
+					meaning(FactRelation.Uses, ConceptVocabulary.Topic, 'react', 'React'),
+				),
+			}),
+		).rejects.toThrow('uses relationships must target the technology vocabulary');
+	});
+
+	it('requires one type and at least one related entity', async () => {
+		await expect(
+			service.create(uid, {
+				what: 'Untyped fact',
+				meanings: [
+					meaning(
+						FactRelation.About,
+						ConceptVocabulary.Topic,
+						'architecture',
+						'Architecture',
+					),
+				],
+			}),
+		).rejects.toThrow('exactly one is-a');
+	});
+
+	it('replaces the complete meaning set when meanings are updated', async () => {
+		await service.update(uid, 'fact-1', {
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'k8s', 'Kubernetes'),
+			),
+		});
+
+		expect(prisma.factConcept.deleteMany).toHaveBeenCalledWith({ where: { factId: 'fact-1' } });
 		expect(conceptKeys('technology')).toEqual(['Kubernetes']);
 		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({});
 	});
 
-	it('leaves semantic relationships alone on a prose-only update', async () => {
-		await service.update(uid, 'fact-1', { what: 'Revised wording' });
+	it('leaves meanings unchanged on an evidence-only update', async () => {
+		await service.update(uid, 'fact-1', { what: 'Revised evidence' });
 
 		expect(prisma.factConcept.deleteMany).not.toHaveBeenCalled();
-		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({
-			what: 'Revised wording',
-		});
+		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({ what: 'Revised evidence' });
 	});
 
-	it('embeds relationship labels with the evidence text', async () => {
+	it('embeds semantic relationship labels with the evidence', async () => {
 		await service.create(uid, {
-			kind: 'skill',
 			what: 'Built the web client',
-			technologies: ['react.js', 'k8s'],
+			meanings: requiredMeanings(
+				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+			),
 		});
 
 		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('uses: React'));
-		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('uses: Kubernetes'));
 	});
 
-	it('records ontology provenance for recognized technologies', async () => {
-		await service.create(uid, {
-			kind: 'skill',
-			what: 'Built the web client',
-			technologies: ['react.js'],
-		});
-
-		expect(prisma.factConcept.create).toHaveBeenCalledWith({
-			data: {
-				factId: 'fact-1',
-				conceptId: 'concept:technology:React',
-				relation: 'uses',
-				source: 'ontology-normalizer',
-				confidence: 1,
-			},
-		});
-	});
-
-	it('normalizes technology concepts added through the meaning editor', async () => {
+	it('normalizes meanings added individually through the editor', async () => {
 		prisma.factConcept.upsert.mockResolvedValue({ id: 'link-1' });
 
-		await service.upsertFactConcept(uid, 'fact-1', {
-			vocabulary: 'technology',
-			key: 'react.js',
-			label: 'react.js',
-			relation: 'uses',
-			source: 'user',
-		});
+		await service.upsertFactConcept(
+			uid,
+			'fact-1',
+			meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
+		);
 
 		expect(prisma.concept.upsert).toHaveBeenCalledWith({
-			where: {
-				vocabulary_key: { vocabulary: 'technology', key: 'React' },
-			},
+			where: { vocabulary_key: { vocabulary: 'technology', key: 'React' } },
 			create: { vocabulary: 'technology', key: 'React', label: 'React' },
-			update: {},
+			update: { label: 'React' },
 		});
+	});
+
+	it('does not allow the last required meaning to be removed', async () => {
+		await expect(
+			service.deleteFactConcept(uid, 'fact-1', 'concept-1', FactRelation.IsA),
+		).rejects.toThrow('must retain at least one is-a meaning');
+
+		expect(prisma.factConcept.deleteMany).not.toHaveBeenCalled();
+	});
+
+	it('filters through the native semantic relationship shape', async () => {
+		await service.findAll(uid, {
+			relation: FactRelation.Demonstrates,
+			vocabulary: ConceptVocabulary.Capability,
+			conceptKey: 'mentoring',
+		});
+
+		expect(prisma.fact.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {
+					uid,
+					concepts: {
+						some: {
+							relation: 'demonstrates',
+							concept: { vocabulary: 'capability', key: 'mentoring' },
+						},
+					},
+				},
+			}),
+		);
 	});
 
 	it('suggests canonical technologies for the uses relationship', async () => {
 		const suggestions = await service.findConceptSuggestions(uid, 'technology', 'react', 5);
 
 		expect(suggestions[0]).toEqual(
-			expect.objectContaining({
-				vocabulary: 'technology',
-				key: 'React',
-				label: 'React',
-			}),
+			expect.objectContaining({ vocabulary: 'technology', key: 'React', label: 'React' }),
 		);
 		expect(prisma.concept.findMany).not.toHaveBeenCalled();
-	});
-
-	it('suggests stored concepts from the requested vocabulary', async () => {
-		prisma.concept.findMany.mockResolvedValue([
-			{
-				vocabulary: 'capability',
-				key: 'mentoring',
-				label: 'Mentoring',
-				definition: null,
-			},
-		]);
-
-		const suggestions = await service.findConceptSuggestions(uid, 'capability', 'ment');
-
-		expect(suggestions).toHaveLength(1);
-		expect(prisma.concept.findMany).toHaveBeenCalledWith({
-			where: {
-				vocabulary: 'capability',
-				facts: { some: { fact: { uid } } },
-				label: { contains: 'ment', mode: 'insensitive' },
-			},
-			select: {
-				vocabulary: true,
-				key: true,
-				label: true,
-				definition: true,
-			},
-			orderBy: { label: 'asc' },
-			take: 20,
-		});
 	});
 });
