@@ -6,6 +6,15 @@
  * concept in free text.
  */
 
+export type Authority =
+	| 'onet'
+	| 'unspsc'
+	| 'soc'
+	| 'esco'
+	| 'naics'
+	| 'wikidata';
+export type ExternalRef = `${Authority}:${string}`;
+
 /**
  * A concept as you write it.
  *
@@ -23,16 +32,37 @@ export interface ConceptDefinition<K extends string = string> {
 	synonyms?: readonly string[];
 	/** Optional ordering weight. Only the seniority vocabulary uses this. */
 	rank?: number;
+	/** SKOS-style parent; equivalent to `parent` in the original vocabulary API. */
+	broader?: K;
+	/** SKOS-style alternate and hidden labels. */
+	altLabels?: readonly string[];
+	hiddenLabels?: readonly string[];
+	/** Related concepts in the same scheme. */
+	related?: readonly K[];
+	/** Lifecycle metadata for concepts that should no longer be assigned. */
+	deprecated?: boolean;
+	replacedBy?: K;
+	/** Mappings to external controlled vocabularies. */
+	exactMatch?: readonly ExternalRef[];
+	closeMatch?: readonly ExternalRef[];
+	broadMatch?: readonly ExternalRef[];
+	narrowMatch?: readonly ExternalRef[];
 }
 
 /** A concept after the vocabulary has worked out its place in the tree. */
-export interface Concept<K extends string = string> extends ConceptDefinition<K> {
+export interface Concept<
+	K extends string = string,
+> extends ConceptDefinition<K> {
 	/** The stable slug — this is what gets persisted. */
 	readonly id: K;
 	/** Name of the vocabulary this concept belongs to. */
-	readonly vocabulary: string;
+	readonly vocabulary?: string;
+	/** Name of the SKOS-style concept scheme, when created with `scheme()`. */
+	readonly scheme?: string;
 	/** Direct children. */
 	readonly children: readonly K[];
+	/** SKOS-style direct children; equivalent to `children`. */
+	readonly narrower?: readonly K[];
 	/** How far below a top-level concept this sits; top level is 0. */
 	readonly depth: number;
 }
@@ -43,6 +73,8 @@ export interface VocabularyOptions {
 	/** Short note describing what the vocabulary covers. */
 	description?: string;
 }
+
+export interface SchemeOptions extends VocabularyOptions {}
 
 /** Result of matching a batch of free-text labels against a vocabulary. */
 export interface NormalizeReport<K extends string = string> {

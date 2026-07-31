@@ -32,6 +32,8 @@ type Tools =
 	| 'create_facts'
 	| 'update_fact'
 	| 'delete_fact'
+	| 'get_fact_concepts'
+	| 'upsert_fact_concept'
 	| 'get_expressions'
 	| 'create_expression'
 	| 'delete_expression'
@@ -82,6 +84,8 @@ class ResumeBuilderMCPClient extends MCPClient {
 	}
 }
 
-export function createResumeBuilderMcpClient(token: string): ResumeBuilderMCPClient {
+export function createResumeBuilderMcpClient(
+	token: string,
+): ResumeBuilderMCPClient {
 	return new ResumeBuilderMCPClient(token);
 }

@@ -274,6 +274,7 @@ export type FactWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
+  concepts?: Prisma.FactConceptListRelationFilter
 }
 
 export type FactOrderByWithRelationInput = {
@@ -292,6 +293,7 @@ export type FactOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   expressions?: Prisma.ExpressionOrderByRelationAggregateInput
   resumeFacts?: Prisma.ResumeFactOrderByRelationAggregateInput
+  concepts?: Prisma.FactConceptOrderByRelationAggregateInput
 }
 
 export type FactWhereUniqueInput = Prisma.AtLeast<{
@@ -313,6 +315,7 @@ export type FactWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
+  concepts?: Prisma.FactConceptListRelationFilter
 }, "id">
 
 export type FactOrderByWithAggregationInput = {
@@ -371,6 +374,7 @@ export type FactCreateInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateInput = {
@@ -389,6 +393,7 @@ export type FactUncheckedCreateInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactUpdateInput = {
@@ -407,6 +412,7 @@ export type FactUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateInput = {
@@ -425,6 +431,7 @@ export type FactUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 export type FactCreateManyInput = {
@@ -566,6 +573,20 @@ export type FactUpdatetechnologiesInput = {
   push?: string | string[]
 }
 
+export type FactCreateNestedOneWithoutConceptsInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutConceptsInput
+  connect?: Prisma.FactWhereUniqueInput
+}
+
+export type FactUpdateOneRequiredWithoutConceptsNestedInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutConceptsInput
+  upsert?: Prisma.FactUpsertWithoutConceptsInput
+  connect?: Prisma.FactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutConceptsInput, Prisma.FactUpdateWithoutConceptsInput>, Prisma.FactUncheckedUpdateWithoutConceptsInput>
+}
+
 export type FactCreateNestedOneWithoutExpressionsInput = {
   create?: Prisma.XOR<Prisma.FactCreateWithoutExpressionsInput, Prisma.FactUncheckedCreateWithoutExpressionsInput>
   connectOrCreate?: Prisma.FactCreateOrConnectWithoutExpressionsInput
@@ -594,6 +615,94 @@ export type FactUpdateOneRequiredWithoutResumeFactsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutResumeFactsInput, Prisma.FactUpdateWithoutResumeFactsInput>, Prisma.FactUncheckedUpdateWithoutResumeFactsInput>
 }
 
+export type FactCreateWithoutConceptsInput = {
+  id?: string
+  uid: string
+  kind: string
+  entityType?: string | null
+  entityId?: string | null
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
+  tags?: Prisma.FactCreatetagsInput | string[]
+  technologies?: Prisma.FactCreatetechnologiesInput | string[]
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+}
+
+export type FactUncheckedCreateWithoutConceptsInput = {
+  id?: string
+  uid: string
+  kind: string
+  entityType?: string | null
+  entityId?: string | null
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
+  tags?: Prisma.FactCreatetagsInput | string[]
+  technologies?: Prisma.FactCreatetechnologiesInput | string[]
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+}
+
+export type FactCreateOrConnectWithoutConceptsInput = {
+  where: Prisma.FactWhereUniqueInput
+  create: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+}
+
+export type FactUpsertWithoutConceptsInput = {
+  update: Prisma.XOR<Prisma.FactUpdateWithoutConceptsInput, Prisma.FactUncheckedUpdateWithoutConceptsInput>
+  create: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  where?: Prisma.FactWhereInput
+}
+
+export type FactUpdateToOneWithWhereWithoutConceptsInput = {
+  where?: Prisma.FactWhereInput
+  data: Prisma.XOR<Prisma.FactUpdateWithoutConceptsInput, Prisma.FactUncheckedUpdateWithoutConceptsInput>
+}
+
+export type FactUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tags?: Prisma.FactUpdatetagsInput | string[]
+  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
+  resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+}
+
+export type FactUncheckedUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  tags?: Prisma.FactUpdatetagsInput | string[]
+  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
+  resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+}
+
 export type FactCreateWithoutExpressionsInput = {
   id?: string
   uid: string
@@ -609,6 +718,7 @@ export type FactCreateWithoutExpressionsInput = {
   technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateWithoutExpressionsInput = {
@@ -626,6 +736,7 @@ export type FactUncheckedCreateWithoutExpressionsInput = {
   technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactCreateOrConnectWithoutExpressionsInput = {
@@ -659,6 +770,7 @@ export type FactUpdateWithoutExpressionsInput = {
   technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutExpressionsInput = {
@@ -676,6 +788,7 @@ export type FactUncheckedUpdateWithoutExpressionsInput = {
   technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 export type FactCreateWithoutResumeFactsInput = {
@@ -693,6 +806,7 @@ export type FactCreateWithoutResumeFactsInput = {
   technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateWithoutResumeFactsInput = {
@@ -710,6 +824,7 @@ export type FactUncheckedCreateWithoutResumeFactsInput = {
   technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactCreateOrConnectWithoutResumeFactsInput = {
@@ -743,6 +858,7 @@ export type FactUpdateWithoutResumeFactsInput = {
   technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutResumeFactsInput = {
@@ -760,6 +876,7 @@ export type FactUncheckedUpdateWithoutResumeFactsInput = {
   technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 
@@ -770,11 +887,13 @@ export type FactUncheckedUpdateWithoutResumeFactsInput = {
 export type FactCountOutputType = {
   expressions: number
   resumeFacts: number
+  concepts: number
 }
 
 export type FactCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | FactCountOutputTypeCountExpressionsArgs
   resumeFacts?: boolean | FactCountOutputTypeCountResumeFactsArgs
+  concepts?: boolean | FactCountOutputTypeCountConceptsArgs
 }
 
 /**
@@ -801,6 +920,13 @@ export type FactCountOutputTypeCountResumeFactsArgs<ExtArgs extends runtime.Type
   where?: Prisma.ResumeFactWhereInput
 }
 
+/**
+ * FactCountOutputType without action
+ */
+export type FactCountOutputTypeCountConceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FactConceptWhereInput
+}
+
 
 export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -818,6 +944,7 @@ export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
+  concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fact"]>
 
@@ -873,6 +1000,7 @@ export type FactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type FactInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
+  concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FactIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -883,6 +1011,7 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     expressions: Prisma.$ExpressionPayload<ExtArgs>[]
     resumeFacts: Prisma.$ResumeFactPayload<ExtArgs>[]
+    concepts: Prisma.$FactConceptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1318,6 +1447,7 @@ export interface Prisma__FactClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   expressions<T extends Prisma.Fact$expressionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$expressionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resumeFacts<T extends Prisma.Fact$resumeFactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$resumeFactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumeFactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  concepts<T extends Prisma.Fact$conceptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$conceptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FactConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1798,6 +1928,30 @@ export type Fact$resumeFactsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ResumeFactScalarFieldEnum | Prisma.ResumeFactScalarFieldEnum[]
+}
+
+/**
+ * Fact.concepts
+ */
+export type Fact$conceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FactConcept
+   */
+  select?: Prisma.FactConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FactConcept
+   */
+  omit?: Prisma.FactConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FactConceptInclude<ExtArgs> | null
+  where?: Prisma.FactConceptWhereInput
+  orderBy?: Prisma.FactConceptOrderByWithRelationInput | Prisma.FactConceptOrderByWithRelationInput[]
+  cursor?: Prisma.FactConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FactConceptScalarFieldEnum | Prisma.FactConceptScalarFieldEnum[]
 }
 
 /**

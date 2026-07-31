@@ -24,7 +24,7 @@ export * as $Enums from './enums.js'
 export * from "./enums.js"
 /**
  * ## Prisma Client
- * 
+ *
  * Type-safe database client for TypeScript
  * @example
  * ```
@@ -34,7 +34,7 @@ export * from "./enums.js"
  * // Fetch zero or more Profiles
  * const profiles = await prisma.profile.findMany()
  * ```
- * 
+ *
  * Read more in our [docs](https://pris.ly/d/client).
  */
 export const PrismaClient = $Class.getPrismaClientClass()
@@ -43,12 +43,12 @@ export { Prisma }
 
 /**
  * Model Profile
- * 
+ *
  */
 export type Profile = Prisma.ProfileModel
 /**
  * Model Conversation
- * 
+ *
  */
 export type Conversation = Prisma.ConversationModel
 /**
@@ -61,6 +61,26 @@ export type ConversationMessage = Prisma.ConversationMessageModel
  * 
  */
 export type Fact = Prisma.FactModel
+/**
+ * Model Concept
+ *
+ */
+export type Concept = Prisma.ConceptModel
+/**
+ * Model ConceptAlias
+ *
+ */
+export type ConceptAlias = Prisma.ConceptAliasModel
+/**
+ * Model FactConcept
+ *
+ */
+export type FactConcept = Prisma.FactConceptModel
+/**
+ * Model ConceptRelation
+ *
+ */
+export type ConceptRelation = Prisma.ConceptRelationModel
 /**
  * Model Expression
  * 

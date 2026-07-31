@@ -55,6 +55,10 @@ export const ModelName = {
   Conversation: 'Conversation',
   ConversationMessage: 'ConversationMessage',
   Fact: 'Fact',
+  Concept: 'Concept',
+  ConceptAlias: 'ConceptAlias',
+  FactConcept: 'FactConcept',
+  ConceptRelation: 'ConceptRelation',
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
@@ -143,6 +147,55 @@ export const FactScalarFieldEnum = {
 } as const
 
 export type FactScalarFieldEnum = (typeof FactScalarFieldEnum)[keyof typeof FactScalarFieldEnum]
+
+
+export const ConceptScalarFieldEnum = {
+  id: 'id',
+  vocabulary: 'vocabulary',
+  key: 'key',
+  label: 'label',
+  definition: 'definition',
+  externalUri: 'externalUri',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConceptScalarFieldEnum = (typeof ConceptScalarFieldEnum)[keyof typeof ConceptScalarFieldEnum]
+
+
+export const ConceptAliasScalarFieldEnum = {
+  id: 'id',
+  conceptId: 'conceptId',
+  label: 'label',
+  normalizedLabel: 'normalizedLabel',
+  createdAt: 'createdAt'
+} as const
+
+export type ConceptAliasScalarFieldEnum = (typeof ConceptAliasScalarFieldEnum)[keyof typeof ConceptAliasScalarFieldEnum]
+
+
+export const FactConceptScalarFieldEnum = {
+  factId: 'factId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+} as const
+
+export type FactConceptScalarFieldEnum = (typeof FactConceptScalarFieldEnum)[keyof typeof FactConceptScalarFieldEnum]
+
+
+export const ConceptRelationScalarFieldEnum = {
+  sourceConceptId: 'sourceConceptId',
+  targetConceptId: 'targetConceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+} as const
+
+export type ConceptRelationScalarFieldEnum = (typeof ConceptRelationScalarFieldEnum)[keyof typeof ConceptRelationScalarFieldEnum]
 
 
 export const ExpressionScalarFieldEnum = {

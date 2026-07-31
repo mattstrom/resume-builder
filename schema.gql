@@ -32,6 +32,24 @@ type ExpressionType {
   createdAt: DateTime!
 }
 
+type ConceptType {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+  externalUri: String
+}
+
+type FactConceptType {
+  factId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  concept: ConceptType!
+}
+
 type ResumeFactType {
   resumeId: String!
   factId: String!
@@ -530,6 +548,7 @@ type Query {
   getProfile: Profile
   facts(kind: String, entityType: String, entityId: String): [FactType!]!
   fact(id: ID!): FactType!
+  factConcepts(factId: ID!): [FactConceptType!]!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
   bullets(filter: BulletFilterInput): [Bullet!]!
@@ -597,6 +616,8 @@ type Mutation {
   createFact(input: CreateFactInput!): FactType!
   updateFact(id: ID!, input: UpdateFactInput!): FactType!
   deleteFact(id: ID!): Boolean!
+  upsertFactConcept(factId: ID!, input: UpsertFactConceptInput!): FactConceptType!
+  deleteFactConcept(factId: ID!, conceptId: ID!, relation: String!): Boolean!
   createExpression(factId: ID!, input: CreateExpressionInput!): ExpressionType!
   deleteExpression(factId: ID!, expressionId: ID!): Boolean!
   linkFactToResume(resumeId: ID!, input: LinkFactInput!): ResumeFactType!
@@ -850,6 +871,15 @@ input UpdateFactInput {
   technologies: [String!]
   entityType: String
   entityId: String
+}
+
+input UpsertFactConceptInput {
+  vocabulary: String!
+  key: String!
+  label: String!
+  relation: String!
+  source: String
+  confidence: Float
 }
 
 input CreateExpressionInput {

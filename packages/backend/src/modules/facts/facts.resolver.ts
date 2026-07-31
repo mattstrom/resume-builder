@@ -1,14 +1,16 @@
-import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { CurrentUser } from '../auth/index.js';
 import {
 	CreateExpressionInput,
 	CreateFactInput,
 	ExpressionType,
+	FactConceptType,
 	FactType,
 	LinkFactInput,
 	ResumeFactType,
 	UpdateFactInput,
+	UpsertFactConceptInput,
 } from './facts.graphql.js';
 import { FactsService } from './facts.service.js';
 
@@ -51,6 +53,36 @@ export class FactsResolver {
 		@Args('id', { type: () => ID }) id: string,
 	): Promise<boolean> {
 		await this.factsService.delete(uid, id);
+
+		return true;
+	}
+
+	@Query(() => [FactConceptType])
+	async factConcepts(
+		@CurrentUser('sub') uid: string,
+		@Args('factId', { type: () => ID }) factId: string,
+	) {
+		return this.factsService.findFactConcepts(uid, factId);
+	}
+
+	@Mutation(() => FactConceptType)
+	async upsertFactConcept(
+		@CurrentUser('sub') uid: string,
+		@Args('factId', { type: () => ID }) factId: string,
+		@Args('input') input: UpsertFactConceptInput,
+	) {
+		return this.factsService.upsertFactConcept(uid, factId, input);
+	}
+
+	@Mutation(() => Boolean)
+	async deleteFactConcept(
+		@CurrentUser('sub') uid: string,
+		@Args('factId', { type: () => ID }) factId: string,
+		@Args('conceptId', { type: () => ID }) conceptId: string,
+		@Args('relation') relation: string,
+	): Promise<boolean> {
+		await this.factsService.deleteFactConcept(uid, factId, conceptId, relation);
+
 		return true;
 	}
 
@@ -78,6 +110,7 @@ export class FactsResolver {
 		@Args('expressionId', { type: () => ID }) expressionId: string,
 	): Promise<boolean> {
 		await this.factsService.deleteExpression(uid, factId, expressionId);
+
 		return true;
 	}
 
@@ -93,6 +126,7 @@ export class FactsResolver {
 		@Args('input') input: LinkFactInput,
 	) {
 		const { factId, ...dto } = input;
+
 		return this.factsService.linkFact(uid, resumeId, factId, dto);
 	}
 
@@ -102,6 +136,7 @@ export class FactsResolver {
 		@Args('factId', { type: () => ID }) factId: string,
 	): Promise<boolean> {
 		await this.factsService.unlinkFact(resumeId, factId);
+
 		return true;
 	}
 }

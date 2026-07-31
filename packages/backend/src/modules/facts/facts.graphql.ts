@@ -64,6 +64,48 @@ export class ExpressionType {
 }
 
 @ObjectType()
+export class ConceptType {
+	@Field(() => ID)
+	id: string;
+
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field({ nullable: true })
+	definition?: string;
+
+	@Field({ nullable: true })
+	externalUri?: string;
+}
+
+@ObjectType()
+export class FactConceptType {
+	@Field(() => ID)
+	factId: string;
+
+	@Field(() => ID)
+	conceptId: string;
+
+	@Field()
+	relation: string;
+
+	@Field()
+	source: string;
+
+	@Field({ nullable: true })
+	confidence?: number;
+
+	@Field(() => ConceptType)
+	concept: ConceptType;
+}
+
+@ObjectType()
 export class ResumeFactType {
 	@Field()
 	resumeId: string;
@@ -163,6 +205,27 @@ export class CreateExpressionInput {
 
 	@Field({ nullable: true })
 	tone?: string;
+}
+
+@InputType()
+export class UpsertFactConceptInput {
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field()
+	relation: string;
+
+	@Field({ nullable: true })
+	source?: string;
+
+	@Field({ nullable: true })
+	confidence?: number;
 }
 
 @InputType()
