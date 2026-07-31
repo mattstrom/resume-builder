@@ -69,6 +69,7 @@ export const Route = createFileRoute('/_authenticated/preview/$applicationId')({
 			const token = await authStore.ensureToken();
 			const controller = await CrdtResumeController.connect({
 				resumeId: resume._id,
+				resume,
 				collaborationUrl: __CONFIG__.collaborationUrl,
 				token,
 			});

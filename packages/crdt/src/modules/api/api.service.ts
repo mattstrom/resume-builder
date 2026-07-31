@@ -3,7 +3,15 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import type { Extension, onRequestPayload } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
+import type { ResumeXmlOp } from '@resume-builder/entities';
 import * as Y from 'yjs';
+
+import {
+	applyResumeXmlOps,
+	getResumeContent,
+	replaceResumeXml,
+	serializeResumeXml,
+} from '../storage/resume-xml-document.js';
 
 const NARRATIVE_FIELD = 'narrative';
 
@@ -338,7 +346,7 @@ export class ApiService implements Extension {
 			if (patchMatch && request.method === 'POST') {
 				const name = decodeURIComponent(patchMatch[1]);
 				const body = JSON.parse(await readBody(request)) as {
-					ops: JsonPatchOp[];
+					ops: ResumeXmlOp[];
 					uid: string;
 				};
 				if (!name.startsWith('resume:') || !Array.isArray(body.ops) || !body.uid) {
@@ -350,17 +358,60 @@ export class ApiService implements Extension {
 					contextForDocument(name, body.uid),
 				);
 				let resume: unknown;
+				let xml = '';
 				try {
 					await conn.transact((doc) => {
-						const root = doc.getMap('resume') as Y.Map<unknown>;
-						applyJsonPatch(root, body.ops);
-						resume = fromYValue(root);
+						applyResumeXmlOps(doc, body.ops);
+						xml = serializeResumeXml(doc);
+						resume = getResumeContent(doc, body.uid);
 					});
 				} finally {
 					await conn.disconnect();
 				}
-				sendJson(response, 200, { ok: true, resume });
+				sendJson(response, 200, { ok: true, xml, resume });
 
+				return;
+			}
+
+			const replaceMatch = url.pathname.match(/^\/api\/documents\/([^/]+)\/replace-xml$/);
+
+			if (replaceMatch && request.method === 'POST') {
+				const name = decodeURIComponent(replaceMatch[1]);
+				const body = JSON.parse(await readBody(request)) as {
+					xml: string;
+					uid: string;
+					baseStateVector?: string;
+				};
+				if (!name.startsWith('resume:') || !body.xml || !body.uid) {
+					throw new Error('Invalid resume XML replacement request');
+				}
+				const conn = await instance.openDirectConnection(
+					name,
+					contextForDocument(name, body.uid),
+				);
+				let resume: unknown;
+				let stateVector = '';
+				try {
+					await conn.transact((doc) => {
+						const current = Buffer.from(Y.encodeStateVector(doc)).toString('base64');
+						if (body.baseStateVector && body.baseStateVector !== current) {
+							throw new Error(
+								'Resume XML changed since the editor buffer was opened',
+							);
+						}
+						replaceResumeXml(doc, body.xml);
+						resume = getResumeContent(doc, body.uid);
+						stateVector = Buffer.from(Y.encodeStateVector(doc)).toString('base64');
+					});
+				} finally {
+					await conn.disconnect();
+				}
+				sendJson(response, 200, {
+					ok: true,
+					xml: body.xml,
+					resume,
+					stateVector,
+				});
 				return;
 			}
 

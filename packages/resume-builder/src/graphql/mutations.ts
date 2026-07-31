@@ -209,6 +209,7 @@ export const CREATE_BLANK_RESUME = gql`
 			company
 			level
 			jobPostingUrl
+			xml
 			data {
 				...ResumeContent
 			}

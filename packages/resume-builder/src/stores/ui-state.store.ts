@@ -6,6 +6,7 @@ import { StorageKey } from '@/stores/services/persistence.service.ts';
 export enum Mode {
 	Review = 'review',
 	Edit = 'edit',
+	Xml = 'xml',
 }
 
 export enum ViewMode {

@@ -13,7 +13,7 @@ import { outdent } from 'outdent';
 
 import configuration from '../../configuration.js';
 import { CurrentUser } from '../auth/index.js';
-import { CrdtClientService } from '../crdt-client/crdt-client.service.js';
+import { CrdtApiService } from '../crdt-client/crdt-api.service.js';
 import { ApplicationsService } from '../entities/applications/applications.service.js';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
 import { ConversationsService } from '../entities/conversations/conversations.service.js';
@@ -44,7 +44,7 @@ export class ChatController {
 		private readonly conversationsService: ConversationsService,
 		private readonly profilesService: ProfilesService,
 		private readonly chatService: ChatService,
-		private readonly crdtClientService: CrdtClientService,
+		private readonly crdtApiService: CrdtApiService,
 	) {}
 
 	@Post()
@@ -270,7 +270,7 @@ export class ChatController {
 			jobsService: this.jobsService,
 			volunteeringService: this.volunteeringService,
 			coverLettersService: this.coverLettersService,
-			crdtClientService: this.crdtClientService,
+			crdtApiService: this.crdtApiService,
 		};
 
 		const assistantText = await this.chatService.streamWithToolLoop(res, {

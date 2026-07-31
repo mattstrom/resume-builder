@@ -1,5 +1,12 @@
 import { HocuspocusProvider } from '@hocuspocus/provider';
-import type { Resume } from '@resume-builder/entities';
+import {
+	RESUME_XML_FRAGMENT,
+	RESUME_XML_NAMESPACE,
+	type Resume,
+	resumeContentFromXml,
+	resumeToXml,
+	validateResumeXml,
+} from '@resume-builder/entities';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
@@ -11,7 +18,9 @@ export type ResumeConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disc
 export interface ResumeDocumentController {
 	readonly resumeId: string;
 	getSnapshot(): Resume | null;
+	getXml(): string | null;
 	replaceResume(resume: Resume): void;
+	replaceXml(xml: string): void;
 	setField(path: string, value: unknown): void | Promise<void>;
 	moveArrayItem(path: string, fromIndex: number, toIndex: number): void | Promise<void>;
 	addCollectionItem(collection: ResumeCollectionValue): void | Promise<void>;
@@ -33,39 +42,113 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function toYValue(value: unknown): unknown {
-	if (Array.isArray(value)) {
-		const array = new Y.Array<unknown>();
-		array.insert(
-			0,
-			value.map((entry) => toYValue(entry)),
-		);
-		return array;
-	}
-
-	if (isPlainObject(value)) {
-		const map = new Y.Map<unknown>();
-		for (const [key, entry] of Object.entries(value)) {
-			map.set(key, toYValue(entry));
-		}
-		return map;
-	}
-
-	return value === undefined ? null : value;
+function escapeXml(value: string) {
+	return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 }
 
-function fromYValue(value: unknown): unknown {
-	if (value instanceof Y.Map) {
-		return Object.fromEntries(
-			[...value.entries()].map(([key, entry]) => [key, fromYValue(entry)]),
-		);
+function serializeElement(element: Y.XmlElement): string {
+	const attributes = Object.entries(element.getAttributes())
+		.map(([name, value]) => ` ${name}="${escapeXml(String(value)).replaceAll('"', '&quot;')}"`)
+		.join('');
+	const content = element
+		.toArray()
+		.map((child) =>
+			child instanceof Y.XmlElement
+				? serializeElement(child)
+				: child instanceof Y.XmlText
+					? escapeXml(child.toString())
+					: '',
+		)
+		.join('');
+	return `<${element.nodeName}${attributes}>${content}</${element.nodeName}>`;
+}
+
+function serializeFragment(fragment: Y.XmlFragment): string {
+	const root = fragment
+		.toArray()
+		.find((child): child is Y.XmlElement => child instanceof Y.XmlElement);
+	if (!root) throw new Error('Resume XML document has no root element');
+	return serializeElement(root);
+}
+
+function domElementToY(element: Element): Y.XmlElement {
+	const result = new Y.XmlElement(element.tagName);
+	for (const attribute of Array.from(element.attributes)) {
+		result.setAttribute(attribute.name, attribute.value);
+	}
+	const children: Array<Y.XmlElement | Y.XmlText> = [];
+	for (const child of Array.from(element.childNodes)) {
+		if (child.nodeType === Node.ELEMENT_NODE) {
+			children.push(domElementToY(child as Element));
+		} else if (child.nodeType === Node.TEXT_NODE && child.textContent) {
+			const text = new Y.XmlText();
+			text.insert(0, child.textContent);
+			children.push(text);
+		}
+	}
+	if (children.length > 0) result.insert(0, children);
+	return result;
+}
+
+function replaceFragmentXml(fragment: Y.XmlFragment, xml: string) {
+	const validation = validateResumeXml(xml);
+	if (!validation.valid) {
+		throw new Error(`Invalid resume XML: ${validation.errors.join('; ')}`);
+	}
+	const dom = new DOMParser().parseFromString(xml, 'application/xml');
+	const error = dom.querySelector('parsererror');
+	if (error) throw new Error(error.textContent ?? 'Invalid resume XML');
+	const root = dom.documentElement;
+	if (fragment.length > 0) fragment.delete(0, fragment.length);
+	fragment.insert(0, [domElementToY(root)]);
+}
+
+function preserveExtensionMarkup(currentXml: string, replacementXml: string) {
+	if (typeof DOMParser === 'undefined' || typeof XMLSerializer === 'undefined') {
+		return replacementXml;
 	}
 
-	if (value instanceof Y.Array) {
-		return value.toArray().map((entry) => fromYValue(entry));
+	const parser = new DOMParser();
+	const current = parser.parseFromString(currentXml, 'application/xml');
+	const replacement = parser.parseFromString(replacementXml, 'application/xml');
+
+	if (current.querySelector('parsererror') || replacement.querySelector('parsererror')) {
+		return replacementXml;
 	}
 
-	return value;
+	const xmlNamespace = 'http://www.w3.org/XML/1998/namespace';
+	const xmlnsNamespace = 'http://www.w3.org/2000/xmlns/';
+	const currentById = new Map<string, Element>();
+
+	for (const element of current.querySelectorAll('[xml\\:id]')) {
+		const id = element.getAttributeNS(xmlNamespace, 'id');
+		if (id) currentById.set(id, element);
+	}
+
+	for (const target of replacement.querySelectorAll('[xml\\:id]')) {
+		const id = target.getAttributeNS(xmlNamespace, 'id');
+		const source = id ? currentById.get(id) : undefined;
+		if (!source) continue;
+
+		for (const attribute of Array.from(source.attributes)) {
+			if (
+				attribute.namespaceURI &&
+				attribute.namespaceURI !== RESUME_XML_NAMESPACE &&
+				attribute.namespaceURI !== xmlNamespace &&
+				attribute.namespaceURI !== xmlnsNamespace
+			) {
+				target.setAttributeNS(attribute.namespaceURI, attribute.name, attribute.value);
+			}
+		}
+
+		for (const child of Array.from(source.children)) {
+			if (child.namespaceURI && child.namespaceURI !== RESUME_XML_NAMESPACE) {
+				target.appendChild(replacement.importNode(child, true));
+			}
+		}
+	}
+
+	return new XMLSerializer().serializeToString(replacement);
 }
 
 function parsePath(path: string) {
@@ -163,7 +246,17 @@ export class LocalResumeController implements ResumeDocumentController {
 		return this.snapshot;
 	}
 
+	getXml() {
+		return this.snapshot ? (this.snapshot.xml ?? resumeToXml(this.snapshot)) : null;
+	}
+
 	protected emitSnapshot() {
+		if (this.snapshot) {
+			const replacementXml = resumeToXml(this.snapshot);
+			this.snapshot.xml = this.snapshot.xml
+				? preserveExtensionMarkup(this.snapshot.xml, replacementXml)
+				: replacementXml;
+		}
 		this.options.onSnapshotChange?.(this.snapshot);
 	}
 
@@ -190,13 +283,31 @@ export class LocalResumeController implements ResumeDocumentController {
 		this.emitSnapshot();
 	}
 
+	replaceXml(xml: string) {
+		if (!this.snapshot) return;
+		this.pushUndoSnapshot();
+		this.snapshot = {
+			...this.snapshot,
+			xml,
+			data: resumeContentFromXml(xml, this.snapshot.uid),
+		};
+		this.emitSnapshot();
+	}
+
 	setField(path: string, value: unknown) {
 		if (!this.snapshot) {
 			return;
 		}
 
 		this.pushUndoSnapshot();
-		this.snapshot = cloneWithPathValue(this.snapshot, path, value);
+		const next = cloneWithPathValue(this.snapshot, path, value);
+		const currentXml = this.getXml();
+		this.snapshot = {
+			...next,
+			xml: currentXml
+				? preserveExtensionMarkup(currentXml, resumeToXml(next))
+				: resumeToXml(next),
+		};
 		this.emitSnapshot();
 	}
 
@@ -333,6 +444,7 @@ const CONNECT_TIMEOUT_MS = 10_000;
 
 interface CrdtResumeControllerOptions {
 	resumeId: string;
+	resume: Resume;
 	collaborationUrl: string;
 	token: string;
 	onSnapshotChange?: (resume: Resume | null) => void;
@@ -347,7 +459,7 @@ interface CrdtResumeControllerOptions {
 export class CrdtResumeController implements ResumeDocumentController {
 	readonly resumeId: string;
 	private readonly doc = new Y.Doc();
-	private readonly root = this.doc.getMap<unknown>('resume');
+	private readonly root = this.doc.getXmlFragment(RESUME_XML_FRAGMENT);
 	private readonly undoManager = new Y.UndoManager(this.root, {
 		trackedOrigins: new Set([LOCAL_ORIGIN]),
 	});
@@ -383,6 +495,10 @@ export class CrdtResumeController implements ResumeDocumentController {
 		return this.snapshot;
 	}
 
+	getXml() {
+		return this.root.length > 0 ? serializeFragment(this.root) : null;
+	}
+
 	replaceResume(resume: Resume) {
 		if (!isPlainObject(resume.data)) {
 			throw new Error(
@@ -394,23 +510,25 @@ export class CrdtResumeController implements ResumeDocumentController {
 		}
 
 		this.doc.transact(() => {
-			for (const key of [...this.root.keys()]) {
-				this.root.delete(key);
-			}
+			const currentXml = this.getXml();
+			const replacementXml = resumeToXml(resume);
+			replaceFragmentXml(
+				this.root,
+				currentXml ? preserveExtensionMarkup(currentXml, replacementXml) : replacementXml,
+			);
+		}, LOCAL_ORIGIN);
+	}
 
-			for (const [key, value] of Object.entries(resume)) {
-				if (key !== '_id') {
-					this.root.set(key, toYValue(value));
-				}
-			}
-			this.root.set('id', this.resumeId);
+	replaceXml(xml: string) {
+		this.doc.transact(() => {
+			replaceFragmentXml(this.root, xml);
 		}, LOCAL_ORIGIN);
 	}
 
 	setField(path: string, value: unknown) {
-		this.doc.transact(() => {
-			this.setPathValue(path, value);
-		}, LOCAL_ORIGIN);
+		if (!this.snapshot) return;
+		const next = cloneWithPathValue(this.snapshot, path, value);
+		this.replaceResume(next);
 	}
 
 	addCollectionItem(collection: ResumeCollectionValue) {
@@ -418,7 +536,7 @@ export class CrdtResumeController implements ResumeDocumentController {
 		if (!snapshot) return;
 
 		const path = getResumeCollectionPath(collection);
-		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		const items = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 		this.setField(path, [...items, createDefaultCollectionItem(collection, snapshot)]);
 	}
 
@@ -427,7 +545,7 @@ export class CrdtResumeController implements ResumeDocumentController {
 		if (!snapshot) return;
 
 		const path = getResumeCollectionPath(collection);
-		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		const items = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 		const position = Math.max(0, Math.min(index, items.length));
 		this.setField(path, [
 			...items.slice(0, position),
@@ -438,7 +556,7 @@ export class CrdtResumeController implements ResumeDocumentController {
 
 	removeCollectionItem(collection: ResumeCollectionValue, index: number) {
 		const path = getResumeCollectionPath(collection);
-		const items = (fromYValue(this.getPathValue(path)) as unknown[] | undefined) ?? [];
+		const items = (this.getValueAtPath(path) as unknown[] | undefined) ?? [];
 		this.setField(
 			path,
 			items.filter((_, itemIndex) => itemIndex !== index),
@@ -446,7 +564,7 @@ export class CrdtResumeController implements ResumeDocumentController {
 	}
 
 	moveArrayItem(path: string, fromIndex: number, toIndex: number) {
-		const items = fromYValue(this.getPathValue(path)) as unknown[] | undefined;
+		const items = this.getValueAtPath(path) as unknown[] | undefined;
 		if (!items) return;
 
 		const reordered = reorderItems(items, fromIndex, toIndex);
@@ -498,77 +616,29 @@ export class CrdtResumeController implements ResumeDocumentController {
 	};
 
 	private updateSnapshot() {
-		const stored = fromYValue(this.root) as Record<string, unknown>;
-		const { id, ...resume } = stored;
-
-		// A document without a `data` payload isn't a usable resume snapshot
-		// (e.g. it was never hydrated, or `replaceResume` was given malformed
-		// content that landed at the top level instead of under `data`).
-		// Report it as absent so callers fall back to the Postgres-sourced
-		// resume instead of handing readers a snapshot with no content.
-		if (!isPlainObject(resume.data)) {
+		if (this.root.length === 0) {
 			this.snapshot = null;
 			this.options.onSnapshotChange?.(null);
 			return;
 		}
 
+		const xml = serializeFragment(this.root);
 		this.snapshot = {
-			...resume,
-			_id: String(id ?? this.resumeId),
+			...this.options.resume,
+			_id: this.resumeId,
+			id: this.resumeId,
+			xml,
+			data: resumeContentFromXml(xml, this.options.resume.uid),
 		} as Resume;
 		this.options.onSnapshotChange?.(this.snapshot);
 	}
 
-	private getPathValue(path: string) {
+	private getValueAtPath(path: string) {
+		if (!this.snapshot) return undefined;
 		return parsePath(path).reduce<unknown>((current, segment) => {
-			if (current instanceof Y.Map) return current.get(String(segment));
-			if (current instanceof Y.Array && typeof segment === 'number') {
-				return current.get(segment);
-			}
+			if (Array.isArray(current) && typeof segment === 'number') return current[segment];
+			if (isPlainObject(current)) return current[String(segment)];
 			return undefined;
-		}, this.root);
-	}
-
-	private setPathValue(path: string, value: unknown) {
-		const segments = parsePath(path);
-		let current: Y.Map<unknown> | Y.Array<unknown> = this.root;
-
-		for (let index = 0; index < segments.length - 1; index += 1) {
-			const segment = segments[index]!;
-			const nextSegment = segments[index + 1]!;
-			const existing: unknown =
-				current instanceof Y.Map
-					? current.get(String(segment))
-					: typeof segment === 'number'
-						? current.get(segment)
-						: undefined;
-			const next: Y.Map<unknown> | Y.Array<unknown> =
-				existing instanceof Y.Map || existing instanceof Y.Array
-					? existing
-					: typeof nextSegment === 'number'
-						? new Y.Array<unknown>()
-						: new Y.Map<unknown>();
-
-			if (next !== existing) {
-				if (current instanceof Y.Map) {
-					current.set(String(segment), next);
-				} else if (typeof segment === 'number') {
-					current.delete(segment, 1);
-					current.insert(segment, [next]);
-				}
-			}
-
-			current = next;
-		}
-
-		const last = segments.at(-1);
-		if (last === undefined) return;
-
-		if (current instanceof Y.Map) {
-			current.set(String(last), toYValue(value));
-		} else if (typeof last === 'number') {
-			current.delete(last, 1);
-			current.insert(last, [toYValue(value)]);
-		}
+		}, this.snapshot);
 	}
 }

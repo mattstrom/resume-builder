@@ -8,6 +8,7 @@ import { Mode } from '@/stores/ui-state.store';
 const MODES: { value: Mode; label: string; num: string }[] = [
 	{ value: Mode.Edit, label: 'Edit', num: '01' },
 	{ value: Mode.Review, label: 'Review', num: '02' },
+	{ value: Mode.Xml, label: 'XML', num: '03' },
 ];
 
 export const ResumePrimaryNav: FC = observer(() => {

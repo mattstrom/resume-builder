@@ -7,15 +7,33 @@ import {
 	ResumeFilterInput,
 	ResumeSortBy,
 	ResumeSortInput,
+	resumeContentFromXml,
+	resumeToXml,
 } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
+import { ResumeXmlRepository } from './resume-xml.repository.js';
 
-type ResumeWithId = Resume & { _id: string };
+type ResumeWithId = Resume & { _id: string; xml?: string };
 
 @Injectable()
 export class ResumesService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly resumeXml: ResumeXmlRepository,
+	) {}
+
+	private async hydrate(result: Record<string, unknown>): Promise<ResumeWithId> {
+		const id = String(result.id);
+		const uid = String(result.uid);
+		const xml = await this.resumeXml.find(uid, id);
+		return {
+			...result,
+			_id: id,
+			xml: xml ?? undefined,
+			data: xml ? resumeContentFromXml(xml, uid) : (result.data as ResumeContent),
+		} as ResumeWithId;
+	}
 
 	async findAll(
 		uid: string,
@@ -49,9 +67,7 @@ export class ResumesService {
 
 		const results = await this.prisma.resume.findMany({ where, orderBy });
 
-		return results.map(
-			(r) => ({ ...r, _id: r.id, data: r.data as ResumeContent }) as ResumeWithId,
-		);
+		return Promise.all(results.map((result) => this.hydrate(result)));
 	}
 
 	async find(uid: string, id: string): Promise<ResumeWithId> {
@@ -59,7 +75,7 @@ export class ResumesService {
 		if (!result) {
 			throw new NotFoundException();
 		}
-		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
+		return this.hydrate(result);
 	}
 
 	async create(uid: string, resumeData: ResumeCreateInput): Promise<ResumeWithId> {
@@ -71,11 +87,19 @@ export class ResumesService {
 			},
 		});
 
-		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
+		const hydrated = {
+			...result,
+			_id: result.id,
+			data: result.data as ResumeContent,
+		} as ResumeWithId;
+		const xml = resumeToXml(hydrated);
+		await this.resumeXml.upsert(result.id, xml);
+		return { ...hydrated, xml };
 	}
 
 	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<ResumeWithId> {
 		let data: object;
+		let sourceXml: string | null = null;
 
 		if (resumeData.sourceResumeId) {
 			const sourceResume = await this.prisma.resume.findFirst({
@@ -88,7 +112,8 @@ export class ResumesService {
 				);
 			}
 
-			data = sourceResume.data as object;
+			sourceXml = await this.resumeXml.find(uid, sourceResume.id);
+			data = sourceXml ? resumeContentFromXml(sourceXml, uid) : (sourceResume.data as object);
 		} else {
 			const contactInfo = await this.prisma.contactInformation.findFirst({
 				where: { uid },
@@ -109,7 +134,14 @@ export class ResumesService {
 			},
 		});
 
-		return { ...result, _id: result.id, data: result.data as ResumeContent } as ResumeWithId;
+		const hydrated = {
+			...result,
+			_id: result.id,
+			data: result.data as ResumeContent,
+		} as ResumeWithId;
+		const xml = sourceXml ?? resumeToXml(hydrated);
+		await this.resumeXml.upsert(result.id, xml);
+		return { ...hydrated, xml };
 	}
 
 	async delete(uid: string, id: string): Promise<void> {

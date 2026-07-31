@@ -1,10 +1,16 @@
 import { Extension } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
-import { Resume } from '@resume-builder/entities';
+import {
+	RESUME_XML_SCHEMA_VERSION,
+	Resume,
+	ResumeContent,
+	resumeToXml,
+} from '@resume-builder/entities';
 import * as Y from 'yjs';
 
 import { migrateProfileDocument } from './document-migrations.js';
 import { PrismaService } from './prisma.service.js';
+import { getResumeContent, replaceResumeXml, serializeResumeXml } from './resume-xml-document.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -168,14 +174,6 @@ export class StorageService implements Extension {
 		throw new Error(`Unsupported document "${documentName}"`);
 	}
 
-	private readResumeDocument(document: Y.Doc) {
-		return fromYValue(document.getMap('resume')) as Resume | null;
-	}
-
-	private writeResumeDocument(document: Y.Doc, resume: Resume) {
-		syncYMap(document.getMap('resume'), resume as unknown as Record<string, unknown>);
-	}
-
 	async assertResumeAccess(uid: string, resumeId: string) {
 		const resume = await this.prisma.resume.findFirst({
 			where: { id: resumeId, uid },
@@ -221,23 +219,30 @@ export class StorageService implements Extension {
 		if (latest?.update) {
 			Y.applyUpdate(document, new Uint8Array(latest.update));
 
-			return document;
+			if (document.getXmlFragment('resume').length > 0) {
+				return document;
+			}
+
+			// Compatibility bridge for a legacy Y.Map snapshot. The offline
+			// migration performs this in bulk, but converting on load prevents
+			// a missed document from becoming unreadable after deployment.
+			const legacy = fromYValue(document.getMap('resume')) as Resume | null;
+			const source = legacy?.data ? legacy : this.toResume(resume);
+			const migrated = new Y.Doc();
+			replaceResumeXml(migrated, resumeToXml(source));
+			await this.replaceResumeGenesis(uid, documentName, resumeId, migrated);
+			document.destroy();
+			return migrated;
 		}
 
-		this.writeResumeDocument(document, resume as unknown as Resume);
+		const storedXml = await this.readStoredResumeXml(resumeId);
+		replaceResumeXml(document, storedXml ?? resumeToXml(this.toResume(resume)));
 
 		// Persist the genesis snapshot immediately. Without this, the seeded
 		// state only exists in memory until Hocuspocus's debounced store
 		// fires, and a restart or eviction before then silently drops it,
 		// reverting to whatever Postgres had at the next load.
-		await this.prisma.documentUpdate.create({
-			data: {
-				name: documentName,
-				uid,
-				sequence: (latest?.sequence ?? 0) + 1,
-				update: Buffer.from(Y.encodeStateAsUpdate(document)),
-			},
-		});
+		await this.replaceResumeGenesis(uid, documentName, resumeId, document);
 
 		return document;
 	}
@@ -251,7 +256,8 @@ export class StorageService implements Extension {
 		await this.assertResumeAccess(uid, resumeId);
 
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
-		const snapshot = this.readResumeDocument(document);
+		const xml = serializeResumeXml(document);
+		const content = getResumeContent(document, uid);
 
 		const previous = await this.prisma.documentUpdate.findFirst({
 			where: { name: documentName, uid },
@@ -259,27 +265,89 @@ export class StorageService implements Extension {
 			select: { sequence: true },
 		});
 
-		await this.prisma.documentUpdate.create({
-			data: {
-				name: documentName,
-				uid,
-				sequence: (previous?.sequence ?? 0) + 1,
-				update,
-			},
+		await this.prisma.$transaction(async (transaction) => {
+			await transaction.documentUpdate.create({
+				data: {
+					name: documentName,
+					uid,
+					sequence: (previous?.sequence ?? 0) + 1,
+					update,
+				},
+			});
+			await transaction.$executeRawUnsafe(
+				`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+				 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
+				 ON CONFLICT ("resumeId") DO UPDATE
+				 SET "content" = EXCLUDED."content",
+				     "schemaVersion" = EXCLUDED."schemaVersion",
+				     "updatedAt" = CURRENT_TIMESTAMP`,
+				resumeId,
+				xml,
+				RESUME_XML_SCHEMA_VERSION,
+			);
+			// Temporary compatibility projection for GraphQL consumers. It is
+			// derived from XML and is never used to overwrite the XML document.
+			await transaction.resume.update({
+				where: { id: resumeId },
+				data: { data: content as object },
+			});
 		});
+	}
 
-		if (!snapshot) {
-			return;
-		}
+	private toResume(resume: {
+		id: string;
+		uid: string;
+		data: unknown;
+		[key: string]: unknown;
+	}): Resume {
+		return {
+			...resume,
+			_id: resume.id,
+			data: resume.data as ResumeContent,
+		} as unknown as Resume;
+	}
 
-		const { id, createdAt, updatedAt, ...resumeUpdate } = snapshot as unknown as Record<
-			string,
-			unknown
-		>;
+	private async readStoredResumeXml(resumeId: string): Promise<string | null> {
+		const rows = await this.prisma.$queryRawUnsafe<Array<{ content: string }>>(
+			`SELECT XMLSERIALIZE(DOCUMENT "content" AS text) AS "content"
+			 FROM "ResumeXml" WHERE "resumeId" = $1`,
+			resumeId,
+		);
+		return rows[0]?.content ?? null;
+	}
 
-		await this.prisma.resume.update({
-			where: { id: resumeId },
-			data: resumeUpdate,
+	private async replaceResumeGenesis(
+		uid: string,
+		documentName: string,
+		resumeId: string,
+		document: Y.Doc,
+	) {
+		const xml = serializeResumeXml(document);
+		const content = getResumeContent(document, uid);
+		const update = Buffer.from(Y.encodeStateAsUpdate(document));
+
+		await this.prisma.$transaction(async (transaction) => {
+			await transaction.documentUpdate.deleteMany({
+				where: { name: documentName, uid },
+			});
+			await transaction.documentUpdate.create({
+				data: { name: documentName, uid, sequence: 1, update },
+			});
+			await transaction.$executeRawUnsafe(
+				`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+				 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
+				 ON CONFLICT ("resumeId") DO UPDATE
+				 SET "content" = EXCLUDED."content",
+				     "schemaVersion" = EXCLUDED."schemaVersion",
+				     "updatedAt" = CURRENT_TIMESTAMP`,
+				resumeId,
+				xml,
+				RESUME_XML_SCHEMA_VERSION,
+			);
+			await transaction.resume.update({
+				where: { id: resumeId },
+				data: { data: content as object },
+			});
 		});
 	}
 

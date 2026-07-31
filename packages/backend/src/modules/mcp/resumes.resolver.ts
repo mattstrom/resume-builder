@@ -6,14 +6,16 @@ import {
 	JobInput,
 	ProjectInput,
 	ResumeCreateInput,
+	type ResumeXmlOp,
 	resumeInputSchema,
+	resumeToXml,
 	SkillInput,
 	VolunteeringInput,
 } from '@resume-builder/entities';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { CrdtApiService, type ResumePatchOp } from '../crdt-client/crdt-api.service.js';
+import { CrdtApiService } from '../crdt-client/crdt-api.service.js';
 import { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
 import { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
 import { EducationsService } from '../entities/educations/educations.service.js';
@@ -63,18 +65,38 @@ const createVolunteeringSchema = {
 	relevance: z.number().min(0).max(1).optional(),
 };
 
+const xmlTargetSchema = z.object({
+	xmlId: z.string().min(1).describe('Stable xml:id of the target element'),
+});
+
 const resumePatchOpSchema = z.union([
-	z.object({ op: z.literal('set'), path: z.string().min(1), value: z.unknown() }),
-	z.object({ op: z.literal('delete'), path: z.string().min(1) }),
 	z.object({
-		op: z.literal('insert'),
-		path: z.string().min(1),
-		index: z.number().int().nonnegative(),
-		value: z.unknown(),
+		op: z.literal('setText'),
+		target: xmlTargetSchema,
+		value: z.string(),
 	}),
 	z.object({
-		op: z.literal('remove'),
-		path: z.string().min(1),
+		op: z.literal('setAttribute'),
+		target: xmlTargetSchema,
+		name: z.string().min(1),
+		value: z.string(),
+	}),
+	z.object({
+		op: z.literal('removeAttribute'),
+		target: xmlTargetSchema,
+		name: z.string().min(1),
+	}),
+	z.object({
+		op: z.literal('insertElement'),
+		target: xmlTargetSchema,
+		position: z.enum(['append', 'prepend', 'before', 'after']),
+		xml: z.string().min(1),
+	}),
+	z.object({ op: z.literal('removeNode'), target: xmlTargetSchema }),
+	z.object({
+		op: z.literal('moveNode'),
+		target: xmlTargetSchema,
+		parent: xmlTargetSchema,
 		index: z.number().int().nonnegative(),
 	}),
 ]);
@@ -97,10 +119,9 @@ export class ResumesResolver {
 	@Tool({
 		name: 'patch_resume',
 		description:
-			'Apply targeted changes to an existing resume without resubmitting the full document. ' +
-			'Use set for a field, delete for a map key, and insert/remove for array items. ' +
-			'Call get_resume first to confirm paths and current array indices. Changes appear live ' +
-			'in connected collaborative editors.',
+			'Apply targeted operations to the canonical XML resume. Call get_resume first and ' +
+			'target stable xml:id values. Supports text/attribute edits and structural ' +
+			'insert/remove/move operations. Changes appear live in collaborative editors.',
 		paramsSchema: {
 			id: z.string().describe('Resume ID'),
 			ops: z.array(resumePatchOpSchema).min(1).describe('Ordered patch operations'),
@@ -111,7 +132,7 @@ export class ResumesResolver {
 		},
 	})
 	async patchResume(
-		{ id, ops }: McpToolParams<{ id: string; ops: ResumePatchOp[] }>,
+		{ id, ops }: McpToolParams<{ id: string; ops: ResumeXmlOp[] }>,
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		await this.resumesService.find(user.sub, id);
@@ -230,11 +251,16 @@ export class ResumesResolver {
 
 		await this.resumesService.find(user.sub, id);
 
-		const ops: ResumePatchOp[] = Object.entries(resume)
-			.filter(([key]) => key !== 'id')
-			.map(([key, value]) => ({ op: 'set', path: key, value }));
-
-		const result = await this.crdtApiService.applyResumePatch(`resume:${id}`, user.sub, ops);
+		const current = await this.resumesService.find(user.sub, id);
+		const xml = resumeToXml({
+			...current,
+			...resume,
+			_id: id,
+			id,
+			uid: user.sub,
+			data: resume.data,
+		});
+		const result = await this.crdtApiService.replaceResumeXml(`resume:${id}`, user.sub, xml);
 
 		return {
 			content: [

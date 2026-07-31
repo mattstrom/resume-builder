@@ -58,6 +58,7 @@ export const ModelName = {
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
+  ResumeXml: 'ResumeXml',
   Application: 'Application',
   Company: 'Company',
   CoverLetter: 'CoverLetter',
@@ -186,6 +187,15 @@ export const ResumeScalarFieldEnum = {
 } as const
 
 export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
+
+
+export const ResumeXmlScalarFieldEnum = {
+  resumeId: 'resumeId',
+  schemaVersion: 'schemaVersion',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResumeXmlScalarFieldEnum = (typeof ResumeXmlScalarFieldEnum)[keyof typeof ResumeXmlScalarFieldEnum]
 
 
 export const ApplicationScalarFieldEnum = {

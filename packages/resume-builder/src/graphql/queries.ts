@@ -1,16 +1,5 @@
 import { gql } from '@apollo/client';
 
-const contactInformationFragment = gql`
-	fragment ContactInformation on ContactInformation {
-		location
-		email
-		phoneNumber
-		githubProfile
-		linkedInProfile
-		personalWebsite
-	}
-`;
-
 const contactInformationSubdocFragment = gql`
 	fragment ContactInformationSubdoc on ContactInformationSubdoc {
 		location
@@ -196,6 +185,7 @@ export const LIST_RESUMES = gql`
 			jobPostingUrl
 			createdAt
 			updatedAt
+			xml
 			data {
 				...ResumeContent
 			}
@@ -223,6 +213,7 @@ export const GET_RESUME = gql`
 			name
 			company
 			jobPostingUrl
+			xml
 			data {
 				...ResumeContent
 			}
