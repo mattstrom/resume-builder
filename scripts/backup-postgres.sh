@@ -3,41 +3,20 @@
 # PostgreSQL Backup Script
 # Creates timestamped backups of the PostgreSQL database
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/pg-common.sh"
+
 # Configuration
 DATABASE_URL=${DATABASE_URL:-""}
 PGHOST=${PGHOST:-"localhost"}
 PGPORT=${PGPORT:-"5432"}
-PGDATABASE=${PGDATABASE:-"mastra"}
+PGDATABASE=${PGDATABASE:-"resume-builder"}
 PGUSER=${PGUSER:-"postgres"}
 BACKUP_DIR=${BACKUP_DIR:-"./backup"}
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_PATH="${BACKUP_DIR}/postgres_backup_${TIMESTAMP}.dump"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-# Check if pg_dump is installed
-if ! command -v pg_dump &> /dev/null; then
-    print_error "pg_dump is not installed. Please install PostgreSQL client tools."
-    echo "  macOS: brew install libpq && brew link --force libpq"
-    echo "  Linux: apt-get install postgresql-client"
-    exit 1
-fi
+require_command pg_dump
 
 # Create backup directory if it doesn't exist
 if [ ! -d "$BACKUP_DIR" ]; then
@@ -45,14 +24,7 @@ if [ ! -d "$BACKUP_DIR" ]; then
     mkdir -p "$BACKUP_DIR"
 fi
 
-# Build connection args
-if [ -n "$DATABASE_URL" ]; then
-    CONN_DISPLAY="$DATABASE_URL"
-    CONNECTION_ARGS=(-d "$DATABASE_URL")
-else
-    CONN_DISPLAY="${PGUSER}@${PGHOST}:${PGPORT}/${PGDATABASE}"
-    CONNECTION_ARGS=(-h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE")
-fi
+build_connection_args
 
 # Perform the backup
 print_status "Starting PostgreSQL backup..."
