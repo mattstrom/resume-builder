@@ -5,8 +5,20 @@ import { FactsService } from './facts.service';
 jest.mock('../prisma/index.js', () => ({ PrismaService: class {} }));
 jest.mock('./embedding.service.js', () => ({ EmbeddingService: class {} }));
 
-describe('FactsService technology normalization', () => {
+describe('FactsService semantic persistence', () => {
 	const uid = 'auth0|test';
+	const concepts = new Map<
+		string,
+		{ id: string; vocabulary: string; key: string; label: string }
+	>();
+	const links: Array<{
+		factId: string;
+		conceptId: string;
+		relation: string;
+		source: string;
+		confidence: number | null;
+	}> = [];
+	let factData: Record<string, unknown> = {};
 
 	const prisma = {
 		fact: {
@@ -31,37 +43,74 @@ describe('FactsService technology normalization', () => {
 
 	let service: FactsService;
 
-	/** The `technologies` array the service actually handed to Prisma. */
-	function writtenTechnologies(call: {
-		data: { technologies?: string[] };
-	}): string[] | undefined {
-		return call.data.technologies;
+	function conceptKeys(vocabulary: string): string[] {
+		return prisma.concept.upsert.mock.calls
+			.map(([input]) => input.create as { vocabulary: string; key: string })
+			.filter((concept) => concept.vocabulary === vocabulary)
+			.map((concept) => concept.key);
 	}
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		concepts.clear();
+		links.length = 0;
+		factData = {
+			id: 'fact-1',
+			uid,
+			what: 'unchanged',
+			impact: null,
+			scale: null,
+			citation: null,
+			citationNodeIndex: null,
+			createdAt: new Date('2026-07-31T00:00:00Z'),
+		};
 
 		prisma.fact.create.mockImplementation(
-			async ({ data }: { data: Record<string, unknown> }) => ({
-				id: 'fact-1',
-				...data,
-			}),
+			async ({ data }: { data: Record<string, unknown> }) => {
+				factData = { ...factData, ...data };
+				return factData;
+			},
 		);
 		prisma.fact.update.mockImplementation(
-			async ({ data }: { data: Record<string, unknown> }) => ({
-				id: 'fact-1',
-				what: 'unchanged',
-				tags: [],
-				technologies: [],
-				...data,
-			}),
+			async ({ data }: { data: Record<string, unknown> }) => {
+				factData = { ...factData, ...data };
+				return factData;
+			},
 		);
-		prisma.fact.findFirst.mockResolvedValue({ id: 'fact-1', uid });
+		prisma.fact.findFirst.mockImplementation(async () => ({
+			...factData,
+			concepts: links.map((link) => ({
+				...link,
+				concept: concepts.get(link.conceptId),
+			})),
+		}));
 		prisma.concept.upsert.mockImplementation(
-			async ({ create }: { create: { key: string } }) => ({
-				id: `concept:${create.key}`,
-				...create,
-			}),
+			async ({ create }: { create: { vocabulary: string; key: string; label: string } }) => {
+				const id = `concept:${create.vocabulary}:${create.key}`;
+				const concept = { id, ...create };
+				concepts.set(id, concept);
+				return concept;
+			},
+		);
+		prisma.factConcept.create.mockImplementation(
+			async ({ data }: { data: (typeof links)[number] }) => {
+				links.push(data);
+				return data;
+			},
+		);
+		prisma.factConcept.deleteMany.mockImplementation(
+			async ({ where }: { where: { relation: string; concept: { vocabulary: string } } }) => {
+				for (let index = links.length - 1; index >= 0; index -= 1) {
+					const concept = concepts.get(links[index].conceptId);
+					if (
+						links[index].relation === where.relation &&
+						concept?.vocabulary === where.concept.vocabulary
+					) {
+						links.splice(index, 1);
+					}
+				}
+				return { count: 0 };
+			},
 		);
 		prisma.$transaction.mockImplementation(
 			async (operation: (client: typeof prisma) => Promise<unknown>) => operation(prisma),
@@ -72,24 +121,41 @@ describe('FactsService technology normalization', () => {
 			prisma as unknown as PrismaService,
 			embedding as unknown as EmbeddingService,
 		);
-
-		// setEmbedding writes through raw SQL; stub it out so these tests stay
-		// focused on what lands in the technologies column.
 		jest.spyOn(service, 'setEmbedding').mockResolvedValue(undefined);
 	});
 
-	it('collapses spelling variants onto canonical names', async () => {
+	it('stores classification only as concept relationships', async () => {
+		await service.create(uid, {
+			kind: 'achievement',
+			entityType: 'project',
+			entityId: 'resume-builder',
+			what: 'Built the fact graph',
+			tags: ['knowledge-graph'],
+			technologies: ['react.js'],
+		});
+
+		expect(prisma.fact.create.mock.calls[0][0].data).toEqual({
+			uid,
+			what: 'Built the fact graph',
+			impact: undefined,
+			scale: undefined,
+			citation: undefined,
+			citationNodeIndex: undefined,
+		});
+		expect(links.map((link) => link.relation)).toEqual(['is-a', 'about', 'uses', 'relates-to']);
+		expect(conceptKeys('fact-type')).toEqual(['achievement']);
+		expect(conceptKeys('topic')).toEqual(['knowledge-graph']);
+		expect(conceptKeys('entity')).toEqual(['project:resume-builder']);
+	});
+
+	it('collapses technology spellings onto canonical concept keys', async () => {
 		await service.create(uid, {
 			kind: 'skill',
 			what: 'Built the web client',
 			technologies: ['react.js', 'k8s', 'postgres'],
 		});
 
-		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([
-			'React',
-			'Kubernetes',
-			'PostgreSQL',
-		]);
+		expect(conceptKeys('technology')).toEqual(['React', 'Kubernetes', 'PostgreSQL']);
 	});
 
 	it('keeps unrecognized technologies rather than dropping them', async () => {
@@ -99,85 +165,57 @@ describe('FactsService technology normalization', () => {
 			technologies: ['Blorptron 9000', 'React'],
 		});
 
-		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([
-			'Blorptron 9000',
-			'React',
-		]);
+		expect(conceptKeys('technology')).toEqual(['Blorptron 9000', 'React']);
 	});
 
-	it('deduplicates variants that collapse onto the same name', async () => {
+	it('deduplicates variants that collapse onto the same concept', async () => {
 		await service.create(uid, {
 			kind: 'skill',
 			what: 'Built the web client',
 			technologies: ['React', 'react.js', 'ReactJS'],
 		});
 
-		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual(['React']);
+		expect(conceptKeys('technology')).toEqual(['React']);
 	});
 
-	it('handles a fact with no technologies', async () => {
-		await service.create(uid, {
-			kind: 'trait',
-			what: 'Mentors junior engineers',
-		});
-
-		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([]);
-	});
-
-	it('does not touch tags', async () => {
-		await service.create(uid, {
-			kind: 'skill',
-			what: 'Built the web client',
-			tags: ['ci/cd', 'distributed-systems'],
-			technologies: ['react.js'],
-		});
-
-		expect(prisma.fact.create.mock.calls[0][0].data.tags).toEqual([
-			'ci/cd',
-			'distributed-systems',
-		]);
-	});
-
-	it('normalizes on update as well', async () => {
+	it('replaces semantic technology relationships on update', async () => {
 		await service.update(uid, 'fact-1', { technologies: ['k8s'] });
 
-		expect(writtenTechnologies(prisma.fact.update.mock.calls[0][0])).toEqual(['Kubernetes']);
+		expect(conceptKeys('technology')).toEqual(['Kubernetes']);
+		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({});
 	});
 
-	it('leaves the technologies column alone on a partial update', async () => {
+	it('leaves semantic relationships alone on a prose-only update', async () => {
 		await service.update(uid, 'fact-1', { what: 'Revised wording' });
 
-		expect(writtenTechnologies(prisma.fact.update.mock.calls[0][0])).toBeUndefined();
+		expect(prisma.factConcept.deleteMany).not.toHaveBeenCalled();
+		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({
+			what: 'Revised wording',
+		});
 	});
 
-	it('embeds the canonical names, not the raw input', async () => {
+	it('embeds relationship labels with the evidence text', async () => {
 		await service.create(uid, {
 			kind: 'skill',
 			what: 'Built the web client',
 			technologies: ['react.js', 'k8s'],
 		});
 
-		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('React, Kubernetes'));
+		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('uses: React'));
+		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('uses: Kubernetes'));
 	});
 
-	it('persists normalized technologies as semantic uses relationships', async () => {
+	it('records ontology provenance for recognized technologies', async () => {
 		await service.create(uid, {
 			kind: 'skill',
 			what: 'Built the web client',
 			technologies: ['react.js'],
 		});
 
-		expect(prisma.concept.upsert).toHaveBeenCalledWith(
-			expect.objectContaining({
-				where: {
-					vocabulary_key: { vocabulary: 'technology', key: 'React' },
-				},
-			}),
-		);
 		expect(prisma.factConcept.create).toHaveBeenCalledWith({
 			data: {
 				factId: 'fact-1',
-				conceptId: 'concept:React',
+				conceptId: 'concept:technology:React',
 				relation: 'uses',
 				source: 'ontology-normalizer',
 				confidence: 1,

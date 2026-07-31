@@ -14,8 +14,23 @@ const factCreateSchema = FactSchema.omit({
 	uid: true,
 	createdAt: true,
 }).extend({
+	kind: z.string().describe('Fact type; stored as an is-a relationship to a fact-type concept'),
+	entityType: z
+		.string()
+		.nullable()
+		.optional()
+		.describe('Related entity type; combined with entityId into a relates-to concept'),
+	entityId: z
+		.string()
+		.nullable()
+		.optional()
+		.describe('Related entity ID; combined with entityType into a relates-to concept'),
 	tags: z.string().array().optional().describe('Tags for classification'),
-	technologies: z.string().array().optional().describe('Technologies involved'),
+	technologies: z
+		.string()
+		.array()
+		.optional()
+		.describe('Technologies stored as uses relationships'),
 });
 const factUpdateSchema = factCreateSchema.partial();
 
@@ -30,7 +45,7 @@ export class FactsResolver {
 	@Tool({
 		name: 'get_facts',
 		description:
-			'Retrieve facts for the current user, optionally filtered by kind, entityType, or entityId',
+			'Retrieve facts for the current user, optionally filtered through their semantic type or entity relationships',
 		paramsSchema: {
 			kind: z.string().optional().describe('Filter by fact kind'),
 			entityType: z.string().optional().describe('Filter by entity type'),

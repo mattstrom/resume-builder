@@ -11,26 +11,26 @@ export type FactWithoutEmbedding = Omit<Fact, 'embedding'>;
 
 export interface CreateFactDto {
 	kind: string;
-	entityType?: string;
-	entityId?: string;
+	entityType?: string | null;
+	entityId?: string | null;
 	what: string;
-	impact?: string;
-	scale?: string;
-	citation?: string;
-	citationNodeIndex?: number;
+	impact?: string | null;
+	scale?: string | null;
+	citation?: string | null;
+	citationNodeIndex?: number | null;
 	tags?: string[];
 	technologies?: string[];
 }
 
 export interface UpdateFactDto {
 	kind?: string;
-	entityType?: string;
-	entityId?: string;
+	entityType?: string | null;
+	entityId?: string | null;
 	what?: string;
-	impact?: string;
-	scale?: string;
-	citation?: string;
-	citationNodeIndex?: number;
+	impact?: string | null;
+	scale?: string | null;
+	citation?: string | null;
+	citationNodeIndex?: number | null;
 	tags?: string[];
 	technologies?: string[];
 }
@@ -77,8 +77,15 @@ export type FactWithConcepts = Prisma.FactGetPayload<{
 	include: { concepts: { include: { concept: true } } };
 }>;
 
-export interface SimilarFact extends FactWithoutEmbedding {
+export interface SimilarFact extends FactWithConcepts {
 	distance: number;
+}
+
+interface ConceptValue {
+	key: string;
+	label: string;
+	source: string;
+	confidence: number | null;
 }
 
 @Injectable()
@@ -91,7 +98,8 @@ export class FactsService {
 	) {}
 
 	/**
-	 * Collapse technology spellings onto their canonical names before storage.
+	 * Collapse technology spellings onto their canonical names before creating
+	 * their semantic concept relationships.
 	 *
 	 * Names that aren't recognized are kept exactly as supplied — this only
 	 * unifies spellings, it never drops data. The unrecognized ones are logged
@@ -128,26 +136,63 @@ export class FactsService {
 		return output;
 	}
 
-	private async syncTechnologyConcepts(
+	private conceptKey(label: string): string {
+		return label
+			.trim()
+			.toLocaleLowerCase()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/(^-|-$)/g, '');
+	}
+
+	private entityKey(entityType?: string | null, entityId?: string | null): string | undefined {
+		const type = entityType?.trim().toLocaleLowerCase();
+		const id = entityId?.trim();
+		if (!type && !id) return undefined;
+		return `${type || 'unknown'}:${id || '*'}`;
+	}
+
+	private entityParts(concepts: FactConceptWithConcept[]): {
+		entityType?: string;
+		entityId?: string;
+	} {
+		const entity = concepts.find(
+			(link) => link.relation === 'relates-to' && link.concept.vocabulary === 'entity',
+		);
+		if (!entity) return {};
+		const separator = entity.concept.key.indexOf(':');
+		if (separator < 0) return { entityId: entity.concept.key };
+		const entityType = entity.concept.key.slice(0, separator);
+		const entityId = entity.concept.key.slice(separator + 1);
+		return {
+			entityType: entityType === 'unknown' ? undefined : entityType,
+			entityId: entityId === '*' ? undefined : entityId,
+		};
+	}
+
+	private async replaceConcepts(
 		prisma: Prisma.TransactionClient,
 		factId: string,
-		technologies: string[],
+		relation: string,
+		vocabulary: string,
+		values: ConceptValue[],
 	): Promise<void> {
 		await prisma.factConcept.deleteMany({
 			where: {
 				factId,
-				relation: 'uses',
-				concept: { vocabulary: 'technology' },
+				relation,
+				concept: { vocabulary },
 			},
 		});
 
-		for (const name of technologies) {
-			const recognized = technology.resolve(name) !== undefined;
+		const seen = new Set<string>();
+		for (const value of values) {
+			if (!value.key || seen.has(value.key)) continue;
+			seen.add(value.key);
 			const concept = await prisma.concept.upsert({
 				where: {
-					vocabulary_key: { vocabulary: 'technology', key: name },
+					vocabulary_key: { vocabulary, key: value.key },
 				},
-				create: { vocabulary: 'technology', key: name, label: name },
+				create: { vocabulary, key: value.key, label: value.label },
 				update: {},
 			});
 
@@ -155,39 +200,107 @@ export class FactsService {
 				data: {
 					factId,
 					conceptId: concept.id,
-					relation: 'uses',
-					source: recognized ? 'ontology-normalizer' : 'user',
-					confidence: recognized ? 1 : null,
+					relation,
+					source: value.source,
+					confidence: value.confidence,
 				},
 			});
 		}
 	}
 
+	private async syncInputConcepts(
+		prisma: Prisma.TransactionClient,
+		factId: string,
+		dto: CreateFactDto | UpdateFactDto,
+		currentConcepts: FactConceptWithConcept[] = [],
+		creating = false,
+	): Promise<void> {
+		if (creating || dto.kind !== undefined) {
+			const label = dto.kind?.trim() ?? '';
+			await this.replaceConcepts(
+				prisma,
+				factId,
+				'is-a',
+				'fact-type',
+				label
+					? [{ key: this.conceptKey(label), label, source: 'user', confidence: 1 }]
+					: [],
+			);
+		}
+
+		if (creating || dto.tags !== undefined) {
+			const topics = (dto.tags ?? []).map((label) => ({
+				key: this.conceptKey(label),
+				label: label.trim(),
+				source: 'user',
+				confidence: 1,
+			}));
+			await this.replaceConcepts(prisma, factId, 'about', 'topic', topics);
+		}
+
+		if (creating || dto.technologies !== undefined) {
+			const technologies = this.canonicalizeTechnologies(dto.technologies ?? []);
+			await this.replaceConcepts(
+				prisma,
+				factId,
+				'uses',
+				'technology',
+				technologies.map((name) => {
+					const recognized = technology.resolve(name) !== undefined;
+					return {
+						key: name,
+						label: name,
+						source: recognized ? 'ontology-normalizer' : 'user',
+						confidence: recognized ? 1 : null,
+					};
+				}),
+			);
+		}
+
+		if (creating || dto.entityType !== undefined || dto.entityId !== undefined) {
+			const current = this.entityParts(currentConcepts);
+			const entityType = dto.entityType === undefined ? current.entityType : dto.entityType;
+			const entityId = dto.entityId === undefined ? current.entityId : dto.entityId;
+			const key = this.entityKey(entityType, entityId);
+			await this.replaceConcepts(
+				prisma,
+				factId,
+				'relates-to',
+				'entity',
+				key
+					? [
+							{
+								key,
+								label: entityId?.trim() || entityType?.trim() || 'Unknown entity',
+								source: 'user',
+								confidence: 1,
+							},
+						]
+					: [],
+			);
+		}
+	}
+
 	// ─── Facts ────────────────────────────────────────────────────────────────
 
-	async create(uid: string, dto: CreateFactDto): Promise<FactWithoutEmbedding> {
-		const technologies = this.canonicalizeTechnologies(dto.technologies ?? []);
-		const fact = await this.prisma.$transaction(async (prisma) => {
+	async create(uid: string, dto: CreateFactDto): Promise<FactWithConcepts> {
+		const created = await this.prisma.$transaction(async (prisma) => {
 			const created = await prisma.fact.create({
 				data: {
 					uid,
-					kind: dto.kind,
-					entityType: dto.entityType,
-					entityId: dto.entityId,
 					what: dto.what,
 					impact: dto.impact,
 					scale: dto.scale,
 					citation: dto.citation,
 					citationNodeIndex: dto.citationNodeIndex,
-					tags: dto.tags ?? [],
-					technologies,
 				},
 			});
 
-			await this.syncTechnologyConcepts(prisma, created.id, technologies);
+			await this.syncInputConcepts(prisma, created.id, dto, [], true);
 			return created;
 		});
 
+		const fact = await this.findById(uid, created.id);
 		const vector = await this.embedding.embed(this.factToEmbeddingText(fact));
 		await this.setEmbedding(uid, fact.id, vector);
 
@@ -195,12 +308,48 @@ export class FactsService {
 	}
 
 	async findAll(uid: string, filters: FactFilters = {}): Promise<FactWithConcepts[]> {
+		const semanticFilters: Prisma.FactWhereInput[] = [];
+		if (filters.kind) {
+			semanticFilters.push({
+				concepts: {
+					some: {
+						relation: 'is-a',
+						concept: {
+							vocabulary: 'fact-type',
+							key: this.conceptKey(filters.kind),
+						},
+					},
+				},
+			});
+		}
+		if (filters.entityType || filters.entityId) {
+			const entityKey =
+				filters.entityType && filters.entityId
+					? this.entityKey(filters.entityType, filters.entityId)
+					: undefined;
+			semanticFilters.push({
+				concepts: {
+					some: {
+						relation: 'relates-to',
+						concept: {
+							vocabulary: 'entity',
+							key: entityKey
+								? entityKey
+								: filters.entityType
+									? {
+											startsWith: `${filters.entityType.trim().toLocaleLowerCase()}:`,
+										}
+									: { endsWith: `:${filters.entityId?.trim()}` },
+						},
+					},
+				},
+			});
+		}
+
 		return this.prisma.fact.findMany({
 			where: {
 				uid,
-				...(filters.kind ? { kind: filters.kind } : {}),
-				...(filters.entityType ? { entityType: filters.entityType } : {}),
-				...(filters.entityId ? { entityId: filters.entityId } : {}),
+				...(semanticFilters.length ? { AND: semanticFilters } : {}),
 			},
 			include: { concepts: { include: { concept: true } } },
 			orderBy: { createdAt: 'desc' },
@@ -219,33 +368,28 @@ export class FactsService {
 		return fact;
 	}
 
-	async findByIds(uid: string, ids: string[]): Promise<FactWithoutEmbedding[]> {
-		return this.prisma.fact.findMany({ where: { id: { in: ids }, uid } });
+	async findByIds(uid: string, ids: string[]): Promise<FactWithConcepts[]> {
+		return this.prisma.fact.findMany({
+			where: { id: { in: ids }, uid },
+			include: { concepts: { include: { concept: true } } },
+		});
 	}
 
-	async update(uid: string, id: string, dto: UpdateFactDto): Promise<FactWithoutEmbedding> {
-		await this.findById(uid, id);
+	async update(uid: string, id: string, dto: UpdateFactDto): Promise<FactWithConcepts> {
+		const current = await this.findById(uid, id);
+		const { kind, entityType, entityId, tags, technologies, ...data } = dto;
 
-		// Only touch technologies when the caller actually supplied them —
-		// otherwise a partial update would rewrite the column with an empty array.
-		const data =
-			dto.technologies === undefined
-				? dto
-				: {
-						...dto,
-						technologies: this.canonicalizeTechnologies(dto.technologies),
-					};
-
-		const fact = await this.prisma.$transaction(async (prisma) => {
-			const updated = await prisma.fact.update({ where: { id }, data });
-
-			if (data.technologies !== undefined) {
-				await this.syncTechnologyConcepts(prisma, id, data.technologies);
-			}
-
-			return updated;
+		await this.prisma.$transaction(async (prisma) => {
+			await prisma.fact.update({ where: { id }, data });
+			await this.syncInputConcepts(
+				prisma,
+				id,
+				{ kind, entityType, entityId, tags, technologies },
+				current.concepts,
+			);
 		});
 
+		const fact = await this.findById(uid, id);
 		const vector = await this.embedding.embed(this.factToEmbeddingText(fact));
 		await this.setEmbedding(uid, fact.id, vector);
 
@@ -389,8 +533,7 @@ export class FactsService {
 		what: string;
 		impact?: string | null;
 		scale?: string | null;
-		tags: string[];
-		technologies: string[];
+		concepts: FactConceptWithConcept[];
 	}): string {
 		const parts = [fact.what];
 		if (fact.impact) {
@@ -401,12 +544,11 @@ export class FactsService {
 			parts.push(fact.scale);
 		}
 
-		if (fact.tags.length) {
-			parts.push(fact.tags.join(', '));
-		}
-
-		if (fact.technologies.length) {
-			parts.push(fact.technologies.join(', '));
+		const semanticLabels = fact.concepts.map(
+			(link) => `${link.relation}: ${link.concept.label}`,
+		);
+		if (semanticLabels.length) {
+			parts.push(semanticLabels.join(', '));
 		}
 
 		return parts.join('\n');
@@ -424,8 +566,10 @@ export class FactsService {
 
 	async findSimilar(uid: string, vector: number[], limit = 10): Promise<SimilarFact[]> {
 		const formatted = `[${vector.join(',')}]`;
-		const rows = await this.prisma.$queryRawUnsafe<SimilarFact[]>(
-			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, citation, "citationNodeIndex", tags, technologies, "createdAt",
+		const rows = await this.prisma.$queryRawUnsafe<
+			Array<FactWithoutEmbedding & { distance: number }>
+		>(
+			`SELECT id, uid, what, impact, scale, citation, "citationNodeIndex", "createdAt",
               embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
@@ -436,7 +580,14 @@ export class FactsService {
 			limit,
 		);
 
-		return rows;
+		const concepts = await this.prisma.factConcept.findMany({
+			where: { factId: { in: rows.map((row) => row.id) } },
+			include: { concept: true },
+		});
+		return rows.map((row) => ({
+			...row,
+			concepts: concepts.filter((link) => link.factId === row.id),
+		}));
 	}
 
 	// ─── Expressions ──────────────────────────────────────────────────────────
@@ -498,7 +649,12 @@ export class FactsService {
 	async findResumeFacts(resumeId: string): Promise<ResumeFact[]> {
 		return this.prisma.resumeFact.findMany({
 			where: { resumeId },
-			include: { fact: true, expression: true },
+			include: {
+				fact: {
+					include: { concepts: { include: { concept: true } } },
+				},
+				expression: true,
+			},
 			orderBy: { position: 'asc' },
 		});
 	}

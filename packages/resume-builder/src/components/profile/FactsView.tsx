@@ -30,6 +30,24 @@ import { useStore } from '@/stores/store.provider.tsx';
 
 const RELATIONS = [
 	{
+		value: 'is-a',
+		label: 'Type',
+		vocabulary: 'fact-type',
+		variant: 'default',
+	},
+	{
+		value: 'relates-to',
+		label: 'Related to',
+		vocabulary: 'entity',
+		variant: 'outline',
+	},
+	{
+		value: 'about',
+		label: 'About',
+		vocabulary: 'topic',
+		variant: 'secondary',
+	},
+	{
 		value: 'uses',
 		label: 'Uses',
 		vocabulary: 'technology',
@@ -78,10 +96,19 @@ function conceptKey(label: string): string {
 function groupFacts(facts: Fact[]): FactsGrouped {
 	const result: FactsGrouped = {};
 	for (const fact of facts) {
-		const entityType = fact.entityType ?? '';
-		const entityId = fact.entityId ?? '';
-		((result[entityType] ??= {})[entityId] ??= {})[fact.kind] ??= [];
-		result[entityType][entityId][fact.kind].push(fact);
+		const typeConcept = fact.concepts.find(
+			(link) => link.relation === 'is-a' && link.concept.vocabulary === 'fact-type',
+		)?.concept;
+		const entityConcept = fact.concepts.find(
+			(link) => link.relation === 'relates-to' && link.concept.vocabulary === 'entity',
+		)?.concept;
+		const [entityType = '', ...entityIdParts] = entityConcept?.key.split(':') ?? [];
+		const rawEntityId = entityIdParts.join(':');
+		const normalizedEntityType = entityType === 'unknown' ? '' : entityType;
+		const entityId = rawEntityId === '*' ? '' : rawEntityId;
+		const kind = typeConcept?.label || typeConcept?.key || 'Unclassified';
+		((result[normalizedEntityType] ??= {})[entityId] ??= {})[kind] ??= [];
+		result[normalizedEntityType][entityId][kind].push(fact);
 	}
 	return result;
 }
@@ -133,11 +160,6 @@ const FactCard: FC<FactCardProps> = ({ fact, onEdit }) => (
 
 		<CardFooter className="flex flex-wrap justify-between gap-2 px-4 pb-4">
 			<div className="flex flex-wrap gap-1.5">
-				{fact.tags.map((tag) => (
-					<Badge key={tag} variant="secondary" className="font-normal">
-						{tag}
-					</Badge>
-				))}
 				{fact.concepts.map((link) => (
 					<SemanticBadge key={`${link.relation}:${link.conceptId}`} link={link} />
 				))}
@@ -220,11 +242,14 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 	const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 	const details = relationDetails(relation)!;
 	const suggestionType =
-		details.vocabulary === 'technology'
-			? 'technologies'
-			: details.vocabulary === 'outcome'
-				? 'outcomes'
-				: 'capabilities';
+		{
+			technology: 'technologies',
+			outcome: 'outcomes',
+			capability: 'capabilities',
+			'fact-type': 'fact types',
+			entity: 'entities',
+			topic: 'topics',
+		}[details.vocabulary] ?? 'concepts';
 	const comboboxOptions = suggestions.map((suggestion) => ({
 		value: suggestion.key,
 		label: suggestion.label,
@@ -276,7 +301,11 @@ const MeaningEditor: FC<MeaningEditorProps> = observer(({ fact, open, onOpenChan
 				vocabulary: details.vocabulary,
 				key:
 					selectedSuggestion?.key ??
-					(details.vocabulary === 'technology' ? trimmedLabel : conceptKey(trimmedLabel)),
+					(details.vocabulary === 'technology'
+						? trimmedLabel
+						: details.vocabulary === 'entity'
+							? `unknown:${conceptKey(trimmedLabel)}`
+							: conceptKey(trimmedLabel)),
 				label: trimmedLabel,
 				relation,
 				source: 'user',
@@ -424,7 +453,6 @@ export const FactsView: FC = observer(() => {
 				fact.what,
 				fact.impact,
 				fact.scale,
-				...fact.tags,
 				...fact.concepts.map((link) => link.concept.label),
 			]
 				.filter(Boolean)

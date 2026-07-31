@@ -80,19 +80,11 @@ model ConversationMessage {
 
 // ─── Fact ────────────────────────────────────────────────────────────────────
 // A durable, reusable career fact owned by a user.
-// entityId references a MongoDB-resident entity (job/project/education/volunteering) —
-// plain String, no FK, same pattern as Conversation.applicationId.
 // embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
 
 model Fact {
   id                String                      @id @default(cuid())
   uid               String
-  /// @zod.string.describe("Category of fact (e.g. 'achievement', 'responsibility', 'skill-evidence')")
-  kind              String
-  /// @zod.string.describe("Type of the related entity (e.g. 'job', 'project', 'education')")
-  entityType        String?
-  /// @zod.string.describe("ID of the related entity")
-  entityId          String?
   /// @zod.string.describe("One or two sentence description of the fact")
   what              String
   /// @zod.string.describe("Measurable outcome or impact (e.g. 'reduced latency by 40%')")
@@ -103,8 +95,6 @@ model Fact {
   citation          String?
   /// @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
   citationNodeIndex Int?
-  tags              String[]
-  technologies      String[]
   embedding         Unsupported("vector(768)")?
   createdAt         DateTime                    @default(now())
 
@@ -113,7 +103,6 @@ model Fact {
   concepts    FactConcept[]
 
   @@index([uid])
-  @@index([entityId])
 }
 
 // ─── Expression ──────────────────────────────────────────────────────────────

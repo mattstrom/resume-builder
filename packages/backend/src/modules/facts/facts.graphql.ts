@@ -9,15 +9,6 @@ export class FactType {
 	uid: string;
 
 	@Field()
-	kind: string;
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
-
-	@Field()
 	what: string;
 
 	@Field({ nullable: true })
@@ -31,12 +22,6 @@ export class FactType {
 
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
-
-	@Field(() => [String])
-	tags: string[];
-
-	@Field(() => [String])
-	technologies: string[];
 
 	@Field(() => [FactConceptType])
 	concepts: FactConceptType[];

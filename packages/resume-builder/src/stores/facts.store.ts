@@ -9,16 +9,11 @@ import type { RootStore } from './root.store.ts';
 export interface Fact {
 	id: string;
 	uid: string;
-	kind: string;
-	entityType?: string;
-	entityId?: string;
 	what: string;
 	impact?: string;
 	scale?: string;
 	citation?: string;
 	citationNodeIndex?: number;
-	tags: string[];
-	technologies: string[];
 	concepts: FactConcept[];
 	createdAt: string;
 }
@@ -77,17 +72,6 @@ export class FactsStore {
 		return this.query.loading;
 	}
 
-	@computed get factsGrouped(): Record<string, Record<string, Record<string, Fact[]>>> {
-		const result: Record<string, Record<string, Record<string, Fact[]>>> = {};
-		for (const fact of this.facts) {
-			const entityType = fact.entityType ?? '';
-			const entityId = fact.entityId ?? '';
-			((result[entityType] ??= {})[entityId] ??= {})[fact.kind] ??= [];
-			result[entityType][entityId][fact.kind].push(fact);
-		}
-		return result;
-	}
-
 	@action
 	async extractFacts(): Promise<void> {
 		this.isExtracting = true;
@@ -138,6 +122,6 @@ export class FactsStore {
 			fetchPolicy: 'network-only',
 		});
 
-		return result.data.conceptSuggestions;
+		return result.data?.conceptSuggestions ?? [];
 	}
 }

@@ -64,6 +64,8 @@ export const factsExtractorAgent = new Agent({
 			  technologies: string[]  // specific named tools, languages, frameworks — omit generic terms
 			}
 			\`\`\`
+
+			These convenience fields are persisted as semantic relationships, not duplicate Fact columns: \`kind\` becomes \`is-a → fact-type\`, the entity pair becomes \`relates-to → entity\`, \`tags\` become \`about → topic\`, and \`technologies\` become \`uses → technology\`.
 			
 			---
 			## Extraction Rules

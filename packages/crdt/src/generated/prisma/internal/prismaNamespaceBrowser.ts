@@ -133,16 +133,11 @@ export type ConversationMessageScalarFieldEnum = (typeof ConversationMessageScal
 export const FactScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
-  kind: 'kind',
-  entityType: 'entityType',
-  entityId: 'entityId',
   what: 'what',
   impact: 'impact',
   scale: 'scale',
   citation: 'citation',
   citationNodeIndex: 'citationNodeIndex',
-  tags: 'tags',
-  technologies: 'technologies',
   createdAt: 'createdAt'
 } as const
 

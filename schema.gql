@@ -5,16 +5,11 @@
 type FactType {
   id: ID!
   uid: String!
-  kind: String!
-  entityType: String
-  entityId: String
   what: String!
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]!
-  technologies: [String!]!
   concepts: [FactConceptType!]!
   createdAt: DateTime!
 }
@@ -547,7 +542,6 @@ input CompanyAddressInput {
 }
 
 type Query {
-  conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
   listApplications: [Application!]!
   getApplication(id: String!): Application!
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
@@ -558,6 +552,7 @@ type Query {
   facts(kind: String, entityType: String, entityId: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
+  conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
   bullets(filter: BulletFilterInput): [Bullet!]!

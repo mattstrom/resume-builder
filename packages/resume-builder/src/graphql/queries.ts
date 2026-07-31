@@ -324,16 +324,11 @@ export const LIST_FACTS = gql`
 		facts {
 			id
 			uid
-			kind
-			entityType
-			entityId
 			what
 			impact
 			scale
 			citation
 			citationNodeIndex
-			tags
-			technologies
 			concepts {
 				factId
 				conceptId
