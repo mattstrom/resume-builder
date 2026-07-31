@@ -334,7 +334,33 @@ export const LIST_FACTS = gql`
 			citationNodeIndex
 			tags
 			technologies
+			concepts {
+				factId
+				conceptId
+				relation
+				source
+				confidence
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+					externalUri
+				}
+			}
 			createdAt
+		}
+	}
+`;
+
+export const LIST_CONCEPT_SUGGESTIONS = gql`
+	query ListConceptSuggestions($vocabulary: String!, $search: String, $limit: Int) {
+		conceptSuggestions(vocabulary: $vocabulary, search: $search, limit: $limit) {
+			vocabulary
+			key
+			label
+			definition
 		}
 	}
 `;

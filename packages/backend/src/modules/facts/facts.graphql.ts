@@ -38,6 +38,9 @@ export class FactType {
 	@Field(() => [String])
 	technologies: string[];
 
+	@Field(() => [FactConceptType])
+	concepts: FactConceptType[];
+
 	@Field()
 	createdAt: Date;
 }
@@ -82,6 +85,21 @@ export class ConceptType {
 
 	@Field({ nullable: true })
 	externalUri?: string;
+}
+
+@ObjectType()
+export class ConceptSuggestionType {
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field({ nullable: true })
+	definition?: string;
 }
 
 @ObjectType()

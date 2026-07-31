@@ -2,6 +2,40 @@ import { gql } from '@apollo/client';
 
 import { applicationFragment, resumeContentFragment } from './queries.ts';
 
+export const UPSERT_FACT_CONCEPT = gql`
+	mutation UpsertFactConcept($factId: ID!, $input: UpsertFactConceptInput!) {
+		upsertFactConcept(factId: $factId, input: $input) {
+			factId
+			conceptId
+			relation
+			source
+			confidence
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
+		}
+	}
+`;
+
+export const DELETE_FACT_CONCEPT = gql`
+	mutation DeleteFactConcept(
+		$factId: ID!
+		$conceptId: ID!
+		$relation: String!
+	) {
+		deleteFactConcept(
+			factId: $factId
+			conceptId: $conceptId
+			relation: $relation
+		)
+	}
+`;
+
 export const UPSERT_CONTACT_INFORMATION = gql`
 	mutation UpsertContactInformation($input: ContactInformationInput!) {
 		upsertContactInformation(input: $input) {
@@ -160,7 +194,10 @@ export const CREATE_VOLUNTEERING = gql`
 `;
 
 export const UPDATE_VOLUNTEERING = gql`
-	mutation UpdateVolunteering($id: String!, $volunteering: VolunteeringInput!) {
+	mutation UpdateVolunteering(
+		$id: String!
+		$volunteering: VolunteeringInput!
+	) {
 		updateVolunteering(id: $id, volunteering: $volunteering) {
 			_id
 			organization
@@ -215,8 +252,14 @@ export const REORDER_BULLETS = gql`
 `;
 
 export const CREATE_APPLICATION = gql`
-	mutation CreateApplication($applicationData: ApplicationInput!, $sourceResumeId: String) {
-		createApplication(applicationData: $applicationData, sourceResumeId: $sourceResumeId) {
+	mutation CreateApplication(
+		$applicationData: ApplicationInput!
+		$sourceResumeId: String
+	) {
+		createApplication(
+			applicationData: $applicationData
+			sourceResumeId: $sourceResumeId
+		) {
 			...ApplicationFields
 		}
 	}
@@ -225,7 +268,10 @@ export const CREATE_APPLICATION = gql`
 `;
 
 export const UPDATE_APPLICATION = gql`
-	mutation UpdateApplication($id: String!, $applicationData: ApplicationUpdateInput!) {
+	mutation UpdateApplication(
+		$id: String!
+		$applicationData: ApplicationUpdateInput!
+	) {
 		updateApplication(id: $id, applicationData: $applicationData) {
 			...ApplicationFields
 		}

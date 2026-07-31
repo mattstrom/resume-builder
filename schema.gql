@@ -15,6 +15,7 @@ type FactType {
   citationNodeIndex: Int
   tags: [String!]!
   technologies: [String!]!
+  concepts: [FactConceptType!]!
   createdAt: DateTime!
 }
 
@@ -39,6 +40,13 @@ type ConceptType {
   label: String!
   definition: String
   externalUri: String
+}
+
+type ConceptSuggestionType {
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
 }
 
 type FactConceptType {
@@ -539,6 +547,7 @@ input CompanyAddressInput {
 }
 
 type Query {
+  conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
   listApplications: [Application!]!
   getApplication(id: String!): Application!
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!

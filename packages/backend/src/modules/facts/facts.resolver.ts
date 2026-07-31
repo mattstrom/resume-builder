@@ -1,9 +1,10 @@
-import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { CurrentUser } from '../auth/index.js';
 import {
 	CreateExpressionInput,
 	CreateFactInput,
+	ConceptSuggestionType,
 	ExpressionType,
 	FactConceptType,
 	FactType,
@@ -63,6 +64,16 @@ export class FactsResolver {
 		@Args('factId', { type: () => ID }) factId: string,
 	) {
 		return this.factsService.findFactConcepts(uid, factId);
+	}
+
+	@Query(() => [ConceptSuggestionType])
+	async conceptSuggestions(
+		@CurrentUser('sub') uid: string,
+		@Args('vocabulary') vocabulary: string,
+		@Args('search', { nullable: true }) search?: string,
+		@Args('limit', { type: () => Int, nullable: true }) limit?: number,
+	) {
+		return this.factsService.findConceptSuggestions(uid, vocabulary, search, limit);
 	}
 
 	@Mutation(() => FactConceptType)

@@ -1,6 +1,7 @@
 import { action, computed, makeObservable, observable } from 'mobx';
 
-import { LIST_FACTS } from '../graphql/queries.ts';
+import { DELETE_FACT_CONCEPT, UPSERT_FACT_CONCEPT } from '../graphql/mutations.ts';
+import { LIST_CONCEPT_SUGGESTIONS, LIST_FACTS } from '../graphql/queries.ts';
 import { getMastraClient } from '../lib/mastra-client.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
@@ -18,13 +19,48 @@ export interface Fact {
 	citationNodeIndex?: number;
 	tags: string[];
 	technologies: string[];
+	concepts: FactConcept[];
 	createdAt: string;
+}
+
+export interface Concept {
+	id: string;
+	vocabulary: string;
+	key: string;
+	label: string;
+	definition?: string;
+	externalUri?: string;
+}
+
+export interface FactConcept {
+	factId: string;
+	conceptId: string;
+	relation: string;
+	source: string;
+	confidence?: number;
+	concept: Concept;
+}
+
+export interface FactConceptInput {
+	vocabulary: string;
+	key: string;
+	label: string;
+	relation: string;
+	source?: string;
+}
+
+export interface ConceptSuggestion {
+	vocabulary: string;
+	key: string;
+	label: string;
+	definition?: string | null;
 }
 
 export class FactsStore {
 	private query: ApolloMobxWrapper<{ facts: Fact[] }>;
 
 	@observable isExtracting = false;
+	@observable isUpdatingConcept = false;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -63,5 +99,45 @@ export class FactsStore {
 		} finally {
 			this.isExtracting = false;
 		}
+	}
+
+	@action
+	async upsertConcept(factId: string, input: FactConceptInput): Promise<void> {
+		this.isUpdatingConcept = true;
+		try {
+			await this.rootStore.client.mutate({
+				mutation: UPSERT_FACT_CONCEPT,
+				variables: { factId, input },
+			});
+			await this.query.refetch();
+		} finally {
+			this.isUpdatingConcept = false;
+		}
+	}
+
+	@action
+	async deleteConcept(factId: string, conceptId: string, relation: string): Promise<void> {
+		this.isUpdatingConcept = true;
+		try {
+			await this.rootStore.client.mutate({
+				mutation: DELETE_FACT_CONCEPT,
+				variables: { factId, conceptId, relation },
+			});
+			await this.query.refetch();
+		} finally {
+			this.isUpdatingConcept = false;
+		}
+	}
+
+	async getConceptSuggestions(vocabulary: string, search: string): Promise<ConceptSuggestion[]> {
+		const result = await this.rootStore.client.query<{
+			conceptSuggestions: ConceptSuggestion[];
+		}>({
+			query: LIST_CONCEPT_SUGGESTIONS,
+			variables: { vocabulary, search, limit: 20 },
+			fetchPolicy: 'network-only',
+		});
+
+		return result.data.conceptSuggestions;
 	}
 }

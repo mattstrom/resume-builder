@@ -15,11 +15,13 @@ describe('FactsService technology normalization', () => {
 			findFirst: jest.fn(),
 		},
 		concept: {
+			findMany: jest.fn(),
 			upsert: jest.fn(),
 		},
 		factConcept: {
 			create: jest.fn(),
 			deleteMany: jest.fn(),
+			upsert: jest.fn(),
 		},
 		$executeRaw: jest.fn(),
 		$executeRawUnsafe: jest.fn(),
@@ -62,8 +64,7 @@ describe('FactsService technology normalization', () => {
 			}),
 		);
 		prisma.$transaction.mockImplementation(
-			async (operation: (client: typeof prisma) => Promise<unknown>) =>
-				operation(prisma),
+			async (operation: (client: typeof prisma) => Promise<unknown>) => operation(prisma),
 		);
 		embedding.embed.mockResolvedValue([0.1, 0.2]);
 
@@ -84,9 +85,11 @@ describe('FactsService technology normalization', () => {
 			technologies: ['react.js', 'k8s', 'postgres'],
 		});
 
-		expect(
-			writtenTechnologies(prisma.fact.create.mock.calls[0][0]),
-		).toEqual(['React', 'Kubernetes', 'PostgreSQL']);
+		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([
+			'React',
+			'Kubernetes',
+			'PostgreSQL',
+		]);
 	});
 
 	it('keeps unrecognized technologies rather than dropping them', async () => {
@@ -96,9 +99,10 @@ describe('FactsService technology normalization', () => {
 			technologies: ['Blorptron 9000', 'React'],
 		});
 
-		expect(
-			writtenTechnologies(prisma.fact.create.mock.calls[0][0]),
-		).toEqual(['Blorptron 9000', 'React']);
+		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([
+			'Blorptron 9000',
+			'React',
+		]);
 	});
 
 	it('deduplicates variants that collapse onto the same name', async () => {
@@ -108,9 +112,7 @@ describe('FactsService technology normalization', () => {
 			technologies: ['React', 'react.js', 'ReactJS'],
 		});
 
-		expect(
-			writtenTechnologies(prisma.fact.create.mock.calls[0][0]),
-		).toEqual(['React']);
+		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual(['React']);
 	});
 
 	it('handles a fact with no technologies', async () => {
@@ -119,9 +121,7 @@ describe('FactsService technology normalization', () => {
 			what: 'Mentors junior engineers',
 		});
 
-		expect(
-			writtenTechnologies(prisma.fact.create.mock.calls[0][0]),
-		).toEqual([]);
+		expect(writtenTechnologies(prisma.fact.create.mock.calls[0][0])).toEqual([]);
 	});
 
 	it('does not touch tags', async () => {
@@ -141,17 +141,13 @@ describe('FactsService technology normalization', () => {
 	it('normalizes on update as well', async () => {
 		await service.update(uid, 'fact-1', { technologies: ['k8s'] });
 
-		expect(
-			writtenTechnologies(prisma.fact.update.mock.calls[0][0]),
-		).toEqual(['Kubernetes']);
+		expect(writtenTechnologies(prisma.fact.update.mock.calls[0][0])).toEqual(['Kubernetes']);
 	});
 
 	it('leaves the technologies column alone on a partial update', async () => {
 		await service.update(uid, 'fact-1', { what: 'Revised wording' });
 
-		expect(
-			writtenTechnologies(prisma.fact.update.mock.calls[0][0]),
-		).toBeUndefined();
+		expect(writtenTechnologies(prisma.fact.update.mock.calls[0][0])).toBeUndefined();
 	});
 
 	it('embeds the canonical names, not the raw input', async () => {
@@ -161,9 +157,7 @@ describe('FactsService technology normalization', () => {
 			technologies: ['react.js', 'k8s'],
 		});
 
-		expect(embedding.embed).toHaveBeenCalledWith(
-			expect.stringContaining('React, Kubernetes'),
-		);
+		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('React, Kubernetes'));
 	});
 
 	it('persists normalized technologies as semantic uses relationships', async () => {
@@ -188,6 +182,69 @@ describe('FactsService technology normalization', () => {
 				source: 'ontology-normalizer',
 				confidence: 1,
 			},
+		});
+	});
+
+	it('normalizes technology concepts added through the meaning editor', async () => {
+		prisma.factConcept.upsert.mockResolvedValue({ id: 'link-1' });
+
+		await service.upsertFactConcept(uid, 'fact-1', {
+			vocabulary: 'technology',
+			key: 'react.js',
+			label: 'react.js',
+			relation: 'uses',
+			source: 'user',
+		});
+
+		expect(prisma.concept.upsert).toHaveBeenCalledWith({
+			where: {
+				vocabulary_key: { vocabulary: 'technology', key: 'React' },
+			},
+			create: { vocabulary: 'technology', key: 'React', label: 'React' },
+			update: {},
+		});
+	});
+
+	it('suggests canonical technologies for the uses relationship', async () => {
+		const suggestions = await service.findConceptSuggestions(uid, 'technology', 'react', 5);
+
+		expect(suggestions[0]).toEqual(
+			expect.objectContaining({
+				vocabulary: 'technology',
+				key: 'React',
+				label: 'React',
+			}),
+		);
+		expect(prisma.concept.findMany).not.toHaveBeenCalled();
+	});
+
+	it('suggests stored concepts from the requested vocabulary', async () => {
+		prisma.concept.findMany.mockResolvedValue([
+			{
+				vocabulary: 'capability',
+				key: 'mentoring',
+				label: 'Mentoring',
+				definition: null,
+			},
+		]);
+
+		const suggestions = await service.findConceptSuggestions(uid, 'capability', 'ment');
+
+		expect(suggestions).toHaveLength(1);
+		expect(prisma.concept.findMany).toHaveBeenCalledWith({
+			where: {
+				vocabulary: 'capability',
+				facts: { some: { fact: { uid } } },
+				label: { contains: 'ment', mode: 'insensitive' },
+			},
+			select: {
+				vocabulary: true,
+				key: true,
+				label: true,
+				definition: true,
+			},
+			orderBy: { label: 'asc' },
+			take: 20,
 		});
 	});
 });
