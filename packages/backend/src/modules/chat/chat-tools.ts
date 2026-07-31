@@ -1,5 +1,6 @@
-import type { CrdtClientService } from '../crdt-client/crdt-client.service.js';
-import type { JsonPatchOp } from '../crdt-client/json-patch.js';
+import type { ResumeXmlOp } from '@resume-builder/entities';
+
+import type { CrdtApiService } from '../crdt-client/crdt-api.service.js';
 import type { ContactInformationService } from '../entities/contact-information/contact-information.service.js';
 import type { CoverLettersService } from '../entities/cover-letters/cover-letters.service.js';
 import type { EducationsService } from '../entities/educations/educations.service.js';
@@ -19,7 +20,7 @@ export interface ChatToolServices {
 	skillsService: SkillsService;
 	volunteeringService: VolunteeringService;
 	coverLettersService: CoverLettersService;
-	crdtClientService: CrdtClientService;
+	crdtApiService: CrdtApiService;
 }
 
 export const chatTools: LlmToolDefinition[] = [
@@ -75,13 +76,9 @@ export const chatTools: LlmToolDefinition[] = [
 	{
 		name: 'patch_resume',
 		description:
-			'Apply a patch to a resume in the live collaborative document. ' +
-			'Changes are visible to all connected editors immediately. Use ' +
-			'this for every resume edit. Ops: "set" writes a value at a ' +
-			'path (auto-creating intermediate maps); "delete" removes a ' +
-			'map key; "insert" adds an array entry at the given index; ' +
-			'"remove" deletes an array entry at the given index. Paths are ' +
-			'dotted, e.g. "summary" or "jobs.0.title".',
+			'Apply targeted operations to the canonical XML resume. Read the resume first, ' +
+			'then target elements by their stable xml:id. Changes are immediately visible ' +
+			'to connected editors.',
 		inputSchema: {
 			type: 'object',
 			properties: {
@@ -97,22 +94,35 @@ export const chatTools: LlmToolDefinition[] = [
 						properties: {
 							op: {
 								type: 'string',
-								enum: ['set', 'delete', 'insert', 'remove'],
+								enum: [
+									'setText',
+									'setAttribute',
+									'removeAttribute',
+									'insertElement',
+									'removeNode',
+									'moveNode',
+								],
 							},
-							path: {
+							target: {
+								type: 'object',
+								properties: { xmlId: { type: 'string' } },
+								required: ['xmlId'],
+							},
+							name: { type: 'string' },
+							xml: { type: 'string' },
+							position: {
 								type: 'string',
-								description:
-									'Dotted path from the resume root, e.g. "summary" or "jobs.0.title"',
+								enum: ['append', 'prepend', 'before', 'after'],
 							},
 							index: {
 								type: 'number',
-								description: 'Array index (required for insert/remove)',
+								description: 'Destination index for moveNode',
 							},
 							value: {
-								description: 'Value to write (required for set/insert)',
+								type: 'string',
 							},
 						},
-						required: ['op', 'path'],
+						required: ['op', 'target'],
 					},
 				},
 			},
@@ -140,7 +150,7 @@ export async function executeTool(
 	input: Record<string, unknown>,
 	services: ChatToolServices,
 	uid: string,
-	accessToken: string,
+	_accessToken: string,
 ): Promise<string> {
 	switch (name) {
 		case 'get_resumes': {
@@ -182,14 +192,18 @@ export async function executeTool(
 		}
 		case 'patch_resume': {
 			const resumeId = input.resumeId as string;
-			const ops = input.ops as JsonPatchOp[];
+			const ops = input.ops as ResumeXmlOp[];
 			if (!resumeId || !Array.isArray(ops)) {
 				throw new Error('patch_resume requires resumeId and ops[]');
 			}
 			// Confirm access before opening a WS session — gives a clean
 			// error path if the LLM hallucinates an id.
 			await services.resumesService.find(uid, resumeId);
-			const result = await services.crdtClientService.patchResume(resumeId, ops, accessToken);
+			const result = await services.crdtApiService.applyResumePatch(
+				`resume:${resumeId}`,
+				uid,
+				ops,
+			);
 			return JSON.stringify(result);
 		}
 		case 'save_cover_letter': {

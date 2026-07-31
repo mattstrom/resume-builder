@@ -391,6 +391,7 @@ export const ModelName = {
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
+  ResumeXml: 'ResumeXml',
   Application: 'Application',
   Company: 'Company',
   CoverLetter: 'CoverLetter',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "documentUpdate"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "documentUpdate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -937,6 +938,64 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ResumeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ResumeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResumeXml: {
+      payload: Prisma.$ResumeXmlPayload<ExtArgs>
+      fields: Prisma.ResumeXmlFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResumeXmlFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResumeXmlFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>
+        }
+        findFirst: {
+          args: Prisma.ResumeXmlFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResumeXmlFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>
+        }
+        findMany: {
+          args: Prisma.ResumeXmlFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>[]
+        }
+        delete: {
+          args: Prisma.ResumeXmlDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>
+        }
+        update: {
+          args: Prisma.ResumeXmlUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResumeXmlDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResumeXmlUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResumeXmlUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResumeXmlPayload>[]
+        }
+        aggregate: {
+          args: Prisma.ResumeXmlAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResumeXml>
+        }
+        groupBy: {
+          args: Prisma.ResumeXmlGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResumeXmlGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResumeXmlCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResumeXmlCountAggregateOutputType> | number
         }
       }
     }
@@ -1967,6 +2026,15 @@ export const ResumeScalarFieldEnum = {
 export type ResumeScalarFieldEnum = (typeof ResumeScalarFieldEnum)[keyof typeof ResumeScalarFieldEnum]
 
 
+export const ResumeXmlScalarFieldEnum = {
+  resumeId: 'resumeId',
+  schemaVersion: 'schemaVersion',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResumeXmlScalarFieldEnum = (typeof ResumeXmlScalarFieldEnum)[keyof typeof ResumeXmlScalarFieldEnum]
+
+
 export const ApplicationScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
@@ -2450,6 +2518,7 @@ export type GlobalOmitConfig = {
   expression?: Prisma.ExpressionOmit
   jobRequirementFact?: Prisma.JobRequirementFactOmit
   resume?: Prisma.ResumeOmit
+  resumeXml?: Prisma.ResumeXmlOmit
   application?: Prisma.ApplicationOmit
   company?: Prisma.CompanyOmit
   coverLetter?: Prisma.CoverLetterOmit

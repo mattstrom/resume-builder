@@ -68,9 +68,18 @@ export class Resume {
 	@Prop({ type: Types.ObjectId, ref: 'Resume', default: null })
 	sourceResume?: Resume;
 
-	@Field(() => ResumeContent, { description: 'Resume content data' })
+	@Field(() => ResumeContent, {
+		description: 'Typed projection of the canonical resume XML',
+		deprecationReason: 'Read xml for lossless resume content.',
+	})
 	@Prop({ type: ResumeContentSchema, default: () => ({}) })
 	data: ResumeContent;
+
+	@Field({
+		nullable: true,
+		description: 'Canonical XML resume content',
+	})
+	xml?: string;
 
 	@Field({ description: 'Date when the resume was created' })
 	createdAt: Date;

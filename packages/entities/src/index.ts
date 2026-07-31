@@ -16,6 +16,7 @@ export * from './models/resume-content.js';
 export * from './models/resume.js';
 export * from './models/conversation.js';
 export * from './chat-models.js';
+export * from './resume-xml.js';
 
 export * from './mcp/index.js';
 

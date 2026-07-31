@@ -3,6 +3,7 @@ import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
 import { DirectResumeView } from '@/components/DirectResumeView.tsx';
+import { ResumeXmlInspector } from '@/components/resumes/ResumeXmlInspector.tsx';
 import { ResumeView } from '@/components/ResumeView.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { Mode } from '@/stores/ui-state.store.ts';
@@ -22,6 +23,7 @@ export const Workspace: FC = observer(() => {
 		<div className="workspace">
 			{mode === Mode.Edit && <DirectResumeView />}
 			{mode === Mode.Review && <ResumeView />}
+			{mode === Mode.Xml && <ResumeXmlInspector />}
 		</div>
 	);
 });

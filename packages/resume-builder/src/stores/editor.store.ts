@@ -213,6 +213,7 @@ export class EditorStore {
 		const token = await this.rootStore.authStore.ensureToken();
 		const controller = await CrdtResumeController.connect({
 			resumeId: plainResume._id,
+			resume: plainResume,
 			collaborationUrl: __CONFIG__.collaborationUrl,
 			token,
 			onSnapshotChange: (r) => {

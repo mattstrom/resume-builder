@@ -8,11 +8,15 @@ import {
 } from '@resume-builder/entities';
 
 import { CurrentUser } from '../../auth/index.js';
+import { CrdtApiService } from '../../crdt-client/crdt-api.service.js';
 import { ResumesService } from './resumes.service.js';
 
 @Resolver(() => Resume)
 export class ResumeResolver {
-	constructor(private readonly resumesService: ResumesService) {}
+	constructor(
+		private readonly resumesService: ResumesService,
+		private readonly crdtApi: CrdtApiService,
+	) {}
 
 	@Query(() => [Resume])
 	async listResumes(
@@ -50,5 +54,26 @@ export class ResumeResolver {
 	async deleteResume(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
 		await this.resumesService.delete(uid, id);
 		return true;
+	}
+
+	@Mutation(() => Resume)
+	async applyResumeXml(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('xml') xml: string,
+		@Args('baseStateVector', { nullable: true }) baseStateVector?: string,
+	) {
+		const metadata = await this.resumesService.find(uid, id);
+		const result = await this.crdtApi.replaceResumeXml(
+			`resume:${id}`,
+			uid,
+			xml,
+			baseStateVector,
+		);
+		return {
+			...metadata,
+			xml: result.xml,
+			data: result.resume,
+		};
 	}
 }

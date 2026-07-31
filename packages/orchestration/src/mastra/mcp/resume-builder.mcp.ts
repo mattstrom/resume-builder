@@ -11,6 +11,7 @@ type Tools =
 	| 'get_profile'
 	| 'get_resumes'
 	| 'get_resume'
+	| 'patch_resume'
 	| 'save_resume'
 	| 'get_contact_information'
 	| 'get_jobs'

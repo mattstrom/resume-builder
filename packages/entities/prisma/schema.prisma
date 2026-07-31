@@ -159,8 +159,8 @@ model JobRequirementFact {
 }
 
 // ─── Resume ──────────────────────────────────────────────────────────────────
-// data holds the full ResumeContent blob (workExperience, education, skills,
-// projects, volunteering, etc.) as JSON — see PgResume in @resume-builder/entities.
+// data is retained temporarily as the source for the offline XML cutover.
+// ResumeXml is authoritative after a resume has been migrated.
 // applicationId and sourceResumeId are plain strings during dual-DB transition.
 
 model Resume {
@@ -180,10 +180,22 @@ model Resume {
 
   sourceResume   Resume?  @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
   derivedResumes Resume[] @relation("ResumeVersions")
+  resumeXml      ResumeXml?
 
   @@index([uid])
   @@index([applicationId])
   @@index([sourceResumeId])
+}
+
+// Native PostgreSQL XML is intentionally isolated in a sidecar model because
+// Prisma Client cannot expose Unsupported("xml") fields through generated CRUD.
+// Read and write it through the ResumeXmlRepository using parameterized raw SQL.
+model ResumeXml {
+  resumeId      String             @id
+  content       Unsupported("xml")
+  schemaVersion Int                @default(1)
+  updatedAt     DateTime           @updatedAt
+  resume        Resume             @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
 
 // ─── Application ─────────────────────────────────────────────────────────────

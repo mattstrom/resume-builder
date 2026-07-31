@@ -53,6 +53,11 @@ export type JobRequirementFact = Prisma.JobRequirementFactModel
  */
 export type Resume = Prisma.ResumeModel
 /**
+ * Model ResumeXml
+ * 
+ */
+export type ResumeXml = Prisma.ResumeXmlModel
+/**
  * Model Application
  * 
  */
