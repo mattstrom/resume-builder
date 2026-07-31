@@ -14,8 +14,8 @@ export class ResumeXmlRepository {
 	async find(uid: string, resumeId: string): Promise<string | null> {
 		const rows = await this.prisma.$queryRawUnsafe<Array<{ content: string }>>(
 			`SELECT XMLSERIALIZE(DOCUMENT rx."content" AS text) AS "content"
-			 FROM "ResumeXml" rx
-			 JOIN "Resume" r ON r."id" = rx."resumeId"
+			 FROM "resume_builder"."ResumeXml" rx
+			 JOIN "resume_builder"."Resume" r ON r."id" = rx."resumeId"
 			 WHERE rx."resumeId" = $1 AND r."uid" = $2`,
 			resumeId,
 			uid,
@@ -29,7 +29,7 @@ export class ResumeXmlRepository {
 			throw new Error(`Invalid resume XML: ${validation.errors.join('; ')}`);
 		}
 		await this.prisma.$executeRawUnsafe(
-			`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+			`INSERT INTO "resume_builder"."ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
 			 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
 			 ON CONFLICT ("resumeId") DO UPDATE
 			 SET "content" = EXCLUDED."content",
@@ -61,8 +61,8 @@ export class ResumeXmlRepository {
 			          FROM unnest(xpath($1, rx."content",
 			            ARRAY[ARRAY['res', 'https://mattstrom.com/schemas/resume']])) match
 			        ) AS "matches"
-			 FROM "ResumeXml" rx
-			 JOIN "Resume" r ON r."id" = rx."resumeId"
+			 FROM "resume_builder"."ResumeXml" rx
+			 JOIN "resume_builder"."Resume" r ON r."id" = rx."resumeId"
 			 WHERE r."uid" = $2`,
 			xpath,
 			uid,

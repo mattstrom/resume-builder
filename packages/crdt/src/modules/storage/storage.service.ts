@@ -10,7 +10,13 @@ import * as Y from 'yjs';
 
 import { migrateProfileDocument } from './document-migrations.js';
 import { PrismaService } from './prisma.service.js';
-import { getResumeContent, replaceResumeXml, serializeResumeXml } from './resume-xml-document.js';
+import {
+	getExistingLegacyResumeMap,
+	getExistingResumeXmlFragment,
+	getResumeContent,
+	replaceResumeXml,
+	serializeResumeXml,
+} from './resume-xml-document.js';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -219,14 +225,15 @@ export class StorageService implements Extension {
 		if (latest?.update) {
 			Y.applyUpdate(document, new Uint8Array(latest.update));
 
-			if (document.getXmlFragment('resume').length > 0) {
+			if ((getExistingResumeXmlFragment(document)?.length ?? 0) > 0) {
 				return document;
 			}
 
 			// Compatibility bridge for a legacy Y.Map snapshot. The offline
 			// migration performs this in bulk, but converting on load prevents
 			// a missed document from becoming unreadable after deployment.
-			const legacy = fromYValue(document.getMap('resume')) as Resume | null;
+			const legacyMap = getExistingLegacyResumeMap(document);
+			const legacy = legacyMap ? (fromYValue(legacyMap) as Resume) : null;
 			const source = legacy?.data ? legacy : this.toResume(resume);
 			const migrated = new Y.Doc();
 			replaceResumeXml(migrated, resumeToXml(source));
@@ -275,7 +282,7 @@ export class StorageService implements Extension {
 				},
 			});
 			await transaction.$executeRawUnsafe(
-				`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+				`INSERT INTO "resume_builder"."ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
 				 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
 				 ON CONFLICT ("resumeId") DO UPDATE
 				 SET "content" = EXCLUDED."content",
@@ -310,7 +317,7 @@ export class StorageService implements Extension {
 	private async readStoredResumeXml(resumeId: string): Promise<string | null> {
 		const rows = await this.prisma.$queryRawUnsafe<Array<{ content: string }>>(
 			`SELECT XMLSERIALIZE(DOCUMENT "content" AS text) AS "content"
-			 FROM "ResumeXml" WHERE "resumeId" = $1`,
+			 FROM "resume_builder"."ResumeXml" WHERE "resumeId" = $1`,
 			resumeId,
 		);
 		return rows[0]?.content ?? null;
@@ -334,7 +341,7 @@ export class StorageService implements Extension {
 				data: { name: documentName, uid, sequence: 1, update },
 			});
 			await transaction.$executeRawUnsafe(
-				`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+				`INSERT INTO "resume_builder"."ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
 				 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
 				 ON CONFLICT ("resumeId") DO UPDATE
 				 SET "content" = EXCLUDED."content",

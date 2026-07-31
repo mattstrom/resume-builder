@@ -9,6 +9,8 @@ import * as Y from 'yjs';
 
 import { PrismaClient } from '../generated/prisma/client.js';
 import {
+	getExistingLegacyResumeMap,
+	getExistingResumeXmlFragment,
 	getResumeContent,
 	replaceResumeXml,
 	serializeResumeXml,
@@ -46,10 +48,11 @@ async function main() {
 			if (latest) Y.applyUpdate(legacyDocument, new Uint8Array(latest.update));
 
 			let xml: string;
-			if (legacyDocument.getXmlFragment('resume').length > 0) {
+			if ((getExistingResumeXmlFragment(legacyDocument)?.length ?? 0) > 0) {
 				xml = serializeResumeXml(legacyDocument);
 			} else {
-				const legacy = fromYValue(legacyDocument.getMap('resume')) as Resume | undefined;
+				const legacyMap = getExistingLegacyResumeMap(legacyDocument);
+				const legacy = legacyMap ? (fromYValue(legacyMap) as Resume) : undefined;
 				const resume = {
 					...row,
 					...(legacy?.data ? legacy : {}),
@@ -81,7 +84,7 @@ async function main() {
 						},
 					});
 					await transaction.$executeRawUnsafe(
-						`INSERT INTO "ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
+						`INSERT INTO "resume_builder"."ResumeXml" ("resumeId", "content", "schemaVersion", "updatedAt")
 						 VALUES ($1, XMLPARSE(DOCUMENT $2), $3, CURRENT_TIMESTAMP)
 						 ON CONFLICT ("resumeId") DO UPDATE
 						 SET "content" = EXCLUDED."content",

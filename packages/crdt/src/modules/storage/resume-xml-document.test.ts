@@ -4,6 +4,8 @@ import * as Y from 'yjs';
 
 import {
 	applyResumeXmlOps,
+	getExistingLegacyResumeMap,
+	getExistingResumeXmlFragment,
 	getResumeContent,
 	replaceResumeXml,
 	serializeResumeXml,
@@ -45,6 +47,16 @@ const resume = {
 } as Resume;
 
 describe('resume XML Yjs document', () => {
+	it('detects legacy maps without redefining their shared Yjs type', () => {
+		const document = new Y.Doc();
+		document.getMap('resume').set('data', { name: 'Legacy' });
+
+		expect(getExistingResumeXmlFragment(document)).toBeNull();
+		expect(getExistingLegacyResumeMap(document)?.get('data')).toEqual({
+			name: 'Legacy',
+		});
+	});
+
 	it('round trips canonical XML through a structural Y.XmlFragment', () => {
 		const document = new Y.Doc();
 		replaceResumeXml(document, resumeToXml(resume));

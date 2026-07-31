@@ -20,6 +20,16 @@ const parser = new XMLParser({
 	trimValues: false,
 });
 
+export function getExistingResumeXmlFragment(document: Y.Doc): Y.XmlFragment | null {
+	const sharedType = document.share.get(RESUME_XML_FRAGMENT);
+	return sharedType instanceof Y.XmlFragment ? sharedType : null;
+}
+
+export function getExistingLegacyResumeMap(document: Y.Doc): Y.Map<unknown> | null {
+	const sharedType = document.share.get(RESUME_XML_FRAGMENT);
+	return sharedType instanceof Y.Map ? sharedType : null;
+}
+
 function buildText(value: unknown): Y.XmlText {
 	const text = new Y.XmlText();
 	text.insert(0, String(value ?? ''));
