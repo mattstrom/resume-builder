@@ -85,6 +85,13 @@ Prettier is configured with:
 
 TypeScript is set to strict mode with no unused locals/parameters.
 
+### Resume Editor Controls
+
+- Treat the resume canvas as paper, regardless of the application theme.
+- Do not use dark mode styling for controls rendered on or immediately over the
+  resume. Resume inputs, inline editors, and floating controls must retain a
+  light paper appearance with a white background and dark, readable text.
+
 ## Commit Conventions
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/).

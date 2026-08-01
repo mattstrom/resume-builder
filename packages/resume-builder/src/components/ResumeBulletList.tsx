@@ -1,12 +1,20 @@
 import { type Bullet, BulletSourceType, type ResumeBullet } from '@resume-builder/entities';
-import { Plus, X } from 'lucide-react';
+import {
+	ArrowDown,
+	ArrowUp,
+	BetweenVerticalEnd,
+	BetweenVerticalStart,
+	Library,
+	type LucideIcon,
+	Pencil,
+	Trash2,
+} from 'lucide-react';
 import { observer } from 'mobx-react';
 import { nanoid } from 'nanoid';
-import { type FC, useMemo, useState } from 'react';
+import { Fragment, type FC, useMemo, useState } from 'react';
 
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import { InlineMarkdown } from '@/components/InlineMarkdown.tsx';
-import { ReorderControls } from '@/components/ReorderControls.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -16,6 +24,13 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog.tsx';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
@@ -37,11 +52,55 @@ function createResumeBullet(text: string, bulletId?: string): ResumeBullet {
 	return { _id: `b_${nanoid()}`, text, bulletId };
 }
 
+interface InsertBulletMenuProps {
+	label: string;
+	icon?: LucideIcon;
+	onWrite: () => void;
+	onChooseFromBank: () => void;
+}
+
+const InsertBulletMenu: FC<InsertBulletMenuProps> = ({
+	label,
+	icon: Icon,
+	onWrite,
+	onChooseFromBank,
+}) => (
+	<DropdownMenu>
+		<DropdownMenuTrigger asChild>
+			<Button
+				type="button"
+				variant="ghost"
+				size={Icon ? 'icon' : 'sm'}
+				className={Icon ? 'size-7' : undefined}
+				aria-label={label}
+				title={label}
+			>
+				{Icon ? <Icon /> : label}
+			</Button>
+		</DropdownMenuTrigger>
+		<DropdownMenuContent align="end">
+			<DropdownMenuGroup>
+				<DropdownMenuItem onSelect={onWrite}>
+					<Pencil />
+					Write a bullet
+				</DropdownMenuItem>
+				<DropdownMenuItem onSelect={onChooseFromBank}>
+					<Library />
+					Choose from bank
+				</DropdownMenuItem>
+			</DropdownMenuGroup>
+		</DropdownMenuContent>
+	</DropdownMenu>
+);
+
 export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 	({ path, items, resumeId, sourceType, sourceId, className }) => {
 		const { bulletsStore, uiStateStore } = useStore();
 		const [pickerOpen, setPickerOpen] = useState(false);
 		const [search, setSearch] = useState('');
+		const [editingId, setEditingId] = useState<string>();
+		const [draft, setDraft] = useState('');
+		const [insertionIndex, setInsertionIndex] = useState<number>();
 		const controller = getActiveResumeController(resumeId);
 		const isEditable = uiStateStore.isResumeEditable;
 		const usedBulletIds = new Set(
@@ -57,61 +116,158 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 		}, [bulletsStore.bullets, search, sourceId, sourceType]);
 
 		const commit = (nextItems: ResumeBullet[]) => controller?.setField(path, nextItems);
+		const beginEdit = (item: ResumeBullet) => {
+			setInsertionIndex(undefined);
+			setEditingId(item._id);
+			setDraft(item.text);
+		};
+		const beginLocalBullet = (index: number) => {
+			setInsertionIndex(index);
+			setEditingId('new');
+			setDraft('');
+		};
+		const beginBankBullet = (index: number) => {
+			setInsertionIndex(index);
+			setPickerOpen(true);
+		};
+		const cancelEdit = () => {
+			setEditingId(undefined);
+			setDraft('');
+			setInsertionIndex(undefined);
+		};
+		const saveEdit = () => {
+			const text = draft.trim();
+			if (!text) {
+				cancelEdit();
+				return;
+			}
+			if (editingId === 'new') {
+				const index = insertionIndex ?? items.length;
+				commit([...items.slice(0, index), createResumeBullet(text), ...items.slice(index)]);
+			} else {
+				commit(items.map((item) => (item._id === editingId ? { ...item, text } : item)));
+			}
+			cancelEdit();
+		};
 		const addFromBank = (bullet: Bullet) => {
 			if (usedBulletIds.has(bullet.id)) return;
-			commit([...items, createResumeBullet(bullet.text, bullet.id)]);
+			const index = insertionIndex ?? items.length;
+			commit([
+				...items.slice(0, index),
+				createResumeBullet(bullet.text, bullet.id),
+				...items.slice(index),
+			]);
 			setPickerOpen(false);
+			setInsertionIndex(undefined);
 		};
 
 		if (!isEditable && items.length === 0) return null;
+
+		const newBulletEditor = (
+			<li className="print:hidden">
+				<Textarea
+					aria-label="New resume bullet text"
+					autoFocus
+					className="border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 [color-scheme:light]"
+					placeholder="Write a bullet"
+					value={draft}
+					onChange={(event) => setDraft(event.target.value)}
+					onKeyDown={(event) => {
+						if (event.key === 'Enter' && !event.shiftKey) {
+							event.preventDefault();
+							saveEdit();
+						}
+						if (event.key === 'Escape') cancelEdit();
+					}}
+				/>
+			</li>
+		);
 
 		return (
 			<>
 				<ul className={className}>
 					{items.map((item, index) => (
-						<HighlightRegion key={item._id} path={`${path}.${index}`} label={item.text}>
-							<li data-pagination-subunit={`${path}.${index}`}>
-								<InlineMarkdown
-									value={item.text}
-									isEditable={false}
-									onEditRequest={() => {}}
-								/>
-								{isEditable && (
-									<div className="print:hidden mt-1 flex flex-col gap-1 rounded-md border border-border bg-background p-2">
+						<Fragment key={item._id}>
+							{editingId === 'new' && insertionIndex === index && newBulletEditor}
+							<HighlightRegion path={`${path}.${index}`} label={item.text}>
+								<li
+									className="group/resume-bullet relative"
+									data-pagination-subunit={`${path}.${index}`}
+								>
+									{editingId === item._id ? (
 										<Textarea
 											aria-label="Resume bullet text"
-											defaultValue={item.text}
-											onBlur={(event) => {
-												const text = event.target.value.trim();
-												if (text && text !== item.text) {
-													commit(
-														items.map((entry, itemIndex) =>
-															itemIndex === index
-																? { ...entry, text }
-																: entry,
-														),
-													);
+											autoFocus
+											className="print:hidden border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 [color-scheme:light]"
+											value={draft}
+											onChange={(event) => setDraft(event.target.value)}
+											onKeyDown={(event) => {
+												if (event.key === 'Enter' && !event.shiftKey) {
+													event.preventDefault();
+													saveEdit();
 												}
+												if (event.key === 'Escape') cancelEdit();
 											}}
 										/>
-										<div className="flex items-center gap-2">
-											{item.bulletId && <Badge variant="outline">Bank</Badge>}
-											<ReorderControls
-												direction="vertical"
-												canMoveBackward={index > 0}
-												canMoveForward={index < items.length - 1}
-												onMoveBackward={() =>
-													commit(reorderItems(items, index, index - 1))
-												}
-												onMoveForward={() =>
-													commit(reorderItems(items, index, index + 1))
-												}
-												label="bullet"
+									) : (
+										<InlineMarkdown
+											value={item.text}
+											isEditable={false}
+											onEditRequest={() => {}}
+										/>
+									)}
+									{isEditable && !editingId && (
+										<div className="print:hidden absolute right-full top-0 flex gap-0.5 rounded-md border bg-background p-0.5 opacity-0 shadow-sm transition-opacity group-focus-within/resume-bullet:opacity-100 group-hover/resume-bullet:opacity-100">
+											<InsertBulletMenu
+												label="Insert Above"
+												icon={BetweenVerticalStart}
+												onWrite={() => beginLocalBullet(index)}
+												onChooseFromBank={() => beginBankBullet(index)}
 											/>
 											<Button
 												type="button"
 												variant="ghost"
 												size="icon"
+												className="size-7"
+												onClick={() => beginEdit(item)}
+												aria-label="Edit bullet"
+												title="Edit bullet"
+											>
+												<Pencil />
+											</Button>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												disabled={index === 0}
+												onClick={() =>
+													commit(reorderItems(items, index, index - 1))
+												}
+												aria-label="Move bullet up"
+												title="Move bullet up"
+											>
+												<ArrowUp />
+											</Button>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												disabled={index === items.length - 1}
+												onClick={() =>
+													commit(reorderItems(items, index, index + 1))
+												}
+												aria-label="Move bullet down"
+												title="Move bullet down"
+											>
+												<ArrowDown />
+											</Button>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
 												onClick={() =>
 													commit(
 														items.filter(
@@ -120,40 +276,43 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 													)
 												}
 												aria-label="Remove bullet"
+												title="Remove bullet"
 											>
-												<X />
+												<Trash2 />
 											</Button>
+											<InsertBulletMenu
+												label="Insert Below"
+												icon={BetweenVerticalEnd}
+												onWrite={() => beginLocalBullet(index + 1)}
+												onChooseFromBank={() => beginBankBullet(index + 1)}
+											/>
 										</div>
-									</div>
-								)}
-							</li>
-						</HighlightRegion>
+									)}
+								</li>
+							</HighlightRegion>
+						</Fragment>
 					))}
+					{editingId === 'new' && insertionIndex === items.length && newBulletEditor}
+					{isEditable && items.length === 0 && !editingId && (
+						<li className="print:hidden relative min-h-8 list-none">
+							<div className="absolute right-full top-0 rounded-md border bg-background p-0.5 shadow-sm">
+								<InsertBulletMenu
+									label="Insert Bullet"
+									onWrite={() => beginLocalBullet(0)}
+									onChooseFromBank={() => beginBankBullet(0)}
+								/>
+							</div>
+						</li>
+					)}
 				</ul>
 
-				{isEditable && (
-					<div className="print:hidden mt-2 flex gap-2">
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() => commit([...items, createResumeBullet('New bullet')])}
-						>
-							<Plus data-icon="inline-start" />
-							Add local
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() => setPickerOpen(true)}
-						>
-							Add from bank
-						</Button>
-					</div>
-				)}
-
-				<Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+				<Dialog
+					open={pickerOpen}
+					onOpenChange={(open) => {
+						setPickerOpen(open);
+						if (!open) setInsertionIndex(undefined);
+					}}
+				>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle>Add from bullet bank</DialogTitle>
