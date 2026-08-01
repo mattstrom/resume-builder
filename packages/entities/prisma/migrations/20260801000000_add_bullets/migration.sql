@@ -1,8 +1,18 @@
--- CreateEnum
-CREATE TYPE "BulletSourceType" AS ENUM ('job', 'project', 'volunteering');
+-- These enum types may already exist when the schema was previously synchronized
+-- with `prisma db push`, so their creation must be safe to retry.
+DO $$
+BEGIN
+    CREATE TYPE "BulletSourceType" AS ENUM ('job', 'project', 'volunteering');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
--- CreateEnum
-CREATE TYPE "BulletStatus" AS ENUM ('draft', 'ready', 'archived');
+DO $$
+BEGIN
+    CREATE TYPE "BulletStatus" AS ENUM ('draft', 'ready', 'archived');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateTable
 CREATE TABLE "Bullet" (
@@ -35,4 +45,5 @@ CREATE TABLE "Bullet" (
 CREATE INDEX "Bullet_uid_status_idx" ON "Bullet"("uid", "status");
 
 -- CreateIndex
-CREATE INDEX "Bullet_uid_sourceType_sourceId_idx" ON "Bullet"("uid", "sourceType", "sourceId");
+CREATE INDEX "Bullet_uid_sourceType_sourceId_idx"
+ON "Bullet"("uid", "sourceType", "sourceId");
