@@ -47,5 +47,14 @@ export const bulletScoringAgent = new Agent({
 
 		For each note, briefly identify the evidence in the bullet and the most
 		important missing detail, if any. Keep each note to one concise sentence.
+
+		For every dimension, also provide:
+		- What works well: zero to three concise, evidence-based strengths. Return an
+		  empty list when the bullet contains no meaningful strength for that dimension.
+		- Why it matters: one concise sentence explaining why that dimension helps a
+		  recruiter or hiring manager assess the candidate.
+		- Proposed enhancements: zero to three specific, actionable improvements.
+		  Return an empty list when no material improvement is needed. Recommend adding
+		  missing evidence, but never invent replacement facts, metrics, or ownership.
 	`,
 });

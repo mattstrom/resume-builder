@@ -18,7 +18,7 @@ const scoreBulletStep = createStep({
 			},
 			modelSettings: {
 				temperature: 0,
-				maxOutputTokens: 500,
+				maxOutputTokens: 1500,
 			},
 		});
 

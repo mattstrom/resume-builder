@@ -52,12 +52,16 @@ export type BulletMinAggregateOutputType = {
   position: number | null
   contextScore: number | null
   contextNote: string | null
+  contextWhyItMatters: string | null
   actionScore: number | null
   actionNote: string | null
+  actionWhyItMatters: string | null
   outcomeScore: number | null
   outcomeNote: string | null
+  outcomeWhyItMatters: string | null
   clarityScore: number | null
   clarityNote: string | null
+  clarityWhyItMatters: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -72,12 +76,16 @@ export type BulletMaxAggregateOutputType = {
   position: number | null
   contextScore: number | null
   contextNote: string | null
+  contextWhyItMatters: string | null
   actionScore: number | null
   actionNote: string | null
+  actionWhyItMatters: string | null
   outcomeScore: number | null
   outcomeNote: string | null
+  outcomeWhyItMatters: string | null
   clarityScore: number | null
   clarityNote: string | null
+  clarityWhyItMatters: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -92,12 +100,24 @@ export type BulletCountAggregateOutputType = {
   position: number
   contextScore: number
   contextNote: number
+  contextWhatWorksWell: number
+  contextWhyItMatters: number
+  contextProposedEnhancements: number
   actionScore: number
   actionNote: number
+  actionWhatWorksWell: number
+  actionWhyItMatters: number
+  actionProposedEnhancements: number
   outcomeScore: number
   outcomeNote: number
+  outcomeWhatWorksWell: number
+  outcomeWhyItMatters: number
+  outcomeProposedEnhancements: number
   clarityScore: number
   clarityNote: number
+  clarityWhatWorksWell: number
+  clarityWhyItMatters: number
+  clarityProposedEnhancements: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -130,12 +150,16 @@ export type BulletMinAggregateInputType = {
   position?: true
   contextScore?: true
   contextNote?: true
+  contextWhyItMatters?: true
   actionScore?: true
   actionNote?: true
+  actionWhyItMatters?: true
   outcomeScore?: true
   outcomeNote?: true
+  outcomeWhyItMatters?: true
   clarityScore?: true
   clarityNote?: true
+  clarityWhyItMatters?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -150,12 +174,16 @@ export type BulletMaxAggregateInputType = {
   position?: true
   contextScore?: true
   contextNote?: true
+  contextWhyItMatters?: true
   actionScore?: true
   actionNote?: true
+  actionWhyItMatters?: true
   outcomeScore?: true
   outcomeNote?: true
+  outcomeWhyItMatters?: true
   clarityScore?: true
   clarityNote?: true
+  clarityWhyItMatters?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -170,12 +198,24 @@ export type BulletCountAggregateInputType = {
   position?: true
   contextScore?: true
   contextNote?: true
+  contextWhatWorksWell?: true
+  contextWhyItMatters?: true
+  contextProposedEnhancements?: true
   actionScore?: true
   actionNote?: true
+  actionWhatWorksWell?: true
+  actionWhyItMatters?: true
+  actionProposedEnhancements?: true
   outcomeScore?: true
   outcomeNote?: true
+  outcomeWhatWorksWell?: true
+  outcomeWhyItMatters?: true
+  outcomeProposedEnhancements?: true
   clarityScore?: true
   clarityNote?: true
+  clarityWhatWorksWell?: true
+  clarityWhyItMatters?: true
+  clarityProposedEnhancements?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -277,12 +317,24 @@ export type BulletGroupByOutputType = {
   position: number
   contextScore: number | null
   contextNote: string | null
+  contextWhatWorksWell: string[]
+  contextWhyItMatters: string | null
+  contextProposedEnhancements: string[]
   actionScore: number | null
   actionNote: string | null
+  actionWhatWorksWell: string[]
+  actionWhyItMatters: string | null
+  actionProposedEnhancements: string[]
   outcomeScore: number | null
   outcomeNote: string | null
+  outcomeWhatWorksWell: string[]
+  outcomeWhyItMatters: string | null
+  outcomeProposedEnhancements: string[]
   clarityScore: number | null
   clarityNote: string | null
+  clarityWhatWorksWell: string[]
+  clarityWhyItMatters: string | null
+  clarityProposedEnhancements: string[]
   createdAt: Date
   updatedAt: Date
   _count: BulletCountAggregateOutputType | null
@@ -320,12 +372,24 @@ export type BulletWhereInput = {
   position?: Prisma.IntFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  contextWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  contextWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  contextProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   actionScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   actionNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  actionWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  actionWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  actionProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   outcomeScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   outcomeNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  outcomeWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  outcomeWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  outcomeProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   clarityScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   clarityNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  clarityWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  clarityWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  clarityProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   createdAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
 }
@@ -340,12 +404,24 @@ export type BulletOrderByWithRelationInput = {
   position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrderInput | Prisma.SortOrder
   contextNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  contextWhatWorksWell?: Prisma.SortOrder
+  contextWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  contextProposedEnhancements?: Prisma.SortOrder
   actionScore?: Prisma.SortOrderInput | Prisma.SortOrder
   actionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionWhatWorksWell?: Prisma.SortOrder
+  actionWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionProposedEnhancements?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrderInput | Prisma.SortOrder
   outcomeNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeWhatWorksWell?: Prisma.SortOrder
+  outcomeWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeProposedEnhancements?: Prisma.SortOrder
   clarityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   clarityNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  clarityWhatWorksWell?: Prisma.SortOrder
+  clarityWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  clarityProposedEnhancements?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -363,12 +439,24 @@ export type BulletWhereUniqueInput = Prisma.AtLeast<{
   position?: Prisma.IntFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  contextWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  contextWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  contextProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   actionScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   actionNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  actionWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  actionWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  actionProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   outcomeScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   outcomeNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  outcomeWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  outcomeWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  outcomeProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   clarityScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   clarityNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  clarityWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  clarityWhyItMatters?: Prisma.StringNullableFilter<"Bullet"> | string | null
+  clarityProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   createdAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
 }, "id">
@@ -383,12 +471,24 @@ export type BulletOrderByWithAggregationInput = {
   position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrderInput | Prisma.SortOrder
   contextNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  contextWhatWorksWell?: Prisma.SortOrder
+  contextWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  contextProposedEnhancements?: Prisma.SortOrder
   actionScore?: Prisma.SortOrderInput | Prisma.SortOrder
   actionNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionWhatWorksWell?: Prisma.SortOrder
+  actionWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  actionProposedEnhancements?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrderInput | Prisma.SortOrder
   outcomeNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeWhatWorksWell?: Prisma.SortOrder
+  outcomeWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  outcomeProposedEnhancements?: Prisma.SortOrder
   clarityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   clarityNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  clarityWhatWorksWell?: Prisma.SortOrder
+  clarityWhyItMatters?: Prisma.SortOrderInput | Prisma.SortOrder
+  clarityProposedEnhancements?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BulletCountOrderByAggregateInput
@@ -411,12 +511,24 @@ export type BulletScalarWhereWithAggregatesInput = {
   position?: Prisma.IntWithAggregatesFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  contextWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  contextWhyItMatters?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  contextProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   actionScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
   actionNote?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  actionWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  actionWhyItMatters?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  actionProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   outcomeScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
   outcomeNote?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  outcomeWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  outcomeWhyItMatters?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  outcomeProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   clarityScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
   clarityNote?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  clarityWhatWorksWell?: Prisma.StringNullableListFilter<"Bullet">
+  clarityWhyItMatters?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
+  clarityProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Bullet"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Bullet"> | Date | string
 }
@@ -431,12 +543,24 @@ export type BulletCreateInput = {
   position?: number
   contextScore?: number | null
   contextNote?: string | null
+  contextWhatWorksWell?: Prisma.BulletCreatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: string | null
+  contextProposedEnhancements?: Prisma.BulletCreatecontextProposedEnhancementsInput | string[]
   actionScore?: number | null
   actionNote?: string | null
+  actionWhatWorksWell?: Prisma.BulletCreateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: string | null
+  actionProposedEnhancements?: Prisma.BulletCreateactionProposedEnhancementsInput | string[]
   outcomeScore?: number | null
   outcomeNote?: string | null
+  outcomeWhatWorksWell?: Prisma.BulletCreateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: string | null
+  outcomeProposedEnhancements?: Prisma.BulletCreateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: number | null
   clarityNote?: string | null
+  clarityWhatWorksWell?: Prisma.BulletCreateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: string | null
+  clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -451,12 +575,24 @@ export type BulletUncheckedCreateInput = {
   position?: number
   contextScore?: number | null
   contextNote?: string | null
+  contextWhatWorksWell?: Prisma.BulletCreatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: string | null
+  contextProposedEnhancements?: Prisma.BulletCreatecontextProposedEnhancementsInput | string[]
   actionScore?: number | null
   actionNote?: string | null
+  actionWhatWorksWell?: Prisma.BulletCreateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: string | null
+  actionProposedEnhancements?: Prisma.BulletCreateactionProposedEnhancementsInput | string[]
   outcomeScore?: number | null
   outcomeNote?: string | null
+  outcomeWhatWorksWell?: Prisma.BulletCreateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: string | null
+  outcomeProposedEnhancements?: Prisma.BulletCreateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: number | null
   clarityNote?: string | null
+  clarityWhatWorksWell?: Prisma.BulletCreateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: string | null
+  clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -471,12 +607,24 @@ export type BulletUpdateInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
   outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -491,12 +639,24 @@ export type BulletUncheckedUpdateInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
   outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -511,12 +671,24 @@ export type BulletCreateManyInput = {
   position?: number
   contextScore?: number | null
   contextNote?: string | null
+  contextWhatWorksWell?: Prisma.BulletCreatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: string | null
+  contextProposedEnhancements?: Prisma.BulletCreatecontextProposedEnhancementsInput | string[]
   actionScore?: number | null
   actionNote?: string | null
+  actionWhatWorksWell?: Prisma.BulletCreateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: string | null
+  actionProposedEnhancements?: Prisma.BulletCreateactionProposedEnhancementsInput | string[]
   outcomeScore?: number | null
   outcomeNote?: string | null
+  outcomeWhatWorksWell?: Prisma.BulletCreateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: string | null
+  outcomeProposedEnhancements?: Prisma.BulletCreateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: number | null
   clarityNote?: string | null
+  clarityWhatWorksWell?: Prisma.BulletCreateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: string | null
+  clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -531,12 +703,24 @@ export type BulletUpdateManyMutationInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
   outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -551,12 +735,24 @@ export type BulletUncheckedUpdateManyInput = {
   position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
   outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
   clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -571,12 +767,24 @@ export type BulletCountOrderByAggregateInput = {
   position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
+  contextWhatWorksWell?: Prisma.SortOrder
+  contextWhyItMatters?: Prisma.SortOrder
+  contextProposedEnhancements?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
   actionNote?: Prisma.SortOrder
+  actionWhatWorksWell?: Prisma.SortOrder
+  actionWhyItMatters?: Prisma.SortOrder
+  actionProposedEnhancements?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrder
   outcomeNote?: Prisma.SortOrder
+  outcomeWhatWorksWell?: Prisma.SortOrder
+  outcomeWhyItMatters?: Prisma.SortOrder
+  outcomeProposedEnhancements?: Prisma.SortOrder
   clarityScore?: Prisma.SortOrder
   clarityNote?: Prisma.SortOrder
+  clarityWhatWorksWell?: Prisma.SortOrder
+  clarityWhyItMatters?: Prisma.SortOrder
+  clarityProposedEnhancements?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -599,12 +807,16 @@ export type BulletMaxOrderByAggregateInput = {
   position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
+  contextWhyItMatters?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
   actionNote?: Prisma.SortOrder
+  actionWhyItMatters?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrder
   outcomeNote?: Prisma.SortOrder
+  outcomeWhyItMatters?: Prisma.SortOrder
   clarityScore?: Prisma.SortOrder
   clarityNote?: Prisma.SortOrder
+  clarityWhyItMatters?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -619,12 +831,16 @@ export type BulletMinOrderByAggregateInput = {
   position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
+  contextWhyItMatters?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
   actionNote?: Prisma.SortOrder
+  actionWhyItMatters?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrder
   outcomeNote?: Prisma.SortOrder
+  outcomeWhyItMatters?: Prisma.SortOrder
   clarityScore?: Prisma.SortOrder
   clarityNote?: Prisma.SortOrder
+  clarityWhyItMatters?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -637,12 +853,84 @@ export type BulletSumOrderByAggregateInput = {
   clarityScore?: Prisma.SortOrder
 }
 
+export type BulletCreatecontextWhatWorksWellInput = {
+  set: string[]
+}
+
+export type BulletCreatecontextProposedEnhancementsInput = {
+  set: string[]
+}
+
+export type BulletCreateactionWhatWorksWellInput = {
+  set: string[]
+}
+
+export type BulletCreateactionProposedEnhancementsInput = {
+  set: string[]
+}
+
+export type BulletCreateoutcomeWhatWorksWellInput = {
+  set: string[]
+}
+
+export type BulletCreateoutcomeProposedEnhancementsInput = {
+  set: string[]
+}
+
+export type BulletCreateclarityWhatWorksWellInput = {
+  set: string[]
+}
+
+export type BulletCreateclarityProposedEnhancementsInput = {
+  set: string[]
+}
+
 export type EnumBulletSourceTypeFieldUpdateOperationsInput = {
   set?: $Enums.BulletSourceType
 }
 
 export type EnumBulletStatusFieldUpdateOperationsInput = {
   set?: $Enums.BulletStatus
+}
+
+export type BulletUpdatecontextWhatWorksWellInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdatecontextProposedEnhancementsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateactionWhatWorksWellInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateactionProposedEnhancementsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateoutcomeWhatWorksWellInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateoutcomeProposedEnhancementsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateclarityWhatWorksWellInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type BulletUpdateclarityProposedEnhancementsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 
@@ -657,12 +945,24 @@ export type BulletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   position?: boolean
   contextScore?: boolean
   contextNote?: boolean
+  contextWhatWorksWell?: boolean
+  contextWhyItMatters?: boolean
+  contextProposedEnhancements?: boolean
   actionScore?: boolean
   actionNote?: boolean
+  actionWhatWorksWell?: boolean
+  actionWhyItMatters?: boolean
+  actionProposedEnhancements?: boolean
   outcomeScore?: boolean
   outcomeNote?: boolean
+  outcomeWhatWorksWell?: boolean
+  outcomeWhyItMatters?: boolean
+  outcomeProposedEnhancements?: boolean
   clarityScore?: boolean
   clarityNote?: boolean
+  clarityWhatWorksWell?: boolean
+  clarityWhyItMatters?: boolean
+  clarityProposedEnhancements?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bullet"]>
@@ -677,12 +977,24 @@ export type BulletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   position?: boolean
   contextScore?: boolean
   contextNote?: boolean
+  contextWhatWorksWell?: boolean
+  contextWhyItMatters?: boolean
+  contextProposedEnhancements?: boolean
   actionScore?: boolean
   actionNote?: boolean
+  actionWhatWorksWell?: boolean
+  actionWhyItMatters?: boolean
+  actionProposedEnhancements?: boolean
   outcomeScore?: boolean
   outcomeNote?: boolean
+  outcomeWhatWorksWell?: boolean
+  outcomeWhyItMatters?: boolean
+  outcomeProposedEnhancements?: boolean
   clarityScore?: boolean
   clarityNote?: boolean
+  clarityWhatWorksWell?: boolean
+  clarityWhyItMatters?: boolean
+  clarityProposedEnhancements?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bullet"]>
@@ -697,12 +1009,24 @@ export type BulletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   position?: boolean
   contextScore?: boolean
   contextNote?: boolean
+  contextWhatWorksWell?: boolean
+  contextWhyItMatters?: boolean
+  contextProposedEnhancements?: boolean
   actionScore?: boolean
   actionNote?: boolean
+  actionWhatWorksWell?: boolean
+  actionWhyItMatters?: boolean
+  actionProposedEnhancements?: boolean
   outcomeScore?: boolean
   outcomeNote?: boolean
+  outcomeWhatWorksWell?: boolean
+  outcomeWhyItMatters?: boolean
+  outcomeProposedEnhancements?: boolean
   clarityScore?: boolean
   clarityNote?: boolean
+  clarityWhatWorksWell?: boolean
+  clarityWhyItMatters?: boolean
+  clarityProposedEnhancements?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["bullet"]>
@@ -717,17 +1041,29 @@ export type BulletSelectScalar = {
   position?: boolean
   contextScore?: boolean
   contextNote?: boolean
+  contextWhatWorksWell?: boolean
+  contextWhyItMatters?: boolean
+  contextProposedEnhancements?: boolean
   actionScore?: boolean
   actionNote?: boolean
+  actionWhatWorksWell?: boolean
+  actionWhyItMatters?: boolean
+  actionProposedEnhancements?: boolean
   outcomeScore?: boolean
   outcomeNote?: boolean
+  outcomeWhatWorksWell?: boolean
+  outcomeWhyItMatters?: boolean
+  outcomeProposedEnhancements?: boolean
   clarityScore?: boolean
   clarityNote?: boolean
+  clarityWhatWorksWell?: boolean
+  clarityWhyItMatters?: boolean
+  clarityProposedEnhancements?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BulletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "text" | "sourceType" | "sourceId" | "status" | "position" | "contextScore" | "contextNote" | "actionScore" | "actionNote" | "outcomeScore" | "outcomeNote" | "clarityScore" | "clarityNote" | "createdAt" | "updatedAt", ExtArgs["result"]["bullet"]>
+export type BulletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "text" | "sourceType" | "sourceId" | "status" | "position" | "contextScore" | "contextNote" | "contextWhatWorksWell" | "contextWhyItMatters" | "contextProposedEnhancements" | "actionScore" | "actionNote" | "actionWhatWorksWell" | "actionWhyItMatters" | "actionProposedEnhancements" | "outcomeScore" | "outcomeNote" | "outcomeWhatWorksWell" | "outcomeWhyItMatters" | "outcomeProposedEnhancements" | "clarityScore" | "clarityNote" | "clarityWhatWorksWell" | "clarityWhyItMatters" | "clarityProposedEnhancements" | "createdAt" | "updatedAt", ExtArgs["result"]["bullet"]>
 
 export type $BulletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Bullet"
@@ -742,12 +1078,24 @@ export type $BulletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     position: number
     contextScore: number | null
     contextNote: string | null
+    contextWhatWorksWell: string[]
+    contextWhyItMatters: string | null
+    contextProposedEnhancements: string[]
     actionScore: number | null
     actionNote: string | null
+    actionWhatWorksWell: string[]
+    actionWhyItMatters: string | null
+    actionProposedEnhancements: string[]
     outcomeScore: number | null
     outcomeNote: string | null
+    outcomeWhatWorksWell: string[]
+    outcomeWhyItMatters: string | null
+    outcomeProposedEnhancements: string[]
     clarityScore: number | null
     clarityNote: string | null
+    clarityWhatWorksWell: string[]
+    clarityWhyItMatters: string | null
+    clarityProposedEnhancements: string[]
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["bullet"]>
@@ -1182,12 +1530,24 @@ export interface BulletFieldRefs {
   readonly position: Prisma.FieldRef<"Bullet", 'Int'>
   readonly contextScore: Prisma.FieldRef<"Bullet", 'Float'>
   readonly contextNote: Prisma.FieldRef<"Bullet", 'String'>
+  readonly contextWhatWorksWell: Prisma.FieldRef<"Bullet", 'String[]'>
+  readonly contextWhyItMatters: Prisma.FieldRef<"Bullet", 'String'>
+  readonly contextProposedEnhancements: Prisma.FieldRef<"Bullet", 'String[]'>
   readonly actionScore: Prisma.FieldRef<"Bullet", 'Float'>
   readonly actionNote: Prisma.FieldRef<"Bullet", 'String'>
+  readonly actionWhatWorksWell: Prisma.FieldRef<"Bullet", 'String[]'>
+  readonly actionWhyItMatters: Prisma.FieldRef<"Bullet", 'String'>
+  readonly actionProposedEnhancements: Prisma.FieldRef<"Bullet", 'String[]'>
   readonly outcomeScore: Prisma.FieldRef<"Bullet", 'Float'>
   readonly outcomeNote: Prisma.FieldRef<"Bullet", 'String'>
+  readonly outcomeWhatWorksWell: Prisma.FieldRef<"Bullet", 'String[]'>
+  readonly outcomeWhyItMatters: Prisma.FieldRef<"Bullet", 'String'>
+  readonly outcomeProposedEnhancements: Prisma.FieldRef<"Bullet", 'String[]'>
   readonly clarityScore: Prisma.FieldRef<"Bullet", 'Float'>
   readonly clarityNote: Prisma.FieldRef<"Bullet", 'String'>
+  readonly clarityWhatWorksWell: Prisma.FieldRef<"Bullet", 'String[]'>
+  readonly clarityWhyItMatters: Prisma.FieldRef<"Bullet", 'String'>
+  readonly clarityProposedEnhancements: Prisma.FieldRef<"Bullet", 'String[]'>
   readonly createdAt: Prisma.FieldRef<"Bullet", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Bullet", 'DateTime'>
 }

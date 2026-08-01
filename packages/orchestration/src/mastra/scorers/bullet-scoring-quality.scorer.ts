@@ -13,7 +13,7 @@ const bulletScoringAnalysisSchema = z.object({
 	rubricAlignment: z.number().min(0).max(1),
 	grounding: z.number().min(0).max(1),
 	calibration: z.number().min(0).max(1),
-	noteQuality: z.number().min(0).max(1),
+	feedbackQuality: z.number().min(0).max(1),
 	explanation: z.string().trim().min(1),
 });
 
@@ -21,7 +21,7 @@ export const bulletScoringQualityScorer = createScorer({
 	id: 'bullet-scoring-quality',
 	name: 'Bullet Scoring Quality',
 	description:
-		'Evaluates whether bullet scores are grounded, calibrated, and supported by useful notes',
+		'Evaluates whether bullet scores and analysis are grounded, calibrated, and useful',
 	type: 'agent',
 	judge: {
 		model: config.llms.defaultModel,
@@ -68,8 +68,10 @@ export const bulletScoringQualityScorer = createScorer({
 			  invented metrics, facts, impact, or ownership.
 			- calibration: Scores consistently use the anchors and are neither overly
 			  generous nor overly harsh. Observable outcomes are valid without metrics.
-			- noteQuality: Notes identify concrete evidence and the most important gap,
-			  if any, in one concise sentence per dimension.
+			- feedbackQuality: Notes identify concrete evidence and the most important gap,
+			  while the What Works Well, Why It Matters, and Proposed Enhancements
+			  sections are concise, useful, dimension-specific, and do not repeat or
+			  contradict one another.
 
 			If the scoring response is missing, malformed, or does not contain all four
 			dimensions, score all affected qualities at 0. Explain the most important
@@ -82,7 +84,7 @@ export const bulletScoringQualityScorer = createScorer({
 			analysis.rubricAlignment * 0.35 +
 				analysis.grounding * 0.3 +
 				analysis.calibration * 0.2 +
-				analysis.noteQuality * 0.15,
+				analysis.feedbackQuality * 0.15,
 		);
 	})
 	.generateReason(({ results, score }) => {
@@ -90,6 +92,6 @@ export const bulletScoringQualityScorer = createScorer({
 		return outdent`
 			Bullet scoring quality: ${score}. Rubric alignment=${analysis.rubricAlignment},
 			grounding=${analysis.grounding}, calibration=${analysis.calibration}, and
-			note quality=${analysis.noteQuality}. ${analysis.explanation}
+			feedback quality=${analysis.feedbackQuality}. ${analysis.explanation}
 		`;
 	});
