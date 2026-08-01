@@ -33,3 +33,21 @@ export const ProjectType = {
 } as const
 
 export type ProjectType = (typeof ProjectType)[keyof typeof ProjectType]
+
+
+export const BulletSourceType = {
+  job: 'job',
+  project: 'project',
+  volunteering: 'volunteering'
+} as const
+
+export type BulletSourceType = (typeof BulletSourceType)[keyof typeof BulletSourceType]
+
+
+export const BulletStatus = {
+  draft: 'draft',
+  ready: 'ready',
+  archived: 'archived'
+} as const
+
+export type BulletStatus = (typeof BulletStatus)[keyof typeof BulletStatus]

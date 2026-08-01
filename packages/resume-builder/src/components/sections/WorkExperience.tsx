@@ -1,5 +1,5 @@
-import type { Job } from '@resume-builder/entities';
-import { Plus, Trash2 } from 'lucide-react';
+import type { ResumeJob } from '@resume-builder/entities';
+import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
 
@@ -22,13 +22,13 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 	const { workExperience } = useResume();
 	const items = workExperience ?? [];
 	const resumeId = useResumeId();
-	const { listEditStore, uiStateStore } = useStore();
+	const { uiStateStore } = useStore();
 	const isEditable = uiStateStore.isResumeEditable;
 	const controller = getActiveResumeController(resumeId);
 	const isSaving = false;
 
 	return (
-		<CollectionEditor<Job>
+		<CollectionEditor<ResumeJob>
 			path="data.workExperience"
 			label="Work Experience"
 			items={items}
@@ -79,24 +79,6 @@ export const WorkExperience: FC<WorkExperienceProps> = observer(() => {
 								actions={
 									isEditable ? (
 										<>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-7"
-												onClick={() =>
-													listEditStore.beginAddToList(
-														resumeId,
-														`data.workExperience.${index}.responsibilities`,
-														item.responsibilities,
-													)
-												}
-												disabled={isSaving}
-												aria-label="Add responsibility"
-												title="Add responsibility"
-											>
-												<Plus />
-											</Button>
 											<Button
 												type="button"
 												variant="ghost"

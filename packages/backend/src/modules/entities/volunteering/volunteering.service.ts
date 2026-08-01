@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Volunteering, VolunteeringInput } from '@resume-builder/entities';
+import {
+	BulletSourceType,
+	BulletStatus,
+	Volunteering,
+	VolunteeringInput,
+} from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
 
@@ -39,6 +44,12 @@ export class VolunteeringService {
 	async delete(uid: string, id: string): Promise<void> {
 		const existing = await this.prisma.volunteering.findFirst({ where: { id, uid } });
 		if (!existing) throw new NotFoundException(`Volunteering with id ${id} not found`);
-		await this.prisma.volunteering.delete({ where: { id } });
+		await this.prisma.$transaction([
+			this.prisma.bullet.updateMany({
+				where: { uid, sourceType: BulletSourceType.VOLUNTEERING, sourceId: id },
+				data: { status: BulletStatus.ARCHIVED },
+			}),
+			this.prisma.volunteering.delete({ where: { id } }),
+		]);
 	}
 }

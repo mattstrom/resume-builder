@@ -13,6 +13,7 @@ import { UiStateStore } from '@/stores/ui-state.store.ts';
 import { client as apolloClient } from '../apollo-client.ts';
 import { ApplicationStore } from './application.store.ts';
 import { AuthStore } from './auth.store.ts';
+import { BulletsStore } from './bullets.store.ts';
 import { ContactInformationStore } from './contact-information.store.ts';
 import { EditorStore } from './editor.store.ts';
 import { EducationStore } from './education.store.ts';
@@ -32,6 +33,7 @@ export class RootStore<R extends AnyRoute = any> {
 	public readonly persistence = new PersistenceService();
 
 	public readonly authStore: AuthStore;
+	public readonly bulletsStore: BulletsStore;
 	public readonly applicationStore: ApplicationStore;
 	public readonly contactInformationStore: ContactInformationStore;
 	public readonly editorStore: EditorStore;
@@ -54,6 +56,7 @@ export class RootStore<R extends AnyRoute = any> {
 	constructor(client?: ApolloClient) {
 		this.client = client ?? apolloClient;
 		this.authStore = new AuthStore(this);
+		this.bulletsStore = new BulletsStore(this);
 		this.applicationStore = new ApplicationStore(this);
 		this.contactInformationStore = new ContactInformationStore(this);
 		this.editorStore = new EditorStore(this);

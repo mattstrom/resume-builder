@@ -174,6 +174,50 @@ enum LocationType {
   remote
 }
 
+type ResumeBullet {
+  _id: ID!
+  text: String!
+  bulletId: ID
+}
+
+type ResumeJob {
+  _id: ID!
+  uid: String
+  company: String
+  position: String
+  location: String
+  startDate: String
+  endDate: String
+  relevance: Float
+  sourceId: ID
+  responsibilities: [ResumeBullet!]!
+}
+
+type ResumeProject {
+  _id: ID!
+  uid: String
+  name: String
+  description: String
+  technologies: [String!]
+  type: String
+  relevance: Float
+  sourceId: ID
+  items: [ResumeBullet!]!
+}
+
+type ResumeVolunteering {
+  _id: ID!
+  uid: String
+  organization: String
+  position: String
+  location: String
+  startDate: String
+  endDate: String
+  relevance: Float
+  sourceId: ID
+  responsibilities: [ResumeBullet!]!
+}
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -183,12 +227,12 @@ type ResumeContent {
   title: String
   contactInformation: ContactInformationSubdoc
   summary: String
-  workExperience: [Job!]
+  workExperience: [ResumeJob!]
   education: [Education!]
   skills: [Skill!]
   skillGroups: [SkillGroup!]
-  projects: [Project!]
-  volunteering: [Volunteering!]
+  projects: [ResumeProject!]
+  volunteering: [ResumeVolunteering!]
 }
 
 """Resume"""
@@ -226,8 +270,11 @@ type Resume {
   """Source resume for this version"""
   sourceResume: Resume!
 
-  """Resume content data"""
-  data: ResumeContent!
+  """Typed projection of the canonical resume XML"""
+  data: ResumeContent! @deprecated(reason: "Read xml for lossless resume content.")
+
+  """Canonical XML resume content"""
+  xml: String
 
   """Date when the resume was created"""
   createdAt: DateTime!
@@ -353,6 +400,37 @@ type Application {
   updatedAt: DateTime!
 }
 
+type Bullet {
+  id: ID!
+  uid: String!
+  text: String!
+  sourceType: BulletSourceType!
+  sourceId: ID!
+  status: BulletStatus!
+  contextScore: Float
+  contextNote: String
+  actionScore: Float
+  actionNote: String
+  outcomeScore: Float
+  outcomeNote: String
+  clarityScore: Float
+  clarityNote: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum BulletSourceType {
+  JOB
+  PROJECT
+  VOLUNTEERING
+}
+
+enum BulletStatus {
+  DRAFT
+  READY
+  ARCHIVED
+}
+
 type NarrativeWorkExperience {
   company: String!
   role: String!
@@ -441,6 +519,8 @@ type Query {
   fact(id: ID!): FactType!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
+  bullets(filter: BulletFilterInput): [Bullet!]!
+  bullet(id: ID!): Bullet!
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
@@ -479,6 +559,14 @@ input ResumeFilterInput {
   applicationId: String
 }
 
+input BulletFilterInput {
+  sourceType: BulletSourceType
+  sourceId: ID
+  status: BulletStatus
+  search: String
+  includeArchived: Boolean = false
+}
+
 type Mutation {
   createApplication(applicationData: ApplicationInput!, sourceResumeId: String): Application!
   updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
@@ -487,6 +575,7 @@ type Mutation {
   createResume(resumeData: ResumeCreateInput!): Resume!
   createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
   deleteResume(id: String!): Boolean!
+  applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
   createCompany(company: CompanyInput!): Company!
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
@@ -499,6 +588,9 @@ type Mutation {
   deleteExpression(factId: ID!, expressionId: ID!): Boolean!
   linkFactToResume(resumeId: ID!, input: LinkFactInput!): ResumeFactType!
   unlinkFactFromResume(resumeId: ID!, factId: ID!): Boolean!
+  createBullet(input: CreateBulletInput!): Bullet!
+  updateBullet(id: ID!, input: UpdateBulletInput!): Bullet!
+  setBulletStatus(id: ID!, status: BulletStatus!): Bullet!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!
@@ -598,24 +690,31 @@ input ResumeContentInput {
   name: String!
   title: String!
   summary: String!
-  workExperience: [JobInput!]!
+  workExperience: [ResumeJobInput!]!
   contactInformation: ContactInformationInput!
   education: [ID!]!
-  projects: [ProjectInput!]!
+  projects: [ResumeProjectInput!]!
   skills: [SkillInput!]
   skillGroups: [SkillGroupInput!]
-  volunteering: [VolunteeringInput!]
+  volunteering: [ResumeVolunteeringInput!]
 }
 
-input JobInput {
+input ResumeJobInput {
   company: String
   position: String
   location: String
   startDate: String
   endDate: String
-  responsibilities: [String!]
   relevance: Float
   _id: ID
+  sourceId: ID
+  responsibilities: [ResumeBulletInput!]!
+}
+
+input ResumeBulletInput {
+  _id: ID
+  text: String!
+  bulletId: ID
 }
 
 input ContactInformationInput {
@@ -628,14 +727,15 @@ input ContactInformationInput {
   _id: ID
 }
 
-input ProjectInput {
+input ResumeProjectInput {
   name: String
   description: String
   technologies: [String!]
-  items: [String!]
   type: String
   relevance: Float
   _id: ID
+  sourceId: ID
+  items: [ResumeBulletInput!]!
 }
 
 input SkillInput {
@@ -651,15 +751,16 @@ input SkillGroupInput {
   _id: ID
 }
 
-input VolunteeringInput {
+input ResumeVolunteeringInput {
   organization: String
   position: String
   location: String
   startDate: String
   endDate: String
-  responsibilities: [String!]
   relevance: Float
   _id: ID
+  sourceId: ID
+  responsibilities: [ResumeBulletInput!]!
 }
 
 input BlankResumeCreateInput {
@@ -750,11 +851,61 @@ input LinkFactInput {
   position: Int
 }
 
+input CreateBulletInput {
+  text: String!
+  sourceType: BulletSourceType!
+  sourceId: ID!
+}
+
+input UpdateBulletInput {
+  text: String
+  contextScore: Float
+  contextNote: String
+  actionScore: Float
+  actionNote: String
+  outcomeScore: Float
+  outcomeNote: String
+  clarityScore: Float
+  clarityNote: String
+}
+
+input JobInput {
+  company: String
+  position: String
+  location: String
+  startDate: String
+  endDate: String
+  responsibilities: [String!]
+  relevance: Float
+  _id: ID
+}
+
 input EducationInput {
   degree: String
   field: String
   institution: String
   graduated: String
+  _id: ID
+}
+
+input ProjectInput {
+  name: String
+  description: String
+  technologies: [String!]
+  items: [String!]
+  type: String
+  relevance: Float
+  _id: ID
+}
+
+input VolunteeringInput {
+  organization: String
+  position: String
+  location: String
+  startDate: String
+  endDate: String
+  responsibilities: [String!]
+  relevance: Float
   _id: ID
 }
 

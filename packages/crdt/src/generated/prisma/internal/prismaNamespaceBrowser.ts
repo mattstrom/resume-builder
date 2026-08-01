@@ -69,6 +69,7 @@ export const ModelName = {
   Skill: 'Skill',
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
+  Bullet: 'Bullet',
   ResumeFact: 'ResumeFact',
   DocumentUpdate: 'DocumentUpdate'
 } as const
@@ -352,6 +353,28 @@ export const VolunteeringScalarFieldEnum = {
 } as const
 
 export type VolunteeringScalarFieldEnum = (typeof VolunteeringScalarFieldEnum)[keyof typeof VolunteeringScalarFieldEnum]
+
+
+export const BulletScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  text: 'text',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  status: 'status',
+  contextScore: 'contextScore',
+  contextNote: 'contextNote',
+  actionScore: 'actionScore',
+  actionNote: 'actionNote',
+  outcomeScore: 'outcomeScore',
+  outcomeNote: 'outcomeNote',
+  clarityScore: 'clarityScore',
+  clarityNote: 'clarityNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BulletScalarFieldEnum = (typeof BulletScalarFieldEnum)[keyof typeof BulletScalarFieldEnum]
 
 
 export const ResumeFactScalarFieldEnum = {

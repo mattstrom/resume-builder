@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { FactsModule } from '../facts/facts.module.js';
 import { ApplicationsModule } from './applications/applications.module.js';
+import { BulletsModule } from './bullets/bullets.module.js';
 import { CompaniesModule } from './companies/companies.module.js';
 import { ContactInformationModule } from './contact-information/contact-information.module.js';
 import { ConversationsModule } from './conversations/conversations.module.js';
@@ -16,6 +17,7 @@ import { VolunteeringModule } from './volunteering/volunteering.module.js';
 
 const imports = [
 	FactsModule,
+	BulletsModule,
 	ResumesModule,
 	JobsModule,
 	SkillsModule,

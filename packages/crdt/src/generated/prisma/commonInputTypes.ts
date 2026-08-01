@@ -357,6 +357,40 @@ export type EnumProjectTypeNullableWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumProjectTypeNullableFilter<$PrismaModel>
 }
 
+export type EnumBulletSourceTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletSourceType | Prisma.EnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel> | $Enums.BulletSourceType
+}
+
+export type EnumBulletStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletStatus | Prisma.EnumBulletStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel> | $Enums.BulletStatus
+}
+
+export type EnumBulletSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletSourceType | Prisma.EnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.BulletSourceType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel>
+}
+
+export type EnumBulletStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletStatus | Prisma.EnumBulletStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletStatusWithAggregatesFilter<$PrismaModel> | $Enums.BulletStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel>
+}
+
 export type BytesFilter<$PrismaModel = never> = {
   equals?: runtime.Bytes | Prisma.BytesFieldRefInput<$PrismaModel>
   in?: runtime.Bytes[] | Prisma.ListBytesFieldRefInput<$PrismaModel>
@@ -663,6 +697,40 @@ export type NestedEnumProjectTypeNullableWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProjectTypeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProjectTypeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumBulletSourceTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletSourceType | Prisma.EnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel> | $Enums.BulletSourceType
+}
+
+export type NestedEnumBulletStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletStatus | Prisma.EnumBulletStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel> | $Enums.BulletStatus
+}
+
+export type NestedEnumBulletSourceTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletSourceType | Prisma.EnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletSourceType[] | Prisma.ListEnumBulletSourceTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletSourceTypeWithAggregatesFilter<$PrismaModel> | $Enums.BulletSourceType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBulletSourceTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumBulletStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.BulletStatus | Prisma.EnumBulletStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.BulletStatus[] | Prisma.ListEnumBulletStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumBulletStatusWithAggregatesFilter<$PrismaModel> | $Enums.BulletStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumBulletStatusFilter<$PrismaModel>
 }
 
 export type NestedBytesFilter<$PrismaModel = never> = {

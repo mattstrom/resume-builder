@@ -1,3 +1,4 @@
+import type { ResumeBullet } from '@resume-builder/entities';
 import { Save } from 'lucide-react';
 import { type FC, useEffect, useRef, useState } from 'react';
 
@@ -34,7 +35,7 @@ interface Job {
 	location: string;
 	startDate: string;
 	endDate?: string;
-	responsibilities: string[];
+	responsibilities: ResumeBullet[];
 }
 
 interface Skill {
@@ -44,8 +45,9 @@ interface Skill {
 
 interface Project {
 	name: string;
+	description: string;
 	technologies: string[];
-	items: string[];
+	items: ResumeBullet[];
 }
 
 interface FormData {

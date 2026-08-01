@@ -402,6 +402,7 @@ export const ModelName = {
   Skill: 'Skill',
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
+  Bullet: 'Bullet',
   ResumeFact: 'ResumeFact',
   DocumentUpdate: 'DocumentUpdate'
 } as const
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "resumeFact" | "documentUpdate"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "resumeFact" | "documentUpdate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1739,6 +1740,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Bullet: {
+      payload: Prisma.$BulletPayload<ExtArgs>
+      fields: Prisma.BulletFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BulletFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BulletFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        findFirst: {
+          args: Prisma.BulletFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BulletFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        findMany: {
+          args: Prisma.BulletFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>[]
+        }
+        create: {
+          args: Prisma.BulletCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        createMany: {
+          args: Prisma.BulletCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BulletCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>[]
+        }
+        delete: {
+          args: Prisma.BulletDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        update: {
+          args: Prisma.BulletUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        deleteMany: {
+          args: Prisma.BulletDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BulletUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BulletUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>[]
+        }
+        upsert: {
+          args: Prisma.BulletUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletPayload>
+        }
+        aggregate: {
+          args: Prisma.BulletAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBullet>
+        }
+        groupBy: {
+          args: Prisma.BulletGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BulletGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BulletCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BulletCountAggregateOutputType> | number
+        }
+      }
+    }
     ResumeFact: {
       payload: Prisma.$ResumeFactPayload<ExtArgs>
       fields: Prisma.ResumeFactFieldRefs
@@ -2191,6 +2266,28 @@ export const VolunteeringScalarFieldEnum = {
 export type VolunteeringScalarFieldEnum = (typeof VolunteeringScalarFieldEnum)[keyof typeof VolunteeringScalarFieldEnum]
 
 
+export const BulletScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  text: 'text',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  status: 'status',
+  contextScore: 'contextScore',
+  contextNote: 'contextNote',
+  actionScore: 'actionScore',
+  actionNote: 'actionNote',
+  outcomeScore: 'outcomeScore',
+  outcomeNote: 'outcomeNote',
+  clarityScore: 'clarityScore',
+  clarityNote: 'clarityNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BulletScalarFieldEnum = (typeof BulletScalarFieldEnum)[keyof typeof BulletScalarFieldEnum]
+
+
 export const ResumeFactScalarFieldEnum = {
   resumeId: 'resumeId',
   factId: 'factId',
@@ -2389,6 +2486,34 @@ export type ListEnumProjectTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'BulletSourceType'
+ */
+export type EnumBulletSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BulletSourceType'>
+    
+
+
+/**
+ * Reference to a field of type 'BulletSourceType[]'
+ */
+export type ListEnumBulletSourceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BulletSourceType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BulletStatus'
+ */
+export type EnumBulletStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BulletStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'BulletStatus[]'
+ */
+export type ListEnumBulletStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BulletStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'Bytes'
  */
 export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
@@ -2529,6 +2654,7 @@ export type GlobalOmitConfig = {
   skill?: Prisma.SkillOmit
   skillGroup?: Prisma.SkillGroupOmit
   volunteering?: Prisma.VolunteeringOmit
+  bullet?: Prisma.BulletOmit
   resumeFact?: Prisma.ResumeFactOmit
   documentUpdate?: Prisma.DocumentUpdateOmit
 }

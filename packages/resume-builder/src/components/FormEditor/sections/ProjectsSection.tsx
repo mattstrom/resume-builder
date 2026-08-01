@@ -1,4 +1,6 @@
+import type { ResumeBullet } from '@resume-builder/entities';
 import { Plus } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { type ChangeEvent, type FC, useState } from 'react';
 
 import {
@@ -18,7 +20,7 @@ interface Project {
 	name: string;
 	description: string;
 	technologies: string[];
-	items: string[];
+	items: ResumeBullet[];
 }
 
 interface ProjectsSectionProps {
@@ -53,7 +55,12 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({ projects, onChange }
 			} else if (field === 'items') {
 				newProjects[index][field] = e.target.value
 					.split('\n')
-					.filter((line) => line.trim());
+					.filter((line) => line.trim())
+					.map((text, itemIndex) => ({
+						_id: newProjects[index].items[itemIndex]?._id ?? `b_${nanoid()}`,
+						text,
+						bulletId: newProjects[index].items[itemIndex]?.bulletId,
+					}));
 			} else {
 				newProjects[index][field] = e.target.value as any;
 			}
@@ -108,7 +115,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = ({ projects, onChange }
 								<Label htmlFor={`items-${index}`}>Items (one per line)</Label>
 								<Textarea
 									id={`items-${index}`}
-									value={project.items.join('\n')}
+									value={project.items.map((item) => item.text).join('\n')}
 									onChange={handleChange(index, 'items')}
 									rows={5}
 								/>

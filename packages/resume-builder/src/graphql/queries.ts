@@ -21,23 +21,33 @@ const educationFragment = gql`
 `;
 
 const jobFragment = gql`
-	fragment Job on Job {
+	fragment ResumeJobFields on ResumeJob {
 		position
 		company
 		location
 		startDate
 		endDate
-		responsibilities
+		sourceId
+		responsibilities {
+			_id
+			text
+			bulletId
+		}
 		relevance
 	}
 `;
 
 const projectFragment = gql`
-	fragment Project on Project {
+	fragment ResumeProjectFields on ResumeProject {
 		name
 		description
 		technologies
-		items
+		sourceId
+		items {
+			_id
+			text
+			bulletId
+		}
 		type
 		relevance
 	}
@@ -59,13 +69,18 @@ const skillGroupFragment = gql`
 `;
 
 const volunteeringFragment = gql`
-	fragment Volunteering on Volunteering {
+	fragment ResumeVolunteeringFields on ResumeVolunteering {
 		organization
 		position
 		location
 		startDate
 		endDate
-		responsibilities
+		sourceId
+		responsibilities {
+			_id
+			text
+			bulletId
+		}
 		relevance
 	}
 `;
@@ -79,7 +94,7 @@ export const resumeContentFragment = gql`
 			...ContactInformationSubdoc
 		}
 		workExperience {
-			...Job
+			...ResumeJobFields
 		}
 		education {
 			...Education
@@ -91,10 +106,10 @@ export const resumeContentFragment = gql`
 			...SkillGroup
 		}
 		projects {
-			...Project
+			...ResumeProjectFields
 		}
 		volunteering {
-			...Volunteering
+			...ResumeVolunteeringFields
 		}
 	}
 
@@ -320,6 +335,29 @@ export const LIST_FACTS = gql`
 			tags
 			technologies
 			createdAt
+		}
+	}
+`;
+
+export const LIST_BULLETS = gql`
+	query ListBullets($filter: BulletFilterInput) {
+		bullets(filter: $filter) {
+			id
+			uid
+			text
+			sourceType
+			sourceId
+			status
+			contextScore
+			contextNote
+			actionScore
+			actionNote
+			outcomeScore
+			outcomeNote
+			clarityScore
+			clarityNote
+			createdAt
+			updatedAt
 		}
 	}
 `;

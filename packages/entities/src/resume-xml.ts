@@ -1,6 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
-import type { ResumeContent } from './models/resume-content.js';
+import type { ResumeBullet, ResumeContent } from './models/resume-content.js';
 import type { Resume } from './models/resume.js';
 
 export const RESUME_XML_NAMESPACE = 'https://mattstrom.com/schemas/resume';
@@ -98,6 +98,23 @@ function textElement(name: string, resumeId: string, path: string, value: unknow
 	return element(name, createResumeXmlId(resumeId, path), escapeText(value));
 }
 
+function resumeBulletElement(
+	name: 'responsibility' | 'item',
+	resumeId: string,
+	path: string,
+	value: ResumeBullet | string,
+): string {
+	const bullet: Partial<ResumeBullet> & { text: string } =
+		typeof value === 'string' ? { text: value } : value;
+	const xmlId =
+		bullet._id && /^[A-Za-z_][A-Za-z0-9_.-]*$/.test(bullet._id)
+			? bullet._id
+			: createResumeXmlId(resumeId, path, bullet._id);
+	return element(name, xmlId, escapeText(bullet.text), {
+		'bullet-id': bullet.bulletId,
+	});
+}
+
 export function resumeToXml(resume: Resume): string {
 	const content = resume.data;
 	const id = String(resume._id ?? resume.id);
@@ -129,7 +146,7 @@ export function resumeToXml(resume: Resume): string {
 			const jobId = createResumeXmlId(id, path, job._id);
 			const responsibilities = (job.responsibilities ?? [])
 				.map((value, itemIndex) =>
-					textElement(
+					resumeBulletElement(
 						'responsibility',
 						id,
 						`${path}.responsibilities.${itemIndex}`,
@@ -153,6 +170,7 @@ export function resumeToXml(resume: Resume): string {
 					'start-date': job.startDate,
 					'end-date': job.endDate,
 					relevance: job.relevance,
+					'source-id': job.sourceId,
 				},
 			);
 		})
@@ -198,7 +216,7 @@ export function resumeToXml(resume: Resume): string {
 						createResumeXmlId(id, `${path}.items`),
 						(project.items ?? [])
 							.map((item, itemIndex) =>
-								textElement('item', id, `${path}.items.${itemIndex}`, item),
+								resumeBulletElement('item', id, `${path}.items.${itemIndex}`, item),
 							)
 							.join(''),
 					) +
@@ -220,6 +238,7 @@ export function resumeToXml(resume: Resume): string {
 					name: project.name,
 					type: project.type,
 					relevance: project.relevance,
+					'source-id': project.sourceId,
 				},
 			);
 		})
@@ -237,7 +256,7 @@ export function resumeToXml(resume: Resume): string {
 						createResumeXmlId(id, `${path}.responsibilities`),
 						(entry.responsibilities ?? [])
 							.map((item, itemIndex) =>
-								textElement(
+								resumeBulletElement(
 									'responsibility',
 									id,
 									`${path}.responsibilities.${itemIndex}`,
@@ -253,6 +272,7 @@ export function resumeToXml(resume: Resume): string {
 					'start-date': entry.startDate,
 					'end-date': entry.endDate,
 					relevance: entry.relevance,
+					'source-id': entry.sourceId,
 				},
 			);
 		})
@@ -322,6 +342,15 @@ function optionalNumber(node: XmlNode, name: string): number | undefined {
 
 function nodeId(node: XmlNode): string {
 	return attribute(node, 'id');
+}
+
+function resumeBullet(value: unknown): ResumeBullet {
+	const node = asNode(value);
+	return {
+		_id: nodeId(node),
+		text: text(node),
+		bulletId: attribute(node, 'bullet-id') || undefined,
+	};
 }
 
 export function validateResumeXml(xml: string): ResumeXmlValidationResult {
@@ -404,7 +433,10 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 				location: attribute(node, 'location'),
 				startDate: attribute(node, 'start-date'),
 				endDate: attribute(node, 'end-date') || undefined,
-				responsibilities: asArray(asNode(node.responsibilities).responsibility).map(text),
+				sourceId: attribute(node, 'source-id') || undefined,
+				responsibilities: asArray(asNode(node.responsibilities).responsibility).map(
+					resumeBullet,
+				),
 				relevance: optionalNumber(node, 'relevance'),
 			};
 		}),
@@ -434,8 +466,9 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 				uid,
 				name: attribute(node, 'name'),
 				description: text(node.description),
+				sourceId: attribute(node, 'source-id') || undefined,
 				technologies: asArray(asNode(node.technologies).technology).map(text),
-				items: asArray(asNode(node.items).item).map(text),
+				items: asArray(asNode(node.items).item).map(resumeBullet),
 				type: attribute(node, 'type') || undefined,
 				relevance: optionalNumber(node, 'relevance'),
 			};
@@ -450,7 +483,10 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 				location: attribute(node, 'location') || undefined,
 				startDate: attribute(node, 'start-date'),
 				endDate: attribute(node, 'end-date') || undefined,
-				responsibilities: asArray(asNode(node.responsibilities).responsibility).map(text),
+				sourceId: attribute(node, 'source-id') || undefined,
+				responsibilities: asArray(asNode(node.responsibilities).responsibility).map(
+					resumeBullet,
+				),
 				relevance: optionalNumber(node, 'relevance'),
 			};
 		}),

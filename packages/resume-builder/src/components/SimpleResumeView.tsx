@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client/react';
-import type {
-	Education,
-	Job,
-	Project,
-	ResumeContent,
-	Skill,
-	SkillGroup,
-	Volunteering,
+import {
+	BulletSourceType,
+	type Education,
+	type ResumeContent,
+	type ResumeJob,
+	type ResumeProject,
+	type ResumeVolunteering,
+	type Skill,
+	type SkillGroup,
 } from '@resume-builder/entities';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
@@ -17,6 +18,7 @@ import { LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
 import { ResumeProvider, useResume, useResumeId } from '@/components/Resume.provider.tsx';
+import { ResumeBulletList } from '@/components/ResumeBulletList.tsx';
 import {
 	getProjectAnchorId,
 	RESUME_SECTION_IDS,
@@ -267,7 +269,7 @@ const WorkExperienceSection: FC = observer(() => {
 	const collection = useCollectionMutations('WORK_EXPERIENCE');
 
 	return (
-		<CollectionEditor<Job>
+		<CollectionEditor<ResumeJob>
 			path="data.workExperience"
 			label="Work Experience"
 			items={workExperience}
@@ -331,7 +333,7 @@ const WorkExperienceSection: FC = observer(() => {
 	);
 });
 
-const JobEntry: FC<{ job: Job; index: number }> = ({ job, index }) => {
+const JobEntry: FC<{ job: ResumeJob; index: number }> = ({ job, index }) => {
 	const resumeId = useResumeId();
 
 	return (
@@ -366,14 +368,13 @@ const JobEntry: FC<{ job: Job; index: number }> = ({ job, index }) => {
 					job.endDate ? formatMonthYear(job.endDate) : 'Present'
 				}`}
 			/>
-			<ListEditor
+			<ResumeBulletList
 				path={`data.workExperience.${index}.responsibilities`}
 				items={job.responsibilities}
 				resumeId={resumeId}
-				variant="block"
+				sourceType={BulletSourceType.JOB}
+				sourceId={job.sourceId}
 				className="simple-resume-list"
-				emptyPlaceholder="Add responsibility"
-				linkMarkup
 			/>
 		</article>
 	);
@@ -508,7 +509,7 @@ const ProjectsSection: FC = observer(() => {
 	const collection = useCollectionMutations('PROJECTS');
 
 	return (
-		<CollectionEditor<Project>
+		<CollectionEditor<ResumeProject>
 			path="data.projects"
 			label="Projects"
 			items={projects}
@@ -607,14 +608,13 @@ const ProjectEntry: FC<{
 				className="simple-resume-tagline"
 				emptyPlaceholder="Add technology"
 			/>
-			<ListEditor
+			<ResumeBulletList
 				path={`data.projects.${index}.items`}
 				items={project.items}
 				resumeId={resumeId}
-				variant="block"
+				sourceType={BulletSourceType.PROJECT}
+				sourceId={project.sourceId}
 				className="simple-resume-list"
-				emptyPlaceholder="Add project detail"
-				linkMarkup
 			/>
 		</article>
 	);
@@ -628,7 +628,7 @@ const VolunteeringSection: FC = observer(() => {
 	const items = volunteering ?? [];
 
 	return (
-		<CollectionEditor<Volunteering>
+		<CollectionEditor<ResumeVolunteering>
 			path="data.volunteering"
 			label="Volunteering"
 			items={items}
@@ -693,7 +693,7 @@ const VolunteeringSection: FC = observer(() => {
 });
 
 const VolunteeringEntry: FC<{
-	item: Volunteering;
+	item: ResumeVolunteering;
 	index: number;
 }> = ({ item, index }) => {
 	const resumeId = useResumeId();
@@ -729,14 +729,13 @@ const VolunteeringEntry: FC<{
 					item.endDate ? formatYear(item.endDate) : 'Present'
 				}`}
 			/>
-			<ListEditor
+			<ResumeBulletList
 				path={`data.volunteering.${index}.responsibilities`}
 				items={item.responsibilities}
 				resumeId={resumeId}
-				variant="block"
+				sourceType={BulletSourceType.VOLUNTEERING}
+				sourceId={item.sourceId}
 				className="simple-resume-list"
-				emptyPlaceholder="Add responsibility"
-				linkMarkup
 			/>
 		</article>
 	);

@@ -391,6 +391,42 @@ model Volunteering {
   @@index([uid])
 }
 
+// ─── Bullet ─────────────────────────────────────────────────────────────────
+
+enum BulletSourceType {
+  job
+  project
+  volunteering
+}
+
+enum BulletStatus {
+  draft
+  ready
+  archived
+}
+
+model Bullet {
+  id           String           @id @default(cuid())
+  uid          String
+  text         String
+  sourceType   BulletSourceType
+  sourceId     String
+  status       BulletStatus     @default(draft)
+  contextScore Float?
+  contextNote  String?
+  actionScore  Float?
+  actionNote   String?
+  outcomeScore Float?
+  outcomeNote  String?
+  clarityScore Float?
+  clarityNote  String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([uid, status])
+  @@index([uid, sourceType, sourceId])
+}
+
 // ─── ResumeFact ───────────────────────────────────────────────────────────────
 // Links a Fact (and optionally a specific Expression) to a Resume.
 // resumeId references a MongoDB-resident Resume — plain String, no FK.
