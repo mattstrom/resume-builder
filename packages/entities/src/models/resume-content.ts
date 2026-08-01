@@ -1,4 +1,4 @@
-import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, ID, InputType, ObjectType, OmitType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { z } from 'zod';
 
@@ -20,6 +20,88 @@ import {
 	volunteeringSchema,
 	VolunteeringSchema,
 } from './volunteering.js';
+
+@ObjectType()
+export class ResumeBullet {
+	@Field(() => ID)
+	_id: string;
+
+	@Field()
+	text: string;
+
+	@Field(() => ID, { nullable: true })
+	bulletId?: string;
+}
+
+@ObjectType()
+export class ResumeJob extends OmitType(Job, ['responsibilities'] as const) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBullet])
+	responsibilities: ResumeBullet[];
+}
+
+@ObjectType()
+export class ResumeProject extends OmitType(Project, ['items'] as const) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBullet])
+	items: ResumeBullet[];
+}
+
+@ObjectType()
+export class ResumeVolunteering extends OmitType(Volunteering, ['responsibilities'] as const) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBullet])
+	responsibilities: ResumeBullet[];
+}
+
+@InputType()
+export class ResumeBulletInput {
+	@Field(() => ID, { nullable: true })
+	_id?: string;
+
+	@Field()
+	text: string;
+
+	@Field(() => ID, { nullable: true })
+	bulletId?: string;
+}
+
+@InputType()
+export class ResumeJobInput extends OmitType(JobInput, ['responsibilities'] as const, InputType) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBulletInput])
+	responsibilities: ResumeBulletInput[];
+}
+
+@InputType()
+export class ResumeProjectInput extends OmitType(ProjectInput, ['items'] as const, InputType) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBulletInput])
+	items: ResumeBulletInput[];
+}
+
+@InputType()
+export class ResumeVolunteeringInput extends OmitType(
+	VolunteeringInput,
+	['responsibilities'] as const,
+	InputType,
+) {
+	@Field(() => ID, { nullable: true })
+	sourceId?: string;
+
+	@Field(() => [ResumeBulletInput])
+	responsibilities: ResumeBulletInput[];
+}
 
 @Schema({ versionKey: false })
 @ObjectType({
@@ -45,9 +127,9 @@ export class ResumeContent {
 	@Prop({ type: String, default: '' })
 	summary: string;
 
-	@Field(() => [Job], { nullable: true })
+	@Field(() => [ResumeJob], { nullable: true })
 	@Prop({ type: [JobSchema], default: [] })
-	workExperience: Job[];
+	workExperience: ResumeJob[];
 
 	@Field(() => [Education], { nullable: true })
 	@Prop({ type: [EducationSchema], default: [] })
@@ -61,13 +143,13 @@ export class ResumeContent {
 	@Prop({ type: [SkillGroupSchema], default: [] })
 	skillGroups?: SkillGroup[];
 
-	@Field(() => [Project], { nullable: true })
+	@Field(() => [ResumeProject], { nullable: true })
 	@Prop({ type: [ProjectSchema], default: [] })
-	projects: Project[];
+	projects: ResumeProject[];
 
-	@Field(() => [Volunteering], { nullable: true })
+	@Field(() => [ResumeVolunteering], { nullable: true })
 	@Prop({ type: [VolunteeringSchema], default: [] })
-	volunteering?: Volunteering[];
+	volunteering?: ResumeVolunteering[];
 }
 
 @InputType()
@@ -84,8 +166,8 @@ export class ResumeContentInput {
 	@Field()
 	summary: string;
 
-	@Field(() => [JobInput])
-	workExperience: JobInput[];
+	@Field(() => [ResumeJobInput])
+	workExperience: ResumeJobInput[];
 
 	@Field(() => ContactInformationInput)
 	contactInformation: ContactInformationInput;
@@ -93,8 +175,8 @@ export class ResumeContentInput {
 	@Field(() => [ID])
 	education: string[];
 
-	@Field(() => [ProjectInput])
-	projects: ProjectInput[];
+	@Field(() => [ResumeProjectInput])
+	projects: ResumeProjectInput[];
 
 	@Field(() => [SkillInput], { nullable: true })
 	skills?: SkillInput[];
@@ -102,11 +184,32 @@ export class ResumeContentInput {
 	@Field(() => [SkillGroupInput], { nullable: true })
 	skillGroups?: SkillGroupInput[];
 
-	@Field(() => [VolunteeringInput], { nullable: true })
-	volunteering?: VolunteeringInput[];
+	@Field(() => [ResumeVolunteeringInput], { nullable: true })
+	volunteering?: ResumeVolunteeringInput[];
 }
 
 export const ResumeContentSchema = SchemaFactory.createForClass(ResumeContent);
+
+export const resumeBulletSchema = z.object({
+	_id: z.string().optional(),
+	text: z.string(),
+	bulletId: z.string().optional(),
+});
+
+const resumeJobSchema = jobSchema.omit({ responsibilities: true }).extend({
+	sourceId: z.string().optional(),
+	responsibilities: z.array(resumeBulletSchema),
+});
+
+const resumeProjectSchema = projectSchema.omit({ items: true }).extend({
+	sourceId: z.string().optional(),
+	items: z.array(resumeBulletSchema),
+});
+
+const resumeVolunteeringSchema = volunteeringSchema.omit({ responsibilities: true }).extend({
+	sourceId: z.string().optional(),
+	responsibilities: z.array(resumeBulletSchema),
+});
 
 export const resumeContentSchema = z.object({
 	_id: z.any(),
@@ -114,9 +217,9 @@ export const resumeContentSchema = z.object({
 	title: z.string(),
 	contactInformation: contactInformationSubdocSchema,
 	summary: z.string(),
-	workExperience: z.array(jobSchema),
+	workExperience: z.array(resumeJobSchema),
 	education: z.array(educationSchema),
 	skills: z.array(skillSchema),
-	projects: z.array(projectSchema),
-	volunteering: z.array(volunteeringSchema).optional(),
+	projects: z.array(resumeProjectSchema),
+	volunteering: z.array(resumeVolunteeringSchema).optional(),
 });

@@ -92,35 +92,4 @@ export class JobRequirementsResolver {
 			structuredContent: { requirements },
 		};
 	}
-
-	@Tool({
-		name: 'find_matching_user_facts',
-		description:
-			'Find user career facts that semantically match a specific job requirement — useful for gap analysis and resume tailoring',
-		paramsSchema: {
-			requirementId: z.string().describe('Job requirement fact ID'),
-			limit: z.number().int().min(1).max(20).optional().describe('Max results (default 10)'),
-		},
-		annotations: { destructiveHint: false, idempotentHint: true },
-	})
-	async findMatchingUserFacts(
-		{ requirementId, limit }: McpToolParams<{ requirementId: string; limit?: number }>,
-		{ user }: types.McpExtra,
-	): Promise<CallToolResult> {
-		const facts = await this.jobRequirementsService.findSimilarToRequirement(
-			requirementId,
-			user.sub,
-			limit,
-		);
-
-		return {
-			content: [
-				{
-					type: 'text',
-					text: `Found ${facts.length} user facts matching requirement ${requirementId}.`,
-				},
-			],
-			structuredContent: { facts },
-		};
-	}
 }

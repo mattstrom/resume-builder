@@ -108,6 +108,11 @@ export type SkillGroup = Prisma.SkillGroupModel
  */
 export type Volunteering = Prisma.VolunteeringModel
 /**
+ * Model Bullet
+ * 
+ */
+export type Bullet = Prisma.BulletModel
+/**
  * Model ResumeFact
  * 
  */

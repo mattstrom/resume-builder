@@ -1,4 +1,4 @@
-import type { Volunteering } from '@resume-builder/entities';
+import { BulletSourceType, type ResumeVolunteering } from '@resume-builder/entities';
 import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
@@ -7,7 +7,7 @@ import { AddItemGhostRow } from '@/components/AddItemGhostRow.tsx';
 import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
-import { ListEditor } from '@/components/ListEditor.tsx';
+import { ResumeBulletList } from '@/components/ResumeBulletList.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
@@ -50,7 +50,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 	}
 
 	return (
-		<CollectionEditor<Volunteering>
+		<CollectionEditor<ResumeVolunteering>
 			path="data.volunteering"
 			label="Volunteering"
 			items={items}
@@ -126,7 +126,7 @@ export const VolunteeringSection: FC<VolunteeringSectionProps> = observer(() => 
 });
 
 interface VolunteeringProps extends PropsWithChildren {
-	volunteering: Volunteering;
+	volunteering: ResumeVolunteering;
 	index: number;
 }
 
@@ -154,13 +154,13 @@ const VolunteeringPosition: FC<VolunteeringProps> = ({ volunteering, index }) =>
 				</div>
 			</header>
 			{volunteering.responsibilities && (
-				<ListEditor
+				<ResumeBulletList
 					path={`data.volunteering.${index}.responsibilities`}
 					items={volunteering.responsibilities}
 					resumeId={resumeId}
-					variant="block"
+					sourceType={BulletSourceType.VOLUNTEERING}
+					sourceId={volunteering.sourceId}
 					className="responsibilities"
-					linkMarkup
 				/>
 			)}
 		</section>

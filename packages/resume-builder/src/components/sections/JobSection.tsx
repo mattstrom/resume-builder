@@ -1,13 +1,13 @@
-import type { Job } from '@resume-builder/entities';
+import { BulletSourceType, type ResumeJob } from '@resume-builder/entities';
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 
 import { InlineEditor } from '@/components/InlineEditor.tsx';
-import { ListEditor } from '@/components/ListEditor.tsx';
 import { useResumeId } from '@/components/Resume.provider.tsx';
+import { ResumeBulletList } from '@/components/ResumeBulletList.tsx';
 import { formatMonthYear } from '@/lib/date-format.ts';
 
 interface JobProps extends PropsWithChildren {
-	job: Job;
+	job: ResumeJob;
 	index: number;
 	actions?: ReactNode;
 }
@@ -50,13 +50,13 @@ export const JobSection: FC<JobProps> = ({ job, index, actions }) => {
 				</time>
 			</div>
 			{job.responsibilities && (
-				<ListEditor
+				<ResumeBulletList
 					path={`data.workExperience.${index}.responsibilities`}
 					items={job.responsibilities}
 					resumeId={resumeId}
-					variant="block"
+					sourceType={BulletSourceType.JOB}
+					sourceId={job.sourceId}
 					className="responsibilities"
-					linkMarkup
 				/>
 			)}
 		</section>

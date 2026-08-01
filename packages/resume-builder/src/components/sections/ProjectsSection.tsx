@@ -1,4 +1,4 @@
-import type { Project, ResumeContent } from '@resume-builder/entities';
+import { BulletSourceType, type ResumeContent, type ResumeProject } from '@resume-builder/entities';
 import { Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
@@ -8,6 +8,7 @@ import { CollectionEditor } from '@/components/CollectionEditor.tsx';
 import { CollectionEditorItem } from '@/components/CollectionEditorItem.tsx';
 import { InlineEditor } from '@/components/InlineEditor.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
+import { ResumeBulletList } from '@/components/ResumeBulletList.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
@@ -29,7 +30,7 @@ export const ProjectsSection: FC<ProjectsSectionProps> = observer(() => {
 	const isSaving = false;
 
 	return (
-		<CollectionEditor<Project>
+		<CollectionEditor<ResumeProject>
 			path="data.projects"
 			label="Projects"
 			items={items}
@@ -129,12 +130,12 @@ const ProjectSection: FC<ProjectProps> = ({ project, index }) => {
 				resumeId={resumeId}
 				variant="inline"
 			/>
-			<ListEditor
+			<ResumeBulletList
 				path={`data.projects.${index}.items`}
 				items={project.items}
 				resumeId={resumeId}
-				variant="block"
-				linkMarkup
+				sourceType={BulletSourceType.PROJECT}
+				sourceId={project.sourceId}
 			/>
 		</section>
 	);

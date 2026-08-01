@@ -180,6 +180,40 @@ export const DELETE_VOLUNTEERING = gql`
 	}
 `;
 
+export const CREATE_BULLET = gql`
+	mutation CreateBullet($input: CreateBulletInput!) {
+		createBullet(input: $input) {
+			id
+		}
+	}
+`;
+
+export const UPDATE_BULLET = gql`
+	mutation UpdateBullet($id: ID!, $input: UpdateBulletInput!) {
+		updateBullet(id: $id, input: $input) {
+			id
+		}
+	}
+`;
+
+export const SET_BULLET_STATUS = gql`
+	mutation SetBulletStatus($id: ID!, $status: BulletStatus!) {
+		setBulletStatus(id: $id, status: $status) {
+			id
+			status
+		}
+	}
+`;
+
+export const REORDER_BULLETS = gql`
+	mutation ReorderBullets($id: ID!, $targetId: ID!) {
+		reorderBullets(id: $id, targetId: $targetId) {
+			id
+			position
+		}
+	}
+`;
+
 export const CREATE_APPLICATION = gql`
 	mutation CreateApplication($applicationData: ApplicationInput!, $sourceResumeId: String) {
 		createApplication(applicationData: $applicationData, sourceResumeId: $sourceResumeId) {

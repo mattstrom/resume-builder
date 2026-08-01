@@ -44,7 +44,10 @@ function createResume(): Resume {
 					location: '',
 					startDate: '2022-01-01',
 					endDate: '2022-12-31',
-					responsibilities: ['One', 'Two'],
+					responsibilities: [
+						{ _id: 'bullet-local-1', text: 'One', bulletId: 'bank-1' },
+						{ _id: 'bullet-local-2', text: 'Two' },
+					],
 				},
 				{
 					_id: 'job-2',
@@ -54,7 +57,10 @@ function createResume(): Resume {
 					location: '',
 					startDate: '2023-01-01',
 					endDate: '2023-12-31',
-					responsibilities: ['Three', 'Four'],
+					responsibilities: [
+						{ _id: 'bullet-local-3', text: 'Three' },
+						{ _id: 'bullet-local-4', text: 'Four' },
+					],
 				},
 			],
 			education: [],
@@ -127,6 +133,22 @@ describe('LocalResumeController.moveArrayItem', () => {
 			'TypeScript',
 			'Go',
 		]);
+	});
+
+	it('preserves bullet identity and provenance through edits and reordering', () => {
+		const controller = new LocalResumeController({ resume: createResume() });
+
+		controller.setField('data.workExperience.0.responsibilities.0.text', 'Updated text');
+		controller.moveArrayItem('data.workExperience.0.responsibilities', 0, 1);
+
+		const bullets = controller.getSnapshot()?.data.workExperience[0]?.responsibilities;
+		expect(bullets).toEqual([
+			{ _id: 'bullet-local-2', text: 'Two' },
+			{ _id: 'bullet-local-1', text: 'Updated text', bulletId: 'bank-1' },
+		]);
+		expect(controller.getXml()).toContain(
+			'<responsibility xml:id="bullet-local-1" bullet-id="bank-1">Updated text</responsibility>',
+		);
 	});
 });
 

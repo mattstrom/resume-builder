@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Job, JobInput } from '@resume-builder/entities';
+import { BulletSourceType, BulletStatus, Job, JobInput } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
 
@@ -33,6 +33,12 @@ export class JobsService {
 	async delete(uid: string, id: string): Promise<void> {
 		const existing = await this.prisma.job.findFirst({ where: { id, uid } });
 		if (!existing) throw new NotFoundException(`Job with id ${id} not found`);
-		await this.prisma.job.delete({ where: { id } });
+		await this.prisma.$transaction([
+			this.prisma.bullet.updateMany({
+				where: { uid, sourceType: BulletSourceType.JOB, sourceId: id },
+				data: { status: BulletStatus.ARCHIVED },
+			}),
+			this.prisma.job.delete({ where: { id } }),
+		]);
 	}
 }

@@ -1,4 +1,6 @@
+import type { ResumeBullet } from '@resume-builder/entities';
 import { Plus } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { type ChangeEvent, type FC, useState } from 'react';
 
 import {
@@ -20,7 +22,7 @@ interface Job {
 	location: string;
 	startDate: string;
 	endDate?: string;
-	responsibilities: string[];
+	responsibilities: ResumeBullet[];
 }
 
 interface WorkExperienceSectionProps {
@@ -58,7 +60,14 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({ jobs, on
 		(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
 			const newJobs = [...jobs];
 			if (field === 'responsibilities') {
-				newJobs[index][field] = e.target.value.split('\n').filter((line) => line.trim());
+				newJobs[index][field] = e.target.value
+					.split('\n')
+					.filter((line) => line.trim())
+					.map((text, bulletIndex) => ({
+						_id: newJobs[index].responsibilities[bulletIndex]?._id ?? `b_${nanoid()}`,
+						text,
+						bulletId: newJobs[index].responsibilities[bulletIndex]?.bulletId,
+					}));
 			} else {
 				newJobs[index][field] = e.target.value as any;
 			}
@@ -137,7 +146,9 @@ export const WorkExperienceSection: FC<WorkExperienceSectionProps> = ({ jobs, on
 								</Label>
 								<Textarea
 									id={`responsibilities-${index}`}
-									value={job.responsibilities.join('\n')}
+									value={job.responsibilities
+										.map((responsibility) => responsibility.text)
+										.join('\n')}
 									onChange={handleChange(index, 'responsibilities')}
 									rows={5}
 								/>
