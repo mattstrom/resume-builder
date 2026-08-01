@@ -45,11 +45,29 @@ export class Bullet {
 	@Field({ nullable: true })
 	contextNote?: string;
 
+	@Field(() => [String])
+	contextWhatWorksWell: string[];
+
+	@Field({ nullable: true })
+	contextWhyItMatters?: string;
+
+	@Field(() => [String])
+	contextProposedEnhancements: string[];
+
 	@Field(() => Float, { nullable: true })
 	actionScore?: number;
 
 	@Field({ nullable: true })
 	actionNote?: string;
+
+	@Field(() => [String])
+	actionWhatWorksWell: string[];
+
+	@Field({ nullable: true })
+	actionWhyItMatters?: string;
+
+	@Field(() => [String])
+	actionProposedEnhancements: string[];
 
 	@Field(() => Float, { nullable: true })
 	outcomeScore?: number;
@@ -57,11 +75,29 @@ export class Bullet {
 	@Field({ nullable: true })
 	outcomeNote?: string;
 
+	@Field(() => [String])
+	outcomeWhatWorksWell: string[];
+
+	@Field({ nullable: true })
+	outcomeWhyItMatters?: string;
+
+	@Field(() => [String])
+	outcomeProposedEnhancements: string[];
+
 	@Field(() => Float, { nullable: true })
 	clarityScore?: number;
 
 	@Field({ nullable: true })
 	clarityNote?: string;
+
+	@Field(() => [String])
+	clarityWhatWorksWell: string[];
+
+	@Field({ nullable: true })
+	clarityWhyItMatters?: string;
+
+	@Field(() => [String])
+	clarityProposedEnhancements: string[];
 
 	@Field()
 	createdAt: Date;
@@ -93,11 +129,29 @@ export class UpdateBulletInput {
 	@Field({ nullable: true })
 	contextNote?: string;
 
+	@Field(() => [String], { nullable: true })
+	contextWhatWorksWell?: string[];
+
+	@Field({ nullable: true })
+	contextWhyItMatters?: string;
+
+	@Field(() => [String], { nullable: true })
+	contextProposedEnhancements?: string[];
+
 	@Field(() => Float, { nullable: true })
 	actionScore?: number;
 
 	@Field({ nullable: true })
 	actionNote?: string;
+
+	@Field(() => [String], { nullable: true })
+	actionWhatWorksWell?: string[];
+
+	@Field({ nullable: true })
+	actionWhyItMatters?: string;
+
+	@Field(() => [String], { nullable: true })
+	actionProposedEnhancements?: string[];
 
 	@Field(() => Float, { nullable: true })
 	outcomeScore?: number;
@@ -105,11 +159,29 @@ export class UpdateBulletInput {
 	@Field({ nullable: true })
 	outcomeNote?: string;
 
+	@Field(() => [String], { nullable: true })
+	outcomeWhatWorksWell?: string[];
+
+	@Field({ nullable: true })
+	outcomeWhyItMatters?: string;
+
+	@Field(() => [String], { nullable: true })
+	outcomeProposedEnhancements?: string[];
+
 	@Field(() => Float, { nullable: true })
 	clarityScore?: number;
 
 	@Field({ nullable: true })
 	clarityNote?: string;
+
+	@Field(() => [String], { nullable: true })
+	clarityWhatWorksWell?: string[];
+
+	@Field({ nullable: true })
+	clarityWhyItMatters?: string;
+
+	@Field(() => [String], { nullable: true })
+	clarityProposedEnhancements?: string[];
 }
 
 @InputType()
@@ -131,6 +203,7 @@ export class BulletFilterInput {
 }
 
 const scoreSchema = z.number().min(0).max(1).nullable().optional();
+const analysisItemsSchema = z.array(z.string().trim().min(1)).max(3).optional();
 
 export const createBulletSchema = z.object({
 	text: z.string().trim().min(1),
@@ -142,10 +215,22 @@ export const updateBulletSchema = z.object({
 	text: z.string().trim().min(1).optional(),
 	contextScore: scoreSchema,
 	contextNote: z.string().nullable().optional(),
+	contextWhatWorksWell: analysisItemsSchema,
+	contextWhyItMatters: z.string().nullable().optional(),
+	contextProposedEnhancements: analysisItemsSchema,
 	actionScore: scoreSchema,
 	actionNote: z.string().nullable().optional(),
+	actionWhatWorksWell: analysisItemsSchema,
+	actionWhyItMatters: z.string().nullable().optional(),
+	actionProposedEnhancements: analysisItemsSchema,
 	outcomeScore: scoreSchema,
 	outcomeNote: z.string().nullable().optional(),
+	outcomeWhatWorksWell: analysisItemsSchema,
+	outcomeWhyItMatters: z.string().nullable().optional(),
+	outcomeProposedEnhancements: analysisItemsSchema,
 	clarityScore: scoreSchema,
 	clarityNote: z.string().nullable().optional(),
+	clarityWhatWorksWell: analysisItemsSchema,
+	clarityWhyItMatters: z.string().nullable().optional(),
+	clarityProposedEnhancements: analysisItemsSchema,
 });

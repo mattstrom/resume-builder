@@ -4,9 +4,10 @@ import {
 	BulletStatus,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
-import { ArrowDown, ArrowUp, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -17,8 +18,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import { Input } from '@/components/ui/input.tsx';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible.tsx';
 import { Label } from '@/components/ui/label.tsx';
+import { Progress } from '@/components/ui/progress.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import {
 	Select,
@@ -29,6 +35,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -48,6 +55,44 @@ const SCORE_FIELDS: Array<{ key: ScoreKey; label: string }> = [
 	{ key: 'clarity', label: 'Clarity' },
 ];
 
+type ScoreLevel = {
+	label: string;
+	indicatorClassName: string;
+	textClassName: string;
+};
+
+function scoreLevel(score: number | null | undefined): ScoreLevel {
+	if (score == null) {
+		return {
+			label: 'Not scored',
+			indicatorClassName: 'bg-muted-foreground',
+			textClassName: 'text-muted-foreground',
+		};
+	}
+
+	if (score < 0.5) {
+		return {
+			label: 'Needs attention',
+			indicatorClassName: 'bg-destructive',
+			textClassName: 'text-destructive',
+		};
+	}
+
+	if (score < 0.75) {
+		return {
+			label: 'Developing',
+			indicatorClassName: 'bg-warning',
+			textClassName: 'text-warning',
+		};
+	}
+
+	return {
+		label: 'Strong',
+		indicatorClassName: 'bg-success',
+		textClassName: 'text-success',
+	};
+}
+
 function statusLabel(status: BulletStatus): string {
 	return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -55,10 +100,23 @@ function statusLabel(status: BulletStatus): string {
 const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 	const { bulletsStore } = useStore();
 	const [text, setText] = useState(bullet.text);
+	const [scoring, setScoring] = useState(false);
 
 	useEffect(() => setText(bullet.text), [bullet.text]);
 
 	const update = (input: UpdateBulletInput) => void bulletsStore.update(bullet.id, input);
+	const recalculateScore = async () => {
+		if (scoring || !text.trim()) return;
+		setScoring(true);
+		try {
+			await bulletsStore.score(bullet.id, text);
+			toast.success('Bullet score recalculated');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to score bullet');
+		} finally {
+			setScoring(false);
+		}
+	};
 
 	return (
 		<div className="flex min-w-0 flex-col gap-4">
@@ -66,26 +124,42 @@ const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 				<div>
 					<h5 className="text-sm font-medium">Bullet details</h5>
 					<p className="text-xs text-muted-foreground">
-						Text and scoring changes save when you leave a field.
+						Edit the text, then recalculate to refresh its checkpoints.
 					</p>
 				</div>
-				<Select
-					value={bullet.status}
-					onValueChange={(status) =>
-						void bulletsStore.setStatus(bullet.id, status as BulletStatus)
-					}
-				>
-					<SelectTrigger aria-label="Bullet status" className="w-32 shrink-0">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectItem value={BulletStatus.DRAFT}>Draft</SelectItem>
-							<SelectItem value={BulletStatus.READY}>Ready</SelectItem>
-							<SelectItem value={BulletStatus.ARCHIVED}>Archived</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+				<div className="flex shrink-0 items-center gap-2">
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						disabled={scoring || !text.trim()}
+						onClick={() => void recalculateScore()}
+					>
+						{scoring ? (
+							<Spinner data-icon="inline-start" />
+						) : (
+							<RefreshCw data-icon="inline-start" />
+						)}
+						{scoring ? 'Scoring…' : 'Recalculate score'}
+					</Button>
+					<Select
+						value={bullet.status}
+						onValueChange={(status) =>
+							void bulletsStore.setStatus(bullet.id, status as BulletStatus)
+						}
+					>
+						<SelectTrigger aria-label="Bullet status" className="w-32 shrink-0">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value={BulletStatus.DRAFT}>Draft</SelectItem>
+								<SelectItem value={BulletStatus.READY}>Ready</SelectItem>
+								<SelectItem value={BulletStatus.ARCHIVED}>Archived</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-1">
@@ -115,52 +189,100 @@ const ScoreField: FC<{
 	scoreKey: ScoreKey;
 	label: string;
 }> = observer(({ bullet, scoreKey, label }) => {
-	const { bulletsStore } = useStore();
-	const scoreField = `${scoreKey}Score` as keyof UpdateBulletInput;
-	const noteField = `${scoreKey}Note` as keyof UpdateBulletInput;
+	const scoreField = `${scoreKey}Score` as keyof Bullet;
+	const noteField = `${scoreKey}Note` as keyof Bullet;
+	const whatWorksWellField = `${scoreKey}WhatWorksWell` as keyof Bullet;
+	const whyItMattersField = `${scoreKey}WhyItMatters` as keyof Bullet;
+	const proposedEnhancementsField = `${scoreKey}ProposedEnhancements` as keyof Bullet;
 	const score = bullet[scoreField as keyof Bullet] as number | null | undefined;
 	const note = bullet[noteField as keyof Bullet] as string | null | undefined;
-	const [scoreDraft, setScoreDraft] = useState(score == null ? '' : String(score));
-	const [noteDraft, setNoteDraft] = useState(note ?? '');
-
-	useEffect(() => setScoreDraft(score == null ? '' : String(score)), [score]);
-	useEffect(() => setNoteDraft(note ?? ''), [note]);
+	const whatWorksWell = (bullet[whatWorksWellField] as string[] | undefined) ?? [];
+	const whyItMatters = bullet[whyItMattersField] as string | null | undefined;
+	const proposedEnhancements = (bullet[proposedEnhancementsField] as string[] | undefined) ?? [];
+	const level = scoreLevel(score);
+	const progress = score == null ? 0 : Math.min(100, Math.max(0, score * 100));
+	const hasAnalysis =
+		whatWorksWell.length > 0 || Boolean(whyItMatters) || proposedEnhancements.length > 0;
 
 	return (
-		<div className="flex flex-col gap-1 rounded-md border border-border p-3">
-			<Label htmlFor={`${scoreKey}-score-${bullet.id}`}>{label}</Label>
-			<Input
-				id={`${scoreKey}-score-${bullet.id}`}
-				type="number"
-				min="0"
-				max="1"
-				step="0.05"
-				value={scoreDraft}
-				onChange={(event) => setScoreDraft(event.target.value)}
-				onBlur={() => {
-					const parsed = scoreDraft === '' ? null : Number(scoreDraft);
-					if (
-						parsed === null ||
-						(Number.isFinite(parsed) && parsed >= 0 && parsed <= 1)
-					) {
-						void bulletsStore.update(bullet.id, { [scoreField]: parsed });
-					}
-				}}
+		<div className="flex min-w-0 flex-col gap-3 rounded-md border border-border bg-background p-3">
+			<div className="flex items-center justify-between gap-3">
+				<span className="text-sm font-medium">{label}</span>
+				<span className={cn('text-xs font-medium', level.textClassName)}>
+					{level.label}
+				</span>
+			</div>
+			<Progress
+				value={progress}
+				className="h-2"
+				indicatorClassName={level.indicatorClassName}
+				aria-label={`${label} checkpoint`}
+				aria-valuetext={score == null ? 'Not scored' : level.label}
 			/>
-			<Input
-				aria-label={`${label} note`}
-				placeholder={`${label} note`}
-				value={noteDraft}
-				onChange={(event) => setNoteDraft(event.target.value)}
-				onBlur={() => {
-					if (noteDraft !== (note ?? '')) {
-						void bulletsStore.update(bullet.id, { [noteField]: noteDraft || null });
-					}
-				}}
-			/>
+			<p className="text-xs leading-relaxed text-muted-foreground">
+				{note ?? 'Recalculate the score to generate feedback for this checkpoint.'}
+			</p>
+			{hasAnalysis && (
+				<Collapsible className="group flex flex-col gap-3">
+					<CollapsibleTrigger asChild>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							className="-mx-2 justify-between"
+						>
+							Analysis details
+							<ChevronDown className="transition-transform group-data-[state=open]:rotate-180" />
+						</Button>
+					</CollapsibleTrigger>
+					<CollapsibleContent className="flex flex-col gap-4">
+						<AnalysisList
+							title="What works well"
+							items={whatWorksWell}
+							emptyMessage="No clear strength was identified for this checkpoint."
+						/>
+						<Separator />
+						<AnalysisSection title="Why it matters">
+							{whyItMatters ?? 'Recalculate the score to generate an explanation.'}
+						</AnalysisSection>
+						<Separator />
+						<AnalysisList
+							title="Proposed enhancements"
+							items={proposedEnhancements}
+							emptyMessage="No material enhancement was identified."
+						/>
+					</CollapsibleContent>
+				</Collapsible>
+			)}
 		</div>
 	);
 });
+
+const AnalysisSection: FC<{ title: string; children: string }> = ({ title, children }) => (
+	<section className="flex flex-col gap-1.5">
+		<h6 className="text-xs font-medium">{title}</h6>
+		<p className="text-xs leading-relaxed text-muted-foreground">{children}</p>
+	</section>
+);
+
+const AnalysisList: FC<{
+	title: string;
+	items: string[];
+	emptyMessage: string;
+}> = ({ title, items, emptyMessage }) => (
+	<section className="flex flex-col gap-1.5">
+		<h6 className="text-xs font-medium">{title}</h6>
+		{items.length > 0 ? (
+			<ul className="flex list-disc flex-col gap-1 pl-4 text-xs leading-relaxed text-muted-foreground">
+				{items.map((item) => (
+					<li key={item}>{item}</li>
+				))}
+			</ul>
+		) : (
+			<p className="text-xs leading-relaxed text-muted-foreground">{emptyMessage}</p>
+		)}
+	</section>
+);
 
 const NewBulletDetail: FC<{
 	onCancel: () => void;

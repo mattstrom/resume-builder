@@ -351,12 +351,24 @@ export const LIST_BULLETS = gql`
 			position
 			contextScore
 			contextNote
+			contextWhatWorksWell
+			contextWhyItMatters
+			contextProposedEnhancements
 			actionScore
 			actionNote
+			actionWhatWorksWell
+			actionWhyItMatters
+			actionProposedEnhancements
 			outcomeScore
 			outcomeNote
+			outcomeWhatWorksWell
+			outcomeWhyItMatters
+			outcomeProposedEnhancements
 			clarityScore
 			clarityNote
+			clarityWhatWorksWell
+			clarityWhyItMatters
+			clarityProposedEnhancements
 			createdAt
 			updatedAt
 		}

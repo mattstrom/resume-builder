@@ -406,23 +406,35 @@ enum BulletStatus {
 }
 
 model Bullet {
-  id           String           @id @default(cuid())
-  uid          String
-  text         String
-  sourceType   BulletSourceType
-  sourceId     String
-  status       BulletStatus     @default(draft)
-  position     Int              @default(0)
-  contextScore Float?
-  contextNote  String?
-  actionScore  Float?
-  actionNote   String?
-  outcomeScore Float?
-  outcomeNote  String?
-  clarityScore Float?
-  clarityNote  String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id                          String           @id @default(cuid())
+  uid                         String
+  text                        String
+  sourceType                  BulletSourceType
+  sourceId                    String
+  status                      BulletStatus     @default(draft)
+  position                    Int              @default(0)
+  contextScore                Float?
+  contextNote                 String?
+  contextWhatWorksWell        String[]         @default([])
+  contextWhyItMatters         String?
+  contextProposedEnhancements String[]         @default([])
+  actionScore                 Float?
+  actionNote                  String?
+  actionWhatWorksWell         String[]         @default([])
+  actionWhyItMatters          String?
+  actionProposedEnhancements  String[]         @default([])
+  outcomeScore                Float?
+  outcomeNote                 String?
+  outcomeWhatWorksWell        String[]         @default([])
+  outcomeWhyItMatters         String?
+  outcomeProposedEnhancements String[]         @default([])
+  clarityScore                Float?
+  clarityNote                 String?
+  clarityWhatWorksWell        String[]         @default([])
+  clarityWhyItMatters         String?
+  clarityProposedEnhancements String[]         @default([])
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime         @updatedAt
 
   @@index([uid, status])
   @@index([uid, sourceType, sourceId])

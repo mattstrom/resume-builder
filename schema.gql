@@ -410,12 +410,24 @@ type Bullet {
   position: Int!
   contextScore: Float
   contextNote: String
+  contextWhatWorksWell: [String!]!
+  contextWhyItMatters: String
+  contextProposedEnhancements: [String!]!
   actionScore: Float
   actionNote: String
+  actionWhatWorksWell: [String!]!
+  actionWhyItMatters: String
+  actionProposedEnhancements: [String!]!
   outcomeScore: Float
   outcomeNote: String
+  outcomeWhatWorksWell: [String!]!
+  outcomeWhyItMatters: String
+  outcomeProposedEnhancements: [String!]!
   clarityScore: Float
   clarityNote: String
+  clarityWhatWorksWell: [String!]!
+  clarityWhyItMatters: String
+  clarityProposedEnhancements: [String!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -863,12 +875,24 @@ input UpdateBulletInput {
   text: String
   contextScore: Float
   contextNote: String
+  contextWhatWorksWell: [String!]
+  contextWhyItMatters: String
+  contextProposedEnhancements: [String!]
   actionScore: Float
   actionNote: String
+  actionWhatWorksWell: [String!]
+  actionWhyItMatters: String
+  actionProposedEnhancements: [String!]
   outcomeScore: Float
   outcomeNote: String
+  outcomeWhatWorksWell: [String!]
+  outcomeWhyItMatters: String
+  outcomeProposedEnhancements: [String!]
   clarityScore: Float
   clarityNote: String
+  clarityWhatWorksWell: [String!]
+  clarityWhyItMatters: String
+  clarityProposedEnhancements: [String!]
 }
 
 input JobInput {
