@@ -4,9 +4,10 @@ import {
 	BulletStatus,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
-import { ArrowDown, ArrowUp, Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, RefreshCw } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -29,6 +30,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { cn } from '@/lib/utils.ts';
@@ -55,10 +57,23 @@ function statusLabel(status: BulletStatus): string {
 const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 	const { bulletsStore } = useStore();
 	const [text, setText] = useState(bullet.text);
+	const [scoring, setScoring] = useState(false);
 
 	useEffect(() => setText(bullet.text), [bullet.text]);
 
 	const update = (input: UpdateBulletInput) => void bulletsStore.update(bullet.id, input);
+	const recalculateScore = async () => {
+		if (scoring || !text.trim()) return;
+		setScoring(true);
+		try {
+			await bulletsStore.score(bullet.id, text);
+			toast.success('Bullet score recalculated');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to score bullet');
+		} finally {
+			setScoring(false);
+		}
+	};
 
 	return (
 		<div className="flex min-w-0 flex-col gap-4">
@@ -66,26 +81,42 @@ const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 				<div>
 					<h5 className="text-sm font-medium">Bullet details</h5>
 					<p className="text-xs text-muted-foreground">
-						Text and scoring changes save when you leave a field.
+						Text and manual score edits save when you leave a field.
 					</p>
 				</div>
-				<Select
-					value={bullet.status}
-					onValueChange={(status) =>
-						void bulletsStore.setStatus(bullet.id, status as BulletStatus)
-					}
-				>
-					<SelectTrigger aria-label="Bullet status" className="w-32 shrink-0">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup>
-							<SelectItem value={BulletStatus.DRAFT}>Draft</SelectItem>
-							<SelectItem value={BulletStatus.READY}>Ready</SelectItem>
-							<SelectItem value={BulletStatus.ARCHIVED}>Archived</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
+				<div className="flex shrink-0 items-center gap-2">
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						disabled={scoring || !text.trim()}
+						onClick={() => void recalculateScore()}
+					>
+						{scoring ? (
+							<Spinner data-icon="inline-start" />
+						) : (
+							<RefreshCw data-icon="inline-start" />
+						)}
+						{scoring ? 'Scoring…' : 'Recalculate score'}
+					</Button>
+					<Select
+						value={bullet.status}
+						onValueChange={(status) =>
+							void bulletsStore.setStatus(bullet.id, status as BulletStatus)
+						}
+					>
+						<SelectTrigger aria-label="Bullet status" className="w-32 shrink-0">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value={BulletStatus.DRAFT}>Draft</SelectItem>
+								<SelectItem value={BulletStatus.READY}>Ready</SelectItem>
+								<SelectItem value={BulletStatus.ARCHIVED}>Archived</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 
 			<div className="flex flex-col gap-1">
