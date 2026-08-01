@@ -348,6 +348,7 @@ export const LIST_BULLETS = gql`
 			sourceType
 			sourceId
 			status
+			position
 			contextScore
 			contextNote
 			actionScore

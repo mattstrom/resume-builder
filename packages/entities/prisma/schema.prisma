@@ -412,6 +412,7 @@ model Bullet {
   sourceType   BulletSourceType
   sourceId     String
   status       BulletStatus     @default(draft)
+  position     Int              @default(0)
   contextScore Float?
   contextNote  String?
   actionScore  Float?
@@ -425,6 +426,7 @@ model Bullet {
 
   @@index([uid, status])
   @@index([uid, sourceType, sourceId])
+  @@index([uid, sourceType, sourceId, position])
 }
 
 // ─── ResumeFact ───────────────────────────────────────────────────────────────

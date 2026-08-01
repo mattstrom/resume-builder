@@ -407,6 +407,7 @@ type Bullet {
   sourceType: BulletSourceType!
   sourceId: ID!
   status: BulletStatus!
+  position: Int!
   contextScore: Float
   contextNote: String
   actionScore: Float
@@ -591,6 +592,7 @@ type Mutation {
   createBullet(input: CreateBulletInput!): Bullet!
   updateBullet(id: ID!, input: UpdateBulletInput!): Bullet!
   setBulletStatus(id: ID!, status: BulletStatus!): Bullet!
+  reorderBullets(id: ID!, targetId: ID!): [Bullet!]!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!

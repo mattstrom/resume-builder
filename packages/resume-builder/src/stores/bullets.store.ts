@@ -7,7 +7,12 @@ import {
 } from '@resume-builder/entities';
 import { computed, makeObservable } from 'mobx';
 
-import { CREATE_BULLET, SET_BULLET_STATUS, UPDATE_BULLET } from '../graphql/mutations.ts';
+import {
+	CREATE_BULLET,
+	REORDER_BULLETS,
+	SET_BULLET_STATUS,
+	UPDATE_BULLET,
+} from '../graphql/mutations.ts';
 import { LIST_BULLETS } from '../graphql/queries.ts';
 import {
 	bulletFromGraphql,
@@ -47,12 +52,15 @@ export class BulletsStore {
 		);
 	}
 
-	async create(input: CreateBulletInput): Promise<void> {
-		await this.rootStore.client.mutate({
+	async create(input: CreateBulletInput): Promise<string | undefined> {
+		const result = await this.rootStore.client.mutate<{
+			createBullet: { id: string };
+		}>({
 			mutation: CREATE_BULLET,
 			variables: { input: createBulletGraphqlInput(input) },
 		});
 		await this.query.refetch();
+		return result.data?.createBullet.id;
 	}
 
 	async update(id: string, input: UpdateBulletInput): Promise<void> {
@@ -67,6 +75,14 @@ export class BulletsStore {
 		await this.rootStore.client.mutate({
 			mutation: SET_BULLET_STATUS,
 			variables: { id, status: bulletStatusGraphqlValue(status) },
+		});
+		await this.query.refetch();
+	}
+
+	async reorder(id: string, targetId: string): Promise<void> {
+		await this.rootStore.client.mutate({
+			mutation: REORDER_BULLETS,
+			variables: { id, targetId },
 		});
 		await this.query.refetch();
 	}

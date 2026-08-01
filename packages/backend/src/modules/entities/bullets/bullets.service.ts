@@ -31,7 +31,12 @@ export class BulletsService {
 					? { text: { contains: filter.search.trim(), mode: 'insensitive' } }
 					: {}),
 			},
-			orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+			orderBy: [
+				{ sourceType: 'asc' },
+				{ sourceId: 'asc' },
+				{ position: 'asc' },
+				{ createdAt: 'asc' },
+			],
 		});
 	}
 
@@ -50,7 +55,14 @@ export class BulletsService {
 		}
 		const data = parsed.data;
 		await this.assertSource(uid, data.sourceType, data.sourceId);
-		return this.prisma.bullet.create({ data: { ...data, uid } });
+		const lastBullet = await this.prisma.bullet.findFirst({
+			where: { uid, sourceType: data.sourceType, sourceId: data.sourceId },
+			orderBy: { position: 'desc' },
+			select: { position: true },
+		});
+		return this.prisma.bullet.create({
+			data: { ...data, uid, position: (lastBullet?.position ?? -1) + 1 },
+		});
 	}
 
 	async update(uid: string, id: string, input: UpdateBulletInput): Promise<Bullet> {
@@ -68,6 +80,34 @@ export class BulletsService {
 	async setStatus(uid: string, id: string, status: BulletStatus): Promise<Bullet> {
 		await this.find(uid, id);
 		return this.prisma.bullet.update({ where: { id }, data: { status } });
+	}
+
+	async reorder(uid: string, id: string, targetId: string): Promise<Bullet[]> {
+		if (id === targetId) return [await this.find(uid, id)];
+
+		const bullets = await this.prisma.bullet.findMany({
+			where: { uid, id: { in: [id, targetId] } },
+		});
+		if (bullets.length !== 2) {
+			throw new NotFoundException('One or more bullets could not be found');
+		}
+
+		const bullet = bullets.find((candidate) => candidate.id === id)!;
+		const target = bullets.find((candidate) => candidate.id === targetId)!;
+		if (bullet.sourceType !== target.sourceType || bullet.sourceId !== target.sourceId) {
+			throw new BadRequestException('Bullets can only be reordered within the same source');
+		}
+
+		return this.prisma.$transaction([
+			this.prisma.bullet.update({
+				where: { id: bullet.id },
+				data: { position: target.position },
+			}),
+			this.prisma.bullet.update({
+				where: { id: target.id },
+				data: { position: bullet.position },
+			}),
+		]);
 	}
 
 	async archiveForSource(

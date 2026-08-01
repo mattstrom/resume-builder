@@ -362,6 +362,7 @@ export const BulletScalarFieldEnum = {
   sourceType: 'sourceType',
   sourceId: 'sourceId',
   status: 'status',
+  position: 'position',
   contextScore: 'contextScore',
   contextNote: 'contextNote',
   actionScore: 'actionScore',

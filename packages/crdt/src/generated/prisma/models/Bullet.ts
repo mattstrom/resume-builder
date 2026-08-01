@@ -27,6 +27,7 @@ export type AggregateBullet = {
 }
 
 export type BulletAvgAggregateOutputType = {
+  position: number | null
   contextScore: number | null
   actionScore: number | null
   outcomeScore: number | null
@@ -34,6 +35,7 @@ export type BulletAvgAggregateOutputType = {
 }
 
 export type BulletSumAggregateOutputType = {
+  position: number | null
   contextScore: number | null
   actionScore: number | null
   outcomeScore: number | null
@@ -47,6 +49,7 @@ export type BulletMinAggregateOutputType = {
   sourceType: $Enums.BulletSourceType | null
   sourceId: string | null
   status: $Enums.BulletStatus | null
+  position: number | null
   contextScore: number | null
   contextNote: string | null
   actionScore: number | null
@@ -66,6 +69,7 @@ export type BulletMaxAggregateOutputType = {
   sourceType: $Enums.BulletSourceType | null
   sourceId: string | null
   status: $Enums.BulletStatus | null
+  position: number | null
   contextScore: number | null
   contextNote: string | null
   actionScore: number | null
@@ -85,6 +89,7 @@ export type BulletCountAggregateOutputType = {
   sourceType: number
   sourceId: number
   status: number
+  position: number
   contextScore: number
   contextNote: number
   actionScore: number
@@ -100,6 +105,7 @@ export type BulletCountAggregateOutputType = {
 
 
 export type BulletAvgAggregateInputType = {
+  position?: true
   contextScore?: true
   actionScore?: true
   outcomeScore?: true
@@ -107,6 +113,7 @@ export type BulletAvgAggregateInputType = {
 }
 
 export type BulletSumAggregateInputType = {
+  position?: true
   contextScore?: true
   actionScore?: true
   outcomeScore?: true
@@ -120,6 +127,7 @@ export type BulletMinAggregateInputType = {
   sourceType?: true
   sourceId?: true
   status?: true
+  position?: true
   contextScore?: true
   contextNote?: true
   actionScore?: true
@@ -139,6 +147,7 @@ export type BulletMaxAggregateInputType = {
   sourceType?: true
   sourceId?: true
   status?: true
+  position?: true
   contextScore?: true
   contextNote?: true
   actionScore?: true
@@ -158,6 +167,7 @@ export type BulletCountAggregateInputType = {
   sourceType?: true
   sourceId?: true
   status?: true
+  position?: true
   contextScore?: true
   contextNote?: true
   actionScore?: true
@@ -264,6 +274,7 @@ export type BulletGroupByOutputType = {
   sourceType: $Enums.BulletSourceType
   sourceId: string
   status: $Enums.BulletStatus
+  position: number
   contextScore: number | null
   contextNote: string | null
   actionScore: number | null
@@ -306,6 +317,7 @@ export type BulletWhereInput = {
   sourceType?: Prisma.EnumBulletSourceTypeFilter<"Bullet"> | $Enums.BulletSourceType
   sourceId?: Prisma.StringFilter<"Bullet"> | string
   status?: Prisma.EnumBulletStatusFilter<"Bullet"> | $Enums.BulletStatus
+  position?: Prisma.IntFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
   actionScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
@@ -325,6 +337,7 @@ export type BulletOrderByWithRelationInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrderInput | Prisma.SortOrder
   contextNote?: Prisma.SortOrderInput | Prisma.SortOrder
   actionScore?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -347,6 +360,7 @@ export type BulletWhereUniqueInput = Prisma.AtLeast<{
   sourceType?: Prisma.EnumBulletSourceTypeFilter<"Bullet"> | $Enums.BulletSourceType
   sourceId?: Prisma.StringFilter<"Bullet"> | string
   status?: Prisma.EnumBulletStatusFilter<"Bullet"> | $Enums.BulletStatus
+  position?: Prisma.IntFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableFilter<"Bullet"> | string | null
   actionScore?: Prisma.FloatNullableFilter<"Bullet"> | number | null
@@ -366,6 +380,7 @@ export type BulletOrderByWithAggregationInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrderInput | Prisma.SortOrder
   contextNote?: Prisma.SortOrderInput | Prisma.SortOrder
   actionScore?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -393,6 +408,7 @@ export type BulletScalarWhereWithAggregatesInput = {
   sourceType?: Prisma.EnumBulletSourceTypeWithAggregatesFilter<"Bullet"> | $Enums.BulletSourceType
   sourceId?: Prisma.StringWithAggregatesFilter<"Bullet"> | string
   status?: Prisma.EnumBulletStatusWithAggregatesFilter<"Bullet"> | $Enums.BulletStatus
+  position?: Prisma.IntWithAggregatesFilter<"Bullet"> | number
   contextScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
   contextNote?: Prisma.StringNullableWithAggregatesFilter<"Bullet"> | string | null
   actionScore?: Prisma.FloatNullableWithAggregatesFilter<"Bullet"> | number | null
@@ -412,6 +428,7 @@ export type BulletCreateInput = {
   sourceType: $Enums.BulletSourceType
   sourceId: string
   status?: $Enums.BulletStatus
+  position?: number
   contextScore?: number | null
   contextNote?: string | null
   actionScore?: number | null
@@ -431,6 +448,7 @@ export type BulletUncheckedCreateInput = {
   sourceType: $Enums.BulletSourceType
   sourceId: string
   status?: $Enums.BulletStatus
+  position?: number
   contextScore?: number | null
   contextNote?: string | null
   actionScore?: number | null
@@ -450,6 +468,7 @@ export type BulletUpdateInput = {
   sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -469,6 +488,7 @@ export type BulletUncheckedUpdateInput = {
   sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -488,6 +508,7 @@ export type BulletCreateManyInput = {
   sourceType: $Enums.BulletSourceType
   sourceId: string
   status?: $Enums.BulletStatus
+  position?: number
   contextScore?: number | null
   contextNote?: string | null
   actionScore?: number | null
@@ -507,6 +528,7 @@ export type BulletUpdateManyMutationInput = {
   sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -526,6 +548,7 @@ export type BulletUncheckedUpdateManyInput = {
   sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
   sourceId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
   contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -545,6 +568,7 @@ export type BulletCountOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
@@ -558,6 +582,7 @@ export type BulletCountOrderByAggregateInput = {
 }
 
 export type BulletAvgOrderByAggregateInput = {
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrder
@@ -571,6 +596,7 @@ export type BulletMaxOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
@@ -590,6 +616,7 @@ export type BulletMinOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceId?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   contextNote?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
@@ -603,6 +630,7 @@ export type BulletMinOrderByAggregateInput = {
 }
 
 export type BulletSumOrderByAggregateInput = {
+  position?: Prisma.SortOrder
   contextScore?: Prisma.SortOrder
   actionScore?: Prisma.SortOrder
   outcomeScore?: Prisma.SortOrder
@@ -626,6 +654,7 @@ export type BulletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   sourceType?: boolean
   sourceId?: boolean
   status?: boolean
+  position?: boolean
   contextScore?: boolean
   contextNote?: boolean
   actionScore?: boolean
@@ -645,6 +674,7 @@ export type BulletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   sourceType?: boolean
   sourceId?: boolean
   status?: boolean
+  position?: boolean
   contextScore?: boolean
   contextNote?: boolean
   actionScore?: boolean
@@ -664,6 +694,7 @@ export type BulletSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   sourceType?: boolean
   sourceId?: boolean
   status?: boolean
+  position?: boolean
   contextScore?: boolean
   contextNote?: boolean
   actionScore?: boolean
@@ -683,6 +714,7 @@ export type BulletSelectScalar = {
   sourceType?: boolean
   sourceId?: boolean
   status?: boolean
+  position?: boolean
   contextScore?: boolean
   contextNote?: boolean
   actionScore?: boolean
@@ -695,7 +727,7 @@ export type BulletSelectScalar = {
   updatedAt?: boolean
 }
 
-export type BulletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "text" | "sourceType" | "sourceId" | "status" | "contextScore" | "contextNote" | "actionScore" | "actionNote" | "outcomeScore" | "outcomeNote" | "clarityScore" | "clarityNote" | "createdAt" | "updatedAt", ExtArgs["result"]["bullet"]>
+export type BulletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "text" | "sourceType" | "sourceId" | "status" | "position" | "contextScore" | "contextNote" | "actionScore" | "actionNote" | "outcomeScore" | "outcomeNote" | "clarityScore" | "clarityNote" | "createdAt" | "updatedAt", ExtArgs["result"]["bullet"]>
 
 export type $BulletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Bullet"
@@ -707,6 +739,7 @@ export type $BulletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     sourceType: $Enums.BulletSourceType
     sourceId: string
     status: $Enums.BulletStatus
+    position: number
     contextScore: number | null
     contextNote: string | null
     actionScore: number | null
@@ -1146,6 +1179,7 @@ export interface BulletFieldRefs {
   readonly sourceType: Prisma.FieldRef<"Bullet", 'BulletSourceType'>
   readonly sourceId: Prisma.FieldRef<"Bullet", 'String'>
   readonly status: Prisma.FieldRef<"Bullet", 'BulletStatus'>
+  readonly position: Prisma.FieldRef<"Bullet", 'Int'>
   readonly contextScore: Prisma.FieldRef<"Bullet", 'Float'>
   readonly contextNote: Prisma.FieldRef<"Bullet", 'String'>
   readonly actionScore: Prisma.FieldRef<"Bullet", 'Float'>

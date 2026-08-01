@@ -11,6 +11,7 @@ function bullet(id: string, sourceId: string, status = BulletStatus.READY): Bull
 		sourceType: BulletSourceType.JOB,
 		sourceId,
 		status,
+		position: 0,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};

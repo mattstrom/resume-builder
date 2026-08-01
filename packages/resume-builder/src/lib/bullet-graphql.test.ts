@@ -31,6 +31,7 @@ describe('bullet GraphQL enum conversion', () => {
 			sourceType: 'JOB',
 			sourceId: 'job-1',
 			status: 'DRAFT',
+			position: 0,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});

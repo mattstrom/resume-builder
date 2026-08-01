@@ -371,7 +371,7 @@ export const JobsSection: FC<BackgroundSectionProps> = observer(({ showHeader = 
 		});
 
 	const addEntry = async () => {
-		await jobsStore.create({
+		const id = await jobsStore.create({
 			company: '',
 			position: '',
 			location: '',
@@ -380,8 +380,7 @@ export const JobsSection: FC<BackgroundSectionProps> = observer(({ showHeader = 
 			responsibilities: [],
 			relevance: undefined,
 		});
-		const latest = jobsStore.jobs[jobsStore.jobs.length - 1];
-		if (latest) setExpandedIds((prev) => new Set([...prev, latest._id]));
+		if (id) setExpandedIds((prev) => new Set([...prev, id]));
 	};
 
 	return (

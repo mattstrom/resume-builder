@@ -4,15 +4,22 @@ import {
 	BulletStatus,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
-import { Plus } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Card, CardContent, CardHeader } from '@/components/ui/card.tsx';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
+import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import {
 	Select,
 	SelectContent,
@@ -21,8 +28,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select.tsx';
+import { Separator } from '@/components/ui/separator.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface BulletManagerProps {
@@ -39,7 +48,11 @@ const SCORE_FIELDS: Array<{ key: ScoreKey; label: string }> = [
 	{ key: 'clarity', label: 'Clarity' },
 ];
 
-const BulletCard: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
+function statusLabel(status: BulletStatus): string {
+	return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 	const { bulletsStore } = useStore();
 	const [text, setText] = useState(bullet.text);
 
@@ -48,18 +61,21 @@ const BulletCard: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 	const update = (input: UpdateBulletInput) => void bulletsStore.update(bullet.id, input);
 
 	return (
-		<Card>
-			<CardHeader className="flex-row items-center gap-2">
-				<Badge variant={bullet.status === BulletStatus.DRAFT ? 'secondary' : 'outline'}>
-					{bullet.status}
-				</Badge>
+		<div className="flex min-w-0 flex-col gap-4">
+			<div className="flex items-start justify-between gap-4">
+				<div>
+					<h5 className="text-sm font-medium">Bullet details</h5>
+					<p className="text-xs text-muted-foreground">
+						Text and scoring changes save when you leave a field.
+					</p>
+				</div>
 				<Select
 					value={bullet.status}
 					onValueChange={(status) =>
 						void bulletsStore.setStatus(bullet.id, status as BulletStatus)
 					}
 				>
-					<SelectTrigger className="ml-auto h-8 w-32">
+					<SelectTrigger aria-label="Bullet status" className="w-32 shrink-0">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
@@ -70,27 +86,27 @@ const BulletCard: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 						</SelectGroup>
 					</SelectContent>
 				</Select>
-			</CardHeader>
-			<CardContent className="flex flex-col gap-4">
-				<div className="flex flex-col gap-1">
-					<Label htmlFor={`bullet-${bullet.id}`}>Bullet</Label>
-					<Textarea
-						id={`bullet-${bullet.id}`}
-						value={text}
-						onChange={(event) => setText(event.target.value)}
-						onBlur={() => {
-							const value = text.trim();
-							if (value && value !== bullet.text) update({ text: value });
-						}}
-					/>
-				</div>
-				<div className="grid gap-3 sm:grid-cols-2">
-					{SCORE_FIELDS.map(({ key, label }) => (
-						<ScoreField key={key} bullet={bullet} scoreKey={key} label={label} />
-					))}
-				</div>
-			</CardContent>
-		</Card>
+			</div>
+
+			<div className="flex flex-col gap-1">
+				<Label htmlFor={`bullet-${bullet.id}`}>Bullet</Label>
+				<Textarea
+					id={`bullet-${bullet.id}`}
+					value={text}
+					onChange={(event) => setText(event.target.value)}
+					onBlur={() => {
+						const value = text.trim();
+						if (value && value !== bullet.text) update({ text: value });
+					}}
+				/>
+			</div>
+
+			<div className="grid gap-3 xl:grid-cols-2">
+				{SCORE_FIELDS.map(({ key, label }) => (
+					<ScoreField key={key} bullet={bullet} scoreKey={key} label={label} />
+				))}
+			</div>
+		</div>
 	);
 });
 
@@ -146,27 +162,85 @@ const ScoreField: FC<{
 	);
 });
 
-export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sourceId }) => {
-	const { bulletsStore } = useStore();
-	const [showArchived, setShowArchived] = useState(false);
-	const [newText, setNewText] = useState('');
-	const bullets = bulletsStore.forSource(sourceType, sourceId, showArchived);
+const NewBulletDetail: FC<{
+	onCancel: () => void;
+	onCreate: (text: string) => Promise<void>;
+}> = ({ onCancel, onCreate }) => {
+	const [text, setText] = useState('');
+	const [creating, setCreating] = useState(false);
 
-	const addBullet = async () => {
-		const text = newText.trim();
-		if (!text) return;
-		await bulletsStore.create({ text, sourceType, sourceId });
-		setNewText('');
+	const create = async () => {
+		const value = text.trim();
+		if (!value || creating) return;
+		setCreating(true);
+		try {
+			await onCreate(value);
+		} finally {
+			setCreating(false);
+		}
 	};
 
 	return (
-		<section className="flex flex-col gap-3">
-			<div className="flex items-center justify-between gap-3">
+		<div className="flex flex-col gap-4">
+			<div>
+				<h5 className="text-sm font-medium">New draft bullet</h5>
+				<p className="text-xs text-muted-foreground">
+					Create the bullet first, then add CAR and clarity scoring.
+				</p>
+			</div>
+			<div className="flex flex-col gap-1">
+				<Label htmlFor="new-bullet-text">Bullet</Label>
+				<Textarea
+					id="new-bullet-text"
+					autoFocus
+					placeholder="Describe an accomplishment, action, or outcome"
+					value={text}
+					onChange={(event) => setText(event.target.value)}
+				/>
+			</div>
+			<div className="flex justify-end gap-2">
+				<Button type="button" variant="ghost" onClick={onCancel}>
+					Cancel
+				</Button>
+				<Button
+					type="button"
+					disabled={!text.trim() || creating}
+					onClick={() => void create()}
+				>
+					Create draft
+				</Button>
+			</div>
+		</div>
+	);
+};
+
+export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sourceId }) => {
+	const { bulletsStore } = useStore();
+	const [showArchived, setShowArchived] = useState(false);
+	const [selectedId, setSelectedId] = useState<string>();
+	const [creating, setCreating] = useState(false);
+	const bullets = bulletsStore.forSource(sourceType, sourceId, showArchived);
+	const selectedBullet = bullets.find((bullet) => bullet.id === selectedId);
+
+	useEffect(() => {
+		if (creating || selectedBullet) return;
+		setSelectedId(bullets[0]?.id);
+	}, [bullets, creating, selectedBullet]);
+
+	const addBullet = async (text: string) => {
+		const id = await bulletsStore.create({ text, sourceType, sourceId });
+		setCreating(false);
+		setSelectedId(id);
+	};
+
+	return (
+		<Card>
+			<CardHeader className="flex-row items-start justify-between gap-4">
 				<div>
-					<h4 className="text-sm font-medium">Resume bullets</h4>
-					<p className="text-xs text-muted-foreground">
+					<CardTitle className="text-sm">Resume bullets</CardTitle>
+					<CardDescription className="text-xs">
 						Reusable statements for tailored resumes.
-					</p>
+					</CardDescription>
 				</div>
 				<div className="flex items-center gap-2">
 					<Label htmlFor={`archived-${sourceType}-${sourceId}`}>Show archived</Label>
@@ -176,33 +250,138 @@ export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sou
 						onCheckedChange={setShowArchived}
 					/>
 				</div>
-			</div>
+			</CardHeader>
+			<CardContent className="grid min-h-[28rem] grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)] border-t p-0">
+				<div className="flex min-w-0 flex-col">
+					<div className="p-3">
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							className="w-full"
+							onClick={() => {
+								setSelectedId(undefined);
+								setCreating(true);
+							}}
+						>
+							<Plus data-icon="inline-start" />
+							New bullet
+						</Button>
+					</div>
+					<Separator />
+					<ScrollArea className="h-[28rem]">
+						<div
+							className="flex flex-col gap-1 p-2"
+							role="listbox"
+							aria-label="Bullets"
+						>
+							{bullets.map((bullet, index) => {
+								const selected = !creating && bullet.id === selectedId;
+								return (
+									<div
+										key={bullet.id}
+										role="option"
+										aria-selected={selected}
+										className={cn(
+											'group flex items-center rounded-md border-l-2 border-l-transparent hover:bg-accent',
+											selected &&
+												'border-l-[var(--appbar-accent)] bg-accent text-accent-foreground',
+										)}
+									>
+										<Button
+											type="button"
+											variant="ghost"
+											className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
+											onClick={() => {
+												setCreating(false);
+												setSelectedId(bullet.id);
+											}}
+										>
+											<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+												<span className="line-clamp-2">{bullet.text}</span>
+												<Badge
+													variant={
+														bullet.status === BulletStatus.DRAFT
+															? 'secondary'
+															: 'outline'
+													}
+												>
+													{statusLabel(bullet.status)}
+												</Badge>
+											</span>
+										</Button>
+										<div
+											className={cn(
+												'flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
+												selected && 'opacity-100',
+											)}
+										>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												disabled={index === 0}
+												onClick={() =>
+													void bulletsStore.reorder(
+														bullet.id,
+														bullets[index - 1].id,
+													)
+												}
+												aria-label="Move bullet up"
+												title="Move bullet up"
+											>
+												<ArrowUp />
+											</Button>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												className="size-7"
+												disabled={index === bullets.length - 1}
+												onClick={() =>
+													void bulletsStore.reorder(
+														bullet.id,
+														bullets[index + 1].id,
+													)
+												}
+												aria-label="Move bullet down"
+												title="Move bullet down"
+											>
+												<ArrowDown />
+											</Button>
+										</div>
+									</div>
+								);
+							})}
+							{bullets.length === 0 && (
+								<p className="p-3 text-sm text-muted-foreground">
+									No bullets for this item yet.
+								</p>
+							)}
+						</div>
+					</ScrollArea>
+				</div>
 
-			{bullets.map((bullet) => (
-				<BulletCard key={bullet.id} bullet={bullet} />
-			))}
-
-			<div className="flex flex-col gap-2">
-				<Label htmlFor={`new-bullet-${sourceType}-${sourceId}`}>New bullet</Label>
-				<Textarea
-					id={`new-bullet-${sourceType}-${sourceId}`}
-					placeholder="Describe an accomplishment, action, or outcome"
-					value={newText}
-					onChange={(event) => setNewText(event.target.value)}
-				/>
-				<Button
-					type="button"
-					variant="outline"
-					size="sm"
-					className="self-start"
-					disabled={!newText.trim()}
-					onClick={() => void addBullet()}
-				>
-					<Plus data-icon="inline-start" />
-					Add draft bullet
-				</Button>
-			</div>
-		</section>
+				<div className="min-w-0 border-l p-4">
+					{creating ? (
+						<NewBulletDetail
+							onCancel={() => {
+								setCreating(false);
+								setSelectedId(bullets[0]?.id);
+							}}
+							onCreate={addBullet}
+						/>
+					) : selectedBullet ? (
+						<BulletDetail key={selectedBullet.id} bullet={selectedBullet} />
+					) : (
+						<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+							Select a bullet or create a new one.
+						</div>
+					)}
+				</div>
+			</CardContent>
+		</Card>
 	);
 });
 

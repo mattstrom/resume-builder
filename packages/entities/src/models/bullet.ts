@@ -1,4 +1,4 @@
-import { Field, Float, ID, InputType, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Float, ID, InputType, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { z } from 'zod';
 
 export enum BulletSourceType {
@@ -35,6 +35,9 @@ export class Bullet {
 
 	@Field(() => BulletStatus)
 	status: BulletStatus;
+
+	@Field(() => Int)
+	position: number;
 
 	@Field(() => Float, { nullable: true })
 	contextScore?: number;

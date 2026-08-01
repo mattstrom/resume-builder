@@ -48,6 +48,7 @@ describe('BulletsService', () => {
 		sourceType: BulletSourceType.JOB,
 		sourceId: 'job-1',
 		status: BulletStatus.DRAFT,
+		position: 0,
 		contextScore: null,
 		contextNote: null,
 		actionScore: null,
@@ -60,6 +61,9 @@ describe('BulletsService', () => {
 		updatedAt: new Date(),
 	};
 	const prisma = {
+		$transaction: jest
+			.fn()
+			.mockImplementation((operations: Array<Promise<unknown>>) => Promise.all(operations)),
 		bullet: {
 			findMany: jest.fn(),
 			findFirst: jest.fn(),
@@ -129,5 +133,33 @@ describe('BulletsService', () => {
 		expect(prisma.bullet.findMany).toHaveBeenLastCalledWith(
 			expect.objectContaining({ where: { uid } }),
 		);
+	});
+
+	it('swaps positions only for bullets owned by the same source', async () => {
+		const target = { ...savedBullet, id: 'bullet-2', position: 1 };
+		prisma.bullet.findMany.mockResolvedValue([savedBullet, target]);
+
+		await service.reorder(uid, savedBullet.id, target.id);
+
+		expect(prisma.bullet.update).toHaveBeenNthCalledWith(1, {
+			where: { id: savedBullet.id },
+			data: { position: target.position },
+		});
+		expect(prisma.bullet.update).toHaveBeenNthCalledWith(2, {
+			where: { id: target.id },
+			data: { position: savedBullet.position },
+		});
+	});
+
+	it('rejects reordering bullets from different sources', async () => {
+		prisma.bullet.findMany.mockResolvedValue([
+			savedBullet,
+			{ ...savedBullet, id: 'bullet-2', sourceId: 'job-2', position: 1 },
+		]);
+
+		await expect(service.reorder(uid, 'bullet-1', 'bullet-2')).rejects.toBeInstanceOf(
+			BadRequestException,
+		);
+		expect(prisma.$transaction).not.toHaveBeenCalled();
 	});
 });

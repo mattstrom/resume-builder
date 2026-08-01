@@ -205,6 +205,15 @@ export const SET_BULLET_STATUS = gql`
 	}
 `;
 
+export const REORDER_BULLETS = gql`
+	mutation ReorderBullets($id: ID!, $targetId: ID!) {
+		reorderBullets(id: $id, targetId: $targetId) {
+			id
+			position
+		}
+	}
+`;
+
 export const CREATE_APPLICATION = gql`
 	mutation CreateApplication($applicationData: ApplicationInput!, $sourceResumeId: String) {
 		createApplication(applicationData: $applicationData, sourceResumeId: $sourceResumeId) {

@@ -4,6 +4,7 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import { CREATE_JOB, DELETE_JOB, UPDATE_JOB } from '../graphql/mutations.ts';
 import { LIST_JOBS } from '../graphql/queries.ts';
 import { getMastraClient } from '../lib/mastra-client.ts';
+import { sortJobsByStartDateDescending } from '../lib/work-history.ts';
 import { ApolloMobxWrapper } from './data-sources/apollo-mobx-wrapper.ts';
 import type { RootStore } from './root.store.ts';
 
@@ -23,19 +24,22 @@ export class JobsStore {
 
 	@computed
 	get jobs(): Job[] {
-		return this.query.data?.listJobs ?? [];
+		return sortJobsByStartDateDescending(this.query.data?.listJobs ?? []);
 	}
 
 	get loading(): boolean {
 		return this.query.loading;
 	}
 
-	async create(input: JobInput): Promise<void> {
-		await this.rootStore.client.mutate({
+	async create(input: JobInput): Promise<string | undefined> {
+		const result = await this.rootStore.client.mutate<{
+			createJob: { _id: string };
+		}>({
 			mutation: CREATE_JOB,
 			variables: { job: input },
 		});
 		await this.query.refetch();
+		return result.data?.createJob._id;
 	}
 
 	async update(id: string, input: JobInput): Promise<void> {

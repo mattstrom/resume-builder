@@ -55,4 +55,13 @@ export class BulletsResolver {
 	): Promise<Bullet> {
 		return this.bulletsService.setStatus(uid, id, status);
 	}
+
+	@Mutation(() => [Bullet])
+	async reorderBullets(
+		@CurrentUser('sub') uid: string,
+		@Args('id', { type: () => ID }) id: string,
+		@Args('targetId', { type: () => ID }) targetId: string,
+	): Promise<Bullet[]> {
+		return this.bulletsService.reorder(uid, id, targetId);
+	}
 }
