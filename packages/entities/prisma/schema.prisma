@@ -121,6 +121,7 @@ model Concept {
 
   aliases           ConceptAlias[]
   facts             FactConcept[]
+  bullets           BulletConcept[]
   outgoingRelations ConceptRelation[] @relation("ConceptRelationSource")
   incomingRelations ConceptRelation[] @relation("ConceptRelationTarget")
 
@@ -490,9 +491,26 @@ model Bullet {
   createdAt                   DateTime         @default(now())
   updatedAt                   DateTime         @updatedAt
 
+  concepts BulletConcept[]
+
   @@index([uid, status])
   @@index([uid, sourceType, sourceId])
   @@index([uid, sourceType, sourceId, position])
+}
+
+model BulletConcept {
+  bulletId   String
+  conceptId  String
+  relation   String
+  source     String   @default("user")
+  confidence Float?
+  createdAt  DateTime @default(now())
+
+  bullet  Bullet  @relation(fields: [bulletId], references: [id], onDelete: Cascade)
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@id([bulletId, conceptId, relation])
+  @@index([conceptId, relation])
 }
 
 // ─── ResumeFact ───────────────────────────────────────────────────────────────

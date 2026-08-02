@@ -49,6 +49,7 @@ describe('BulletsService', () => {
 		sourceId: 'job-1',
 		status: BulletStatus.DRAFT,
 		position: 0,
+		concepts: [],
 		contextScore: null,
 		contextNote: null,
 		actionScore: null,
@@ -61,15 +62,20 @@ describe('BulletsService', () => {
 		updatedAt: new Date(),
 	};
 	const prisma = {
-		$transaction: jest
-			.fn()
-			.mockImplementation((operations: Array<Promise<unknown>>) => Promise.all(operations)),
+		$transaction: jest.fn(),
 		bullet: {
 			findMany: jest.fn(),
 			findFirst: jest.fn(),
 			create: jest.fn(),
 			update: jest.fn(),
 			updateMany: jest.fn(),
+		},
+		concept: { upsert: jest.fn() },
+		bulletConcept: {
+			upsert: jest.fn(),
+			deleteMany: jest.fn(),
+			createMany: jest.fn(),
+			findMany: jest.fn(),
 		},
 		job: { findFirst: jest.fn() },
 		project: { findFirst: jest.fn() },
@@ -84,6 +90,30 @@ describe('BulletsService', () => {
 		prisma.bullet.create.mockResolvedValue(savedBullet);
 		prisma.bullet.findFirst.mockResolvedValue(savedBullet);
 		prisma.bullet.update.mockResolvedValue(savedBullet);
+		prisma.concept.upsert.mockResolvedValue({
+			id: 'concept-1',
+			vocabulary: 'capability',
+			key: 'technical-leadership',
+			label: 'Technical Leadership',
+		});
+		prisma.bulletConcept.upsert.mockResolvedValue({
+			bulletId: savedBullet.id,
+			conceptId: 'concept-1',
+			relation: 'demonstrates',
+		});
+		prisma.bulletConcept.deleteMany.mockResolvedValue({ count: 1 });
+		prisma.bulletConcept.createMany.mockResolvedValue({ count: 1 });
+		prisma.bulletConcept.findMany.mockResolvedValue([]);
+		prisma.$transaction.mockImplementation(
+			(
+				operationsOrCallback:
+					| Array<Promise<unknown>>
+					| ((client: typeof prisma) => unknown),
+			) =>
+				typeof operationsOrCallback === 'function'
+					? operationsOrCallback(prisma)
+					: Promise.all(operationsOrCallback),
+		);
 	});
 
 	it('creates a trimmed bullet after verifying source ownership', async () => {
@@ -99,6 +129,7 @@ describe('BulletsService', () => {
 		});
 		expect(prisma.bullet.create).toHaveBeenCalledWith({
 			data: expect.objectContaining({ uid, text: 'Improved latency by 30%' }),
+			include: { concepts: { include: { concept: true } } },
 		});
 	});
 
@@ -144,10 +175,12 @@ describe('BulletsService', () => {
 		expect(prisma.bullet.update).toHaveBeenNthCalledWith(1, {
 			where: { id: savedBullet.id },
 			data: { position: target.position },
+			include: { concepts: { include: { concept: true } } },
 		});
 		expect(prisma.bullet.update).toHaveBeenNthCalledWith(2, {
 			where: { id: target.id },
 			data: { position: savedBullet.position },
+			include: { concepts: { include: { concept: true } } },
 		});
 	});
 
@@ -161,5 +194,100 @@ describe('BulletsService', () => {
 			BadRequestException,
 		);
 		expect(prisma.$transaction).not.toHaveBeenCalled();
+	});
+
+	it('adds a normalized semantic relationship', async () => {
+		await service.upsertConcept(uid, savedBullet.id, {
+			relation: 'demonstrates',
+			concept: {
+				vocabulary: 'capability',
+				key: 'Technical Leadership',
+				label: 'Technical Leadership',
+			},
+		});
+
+		expect(prisma.concept.upsert).toHaveBeenCalledWith({
+			where: {
+				vocabulary_key: {
+					vocabulary: 'capability',
+					key: 'technical-leadership',
+				},
+			},
+			create: {
+				vocabulary: 'capability',
+				key: 'technical-leadership',
+				label: 'Technical Leadership',
+			},
+			update: { label: 'Technical Leadership' },
+		});
+		expect(prisma.bulletConcept.upsert).toHaveBeenCalledWith(
+			expect.objectContaining({
+				create: expect.objectContaining({
+					bulletId: savedBullet.id,
+					relation: 'demonstrates',
+				}),
+			}),
+		);
+	});
+
+	it('replaces classifier assertions without deleting user assertions', async () => {
+		await service.replaceGeneratedConcepts(uid, savedBullet.id, savedBullet.text, [
+			{
+				relation: 'supports',
+				concept: {
+					vocabulary: 'outcome',
+					key: 'Latency Reduction',
+					label: 'Latency Reduction',
+				},
+				confidence: 0.95,
+			},
+		]);
+
+		expect(prisma.bulletConcept.deleteMany).toHaveBeenCalledWith({
+			where: { bulletId: savedBullet.id, source: 'classifier' },
+		});
+		expect(prisma.bulletConcept.createMany).toHaveBeenCalledWith({
+			data: [
+				expect.objectContaining({
+					bulletId: savedBullet.id,
+					relation: 'supports',
+					source: 'classifier',
+					confidence: 0.95,
+				}),
+			],
+			skipDuplicates: true,
+		});
+	});
+
+	it('rejects classifier assertions when the authoritative bullet changed', async () => {
+		await expect(
+			service.replaceGeneratedConcepts(uid, savedBullet.id, 'Old bullet text', []),
+		).rejects.toBeInstanceOf(BadRequestException);
+		expect(prisma.bulletConcept.deleteMany).not.toHaveBeenCalled();
+	});
+
+	it('rejects relation and vocabulary mismatches', async () => {
+		await expect(
+			service.upsertConcept(uid, savedBullet.id, {
+				relation: 'uses',
+				concept: {
+					vocabulary: 'capability',
+					key: 'mentoring',
+					label: 'Mentoring',
+				},
+			}),
+		).rejects.toBeInstanceOf(BadRequestException);
+	});
+
+	it('removes only the requested semantic relationship', async () => {
+		await service.deleteConcept(uid, savedBullet.id, 'concept-1', 'supports');
+
+		expect(prisma.bulletConcept.deleteMany).toHaveBeenCalledWith({
+			where: {
+				bulletId: savedBullet.id,
+				conceptId: 'concept-1',
+				relation: 'supports',
+			},
+		});
 	});
 });

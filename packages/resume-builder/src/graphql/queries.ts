@@ -370,6 +370,21 @@ export const LIST_BULLETS = gql`
 			sourceId
 			status
 			position
+			concepts {
+				bulletId
+				conceptId
+				relation
+				source
+				confidence
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+					externalUri
+				}
+			}
 			contextScore
 			contextNote
 			contextWhatWorksWell

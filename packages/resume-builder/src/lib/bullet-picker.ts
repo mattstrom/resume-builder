@@ -9,7 +9,11 @@ export function getBulletPickerCandidates(
 		.filter(
 			(bullet) =>
 				bullet.status !== BulletStatus.ARCHIVED &&
-				(!query || bullet.text.toLocaleLowerCase().includes(query)),
+				(!query ||
+					[bullet.text, ...bullet.concepts.map(({ concept }) => concept.label)]
+						.join(' ')
+						.toLocaleLowerCase()
+						.includes(query)),
 		)
 		.sort((left, right) => {
 			const leftMatches =

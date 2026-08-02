@@ -397,7 +397,10 @@ export class FactsService {
 		return this.prisma.concept.findMany({
 			where: {
 				vocabulary,
-				facts: { some: { fact: { uid } } },
+				OR: [
+					{ facts: { some: { fact: { uid } } } },
+					{ bullets: { some: { bullet: { uid } } } },
+				],
 				...(query
 					? { label: { contains: search.trim(), mode: 'insensitive' as const } }
 					: {}),

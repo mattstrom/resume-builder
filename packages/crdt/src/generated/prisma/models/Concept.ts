@@ -208,6 +208,7 @@ export type ConceptWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   aliases?: Prisma.ConceptAliasListRelationFilter
   facts?: Prisma.FactConceptListRelationFilter
+  bullets?: Prisma.BulletConceptListRelationFilter
   outgoingRelations?: Prisma.ConceptRelationListRelationFilter
   incomingRelations?: Prisma.ConceptRelationListRelationFilter
 }
@@ -223,6 +224,7 @@ export type ConceptOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   aliases?: Prisma.ConceptAliasOrderByRelationAggregateInput
   facts?: Prisma.FactConceptOrderByRelationAggregateInput
+  bullets?: Prisma.BulletConceptOrderByRelationAggregateInput
   outgoingRelations?: Prisma.ConceptRelationOrderByRelationAggregateInput
   incomingRelations?: Prisma.ConceptRelationOrderByRelationAggregateInput
 }
@@ -242,6 +244,7 @@ export type ConceptWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   aliases?: Prisma.ConceptAliasListRelationFilter
   facts?: Prisma.FactConceptListRelationFilter
+  bullets?: Prisma.BulletConceptListRelationFilter
   outgoingRelations?: Prisma.ConceptRelationListRelationFilter
   incomingRelations?: Prisma.ConceptRelationListRelationFilter
 }, "id" | "vocabulary_key">
@@ -285,6 +288,7 @@ export type ConceptCreateInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -300,6 +304,7 @@ export type ConceptUncheckedCreateInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -315,6 +320,7 @@ export type ConceptUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -330,6 +336,7 @@ export type ConceptUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -466,6 +473,20 @@ export type ConceptUpdateOneRequiredWithoutIncomingRelationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ConceptUpdateToOneWithWhereWithoutIncomingRelationsInput, Prisma.ConceptUpdateWithoutIncomingRelationsInput>, Prisma.ConceptUncheckedUpdateWithoutIncomingRelationsInput>
 }
 
+export type ConceptCreateNestedOneWithoutBulletsInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutBulletsInput, Prisma.ConceptUncheckedCreateWithoutBulletsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutBulletsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+}
+
+export type ConceptUpdateOneRequiredWithoutBulletsNestedInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutBulletsInput, Prisma.ConceptUncheckedCreateWithoutBulletsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutBulletsInput
+  upsert?: Prisma.ConceptUpsertWithoutBulletsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConceptUpdateToOneWithWhereWithoutBulletsInput, Prisma.ConceptUpdateWithoutBulletsInput>, Prisma.ConceptUncheckedUpdateWithoutBulletsInput>
+}
+
 export type ConceptCreateWithoutAliasesInput = {
   id?: string
   vocabulary: string
@@ -476,6 +497,7 @@ export type ConceptCreateWithoutAliasesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -490,6 +512,7 @@ export type ConceptUncheckedCreateWithoutAliasesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -520,6 +543,7 @@ export type ConceptUpdateWithoutAliasesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -534,6 +558,7 @@ export type ConceptUncheckedUpdateWithoutAliasesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -548,6 +573,7 @@ export type ConceptCreateWithoutFactsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -562,6 +588,7 @@ export type ConceptUncheckedCreateWithoutFactsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -592,6 +619,7 @@ export type ConceptUpdateWithoutFactsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -606,6 +634,7 @@ export type ConceptUncheckedUpdateWithoutFactsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -621,6 +650,7 @@ export type ConceptCreateWithoutOutgoingRelationsInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
 
@@ -635,6 +665,7 @@ export type ConceptUncheckedCreateWithoutOutgoingRelationsInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
 
@@ -654,6 +685,7 @@ export type ConceptCreateWithoutIncomingRelationsInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
 }
 
@@ -668,6 +700,7 @@ export type ConceptUncheckedCreateWithoutIncomingRelationsInput = {
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
 }
 
@@ -698,6 +731,7 @@ export type ConceptUpdateWithoutOutgoingRelationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
 
@@ -712,6 +746,7 @@ export type ConceptUncheckedUpdateWithoutOutgoingRelationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
 
@@ -737,6 +772,7 @@ export type ConceptUpdateWithoutIncomingRelationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
 }
 
@@ -751,7 +787,84 @@ export type ConceptUncheckedUpdateWithoutIncomingRelationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
+}
+
+export type ConceptCreateWithoutBulletsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptUncheckedCreateWithoutBulletsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptCreateOrConnectWithoutBulletsInput = {
+  where: Prisma.ConceptWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutBulletsInput, Prisma.ConceptUncheckedCreateWithoutBulletsInput>
+}
+
+export type ConceptUpsertWithoutBulletsInput = {
+  update: Prisma.XOR<Prisma.ConceptUpdateWithoutBulletsInput, Prisma.ConceptUncheckedUpdateWithoutBulletsInput>
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutBulletsInput, Prisma.ConceptUncheckedCreateWithoutBulletsInput>
+  where?: Prisma.ConceptWhereInput
+}
+
+export type ConceptUpdateToOneWithWhereWithoutBulletsInput = {
+  where?: Prisma.ConceptWhereInput
+  data: Prisma.XOR<Prisma.ConceptUpdateWithoutBulletsInput, Prisma.ConceptUncheckedUpdateWithoutBulletsInput>
+}
+
+export type ConceptUpdateWithoutBulletsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
+}
+
+export type ConceptUncheckedUpdateWithoutBulletsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
 
 
@@ -762,6 +875,7 @@ export type ConceptUncheckedUpdateWithoutIncomingRelationsInput = {
 export type ConceptCountOutputType = {
   aliases: number
   facts: number
+  bullets: number
   outgoingRelations: number
   incomingRelations: number
 }
@@ -769,6 +883,7 @@ export type ConceptCountOutputType = {
 export type ConceptCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   aliases?: boolean | ConceptCountOutputTypeCountAliasesArgs
   facts?: boolean | ConceptCountOutputTypeCountFactsArgs
+  bullets?: boolean | ConceptCountOutputTypeCountBulletsArgs
   outgoingRelations?: boolean | ConceptCountOutputTypeCountOutgoingRelationsArgs
   incomingRelations?: boolean | ConceptCountOutputTypeCountIncomingRelationsArgs
 }
@@ -800,6 +915,13 @@ export type ConceptCountOutputTypeCountFactsArgs<ExtArgs extends runtime.Types.E
 /**
  * ConceptCountOutputType without action
  */
+export type ConceptCountOutputTypeCountBulletsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BulletConceptWhereInput
+}
+
+/**
+ * ConceptCountOutputType without action
+ */
 export type ConceptCountOutputTypeCountOutgoingRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ConceptRelationWhereInput
 }
@@ -823,6 +945,7 @@ export type ConceptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   aliases?: boolean | Prisma.Concept$aliasesArgs<ExtArgs>
   facts?: boolean | Prisma.Concept$factsArgs<ExtArgs>
+  bullets?: boolean | Prisma.Concept$bulletsArgs<ExtArgs>
   outgoingRelations?: boolean | Prisma.Concept$outgoingRelationsArgs<ExtArgs>
   incomingRelations?: boolean | Prisma.Concept$incomingRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.ConceptCountOutputTypeDefaultArgs<ExtArgs>
@@ -865,6 +988,7 @@ export type ConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type ConceptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   aliases?: boolean | Prisma.Concept$aliasesArgs<ExtArgs>
   facts?: boolean | Prisma.Concept$factsArgs<ExtArgs>
+  bullets?: boolean | Prisma.Concept$bulletsArgs<ExtArgs>
   outgoingRelations?: boolean | Prisma.Concept$outgoingRelationsArgs<ExtArgs>
   incomingRelations?: boolean | Prisma.Concept$incomingRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.ConceptCountOutputTypeDefaultArgs<ExtArgs>
@@ -877,6 +1001,7 @@ export type $ConceptPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     aliases: Prisma.$ConceptAliasPayload<ExtArgs>[]
     facts: Prisma.$FactConceptPayload<ExtArgs>[]
+    bullets: Prisma.$BulletConceptPayload<ExtArgs>[]
     outgoingRelations: Prisma.$ConceptRelationPayload<ExtArgs>[]
     incomingRelations: Prisma.$ConceptRelationPayload<ExtArgs>[]
   }
@@ -1285,6 +1410,7 @@ export interface Prisma__ConceptClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   aliases<T extends Prisma.Concept$aliasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$aliasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptAliasPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   facts<T extends Prisma.Concept$factsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$factsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FactConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bullets<T extends Prisma.Concept$bulletsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$bulletsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BulletConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   outgoingRelations<T extends Prisma.Concept$outgoingRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$outgoingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incomingRelations<T extends Prisma.Concept$incomingRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$incomingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1762,6 +1888,30 @@ export type Concept$factsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.FactConceptScalarFieldEnum | Prisma.FactConceptScalarFieldEnum[]
+}
+
+/**
+ * Concept.bullets
+ */
+export type Concept$bulletsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BulletConcept
+   */
+  select?: Prisma.BulletConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BulletConcept
+   */
+  omit?: Prisma.BulletConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletConceptInclude<ExtArgs> | null
+  where?: Prisma.BulletConceptWhereInput
+  orderBy?: Prisma.BulletConceptOrderByWithRelationInput | Prisma.BulletConceptOrderByWithRelationInput[]
+  cursor?: Prisma.BulletConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BulletConceptScalarFieldEnum | Prisma.BulletConceptScalarFieldEnum[]
 }
 
 /**

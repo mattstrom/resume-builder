@@ -1,17 +1,21 @@
 import {
 	type Bullet,
+	type BulletMeaningInput,
 	BulletSourceType,
 	BulletStatus,
 	type CreateBulletInput,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
-import { computed, makeObservable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 
 import {
 	CREATE_BULLET,
+	DELETE_BULLET_CONCEPT,
+	REPLACE_GENERATED_BULLET_CONCEPTS,
 	REORDER_BULLETS,
 	SET_BULLET_STATUS,
 	UPDATE_BULLET,
+	UPSERT_BULLET_CONCEPT,
 } from '../graphql/mutations.ts';
 import { LIST_BULLETS } from '../graphql/queries.ts';
 import {
@@ -26,6 +30,8 @@ import type { RootStore } from './root.store.ts';
 
 export class BulletsStore {
 	private readonly query: ApolloMobxWrapper<{ bullets: GraphqlBullet[] }>;
+	@observable isUpdatingConcept = false;
+	@observable isAnnotatingConcepts = false;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -109,5 +115,65 @@ export class BulletsStore {
 			variables: { id, targetId },
 		});
 		await this.query.refetch();
+	}
+
+	@action
+	async upsertConcept(bulletId: string, meaning: BulletMeaningInput): Promise<void> {
+		this.isUpdatingConcept = true;
+		try {
+			await this.rootStore.client.mutate({
+				mutation: UPSERT_BULLET_CONCEPT,
+				variables: { bulletId, meaning },
+			});
+			await this.query.refetch();
+		} finally {
+			this.isUpdatingConcept = false;
+		}
+	}
+
+	@action
+	async deleteConcept(bulletId: string, conceptId: string, relation: string): Promise<void> {
+		this.isUpdatingConcept = true;
+		try {
+			await this.rootStore.client.mutate({
+				mutation: DELETE_BULLET_CONCEPT,
+				variables: { bulletId, conceptId, relation },
+			});
+			await this.query.refetch();
+		} finally {
+			this.isUpdatingConcept = false;
+		}
+	}
+
+	@action
+	async annotateConcepts(bulletId: string, text: string): Promise<void> {
+		const bulletText = text.trim();
+		if (!bulletText) throw new Error('A bullet needs text before it can be annotated.');
+
+		this.isAnnotatingConcepts = true;
+		try {
+			const client = await getMastraClient();
+			const workflow = client.getWorkflow('bulletConceptAnnotationWorkflow');
+			const run = await workflow.createRun();
+			const result = await run.startAsync({ inputData: { bulletText } });
+			if (result.status !== 'success') {
+				throw new Error('Bullet concept annotation did not complete.');
+			}
+
+			const annotation = result.result as { meanings: BulletMeaningInput[] } | undefined;
+			if (!annotation) throw new Error('Bullet concept annotation returned no result.');
+
+			await this.rootStore.client.mutate({
+				mutation: REPLACE_GENERATED_BULLET_CONCEPTS,
+				variables: {
+					bulletId,
+					expectedText: bulletText,
+					meanings: annotation.meanings,
+				},
+			});
+			await this.query.refetch();
+		} finally {
+			this.isAnnotatingConcepts = false;
+		}
 	}
 }

@@ -421,6 +421,24 @@ type Application {
   updatedAt: DateTime!
 }
 
+type BulletConceptValue {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+  externalUri: String
+}
+
+type BulletConcept {
+  bulletId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  concept: BulletConceptValue!
+}
+
 type Bullet {
   id: ID!
   uid: String!
@@ -429,6 +447,7 @@ type Bullet {
   sourceId: ID!
   status: BulletStatus!
   position: Int!
+  concepts: [BulletConcept!]!
   contextScore: Float
   contextNote: String
   contextWhatWorksWell: [String!]!
@@ -600,6 +619,7 @@ input BulletFilterInput {
   sourceId: ID
   status: BulletStatus
   search: String
+  conceptKey: String
   includeArchived: Boolean = false
 }
 
@@ -630,6 +650,9 @@ type Mutation {
   updateBullet(id: ID!, input: UpdateBulletInput!): Bullet!
   setBulletStatus(id: ID!, status: BulletStatus!): Bullet!
   reorderBullets(id: ID!, targetId: ID!): [Bullet!]!
+  upsertBulletConcept(bulletId: ID!, meaning: BulletMeaningInput!): BulletConcept!
+  deleteBulletConcept(bulletId: ID!, conceptId: ID!, relation: String!): Boolean!
+  replaceGeneratedBulletConcepts(bulletId: ID!, expectedText: String!, meanings: [BulletMeaningInput!]!): [BulletConcept!]!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!
@@ -923,6 +946,19 @@ input UpdateBulletInput {
   clarityWhatWorksWell: [String!]
   clarityWhyItMatters: String
   clarityProposedEnhancements: [String!]
+}
+
+input BulletMeaningInput {
+  relation: String!
+  concept: BulletConceptReferenceInput!
+  source: String
+  confidence: Float
+}
+
+input BulletConceptReferenceInput {
+  vocabulary: String!
+  label: String!
+  key: String!
 }
 
 input JobInput {

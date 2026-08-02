@@ -24,6 +24,7 @@ import config from '@/config';
 import { configuration } from '../configuration';
 import { applicationReviewerAgent } from './agents/application-reviewer.agent';
 import { backgroundAutofillAgent } from './agents/background-autofill.agent';
+import { bulletConceptAnnotatorAgent } from './agents/bullet-concept-annotator.agent';
 import { bulletScoringAgent } from './agents/bullet-scoring.agent';
 import { chatAgent } from './agents/chat.agent';
 import { factsExtractorAgent } from './agents/facts-extractor.agent';
@@ -42,6 +43,7 @@ import {
 } from './scorers/weather-scorer';
 import { markupJobDescriptionWorkflow } from './steps/markup-job-description.step';
 import { backgroundAutofillWorkflow } from './workflows/background-autofill.workflow';
+import { bulletConceptAnnotationWorkflow } from './workflows/bullet-concept-annotation.workflow';
 import { bulletScoringWorkflow } from './workflows/bullet-scoring.workflow';
 import { careerContextWorkflow } from './workflows/career-context.workflow';
 import { comparisonWorkflow } from './workflows/comparison.workflow';
@@ -129,6 +131,7 @@ export const mastra = new Mastra({
 		fitAssessmentWorkflow,
 		backgroundAutofillWorkflow,
 		bulletScoringWorkflow,
+		bulletConceptAnnotationWorkflow,
 		careerContextWorkflow,
 		factsExtractionWorkflow,
 		narrativeDistillationWorkflow,
@@ -139,6 +142,7 @@ export const mastra = new Mastra({
 		applicationReviewer: applicationReviewerAgent,
 		backgroundAutofill: backgroundAutofillAgent,
 		bulletScoringAgent,
+		bulletConceptAnnotatorAgent,
 		chatAgent,
 		factsExtractor: factsExtractorAgent,
 		fitAssessmentAgent,

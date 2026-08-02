@@ -13,6 +13,48 @@ export enum BulletStatus {
 	ARCHIVED = 'archived',
 }
 
+@ObjectType()
+export class BulletConceptValue {
+	@Field(() => ID)
+	id: string;
+
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field({ nullable: true })
+	definition?: string;
+
+	@Field({ nullable: true })
+	externalUri?: string;
+}
+
+@ObjectType()
+export class BulletConcept {
+	@Field(() => ID)
+	bulletId: string;
+
+	@Field(() => ID)
+	conceptId: string;
+
+	@Field()
+	relation: string;
+
+	@Field()
+	source: string;
+
+	@Field(() => Float, { nullable: true })
+	confidence?: number;
+
+	@Field(() => BulletConceptValue)
+	concept: BulletConceptValue;
+}
+
 registerEnumType(BulletSourceType, { name: 'BulletSourceType' });
 registerEnumType(BulletStatus, { name: 'BulletStatus' });
 
@@ -38,6 +80,9 @@ export class Bullet {
 
 	@Field(() => Int)
 	position: number;
+
+	@Field(() => [BulletConcept])
+	concepts: BulletConcept[];
 
 	@Field(() => Float, { nullable: true })
 	contextScore?: number;
@@ -198,8 +243,38 @@ export class BulletFilterInput {
 	@Field({ nullable: true })
 	search?: string;
 
+	@Field({ nullable: true })
+	conceptKey?: string;
+
 	@Field({ nullable: true, defaultValue: false })
 	includeArchived?: boolean;
+}
+
+@InputType()
+export class BulletConceptReferenceInput {
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	label: string;
+
+	@Field()
+	key: string;
+}
+
+@InputType()
+export class BulletMeaningInput {
+	@Field()
+	relation: string;
+
+	@Field(() => BulletConceptReferenceInput)
+	concept: BulletConceptReferenceInput;
+
+	@Field({ nullable: true })
+	source?: string;
+
+	@Field(() => Float, { nullable: true })
+	confidence?: number;
 }
 
 const scoreSchema = z.number().min(0).max(1).nullable().optional();
