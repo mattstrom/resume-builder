@@ -38,9 +38,21 @@ const schemas: Record<string, z.ZodType> = {
 	profile: profileSchema,
 	conversation: conversationSchema,
 	'conversation-message': PgConversationMessageSchema.omit({ createdAt: true }),
-	fact: FactSchema.omit({ createdAt: true }),
+	fact: FactSchema.omit({
+		createdAt: true,
+		embeddingRevision: true,
+		embeddedRevision: true,
+		embeddingModel: true,
+		embeddingProfile: true,
+	}),
 	expression: ExpressionSchema.omit({ createdAt: true }),
-	'job-requirement-fact': JobRequirementFactSchema.omit({ createdAt: true }),
+	'job-requirement-fact': JobRequirementFactSchema.omit({
+		createdAt: true,
+		embeddingRevision: true,
+		embeddedRevision: true,
+		embeddingModel: true,
+		embeddingProfile: true,
+	}),
 };
 
 /**

@@ -3,27 +3,19 @@ import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
 import config from '../configuration.js';
-import { EmbeddingService } from '../modules/facts/embedding.service.js';
-import { FactsModule } from '../modules/facts/facts.module.js';
-import { type FactConceptWithConcept, FactsService } from '../modules/facts/facts.service.js';
-import { PrismaModule, PrismaService } from '../modules/prisma/index.js';
-
-const SCHEMA = 'resume_builder';
-
-interface FactRow {
-	id: string;
-	uid: string;
-	what: string;
-	impact: string | null;
-	scale: string | null;
-	concepts: FactConceptWithConcept[];
-}
+import { PrismaModule } from '../modules/prisma/index.js';
+import { BullConnectionModule } from '../modules/queue/bull-connection.module.js';
+import { EmbeddingDocumentsService } from '../modules/queue/embeddings/embedding-documents.service.js';
+import { EmbeddingQueueService } from '../modules/queue/embeddings/embedding-queue.service.js';
+import type { EmbeddingEntityType } from '../modules/queue/embeddings/embedding.constants.js';
+import { EmbeddingsModule } from '../modules/queue/embeddings/embeddings.module.js';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({ isGlobal: true, load: [() => config] }),
 		PrismaModule,
-		FactsModule,
+		BullConnectionModule,
+		EmbeddingsModule,
 	],
 })
 class BackfillModule {}
@@ -33,44 +25,18 @@ async function bootstrap() {
 		logger: ['error', 'warn'],
 	});
 
-	const prisma = app.get(PrismaService);
-	const factsService = app.get(FactsService);
-	const embeddingService = app.get(EmbeddingService);
-
-	const factRows = await prisma.$queryRawUnsafe<Omit<FactRow, 'concepts'>[]>(
-		`SELECT id, uid, what, impact, scale
-     FROM "${SCHEMA}"."Fact"
-     WHERE embedding IS NULL`,
-	);
-	const conceptLinks = await prisma.factConcept.findMany({
-		where: { factId: { in: factRows.map((fact) => fact.id) } },
-		include: { concept: true },
-	});
-	const facts = factRows.map((fact) => ({
-		...fact,
-		concepts: conceptLinks.filter((link) => link.factId === fact.id),
-	}));
-
-	console.log(`Found ${facts.length} facts without embeddings`);
-
-	let succeeded = 0;
-	let failed = 0;
-
-	for (let i = 0; i < facts.length; i++) {
-		const fact = facts[i];
-		try {
-			const text = factsService.factToEmbeddingText(fact);
-			const vector = await embeddingService.embed(text);
-			await factsService.setEmbedding(fact.uid, fact.id, vector);
-			succeeded++;
-			console.log(`[${i + 1}/${facts.length}] ${fact.id}`);
-		} catch (err) {
-			failed++;
-			console.error(`[${i + 1}/${facts.length}] ${fact.id} FAILED:`, err);
-		}
+	const rawType = process.argv[2];
+	const entityTypes: EmbeddingEntityType[] = ['fact', 'job-requirement', 'bullet', 'concept'];
+	if (rawType && !entityTypes.includes(rawType as EmbeddingEntityType)) {
+		throw new Error(`Unknown entity type "${rawType}". Use ${entityTypes.join(', ')}.`);
 	}
-
-	console.log(`\nDone. ${succeeded} succeeded, ${failed} failed.`);
+	const requestedType = rawType as EmbeddingEntityType | undefined;
+	const requestedLimit = Number(process.argv[3] ?? 10_000);
+	const documents = app.get(EmbeddingDocumentsService);
+	const queue = app.get(EmbeddingQueueService);
+	const targets = await documents.findStaleTargets(requestedType, requestedLimit);
+	await queue.enqueueMany(targets);
+	console.log(`Enqueued ${targets.length} stale embedding targets.`);
 	await app.close();
 }
 

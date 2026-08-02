@@ -139,6 +139,10 @@ export const FactScalarFieldEnum = {
   scale: 'scale',
   citation: 'citation',
   citationNodeIndex: 'citationNodeIndex',
+  embeddingRevision: 'embeddingRevision',
+  embeddedRevision: 'embeddedRevision',
+  embeddingModel: 'embeddingModel',
+  embeddingProfile: 'embeddingProfile',
   createdAt: 'createdAt'
 } as const
 
@@ -152,6 +156,10 @@ export const ConceptScalarFieldEnum = {
   label: 'label',
   definition: 'definition',
   externalUri: 'externalUri',
+  embeddingRevision: 'embeddingRevision',
+  embeddedRevision: 'embeddedRevision',
+  embeddingModel: 'embeddingModel',
+  embeddingProfile: 'embeddingProfile',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -214,6 +222,10 @@ export const JobRequirementFactScalarFieldEnum = {
   what: 'what',
   technologies: 'technologies',
   tags: 'tags',
+  embeddingRevision: 'embeddingRevision',
+  embeddedRevision: 'embeddedRevision',
+  embeddingModel: 'embeddingModel',
+  embeddingProfile: 'embeddingProfile',
   createdAt: 'createdAt'
 } as const
 
@@ -432,6 +444,10 @@ export const BulletScalarFieldEnum = {
   clarityWhatWorksWell: 'clarityWhatWorksWell',
   clarityWhyItMatters: 'clarityWhyItMatters',
   clarityProposedEnhancements: 'clarityProposedEnhancements',
+  embeddingRevision: 'embeddingRevision',
+  embeddedRevision: 'embeddedRevision',
+  embeddingModel: 'embeddingModel',
+  embeddingProfile: 'embeddingProfile',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

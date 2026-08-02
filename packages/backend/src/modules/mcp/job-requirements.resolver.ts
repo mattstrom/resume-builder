@@ -15,6 +15,10 @@ const requirementCreateSchema = JobRequirementFactSchema.omit({
 	id: true,
 	uid: true,
 	applicationId: true,
+	embeddingRevision: true,
+	embeddedRevision: true,
+	embeddingModel: true,
+	embeddingProfile: true,
 	createdAt: true,
 }).extend({
 	technologies: z

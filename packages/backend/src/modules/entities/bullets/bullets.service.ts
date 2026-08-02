@@ -13,6 +13,8 @@ import { technology } from '@resume-builder/ontologies';
 
 import type { Prisma } from '../../../generated/prisma/client.js';
 import { PrismaService } from '../../prisma/index.js';
+import { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
+import { EMBEDDING_PROFILES } from '../../queue/embeddings/embedding.constants.js';
 
 const RELATION_VOCABULARIES = {
 	'is-a': 'fact-type',
@@ -26,7 +28,19 @@ const RELATION_VOCABULARIES = {
 
 @Injectable()
 export class BulletsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly embeddingQueue: EmbeddingQueueService,
+	) {}
+
+	private async enqueueBullet(bullet: { id: string; embeddingRevision: number }): Promise<void> {
+		await this.embeddingQueue.enqueue({
+			entityType: 'bullet',
+			entityId: bullet.id,
+			revision: bullet.embeddingRevision,
+			profile: EMBEDDING_PROFILES.bullet,
+		});
+	}
 
 	async findAll(uid: string, filter: BulletFilterInput = {}): Promise<BulletWithConcepts[]> {
 		return this.prisma.bullet.findMany({
@@ -105,10 +119,12 @@ export class BulletsService {
 			orderBy: { position: 'desc' },
 			select: { position: true },
 		});
-		return this.prisma.bullet.create({
+		const bullet = await this.prisma.bullet.create({
 			data: { ...data, uid, position: (lastBullet?.position ?? -1) + 1 },
 			include: { concepts: { include: { concept: true } } },
 		});
+		await this.enqueueBullet(bullet);
+		return bullet;
 	}
 
 	async update(uid: string, id: string, input: UpdateBulletInput): Promise<BulletWithConcepts> {
@@ -120,11 +136,16 @@ export class BulletsService {
 			);
 		}
 		const data = parsed.data;
-		return this.prisma.bullet.update({
+		const bullet = await this.prisma.bullet.update({
 			where: { id },
-			data,
+			data: {
+				...data,
+				...(data.text !== undefined ? { embeddingRevision: { increment: 1 } } : {}),
+			},
 			include: { concepts: { include: { concept: true } } },
 		});
+		if (data.text !== undefined) await this.enqueueBullet(bullet);
+		return bullet;
 	}
 
 	async setStatus(uid: string, id: string, status: BulletStatus): Promise<BulletWithConcepts> {
@@ -170,7 +191,7 @@ export class BulletsService {
 		await this.find(uid, bulletId);
 		const normalized = this.normalizeMeaning(meaning);
 
-		return this.prisma.$transaction(async (prisma) => {
+		const result = await this.prisma.$transaction(async (prisma) => {
 			const concept = await prisma.concept.upsert({
 				where: {
 					vocabulary_key: {
@@ -179,9 +200,12 @@ export class BulletsService {
 					},
 				},
 				create: normalized.concept,
-				update: { label: normalized.concept.label },
+				update: {
+					label: normalized.concept.label,
+					embeddingRevision: { increment: 1 },
+				},
 			});
-			return prisma.bulletConcept.upsert({
+			const link = await prisma.bulletConcept.upsert({
 				where: {
 					bulletId_conceptId_relation: {
 						bulletId,
@@ -202,7 +226,23 @@ export class BulletsService {
 				},
 				include: { concept: true },
 			});
+			const bullet = await prisma.bullet.update({
+				where: { id: bulletId },
+				data: { embeddingRevision: { increment: 1 } },
+				select: { id: true, embeddingRevision: true },
+			});
+			return { link, bullet };
 		});
+		await Promise.all([
+			this.enqueueBullet(result.bullet),
+			this.embeddingQueue.enqueue({
+				entityType: 'concept',
+				entityId: result.link.concept.id,
+				revision: result.link.concept.embeddingRevision,
+				profile: EMBEDDING_PROFILES.concept,
+			}),
+		]);
+		return result.link;
 	}
 
 	async replaceGeneratedConcepts(
@@ -215,7 +255,7 @@ export class BulletsService {
 			this.normalizeMeaning({ ...meaning, source: 'classifier' }),
 		);
 
-		return this.prisma.$transaction(async (prisma) => {
+		const result = await this.prisma.$transaction(async (prisma) => {
 			const bullet = await prisma.bullet.findFirst({
 				where: { id: bulletId, uid },
 				select: { text: true },
@@ -231,7 +271,7 @@ export class BulletsService {
 				where: { bulletId, source: 'classifier' },
 			});
 
-			const links = [];
+			const links: Prisma.BulletConceptCreateManyInput[] = [];
 			for (const meaning of normalized) {
 				const concept = await prisma.concept.upsert({
 					where: {
@@ -241,7 +281,10 @@ export class BulletsService {
 						},
 					},
 					create: meaning.concept,
-					update: { label: meaning.concept.label },
+					update: {
+						label: meaning.concept.label,
+						embeddingRevision: { increment: 1 },
+					},
 				});
 				links.push({
 					bulletId,
@@ -256,12 +299,30 @@ export class BulletsService {
 				await prisma.bulletConcept.createMany({ data: links, skipDuplicates: true });
 			}
 
-			return prisma.bulletConcept.findMany({
+			const concepts = await prisma.bulletConcept.findMany({
 				where: { bulletId },
 				include: { concept: true },
 				orderBy: { createdAt: 'asc' },
 			});
+			const updatedBullet = await prisma.bullet.update({
+				where: { id: bulletId },
+				data: { embeddingRevision: { increment: 1 } },
+				select: { id: true, embeddingRevision: true },
+			});
+			return { concepts, bullet: updatedBullet };
 		});
+		await Promise.all([
+			this.enqueueBullet(result.bullet),
+			this.embeddingQueue.enqueueMany(
+				result.concepts.map(({ concept }) => ({
+					entityType: 'concept' as const,
+					entityId: concept.id,
+					revision: concept.embeddingRevision,
+					profile: EMBEDDING_PROFILES.concept,
+				})),
+			),
+		]);
+		return result.concepts;
 	}
 
 	async deleteConcept(
@@ -271,12 +332,20 @@ export class BulletsService {
 		relation: string,
 	): Promise<void> {
 		await this.find(uid, bulletId);
-		const deleted = await this.prisma.bulletConcept.deleteMany({
-			where: { bulletId, conceptId, relation },
+		const bullet = await this.prisma.$transaction(async (prisma) => {
+			const deleted = await prisma.bulletConcept.deleteMany({
+				where: { bulletId, conceptId, relation },
+			});
+			if (deleted.count === 0) {
+				throw new NotFoundException('Bullet concept relationship not found');
+			}
+			return prisma.bullet.update({
+				where: { id: bulletId },
+				data: { embeddingRevision: { increment: 1 } },
+				select: { id: true, embeddingRevision: true },
+			});
 		});
-		if (deleted.count === 0) {
-			throw new NotFoundException('Bullet concept relationship not found');
-		}
+		await this.enqueueBullet(bullet);
 	}
 
 	async archiveForSource(

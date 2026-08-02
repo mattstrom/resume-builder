@@ -28,10 +28,14 @@ export type AggregateFact = {
 
 export type FactAvgAggregateOutputType = {
   citationNodeIndex: number | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
 }
 
 export type FactSumAggregateOutputType = {
   citationNodeIndex: number | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
 }
 
 export type FactMinAggregateOutputType = {
@@ -42,6 +46,10 @@ export type FactMinAggregateOutputType = {
   scale: string | null
   citation: string | null
   citationNodeIndex: number | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
 }
 
@@ -53,6 +61,10 @@ export type FactMaxAggregateOutputType = {
   scale: string | null
   citation: string | null
   citationNodeIndex: number | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
 }
 
@@ -64,6 +76,10 @@ export type FactCountAggregateOutputType = {
   scale: number
   citation: number
   citationNodeIndex: number
+  embeddingRevision: number
+  embeddedRevision: number
+  embeddingModel: number
+  embeddingProfile: number
   createdAt: number
   _all: number
 }
@@ -71,10 +87,14 @@ export type FactCountAggregateOutputType = {
 
 export type FactAvgAggregateInputType = {
   citationNodeIndex?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
 }
 
 export type FactSumAggregateInputType = {
   citationNodeIndex?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
 }
 
 export type FactMinAggregateInputType = {
@@ -85,6 +105,10 @@ export type FactMinAggregateInputType = {
   scale?: true
   citation?: true
   citationNodeIndex?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
 }
 
@@ -96,6 +120,10 @@ export type FactMaxAggregateInputType = {
   scale?: true
   citation?: true
   citationNodeIndex?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
 }
 
@@ -107,6 +135,10 @@ export type FactCountAggregateInputType = {
   scale?: true
   citation?: true
   citationNodeIndex?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
   _all?: true
 }
@@ -205,6 +237,10 @@ export type FactGroupByOutputType = {
   scale: string | null
   citation: string | null
   citationNodeIndex: number | null
+  embeddingRevision: number
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date
   _count: FactCountAggregateOutputType | null
   _avg: FactAvgAggregateOutputType | null
@@ -239,6 +275,10 @@ export type FactWhereInput = {
   scale?: Prisma.StringNullableFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableFilter<"Fact"> | number | null
+  embeddingRevision?: Prisma.IntFilter<"Fact"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"Fact"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"Fact"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"Fact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
@@ -253,6 +293,10 @@ export type FactOrderByWithRelationInput = {
   scale?: Prisma.SortOrderInput | Prisma.SortOrder
   citation?: Prisma.SortOrderInput | Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expressions?: Prisma.ExpressionOrderByRelationAggregateInput
   resumeFacts?: Prisma.ResumeFactOrderByRelationAggregateInput
@@ -270,6 +314,10 @@ export type FactWhereUniqueInput = Prisma.AtLeast<{
   scale?: Prisma.StringNullableFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableFilter<"Fact"> | number | null
+  embeddingRevision?: Prisma.IntFilter<"Fact"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"Fact"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"Fact"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"Fact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
@@ -284,6 +332,10 @@ export type FactOrderByWithAggregationInput = {
   scale?: Prisma.SortOrderInput | Prisma.SortOrder
   citation?: Prisma.SortOrderInput | Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FactCountOrderByAggregateInput
   _avg?: Prisma.FactAvgOrderByAggregateInput
@@ -303,6 +355,10 @@ export type FactScalarWhereWithAggregatesInput = {
   scale?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableWithAggregatesFilter<"Fact"> | number | null
+  embeddingRevision?: Prisma.IntWithAggregatesFilter<"Fact"> | number
+  embeddedRevision?: Prisma.IntNullableWithAggregatesFilter<"Fact"> | number | null
+  embeddingModel?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
+  embeddingProfile?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Fact"> | Date | string
 }
 
@@ -314,6 +370,10 @@ export type FactCreateInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
@@ -328,6 +388,10 @@ export type FactUncheckedCreateInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
@@ -342,6 +406,10 @@ export type FactUpdateInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
@@ -356,6 +424,10 @@ export type FactUncheckedUpdateInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
@@ -370,6 +442,10 @@ export type FactCreateManyInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
 }
 
@@ -381,6 +457,10 @@ export type FactUpdateManyMutationInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -392,6 +472,10 @@ export type FactUncheckedUpdateManyInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -403,11 +487,17 @@ export type FactCountOrderByAggregateInput = {
   scale?: Prisma.SortOrder
   citation?: Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type FactAvgOrderByAggregateInput = {
   citationNodeIndex?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type FactMaxOrderByAggregateInput = {
@@ -418,6 +508,10 @@ export type FactMaxOrderByAggregateInput = {
   scale?: Prisma.SortOrder
   citation?: Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -429,11 +523,17 @@ export type FactMinOrderByAggregateInput = {
   scale?: Prisma.SortOrder
   citation?: Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type FactSumOrderByAggregateInput = {
   citationNodeIndex?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type FactScalarRelationFilter = {
@@ -443,6 +543,14 @@ export type FactScalarRelationFilter = {
 
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
   increment?: number
   decrement?: number
   multiply?: number
@@ -499,6 +607,10 @@ export type FactCreateWithoutConceptsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
@@ -512,6 +624,10 @@ export type FactUncheckedCreateWithoutConceptsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
@@ -541,6 +657,10 @@ export type FactUpdateWithoutConceptsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
@@ -554,6 +674,10 @@ export type FactUncheckedUpdateWithoutConceptsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
@@ -567,6 +691,10 @@ export type FactCreateWithoutExpressionsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
@@ -580,6 +708,10 @@ export type FactUncheckedCreateWithoutExpressionsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
@@ -609,6 +741,10 @@ export type FactUpdateWithoutExpressionsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
@@ -622,6 +758,10 @@ export type FactUncheckedUpdateWithoutExpressionsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
@@ -635,6 +775,10 @@ export type FactCreateWithoutResumeFactsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
@@ -648,6 +792,10 @@ export type FactUncheckedCreateWithoutResumeFactsInput = {
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
@@ -677,6 +825,10 @@ export type FactUpdateWithoutResumeFactsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
@@ -690,6 +842,10 @@ export type FactUncheckedUpdateWithoutResumeFactsInput = {
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
@@ -752,6 +908,10 @@ export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
@@ -767,6 +927,10 @@ export type FactSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["fact"]>
 
@@ -778,6 +942,10 @@ export type FactSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["fact"]>
 
@@ -789,10 +957,14 @@ export type FactSelectScalar = {
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }
 
-export type FactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "what" | "impact" | "scale" | "citation" | "citationNodeIndex" | "createdAt", ExtArgs["result"]["fact"]>
+export type FactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "what" | "impact" | "scale" | "citation" | "citationNodeIndex" | "embeddingRevision" | "embeddedRevision" | "embeddingModel" | "embeddingProfile" | "createdAt", ExtArgs["result"]["fact"]>
 export type FactInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
@@ -832,6 +1004,10 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
      */
     citationNodeIndex: number | null
+    embeddingRevision: number
+    embeddedRevision: number | null
+    embeddingModel: string | null
+    embeddingProfile: string | null
     createdAt: Date
   }, ExtArgs["result"]["fact"]>
   composites: {}
@@ -1266,6 +1442,10 @@ export interface FactFieldRefs {
   readonly scale: Prisma.FieldRef<"Fact", 'String'>
   readonly citation: Prisma.FieldRef<"Fact", 'String'>
   readonly citationNodeIndex: Prisma.FieldRef<"Fact", 'Int'>
+  readonly embeddingRevision: Prisma.FieldRef<"Fact", 'Int'>
+  readonly embeddedRevision: Prisma.FieldRef<"Fact", 'Int'>
+  readonly embeddingModel: Prisma.FieldRef<"Fact", 'String'>
+  readonly embeddingProfile: Prisma.FieldRef<"Fact", 'String'>
   readonly createdAt: Prisma.FieldRef<"Fact", 'DateTime'>
 }
     

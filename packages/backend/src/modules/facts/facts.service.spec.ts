@@ -1,5 +1,5 @@
 import type { PrismaService } from '../prisma';
-import type { EmbeddingService } from './embedding.service';
+import type { EmbeddingQueueService } from '../queue/embeddings/embedding-queue.service';
 import {
 	ConceptVocabulary,
 	type FactMeaningDto,
@@ -8,13 +8,15 @@ import {
 } from './facts.service';
 
 jest.mock('../prisma/index.js', () => ({ PrismaService: class {} }));
-jest.mock('./embedding.service.js', () => ({ EmbeddingService: class {} }));
+jest.mock('../queue/embeddings/embedding-queue.service.js', () => ({
+	EmbeddingQueueService: class {},
+}));
 
 describe('FactsService semantic persistence', () => {
 	const uid = 'auth0|test';
 	const concepts = new Map<
 		string,
-		{ id: string; vocabulary: string; key: string; label: string }
+		{ id: string; vocabulary: string; key: string; label: string; embeddingRevision: number }
 	>();
 	const links: Array<{
 		factId: string;
@@ -40,6 +42,7 @@ describe('FactsService semantic persistence', () => {
 			create: jest.fn(),
 			count: jest.fn(),
 			deleteMany: jest.fn(),
+			findMany: jest.fn(),
 			upsert: jest.fn(),
 		},
 		$queryRawUnsafe: jest.fn(),
@@ -47,7 +50,7 @@ describe('FactsService semantic persistence', () => {
 		$executeRawUnsafe: jest.fn(),
 		$transaction: jest.fn(),
 	};
-	const embedding = { embed: jest.fn() };
+	const embeddingQueue = { enqueue: jest.fn(), enqueueMany: jest.fn() };
 
 	let service: FactsService;
 
@@ -97,6 +100,7 @@ describe('FactsService semantic persistence', () => {
 			scale: null,
 			citation: null,
 			citationNodeIndex: null,
+			embeddingRevision: 1,
 			createdAt: new Date('2026-07-31T00:00:00Z'),
 		};
 
@@ -108,7 +112,17 @@ describe('FactsService semantic persistence', () => {
 		);
 		prisma.fact.update.mockImplementation(
 			async ({ data }: { data: Record<string, unknown> }) => {
-				factData = { ...factData, ...data };
+				const revision = data.embeddingRevision as { increment?: number } | undefined;
+				factData = {
+					...factData,
+					...data,
+					...(revision?.increment
+						? {
+								embeddingRevision:
+									Number(factData.embeddingRevision) + revision.increment,
+							}
+						: {}),
+				};
 				return factData;
 			},
 		);
@@ -123,7 +137,7 @@ describe('FactsService semantic persistence', () => {
 		prisma.concept.upsert.mockImplementation(
 			async ({ create }: { create: { vocabulary: string; key: string; label: string } }) => {
 				const id = `concept:${create.vocabulary}:${create.key}`;
-				const concept = { id, ...create };
+				const concept = { id, ...create, embeddingRevision: 1 };
 				concepts.set(id, concept);
 				return concept;
 			},
@@ -135,6 +149,9 @@ describe('FactsService semantic persistence', () => {
 			},
 		);
 		prisma.factConcept.count.mockResolvedValue(1);
+		prisma.factConcept.findMany.mockImplementation(async () =>
+			links.map((link) => ({ ...link, concept: concepts.get(link.conceptId) })),
+		);
 		prisma.$queryRawUnsafe.mockResolvedValue([]);
 		prisma.factConcept.deleteMany.mockImplementation(async () => {
 			links.length = 0;
@@ -143,13 +160,13 @@ describe('FactsService semantic persistence', () => {
 		prisma.$transaction.mockImplementation(
 			async (operation: (client: typeof prisma) => Promise<unknown>) => operation(prisma),
 		);
-		embedding.embed.mockResolvedValue([0.1, 0.2]);
+		embeddingQueue.enqueue.mockResolvedValue('job-1');
+		embeddingQueue.enqueueMany.mockResolvedValue(undefined);
 
 		service = new FactsService(
 			prisma as unknown as PrismaService,
-			embedding as unknown as EmbeddingService,
+			embeddingQueue as unknown as EmbeddingQueueService,
 		);
-		jest.spyOn(service, 'setEmbedding').mockResolvedValue(undefined);
 	});
 
 	it('stores evidence and explicit semantic meanings atomically', async () => {
@@ -270,29 +287,40 @@ describe('FactsService semantic persistence', () => {
 
 		expect(prisma.factConcept.deleteMany).toHaveBeenCalledWith({ where: { factId: 'fact-1' } });
 		expect(conceptKeys('technology')).toEqual(['Kubernetes']);
-		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({});
+		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({
+			embeddingRevision: { increment: 1 },
+		});
 	});
 
 	it('leaves meanings unchanged on an evidence-only update', async () => {
 		await service.update(uid, 'fact-1', { what: 'Revised evidence' });
 
 		expect(prisma.factConcept.deleteMany).not.toHaveBeenCalled();
-		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({ what: 'Revised evidence' });
+		expect(prisma.fact.update.mock.calls[0][0].data).toEqual({
+			what: 'Revised evidence',
+			embeddingRevision: { increment: 1 },
+		});
 	});
 
-	it('embeds semantic relationship labels with the evidence', async () => {
-		await service.create(uid, {
-			what: 'Built the web client',
-			meanings: requiredMeanings(
-				meaning(FactRelation.Uses, ConceptVocabulary.Technology, 'react.js', 'react.js'),
-			),
-		});
-
-		expect(embedding.embed).toHaveBeenCalledWith(expect.stringContaining('uses: React'));
+	it('builds embedding documents with semantic relationship labels', () => {
+		expect(
+			service.factToEmbeddingText({
+				what: 'Built the web client',
+				concepts: [
+					{
+						relation: 'uses',
+						concept: { label: 'React' },
+					} as never,
+				],
+			}),
+		).toContain('uses: React');
 	});
 
 	it('normalizes meanings added individually through the editor', async () => {
-		prisma.factConcept.upsert.mockResolvedValue({ id: 'link-1' });
+		prisma.factConcept.upsert.mockResolvedValue({
+			id: 'link-1',
+			concept: { id: 'concept-1', embeddingRevision: 1 },
+		});
 
 		await service.upsertFactConcept(
 			uid,
@@ -303,7 +331,7 @@ describe('FactsService semantic persistence', () => {
 		expect(prisma.concept.upsert).toHaveBeenCalledWith({
 			where: { vocabulary_key: { vocabulary: 'technology', key: 'React' } },
 			create: { vocabulary: 'technology', key: 'React', label: 'React' },
-			update: { label: 'React' },
+			update: { label: 'React', embeddingRevision: { increment: 1 } },
 		});
 	});
 

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { EmbeddingService } from '../facts/embedding.service.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
+import { EmbeddingsModule } from '../queue/embeddings/embeddings.module.js';
 import { JobRequirementsService } from './job-requirements.service.js';
 
 @Module({
-	imports: [PrismaModule],
-	providers: [EmbeddingService, JobRequirementsService],
+	imports: [PrismaModule, EmbeddingsModule],
+	providers: [JobRequirementsService],
 	exports: [JobRequirementsService],
 })
 export class JobRequirementsModule {}

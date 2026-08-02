@@ -20,8 +20,20 @@ export type JobRequirementFactModel = runtime.Types.Result.DefaultSelection<Pris
 
 export type AggregateJobRequirementFact = {
   _count: JobRequirementFactCountAggregateOutputType | null
+  _avg: JobRequirementFactAvgAggregateOutputType | null
+  _sum: JobRequirementFactSumAggregateOutputType | null
   _min: JobRequirementFactMinAggregateOutputType | null
   _max: JobRequirementFactMaxAggregateOutputType | null
+}
+
+export type JobRequirementFactAvgAggregateOutputType = {
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+}
+
+export type JobRequirementFactSumAggregateOutputType = {
+  embeddingRevision: number | null
+  embeddedRevision: number | null
 }
 
 export type JobRequirementFactMinAggregateOutputType = {
@@ -30,6 +42,10 @@ export type JobRequirementFactMinAggregateOutputType = {
   applicationId: string | null
   kind: string | null
   what: string | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
 }
 
@@ -39,6 +55,10 @@ export type JobRequirementFactMaxAggregateOutputType = {
   applicationId: string | null
   kind: string | null
   what: string | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
 }
 
@@ -50,10 +70,24 @@ export type JobRequirementFactCountAggregateOutputType = {
   what: number
   technologies: number
   tags: number
+  embeddingRevision: number
+  embeddedRevision: number
+  embeddingModel: number
+  embeddingProfile: number
   createdAt: number
   _all: number
 }
 
+
+export type JobRequirementFactAvgAggregateInputType = {
+  embeddingRevision?: true
+  embeddedRevision?: true
+}
+
+export type JobRequirementFactSumAggregateInputType = {
+  embeddingRevision?: true
+  embeddedRevision?: true
+}
 
 export type JobRequirementFactMinAggregateInputType = {
   id?: true
@@ -61,6 +95,10 @@ export type JobRequirementFactMinAggregateInputType = {
   applicationId?: true
   kind?: true
   what?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
 }
 
@@ -70,6 +108,10 @@ export type JobRequirementFactMaxAggregateInputType = {
   applicationId?: true
   kind?: true
   what?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
 }
 
@@ -81,6 +123,10 @@ export type JobRequirementFactCountAggregateInputType = {
   what?: true
   technologies?: true
   tags?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
   _all?: true
 }
@@ -92,13 +138,13 @@ export type JobRequirementFactAggregateArgs<ExtArgs extends runtime.Types.Extens
   where?: Prisma.JobRequirementFactWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-   * 
+   *
    * Determine the order of JobRequirementFacts to fetch.
    */
   orderBy?: Prisma.JobRequirementFactOrderByWithRelationInput | Prisma.JobRequirementFactOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-   * 
+   *
    * Sets the start position
    */
   cursor?: Prisma.JobRequirementFactWhereUniqueInput
@@ -120,6 +166,18 @@ export type JobRequirementFactAggregateArgs<ExtArgs extends runtime.Types.Extens
    * Count returned JobRequirementFacts
   **/
   _count?: true | JobRequirementFactCountAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to average
+  **/
+  _avg?: JobRequirementFactAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+  **/
+  _sum?: JobRequirementFactSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
@@ -153,6 +211,8 @@ export type JobRequirementFactGroupByArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   _count?: JobRequirementFactCountAggregateInputType | true
+  _avg?: JobRequirementFactAvgAggregateInputType
+  _sum?: JobRequirementFactSumAggregateInputType
   _min?: JobRequirementFactMinAggregateInputType
   _max?: JobRequirementFactMaxAggregateInputType
 }
@@ -165,8 +225,14 @@ export type JobRequirementFactGroupByOutputType = {
   what: string
   technologies: string[]
   tags: string[]
+  embeddingRevision: number
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date
   _count: JobRequirementFactCountAggregateOutputType | null
+  _avg: JobRequirementFactAvgAggregateOutputType | null
+  _sum: JobRequirementFactSumAggregateOutputType | null
   _min: JobRequirementFactMinAggregateOutputType | null
   _max: JobRequirementFactMaxAggregateOutputType | null
 }
@@ -197,6 +263,10 @@ export type JobRequirementFactWhereInput = {
   what?: Prisma.StringFilter<"JobRequirementFact"> | string
   technologies?: Prisma.StringNullableListFilter<"JobRequirementFact">
   tags?: Prisma.StringNullableListFilter<"JobRequirementFact">
+  embeddingRevision?: Prisma.IntFilter<"JobRequirementFact"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"JobRequirementFact"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"JobRequirementFact"> | Date | string
 }
 
@@ -208,6 +278,10 @@ export type JobRequirementFactOrderByWithRelationInput = {
   what?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -222,6 +296,10 @@ export type JobRequirementFactWhereUniqueInput = Prisma.AtLeast<{
   what?: Prisma.StringFilter<"JobRequirementFact"> | string
   technologies?: Prisma.StringNullableListFilter<"JobRequirementFact">
   tags?: Prisma.StringNullableListFilter<"JobRequirementFact">
+  embeddingRevision?: Prisma.IntFilter<"JobRequirementFact"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"JobRequirementFact"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"JobRequirementFact"> | Date | string
 }, "id">
 
@@ -233,10 +311,16 @@ export type JobRequirementFactOrderByWithAggregationInput = {
   what?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.JobRequirementFactCountOrderByAggregateInput
+  _avg?: Prisma.JobRequirementFactAvgOrderByAggregateInput
   _max?: Prisma.JobRequirementFactMaxOrderByAggregateInput
   _min?: Prisma.JobRequirementFactMinOrderByAggregateInput
+  _sum?: Prisma.JobRequirementFactSumOrderByAggregateInput
 }
 
 export type JobRequirementFactScalarWhereWithAggregatesInput = {
@@ -250,6 +334,10 @@ export type JobRequirementFactScalarWhereWithAggregatesInput = {
   what?: Prisma.StringWithAggregatesFilter<"JobRequirementFact"> | string
   technologies?: Prisma.StringNullableListFilter<"JobRequirementFact">
   tags?: Prisma.StringNullableListFilter<"JobRequirementFact">
+  embeddingRevision?: Prisma.IntWithAggregatesFilter<"JobRequirementFact"> | number
+  embeddedRevision?: Prisma.IntNullableWithAggregatesFilter<"JobRequirementFact"> | number | null
+  embeddingModel?: Prisma.StringNullableWithAggregatesFilter<"JobRequirementFact"> | string | null
+  embeddingProfile?: Prisma.StringNullableWithAggregatesFilter<"JobRequirementFact"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"JobRequirementFact"> | Date | string
 }
 
@@ -261,6 +349,10 @@ export type JobRequirementFactCreateInput = {
   what: string
   technologies?: Prisma.JobRequirementFactCreatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactCreatetagsInput | string[]
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
 }
 
@@ -272,6 +364,10 @@ export type JobRequirementFactUncheckedCreateInput = {
   what: string
   technologies?: Prisma.JobRequirementFactCreatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactCreatetagsInput | string[]
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
 }
 
@@ -283,6 +379,10 @@ export type JobRequirementFactUpdateInput = {
   what?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -294,6 +394,10 @@ export type JobRequirementFactUncheckedUpdateInput = {
   what?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -305,6 +409,10 @@ export type JobRequirementFactCreateManyInput = {
   what: string
   technologies?: Prisma.JobRequirementFactCreatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactCreatetagsInput | string[]
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
 }
 
@@ -316,6 +424,10 @@ export type JobRequirementFactUpdateManyMutationInput = {
   what?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -327,6 +439,10 @@ export type JobRequirementFactUncheckedUpdateManyInput = {
   what?: Prisma.StringFieldUpdateOperationsInput | string
   technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
   tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -346,7 +462,16 @@ export type JobRequirementFactCountOrderByAggregateInput = {
   what?: Prisma.SortOrder
   technologies?: Prisma.SortOrder
   tags?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type JobRequirementFactAvgOrderByAggregateInput = {
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type JobRequirementFactMaxOrderByAggregateInput = {
@@ -355,6 +480,10 @@ export type JobRequirementFactMaxOrderByAggregateInput = {
   applicationId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   what?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -364,7 +493,16 @@ export type JobRequirementFactMinOrderByAggregateInput = {
   applicationId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   what?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type JobRequirementFactSumOrderByAggregateInput = {
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type JobRequirementFactCreatetechnologiesInput = {
@@ -395,6 +533,10 @@ export type JobRequirementFactSelect<ExtArgs extends runtime.Types.Extensions.In
   what?: boolean
   technologies?: boolean
   tags?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["jobRequirementFact"]>
 
@@ -406,6 +548,10 @@ export type JobRequirementFactSelectCreateManyAndReturn<ExtArgs extends runtime.
   what?: boolean
   technologies?: boolean
   tags?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["jobRequirementFact"]>
 
@@ -417,6 +563,10 @@ export type JobRequirementFactSelectUpdateManyAndReturn<ExtArgs extends runtime.
   what?: boolean
   technologies?: boolean
   tags?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["jobRequirementFact"]>
 
@@ -428,10 +578,14 @@ export type JobRequirementFactSelectScalar = {
   what?: boolean
   technologies?: boolean
   tags?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
 }
 
-export type JobRequirementFactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "applicationId" | "kind" | "what" | "technologies" | "tags" | "createdAt", ExtArgs["result"]["jobRequirementFact"]>
+export type JobRequirementFactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "applicationId" | "kind" | "what" | "technologies" | "tags" | "embeddingRevision" | "embeddedRevision" | "embeddingModel" | "embeddingProfile" | "createdAt", ExtArgs["result"]["jobRequirementFact"]>
 
 export type $JobRequirementFactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "JobRequirementFact"
@@ -450,6 +604,10 @@ export type $JobRequirementFactPayload<ExtArgs extends runtime.Types.Extensions.
     what: string
     technologies: string[]
     tags: string[]
+    embeddingRevision: number
+    embeddedRevision: number | null
+    embeddingModel: string | null
+    embeddingProfile: string | null
     createdAt: Date
   }, ExtArgs["result"]["jobRequirementFact"]>
   composites: {}
@@ -881,6 +1039,10 @@ export interface JobRequirementFactFieldRefs {
   readonly what: Prisma.FieldRef<"JobRequirementFact", 'String'>
   readonly technologies: Prisma.FieldRef<"JobRequirementFact", 'String[]'>
   readonly tags: Prisma.FieldRef<"JobRequirementFact", 'String[]'>
+  readonly embeddingRevision: Prisma.FieldRef<"JobRequirementFact", 'Int'>
+  readonly embeddedRevision: Prisma.FieldRef<"JobRequirementFact", 'Int'>
+  readonly embeddingModel: Prisma.FieldRef<"JobRequirementFact", 'String'>
+  readonly embeddingProfile: Prisma.FieldRef<"JobRequirementFact", 'String'>
   readonly createdAt: Prisma.FieldRef<"JobRequirementFact", 'DateTime'>
 }
     
