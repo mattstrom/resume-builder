@@ -9,6 +9,7 @@ COPY package.json package-lock.json nx.json tsconfig.json ./
 # Copy all workspace package.json files (npm ci needs them all)
 COPY packages/backend/package.json packages/backend/
 COPY packages/entities/package.json packages/entities/
+COPY packages/ontologies/package.json packages/ontologies/
 COPY packages/resume-builder/package.json packages/resume-builder/
 
 # Install all dependencies (including dev for build)
@@ -25,6 +26,7 @@ COPY packages/backend/config packages/backend/config
 COPY packages/backend/package.json packages/backend/
 COPY packages/backend/tsconfig.json packages/backend/
 COPY packages/entities/package.json packages/entities/
+COPY packages/ontologies/package.json packages/ontologies/
 
 WORKDIR /app/packages/backend
 
@@ -38,12 +40,13 @@ FROM deps AS build
 
 WORKDIR /app
 
-# Copy source for entities and backend
+# Copy source for backend and its workspace dependencies
 COPY packages/entities packages/entities
+COPY packages/ontologies packages/ontologies
 COPY packages/backend packages/backend
 
-# Build backend (Nx automatically builds entities dependency first)
-RUN npx nx build @resume-builder/backend
+# Build backend (Nx automatically builds workspace dependencies first)
+RUN npx nx build backend
 
 # Stage 4: Production dependencies
 FROM node:24.8.0-slim AS prod-deps
@@ -53,8 +56,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/backend/package.json packages/backend/
 COPY packages/entities/package.json packages/entities/
+COPY packages/ontologies/package.json packages/ontologies/
 
-RUN npm ci --workspace=packages/backend --workspace=packages/entities --omit=dev
+RUN npm ci --workspace=packages/backend --workspace=packages/entities --workspace=packages/ontologies --omit=dev
 
 # Stage 5: Production runtime
 FROM node:24.8.0-slim
@@ -69,12 +73,14 @@ COPY --from=prod-deps /app/packages/entities/node_modules ./packages/entities/no
 # Copy built output
 COPY --from=build /app/packages/backend/dist ./packages/backend/dist
 COPY --from=build /app/packages/entities/dist ./packages/entities/dist
+COPY --from=build /app/packages/ontologies/dist ./packages/ontologies/dist
 
 # Copy config and package files needed at runtime
 COPY packages/backend/package.json packages/backend/
 COPY packages/backend/tsconfig.json packages/backend/
 COPY packages/backend/config packages/backend/config
 COPY packages/entities/package.json packages/entities/
+COPY packages/ontologies/package.json packages/ontologies/
 
 WORKDIR /app/packages/backend
 
