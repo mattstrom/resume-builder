@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import type { JobRequirementFact, Prisma } from '../../generated/prisma/client.js';
-import { EmbeddingService } from '../facts/embedding.service.js';
 import { PrismaService } from '../prisma/index.js';
+import { jobRequirementEmbeddingText } from '../queue/embeddings/embedding-documents.js';
+import { EmbeddingQueueService } from '../queue/embeddings/embedding-queue.service.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../queue/embeddings/embedding.constants.js';
 
 const SCHEMA = 'resume_builder';
 
@@ -27,7 +29,7 @@ type CareerFactWithConcepts = Prisma.FactGetPayload<{
 export class JobRequirementsService {
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly embedding: EmbeddingService,
+		private readonly embeddingQueue: EmbeddingQueueService,
 	) {}
 
 	async create(
@@ -50,11 +52,13 @@ export class JobRequirementsService {
 			),
 		);
 
-		await Promise.all(
-			created.map(async (req) => {
-				const vector = await this.embedding.embed(this.requirementToEmbeddingText(req));
-				await this.setEmbedding(req.id, vector);
-			}),
+		await this.embeddingQueue.enqueueMany(
+			created.map((requirement) => ({
+				entityType: 'job-requirement' as const,
+				entityId: requirement.id,
+				revision: requirement.embeddingRevision,
+				profile: EMBEDDING_PROFILES['job-requirement'],
+			})),
 		);
 
 		return created;
@@ -86,8 +90,15 @@ export class JobRequirementsService {
 		limit = 10,
 	): Promise<Array<CareerFactWithConcepts & { distance: number }>> {
 		const rows = await this.prisma.$queryRawUnsafe<{ embedding: string }[]>(
-			`SELECT embedding::text FROM "${SCHEMA}"."JobRequirementFact" WHERE id = $1`,
+			`SELECT embedding::text
+       FROM "${SCHEMA}"."JobRequirementFact"
+       WHERE id = $1
+         AND "embeddedRevision" = "embeddingRevision"
+         AND "embeddingModel" = $2
+         AND "embeddingProfile" = $3`,
 			id,
+			EMBEDDING_MODEL,
+			EMBEDDING_PROFILES['job-requirement'],
 		);
 
 		if (!rows[0]?.embedding) {
@@ -101,11 +112,16 @@ export class JobRequirementsService {
               embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
+         AND "embeddedRevision" = "embeddingRevision"
+         AND "embeddingModel" = $4
+         AND "embeddingProfile" = $5
        ORDER BY distance
        LIMIT $3`,
 			rows[0].embedding,
 			uid,
 			limit,
+			EMBEDDING_MODEL,
+			EMBEDDING_PROFILES.fact,
 		);
 		const conceptLinks = await this.prisma.factConcept.findMany({
 			where: { factId: { in: facts.map((fact) => fact.id) } },
@@ -122,18 +138,6 @@ export class JobRequirementsService {
 		tags: string[];
 		technologies: string[];
 	}): string {
-		const parts = [req.what];
-		if (req.tags.length) parts.push(req.tags.join(', '));
-		if (req.technologies.length) parts.push(req.technologies.join(', '));
-		return parts.join('\n');
-	}
-
-	private async setEmbedding(id: string, vector: number[]): Promise<void> {
-		const formatted = `[${vector.join(',')}]`;
-		await this.prisma.$executeRawUnsafe(
-			`UPDATE "${SCHEMA}"."JobRequirementFact" SET embedding = $1::${SCHEMA}.vector WHERE id = $2`,
-			formatted,
-			id,
-		);
+		return jobRequirementEmbeddingText(req);
 	}
 }

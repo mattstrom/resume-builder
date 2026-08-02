@@ -316,14 +316,6 @@ export type ResumeXmlUncheckedUpdateOneWithoutResumeNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResumeXmlUpdateToOneWithWhereWithoutResumeInput, Prisma.ResumeXmlUpdateWithoutResumeInput>, Prisma.ResumeXmlUncheckedUpdateWithoutResumeInput>
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ResumeXmlUpdateToOneWithWhereWithoutResumeInput = {
   where?: Prisma.ResumeXmlWhereInput
   data: Prisma.XOR<Prisma.ResumeXmlUpdateWithoutResumeInput, Prisma.ResumeXmlUncheckedUpdateWithoutResumeInput>

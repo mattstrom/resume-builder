@@ -20,8 +20,20 @@ export type ConceptModel = runtime.Types.Result.DefaultSelection<Prisma.$Concept
 
 export type AggregateConcept = {
   _count: ConceptCountAggregateOutputType | null
+  _avg: ConceptAvgAggregateOutputType | null
+  _sum: ConceptSumAggregateOutputType | null
   _min: ConceptMinAggregateOutputType | null
   _max: ConceptMaxAggregateOutputType | null
+}
+
+export type ConceptAvgAggregateOutputType = {
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+}
+
+export type ConceptSumAggregateOutputType = {
+  embeddingRevision: number | null
+  embeddedRevision: number | null
 }
 
 export type ConceptMinAggregateOutputType = {
@@ -31,6 +43,10 @@ export type ConceptMinAggregateOutputType = {
   label: string | null
   definition: string | null
   externalUri: string | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -42,6 +58,10 @@ export type ConceptMaxAggregateOutputType = {
   label: string | null
   definition: string | null
   externalUri: string | null
+  embeddingRevision: number | null
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,11 +73,25 @@ export type ConceptCountAggregateOutputType = {
   label: number
   definition: number
   externalUri: number
+  embeddingRevision: number
+  embeddedRevision: number
+  embeddingModel: number
+  embeddingProfile: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type ConceptAvgAggregateInputType = {
+  embeddingRevision?: true
+  embeddedRevision?: true
+}
+
+export type ConceptSumAggregateInputType = {
+  embeddingRevision?: true
+  embeddedRevision?: true
+}
 
 export type ConceptMinAggregateInputType = {
   id?: true
@@ -66,6 +100,10 @@ export type ConceptMinAggregateInputType = {
   label?: true
   definition?: true
   externalUri?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -77,6 +115,10 @@ export type ConceptMaxAggregateInputType = {
   label?: true
   definition?: true
   externalUri?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +130,10 @@ export type ConceptCountAggregateInputType = {
   label?: true
   definition?: true
   externalUri?: true
+  embeddingRevision?: true
+  embeddedRevision?: true
+  embeddingModel?: true
+  embeddingProfile?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -100,13 +146,13 @@ export type ConceptAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   where?: Prisma.ConceptWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-   * 
+   *
    * Determine the order of Concepts to fetch.
    */
   orderBy?: Prisma.ConceptOrderByWithRelationInput | Prisma.ConceptOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-   * 
+   *
    * Sets the start position
    */
   cursor?: Prisma.ConceptWhereUniqueInput
@@ -128,6 +174,18 @@ export type ConceptAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Count returned Concepts
   **/
   _count?: true | ConceptCountAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to average
+  **/
+  _avg?: ConceptAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+  **/
+  _sum?: ConceptSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
@@ -161,6 +219,8 @@ export type ConceptGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: ConceptCountAggregateInputType | true
+  _avg?: ConceptAvgAggregateInputType
+  _sum?: ConceptSumAggregateInputType
   _min?: ConceptMinAggregateInputType
   _max?: ConceptMaxAggregateInputType
 }
@@ -172,9 +232,15 @@ export type ConceptGroupByOutputType = {
   label: string
   definition: string | null
   externalUri: string | null
+  embeddingRevision: number
+  embeddedRevision: number | null
+  embeddingModel: string | null
+  embeddingProfile: string | null
   createdAt: Date
   updatedAt: Date
   _count: ConceptCountAggregateOutputType | null
+  _avg: ConceptAvgAggregateOutputType | null
+  _sum: ConceptSumAggregateOutputType | null
   _min: ConceptMinAggregateOutputType | null
   _max: ConceptMaxAggregateOutputType | null
 }
@@ -204,6 +270,10 @@ export type ConceptWhereInput = {
   label?: Prisma.StringFilter<"Concept"> | string
   definition?: Prisma.StringNullableFilter<"Concept"> | string | null
   externalUri?: Prisma.StringNullableFilter<"Concept"> | string | null
+  embeddingRevision?: Prisma.IntFilter<"Concept"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"Concept"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"Concept"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"Concept"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   aliases?: Prisma.ConceptAliasListRelationFilter
@@ -220,6 +290,10 @@ export type ConceptOrderByWithRelationInput = {
   label?: Prisma.SortOrder
   definition?: Prisma.SortOrderInput | Prisma.SortOrder
   externalUri?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   aliases?: Prisma.ConceptAliasOrderByRelationAggregateInput
@@ -240,6 +314,10 @@ export type ConceptWhereUniqueInput = Prisma.AtLeast<{
   label?: Prisma.StringFilter<"Concept"> | string
   definition?: Prisma.StringNullableFilter<"Concept"> | string | null
   externalUri?: Prisma.StringNullableFilter<"Concept"> | string | null
+  embeddingRevision?: Prisma.IntFilter<"Concept"> | number
+  embeddedRevision?: Prisma.IntNullableFilter<"Concept"> | number | null
+  embeddingModel?: Prisma.StringNullableFilter<"Concept"> | string | null
+  embeddingProfile?: Prisma.StringNullableFilter<"Concept"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Concept"> | Date | string
   aliases?: Prisma.ConceptAliasListRelationFilter
@@ -256,11 +334,17 @@ export type ConceptOrderByWithAggregationInput = {
   label?: Prisma.SortOrder
   definition?: Prisma.SortOrderInput | Prisma.SortOrder
   externalUri?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ConceptCountOrderByAggregateInput
+  _avg?: Prisma.ConceptAvgOrderByAggregateInput
   _max?: Prisma.ConceptMaxOrderByAggregateInput
   _min?: Prisma.ConceptMinOrderByAggregateInput
+  _sum?: Prisma.ConceptSumOrderByAggregateInput
 }
 
 export type ConceptScalarWhereWithAggregatesInput = {
@@ -273,6 +357,10 @@ export type ConceptScalarWhereWithAggregatesInput = {
   label?: Prisma.StringWithAggregatesFilter<"Concept"> | string
   definition?: Prisma.StringNullableWithAggregatesFilter<"Concept"> | string | null
   externalUri?: Prisma.StringNullableWithAggregatesFilter<"Concept"> | string | null
+  embeddingRevision?: Prisma.IntWithAggregatesFilter<"Concept"> | number
+  embeddedRevision?: Prisma.IntNullableWithAggregatesFilter<"Concept"> | number | null
+  embeddingModel?: Prisma.StringNullableWithAggregatesFilter<"Concept"> | string | null
+  embeddingProfile?: Prisma.StringNullableWithAggregatesFilter<"Concept"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Concept"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Concept"> | Date | string
 }
@@ -284,6 +372,10 @@ export type ConceptCreateInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
@@ -300,6 +392,10 @@ export type ConceptUncheckedCreateInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
@@ -316,6 +412,10 @@ export type ConceptUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
@@ -332,6 +432,10 @@ export type ConceptUncheckedUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
@@ -348,6 +452,10 @@ export type ConceptCreateManyInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -359,6 +467,10 @@ export type ConceptUpdateManyMutationInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -370,6 +482,10 @@ export type ConceptUncheckedUpdateManyInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -386,8 +502,17 @@ export type ConceptCountOrderByAggregateInput = {
   label?: Prisma.SortOrder
   definition?: Prisma.SortOrder
   externalUri?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ConceptAvgOrderByAggregateInput = {
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type ConceptMaxOrderByAggregateInput = {
@@ -397,6 +522,10 @@ export type ConceptMaxOrderByAggregateInput = {
   label?: Prisma.SortOrder
   definition?: Prisma.SortOrder
   externalUri?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -408,8 +537,17 @@ export type ConceptMinOrderByAggregateInput = {
   label?: Prisma.SortOrder
   definition?: Prisma.SortOrder
   externalUri?: Prisma.SortOrder
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
+  embeddingModel?: Prisma.SortOrder
+  embeddingProfile?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ConceptSumOrderByAggregateInput = {
+  embeddingRevision?: Prisma.SortOrder
+  embeddedRevision?: Prisma.SortOrder
 }
 
 export type ConceptScalarRelationFilter = {
@@ -494,6 +632,10 @@ export type ConceptCreateWithoutAliasesInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
@@ -509,6 +651,10 @@ export type ConceptUncheckedCreateWithoutAliasesInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
@@ -540,6 +686,10 @@ export type ConceptUpdateWithoutAliasesInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
@@ -555,6 +705,10 @@ export type ConceptUncheckedUpdateWithoutAliasesInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
@@ -570,6 +724,10 @@ export type ConceptCreateWithoutFactsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
@@ -585,6 +743,10 @@ export type ConceptUncheckedCreateWithoutFactsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
@@ -616,6 +778,10 @@ export type ConceptUpdateWithoutFactsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
@@ -631,6 +797,10 @@ export type ConceptUncheckedUpdateWithoutFactsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
@@ -646,6 +816,10 @@ export type ConceptCreateWithoutOutgoingRelationsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
@@ -661,6 +835,10 @@ export type ConceptUncheckedCreateWithoutOutgoingRelationsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
@@ -681,6 +859,10 @@ export type ConceptCreateWithoutIncomingRelationsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
@@ -696,6 +878,10 @@ export type ConceptUncheckedCreateWithoutIncomingRelationsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
@@ -727,6 +913,10 @@ export type ConceptUpdateWithoutOutgoingRelationsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
@@ -742,6 +932,10 @@ export type ConceptUncheckedUpdateWithoutOutgoingRelationsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
@@ -768,6 +962,10 @@ export type ConceptUpdateWithoutIncomingRelationsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
@@ -783,6 +981,10 @@ export type ConceptUncheckedUpdateWithoutIncomingRelationsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
@@ -798,6 +1000,10 @@ export type ConceptCreateWithoutBulletsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
@@ -813,6 +1019,10 @@ export type ConceptUncheckedCreateWithoutBulletsInput = {
   label: string
   definition?: string | null
   externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
@@ -844,6 +1054,10 @@ export type ConceptUpdateWithoutBulletsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
@@ -859,6 +1073,10 @@ export type ConceptUncheckedUpdateWithoutBulletsInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
@@ -941,6 +1159,10 @@ export type ConceptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   label?: boolean
   definition?: boolean
   externalUri?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   aliases?: boolean | Prisma.Concept$aliasesArgs<ExtArgs>
@@ -958,6 +1180,10 @@ export type ConceptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   label?: boolean
   definition?: boolean
   externalUri?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["concept"]>
@@ -969,6 +1195,10 @@ export type ConceptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   label?: boolean
   definition?: boolean
   externalUri?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["concept"]>
@@ -980,11 +1210,15 @@ export type ConceptSelectScalar = {
   label?: boolean
   definition?: boolean
   externalUri?: boolean
+  embeddingRevision?: boolean
+  embeddedRevision?: boolean
+  embeddingModel?: boolean
+  embeddingProfile?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vocabulary" | "key" | "label" | "definition" | "externalUri" | "createdAt" | "updatedAt", ExtArgs["result"]["concept"]>
+export type ConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vocabulary" | "key" | "label" | "definition" | "externalUri" | "embeddingRevision" | "embeddedRevision" | "embeddingModel" | "embeddingProfile" | "createdAt" | "updatedAt", ExtArgs["result"]["concept"]>
 export type ConceptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   aliases?: boolean | Prisma.Concept$aliasesArgs<ExtArgs>
   facts?: boolean | Prisma.Concept$factsArgs<ExtArgs>
@@ -1012,6 +1246,10 @@ export type $ConceptPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     label: string
     definition: string | null
     externalUri: string | null
+    embeddingRevision: number
+    embeddedRevision: number | null
+    embeddingModel: string | null
+    embeddingProfile: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["concept"]>
@@ -1448,6 +1686,10 @@ export interface ConceptFieldRefs {
   readonly label: Prisma.FieldRef<"Concept", 'String'>
   readonly definition: Prisma.FieldRef<"Concept", 'String'>
   readonly externalUri: Prisma.FieldRef<"Concept", 'String'>
+  readonly embeddingRevision: Prisma.FieldRef<"Concept", 'Int'>
+  readonly embeddedRevision: Prisma.FieldRef<"Concept", 'Int'>
+  readonly embeddingModel: Prisma.FieldRef<"Concept", 'String'>
+  readonly embeddingProfile: Prisma.FieldRef<"Concept", 'String'>
   readonly createdAt: Prisma.FieldRef<"Concept", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Concept", 'DateTime'>
 }

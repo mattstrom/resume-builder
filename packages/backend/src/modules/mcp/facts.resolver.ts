@@ -3,7 +3,6 @@ import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { FactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
-import { EmbeddingService } from '../facts/embedding.service.js';
 import {
 	ConceptVocabulary,
 	type CreateFactDto,
@@ -12,6 +11,7 @@ import {
 	FactsService,
 	type UpdateFactDto,
 } from '../facts/facts.service.js';
+import { EmbeddingService } from '../queue/embeddings/embedding.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
 import { type McpToolParams } from './types.js';
@@ -19,6 +19,10 @@ import { type McpToolParams } from './types.js';
 const factEvidenceSchema = FactSchema.omit({
 	id: true,
 	uid: true,
+	embeddingRevision: true,
+	embeddedRevision: true,
+	embeddingModel: true,
+	embeddingProfile: true,
 	createdAt: true,
 });
 const factMeaningSchema = z.object({

@@ -3,7 +3,9 @@ import { technology, technologyCategory } from '@resume-builder/ontologies';
 
 import type { Expression, Fact, Prisma, ResumeFact } from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
-import { EmbeddingService } from './embedding.service.js';
+import { factEmbeddingText } from '../queue/embeddings/embedding-documents.js';
+import { EmbeddingQueueService } from '../queue/embeddings/embedding-queue.service.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../queue/embeddings/embedding.constants.js';
 
 const SCHEMA = 'resume_builder';
 
@@ -111,8 +113,32 @@ export interface SimilarFact extends FactWithConcepts {
 export class FactsService {
 	constructor(
 		private readonly prisma: PrismaService,
-		private readonly embedding: EmbeddingService,
+		private readonly embeddingQueue: EmbeddingQueueService,
 	) {}
+
+	private async enqueueFact(fact: { id: string; embeddingRevision: number }): Promise<void> {
+		await this.embeddingQueue.enqueue({
+			entityType: 'fact',
+			entityId: fact.id,
+			revision: fact.embeddingRevision,
+			profile: EMBEDDING_PROFILES.fact,
+		});
+	}
+
+	private async enqueueConceptsForFact(factId: string): Promise<void> {
+		const links = await this.prisma.factConcept.findMany({
+			where: { factId },
+			include: { concept: true },
+		});
+		await this.embeddingQueue.enqueueMany(
+			links.map(({ concept }) => ({
+				entityType: 'concept' as const,
+				entityId: concept.id,
+				revision: concept.embeddingRevision,
+				profile: EMBEDDING_PROFILES.concept,
+			})),
+		);
+	}
 
 	private conceptKey(label: string): string {
 		return label
@@ -229,7 +255,10 @@ export class FactsService {
 					},
 				},
 				create: meaning.concept,
-				update: { label: meaning.concept.label },
+				update: {
+					label: meaning.concept.label,
+					embeddingRevision: { increment: 1 },
+				},
 			});
 
 			await prisma.factConcept.create({
@@ -264,8 +293,7 @@ export class FactsService {
 		});
 
 		const fact = await this.findById(uid, created.id);
-		const vector = await this.embedding.embed(this.factToEmbeddingText(fact));
-		await this.setEmbedding(uid, fact.id, vector);
+		await Promise.all([this.enqueueFact(fact), this.enqueueConceptsForFact(fact.id)]);
 
 		return fact;
 	}
@@ -326,15 +354,17 @@ export class FactsService {
 		const { meanings, ...data } = dto;
 
 		await this.prisma.$transaction(async (prisma) => {
-			await prisma.fact.update({ where: { id }, data });
+			await prisma.fact.update({
+				where: { id },
+				data: { ...data, embeddingRevision: { increment: 1 } },
+			});
 			if (meanings !== undefined) {
 				await this.replaceMeanings(prisma, id, meanings);
 			}
 		});
 
 		const fact = await this.findById(uid, id);
-		const vector = await this.embedding.embed(this.factToEmbeddingText(fact));
-		await this.setEmbedding(uid, fact.id, vector);
+		await Promise.all([this.enqueueFact(fact), this.enqueueConceptsForFact(fact.id)]);
 
 		return fact;
 	}
@@ -418,7 +448,7 @@ export class FactsService {
 	): Promise<FactConceptWithConcept> {
 		await this.findById(uid, factId);
 		const normalized = this.normalizeMeaning(meaning);
-		return this.prisma.$transaction(async (prisma) => {
+		const result = await this.prisma.$transaction(async (prisma) => {
 			await this.lockConcepts(prisma, [normalized.concept]);
 			if (normalized.relation === FactRelation.IsA) {
 				await prisma.factConcept.deleteMany({
@@ -434,10 +464,13 @@ export class FactsService {
 					},
 				},
 				create: normalized.concept,
-				update: { label: normalized.concept.label },
+				update: {
+					label: normalized.concept.label,
+					embeddingRevision: { increment: 1 },
+				},
 			});
 
-			return prisma.factConcept.upsert({
+			const link = await prisma.factConcept.upsert({
 				where: {
 					factId_conceptId_relation: {
 						factId,
@@ -458,7 +491,23 @@ export class FactsService {
 				},
 				include: { concept: true },
 			});
+			const fact = await prisma.fact.update({
+				where: { id: factId },
+				data: { embeddingRevision: { increment: 1 } },
+				select: { id: true, embeddingRevision: true },
+			});
+			return { link, fact };
 		});
+		await Promise.all([
+			this.enqueueFact(result.fact),
+			this.embeddingQueue.enqueue({
+				entityType: 'concept',
+				entityId: result.link.concept.id,
+				revision: result.link.concept.embeddingRevision,
+				profile: EMBEDDING_PROFILES.concept,
+			}),
+		]);
+		return result.link;
 	}
 
 	async deleteFactConcept(
@@ -476,12 +525,20 @@ export class FactsService {
 				);
 			}
 		}
-		const deleted = await this.prisma.factConcept.deleteMany({
-			where: { factId, conceptId, relation },
+		const fact = await this.prisma.$transaction(async (prisma) => {
+			const deleted = await prisma.factConcept.deleteMany({
+				where: { factId, conceptId, relation },
+			});
+			if (deleted.count === 0) {
+				throw new NotFoundException(`Concept relationship not found`);
+			}
+			return prisma.fact.update({
+				where: { id: factId },
+				data: { embeddingRevision: { increment: 1 } },
+				select: { id: true, embeddingRevision: true },
+			});
 		});
-		if (deleted.count === 0) {
-			throw new NotFoundException(`Concept relationship not found`);
-		}
+		await this.enqueueFact(fact);
 	}
 
 	factToEmbeddingText(fact: {
@@ -490,33 +547,7 @@ export class FactsService {
 		scale?: string | null;
 		concepts: FactConceptWithConcept[];
 	}): string {
-		const parts = [fact.what];
-		if (fact.impact) {
-			parts.push(fact.impact);
-		}
-
-		if (fact.scale) {
-			parts.push(fact.scale);
-		}
-
-		const semanticLabels = fact.concepts.map(
-			(link) => `${link.relation}: ${link.concept.label}`,
-		);
-		if (semanticLabels.length) {
-			parts.push(semanticLabels.join(', '));
-		}
-
-		return parts.join('\n');
-	}
-
-	async setEmbedding(uid: string, id: string, vector: number[]): Promise<void> {
-		await this.findById(uid, id);
-		const formatted = `[${vector.join(',')}]`;
-		await this.prisma.$executeRawUnsafe(
-			`UPDATE "${SCHEMA}"."Fact" SET embedding = $1::resume_builder.vector WHERE id = $2`,
-			formatted,
-			id,
-		);
+		return factEmbeddingText(fact);
 	}
 
 	async findSimilar(uid: string, vector: number[], limit = 10): Promise<SimilarFact[]> {
@@ -528,11 +559,16 @@ export class FactsService {
               embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
+         AND "embeddedRevision" = "embeddingRevision"
+         AND "embeddingModel" = $4
+         AND "embeddingProfile" = $5
        ORDER BY distance
        LIMIT $3`,
 			formatted,
 			uid,
 			limit,
+			EMBEDDING_MODEL,
+			EMBEDDING_PROFILES.fact,
 		);
 
 		const concepts = await this.prisma.factConcept.findMany({

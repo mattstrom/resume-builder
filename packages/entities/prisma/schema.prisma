@@ -96,6 +96,10 @@ model Fact {
   /// @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
   citationNodeIndex Int?
   embedding         Unsupported("vector(768)")?
+  embeddingRevision Int                         @default(1)
+  embeddedRevision  Int?
+  embeddingModel    String?
+  embeddingProfile  String?
   createdAt         DateTime                    @default(now())
 
   expressions Expression[]
@@ -110,14 +114,19 @@ model Fact {
 // in @resume-builder/ontologies; labels remain presentation data.
 
 model Concept {
-  id          String   @id @default(cuid())
-  vocabulary  String
-  key         String
-  label       String
-  definition  String?
-  externalUri String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String                      @id @default(cuid())
+  vocabulary        String
+  key               String
+  label             String
+  definition        String?
+  externalUri       String?
+  embedding         Unsupported("vector(768)")?
+  embeddingRevision Int                         @default(1)
+  embeddedRevision  Int?
+  embeddingModel    String?
+  embeddingProfile  String?
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
 
   aliases           ConceptAlias[]
   facts             FactConcept[]
@@ -197,17 +206,21 @@ model Expression {
 // embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
 
 model JobRequirementFact {
-  id            String                      @id @default(cuid())
-  uid           String
-  applicationId String
+  id                String                      @id @default(cuid())
+  uid               String
+  applicationId     String
   /// @zod.string.describe("Requirement kind: 'required', 'preferred', 'responsibility', or 'culture'")
-  kind          String
+  kind              String
   /// @zod.string.describe("One-sentence description of the requirement")
-  what          String
-  technologies  String[]
-  tags          String[]
-  embedding     Unsupported("vector(768)")?
-  createdAt     DateTime                    @default(now())
+  what              String
+  technologies      String[]
+  tags              String[]
+  embedding         Unsupported("vector(768)")?
+  embeddingRevision Int                         @default(1)
+  embeddedRevision  Int?
+  embeddingModel    String?
+  embeddingProfile  String?
+  createdAt         DateTime                    @default(now())
 
   @@index([uid])
   @@index([applicationId])
@@ -461,35 +474,40 @@ enum BulletStatus {
 }
 
 model Bullet {
-  id                          String           @id @default(cuid())
+  id                          String                      @id @default(cuid())
   uid                         String
   text                        String
   sourceType                  BulletSourceType
   sourceId                    String
-  status                      BulletStatus     @default(draft)
-  position                    Int              @default(0)
+  status                      BulletStatus                @default(draft)
+  position                    Int                         @default(0)
   contextScore                Float?
   contextNote                 String?
-  contextWhatWorksWell        String[]         @default([])
+  contextWhatWorksWell        String[]                    @default([])
   contextWhyItMatters         String?
-  contextProposedEnhancements String[]         @default([])
+  contextProposedEnhancements String[]                    @default([])
   actionScore                 Float?
   actionNote                  String?
-  actionWhatWorksWell         String[]         @default([])
+  actionWhatWorksWell         String[]                    @default([])
   actionWhyItMatters          String?
-  actionProposedEnhancements  String[]         @default([])
+  actionProposedEnhancements  String[]                    @default([])
   outcomeScore                Float?
   outcomeNote                 String?
-  outcomeWhatWorksWell        String[]         @default([])
+  outcomeWhatWorksWell        String[]                    @default([])
   outcomeWhyItMatters         String?
-  outcomeProposedEnhancements String[]         @default([])
+  outcomeProposedEnhancements String[]                    @default([])
   clarityScore                Float?
   clarityNote                 String?
-  clarityWhatWorksWell        String[]         @default([])
+  clarityWhatWorksWell        String[]                    @default([])
   clarityWhyItMatters         String?
-  clarityProposedEnhancements String[]         @default([])
-  createdAt                   DateTime         @default(now())
-  updatedAt                   DateTime         @updatedAt
+  clarityProposedEnhancements String[]                    @default([])
+  embedding                   Unsupported("vector(768)")?
+  embeddingRevision           Int                         @default(1)
+  embeddedRevision            Int?
+  embeddingModel              String?
+  embeddingProfile            String?
+  createdAt                   DateTime                    @default(now())
+  updatedAt                   DateTime                    @updatedAt
 
   concepts BulletConcept[]
 

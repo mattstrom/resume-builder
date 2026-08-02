@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 
 import type { PrismaService } from '../../prisma/index.js';
+import type { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
 import { BulletsService } from './bullets.service.js';
 
 jest.mock('../../prisma/index.js', () => ({ PrismaService: class {} }));
@@ -49,6 +50,7 @@ describe('BulletsService', () => {
 		sourceId: 'job-1',
 		status: BulletStatus.DRAFT,
 		position: 0,
+		embeddingRevision: 1,
 		concepts: [],
 		contextScore: null,
 		contextNote: null,
@@ -82,10 +84,16 @@ describe('BulletsService', () => {
 		volunteering: { findFirst: jest.fn() },
 	};
 	let service: BulletsService;
+	const embeddingQueue = { enqueue: jest.fn(), enqueueMany: jest.fn() };
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		service = new BulletsService(prisma as unknown as PrismaService);
+		service = new BulletsService(
+			prisma as unknown as PrismaService,
+			embeddingQueue as unknown as EmbeddingQueueService,
+		);
+		embeddingQueue.enqueue.mockResolvedValue('job-1');
+		embeddingQueue.enqueueMany.mockResolvedValue(undefined);
 		prisma.job.findFirst.mockResolvedValue({ id: 'job-1' });
 		prisma.bullet.create.mockResolvedValue(savedBullet);
 		prisma.bullet.findFirst.mockResolvedValue(savedBullet);
@@ -95,11 +103,17 @@ describe('BulletsService', () => {
 			vocabulary: 'capability',
 			key: 'technical-leadership',
 			label: 'Technical Leadership',
+			embeddingRevision: 1,
 		});
 		prisma.bulletConcept.upsert.mockResolvedValue({
 			bulletId: savedBullet.id,
 			conceptId: 'concept-1',
 			relation: 'demonstrates',
+			concept: {
+				id: 'concept-1',
+				label: 'Technical Leadership',
+				embeddingRevision: 1,
+			},
 		});
 		prisma.bulletConcept.deleteMany.mockResolvedValue({ count: 1 });
 		prisma.bulletConcept.createMany.mockResolvedValue({ count: 1 });
@@ -148,6 +162,14 @@ describe('BulletsService', () => {
 	it('rejects CAR and clarity scores outside zero to one', async () => {
 		await expect(service.update(uid, 'bullet-1', { outcomeScore: 1.1 })).rejects.toThrow();
 		expect(prisma.bullet.update).not.toHaveBeenCalled();
+	});
+
+	it('does not invalidate embeddings for analysis or status changes', async () => {
+		await service.update(uid, 'bullet-1', { outcomeScore: 0.9 });
+		await service.setStatus(uid, 'bullet-1', BulletStatus.ARCHIVED as never);
+
+		expect(prisma.bullet.update.mock.calls[0][0].data).toEqual({ outcomeScore: 0.9 });
+		expect(embeddingQueue.enqueue).not.toHaveBeenCalled();
 	});
 
 	it('excludes archived bullets unless explicitly requested', async () => {
@@ -218,7 +240,10 @@ describe('BulletsService', () => {
 				key: 'technical-leadership',
 				label: 'Technical Leadership',
 			},
-			update: { label: 'Technical Leadership' },
+			update: {
+				label: 'Technical Leadership',
+				embeddingRevision: { increment: 1 },
+			},
 		});
 		expect(prisma.bulletConcept.upsert).toHaveBeenCalledWith(
 			expect.objectContaining({

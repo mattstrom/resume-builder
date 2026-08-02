@@ -1,14 +1,15 @@
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { BullBoardModule } from '@bull-board/nestjs';
-import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
 
-import type { Config } from '../../configuration.js';
+import { BullConnectionModule } from './bull-connection.module.js';
+import { EmbeddingsModule } from './embeddings/embeddings.module.js';
 import { ExamplesModule } from './examples/examples.module.js';
 import { JobAssessmentModule } from './job-assessment/job-assessment.module.js';
 import { ProfileSummarizerModule } from './profile-summarizer/profile-summarizer.module.js';
+import { QUEUES } from './queues.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -16,25 +17,7 @@ const isProd = process.env.NODE_ENV === 'production';
 @Module({
 	imports: [
 		CqrsModule,
-		BullModule.forRootAsync({
-			imports: [ConfigModule],
-			inject: [ConfigService],
-			useFactory: (configService: ConfigService<Config>) => {
-				const { url, password } = configService.get('redis', {
-					infer: true,
-				})!;
-
-				let redisUrl = url;
-
-				if (password) {
-					const parsed = new URL(url);
-					parsed.password = encodeURIComponent(password);
-					redisUrl = parsed.toString();
-				}
-
-				return { connection: { url: redisUrl } };
-			},
-		}),
+		BullConnectionModule,
 		...(isProd
 			? []
 			: [
@@ -42,11 +25,16 @@ const isProd = process.env.NODE_ENV === 'production';
 						route: '/admin/queues',
 						adapter: ExpressAdapter,
 					}),
+					BullBoardModule.forFeature({
+						name: QUEUES.EMBEDDINGS,
+						adapter: BullMQAdapter,
+					}),
 				]),
 		ExamplesModule,
+		EmbeddingsModule,
 		JobAssessmentModule,
 		ProfileSummarizerModule,
 	],
-	exports: [CqrsModule, BullModule],
+	exports: [CqrsModule, BullConnectionModule],
 })
 export class QueueModule {}
