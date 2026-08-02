@@ -1,4 +1,4 @@
-import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 
 import type { ConceptVocabulary, FactRelation } from './facts.service.js';
 
@@ -87,6 +87,15 @@ export class ConceptSuggestionType {
 
 	@Field({ nullable: true })
 	definition?: string;
+}
+
+@ObjectType()
+export class ConceptSearchResultType {
+	@Field(() => ConceptType)
+	concept: ConceptType;
+
+	@Field(() => Float)
+	score: number;
 }
 
 @ObjectType()

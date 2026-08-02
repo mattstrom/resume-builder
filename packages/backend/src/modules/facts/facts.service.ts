@@ -1,7 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { technology, technologyCategory } from '@resume-builder/ontologies';
 
-import type { Expression, Fact, Prisma, ResumeFact } from '../../generated/prisma/client.js';
+import type {
+	Concept,
+	Expression,
+	Fact,
+	Prisma,
+	ResumeFact,
+} from '../../generated/prisma/client.js';
 import { PrismaService } from '../prisma/index.js';
 import { factEmbeddingText } from '../queue/embeddings/embedding-documents.js';
 import { EmbeddingQueueService } from '../queue/embeddings/embedding-queue.service.js';
@@ -95,6 +101,11 @@ export interface ConceptSuggestion {
 	key: string;
 	label: string;
 	definition?: string | null;
+}
+
+export interface ConceptSearchMatch {
+	concept: Concept;
+	score: number;
 }
 
 export type FactConceptWithConcept = Prisma.FactConceptGetPayload<{
@@ -441,6 +452,65 @@ export class FactsService {
 		});
 	}
 
+	async findSimilarConcepts(
+		uid: string,
+		vector: number[],
+		vocabulary?: string,
+		requestedLimit = 10,
+		minimumScore = 0.55,
+	): Promise<ConceptSearchMatch[]> {
+		const formatted = `[${vector.join(',')}]`;
+		const limit = Math.max(1, Math.min(requestedLimit, 50));
+		const boundedMinimumScore = Math.max(0, Math.min(minimumScore, 1));
+		const maximumDistance = 1 - boundedMinimumScore;
+		const rows = await this.prisma.$queryRawUnsafe<Array<{ id: string; distance: number }>>(
+			`SELECT c.id,
+              c.embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector AS distance
+       FROM "${SCHEMA}"."Concept" c
+       WHERE c.embedding IS NOT NULL
+         AND c."embeddedRevision" = c."embeddingRevision"
+         AND c."embeddingModel" = $3
+         AND c."embeddingProfile" = $4
+         AND ($5::text IS NULL OR c.vocabulary = $5)
+         AND (
+           EXISTS (
+             SELECT 1
+             FROM "${SCHEMA}"."FactConcept" fc
+             JOIN "${SCHEMA}"."Fact" f ON f.id = fc."factId"
+             WHERE fc."conceptId" = c.id AND f.uid = $2
+           )
+           OR EXISTS (
+             SELECT 1
+             FROM "${SCHEMA}"."BulletConcept" bc
+             JOIN "${SCHEMA}"."Bullet" b ON b.id = bc."bulletId"
+             WHERE bc."conceptId" = c.id AND b.uid = $2
+           )
+         )
+         AND c.embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector <= $6
+       ORDER BY distance
+       LIMIT $7`,
+			formatted,
+			uid,
+			EMBEDDING_MODEL,
+			EMBEDDING_PROFILES.concept,
+			vocabulary ?? null,
+			maximumDistance,
+			limit,
+		);
+
+		const concepts = await this.prisma.concept.findMany({
+			where: { id: { in: rows.map(({ id }) => id) } },
+		});
+		const conceptsById = new Map(concepts.map((concept) => [concept.id, concept]));
+
+		return rows.flatMap(({ id, distance }) => {
+			const concept = conceptsById.get(id);
+			return concept
+				? [{ concept, score: Math.max(0, Math.min(1, 1 - Number(distance))) }]
+				: [];
+		});
+	}
+
 	async upsertFactConcept(
 		uid: string,
 		factId: string,
@@ -556,7 +626,7 @@ export class FactsService {
 			Array<FactWithoutEmbedding & { distance: number }>
 		>(
 			`SELECT id, uid, what, impact, scale, citation, "citationNodeIndex", "createdAt",
-              embedding <=> $1::vector AS distance
+              embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
          AND "embeddedRevision" = "embeddingRevision"

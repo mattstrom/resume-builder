@@ -109,7 +109,7 @@ export class JobRequirementsService {
 			Array<Omit<CareerFactWithConcepts, 'concepts'> & { distance: number }>
 		>(
 			`SELECT id, uid, what, impact, scale, citation, "citationNodeIndex", "createdAt",
-              embedding <=> $1::vector AS distance
+              embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
          AND "embeddedRevision" = "embeddingRevision"

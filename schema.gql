@@ -44,6 +44,11 @@ type ConceptSuggestionType {
   definition: String
 }
 
+type ConceptSearchResultType {
+  concept: ConceptType!
+  score: Float!
+}
+
 type FactConceptType {
   factId: ID!
   conceptId: ID!
@@ -549,6 +554,11 @@ type ConversationMessage {
   createdAt: DateTime!
 }
 
+type BulletSearchResult {
+  bullet: Bullet!
+  score: Float!
+}
+
 type GenerateNarrativeSummaryResult {
   jobId: String!
 }
@@ -572,10 +582,12 @@ type Query {
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
   conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
+  searchConcepts(query: String!, vocabulary: String, limit: Int, minimumScore: Float): [ConceptSearchResultType!]!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
   bullets(filter: BulletFilterInput): [Bullet!]!
   bullet(id: ID!): Bullet!
+  searchBullets(query: String!, filter: BulletFilterInput, limit: Int, minimumScore: Float): [BulletSearchResult!]!
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!

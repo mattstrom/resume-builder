@@ -1,7 +1,12 @@
 import { type BulletConcept, BulletSourceType } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
 
-import { buildConceptIndex, filterConceptIndex, type ConceptIndexBullet } from './concept-index.ts';
+import {
+	buildConceptIndex,
+	filterConceptIndex,
+	mergeConceptIndexResults,
+	type ConceptIndexBullet,
+} from './concept-index.ts';
 
 function conceptLink(
 	bulletId: string,
@@ -61,5 +66,33 @@ describe('concept index', () => {
 
 		expect(filtered).toHaveLength(2);
 		expect(filtered.every((usage) => usage.bullets[0].bullet.id === 'bullet-2')).toBe(true);
+	});
+
+	it('keeps semantic concept ordering and appends lexical-only matches', () => {
+		const reliabilityBullet: ConceptIndexBullet = {
+			...bullets[0],
+			id: 'bullet-3',
+			text: 'Improved platform reliability',
+			concepts: [
+				conceptLink('bullet-3', 'reliability', 'Reliability', 'capability', 'demonstrates'),
+			],
+		};
+		const usages = buildConceptIndex([...bullets, reliabilityBullet]);
+		const lexical = usages.filter(({ concept }) => concept.label !== 'Mentoring');
+
+		const result = mergeConceptIndexResults(
+			usages,
+			[
+				usages.find(({ concept }) => concept.label === 'Mentoring')!.concept.id,
+				usages.find(({ concept }) => concept.label === 'React')!.concept.id,
+			],
+			lexical,
+		);
+
+		expect(result.map(({ concept }) => concept.label)).toEqual([
+			'Mentoring',
+			'React',
+			'Reliability',
+		]);
 	});
 });

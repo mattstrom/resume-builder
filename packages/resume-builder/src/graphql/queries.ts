@@ -360,53 +360,100 @@ export const LIST_CONCEPT_SUGGESTIONS = gql`
 	}
 `;
 
+export const SEARCH_CONCEPTS = gql`
+	query SearchConcepts($query: String!, $vocabulary: String, $limit: Int, $minimumScore: Float) {
+		searchConcepts(
+			query: $query
+			vocabulary: $vocabulary
+			limit: $limit
+			minimumScore: $minimumScore
+		) {
+			score
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
+		}
+	}
+`;
+
+const bulletFields = gql`
+	fragment BulletFields on Bullet {
+		id
+		uid
+		text
+		sourceType
+		sourceId
+		status
+		position
+		concepts {
+			bulletId
+			conceptId
+			relation
+			source
+			confidence
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
+		}
+		contextScore
+		contextNote
+		contextWhatWorksWell
+		contextWhyItMatters
+		contextProposedEnhancements
+		actionScore
+		actionNote
+		actionWhatWorksWell
+		actionWhyItMatters
+		actionProposedEnhancements
+		outcomeScore
+		outcomeNote
+		outcomeWhatWorksWell
+		outcomeWhyItMatters
+		outcomeProposedEnhancements
+		clarityScore
+		clarityNote
+		clarityWhatWorksWell
+		clarityWhyItMatters
+		clarityProposedEnhancements
+		createdAt
+		updatedAt
+	}
+`;
+
 export const LIST_BULLETS = gql`
 	query ListBullets($filter: BulletFilterInput) {
 		bullets(filter: $filter) {
-			id
-			uid
-			text
-			sourceType
-			sourceId
-			status
-			position
-			concepts {
-				bulletId
-				conceptId
-				relation
-				source
-				confidence
-				concept {
-					id
-					vocabulary
-					key
-					label
-					definition
-					externalUri
-				}
-			}
-			contextScore
-			contextNote
-			contextWhatWorksWell
-			contextWhyItMatters
-			contextProposedEnhancements
-			actionScore
-			actionNote
-			actionWhatWorksWell
-			actionWhyItMatters
-			actionProposedEnhancements
-			outcomeScore
-			outcomeNote
-			outcomeWhatWorksWell
-			outcomeWhyItMatters
-			outcomeProposedEnhancements
-			clarityScore
-			clarityNote
-			clarityWhatWorksWell
-			clarityWhyItMatters
-			clarityProposedEnhancements
-			createdAt
-			updatedAt
+			...BulletFields
 		}
 	}
+
+	${bulletFields}
+`;
+
+export const SEARCH_BULLETS = gql`
+	query SearchBullets(
+		$query: String!
+		$filter: BulletFilterInput
+		$limit: Int
+		$minimumScore: Float
+	) {
+		searchBullets(query: $query, filter: $filter, limit: $limit, minimumScore: $minimumScore) {
+			score
+			bullet {
+				...BulletFields
+			}
+		}
+	}
+
+	${bulletFields}
 `;

@@ -60,3 +60,20 @@ export function filterConceptIndex(usages: ConceptUsage[], search: string): Conc
 		return matchingBullets.length > 0 ? [{ ...usage, bullets: matchingBullets }] : [];
 	});
 }
+
+export function mergeConceptIndexResults(
+	allUsages: ConceptUsage[],
+	semanticConceptIds: string[],
+	textMatches: ConceptUsage[],
+): ConceptUsage[] {
+	const usagesById = new Map(allUsages.map((usage) => [usage.concept.id, usage]));
+	const semanticUsages = semanticConceptIds.flatMap((id) => {
+		const usage = usagesById.get(id);
+		return usage ? [usage] : [];
+	});
+	const semanticIds = new Set(semanticUsages.map((usage) => usage.concept.id));
+	return [
+		...semanticUsages,
+		...textMatches.filter((usage) => !semanticIds.has(usage.concept.id)),
+	];
+}

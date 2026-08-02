@@ -1,4 +1,4 @@
-import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Float, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	Bullet,
 	BulletConcept,
@@ -10,6 +10,7 @@ import {
 } from '@resume-builder/entities';
 
 import { CurrentUser } from '../../auth/index.js';
+import { BulletSearchResult } from './bullet-search.graphql.js';
 import { BulletsService } from './bullets.service.js';
 
 @Resolver(() => Bullet)
@@ -30,6 +31,17 @@ export class BulletsResolver {
 		@Args('id', { type: () => ID }) id: string,
 	): Promise<Bullet> {
 		return this.bulletsService.find(uid, id);
+	}
+
+	@Query(() => [BulletSearchResult])
+	async searchBullets(
+		@CurrentUser('sub') uid: string,
+		@Args('query') query: string,
+		@Args('filter', { nullable: true }) filter?: BulletFilterInput,
+		@Args('limit', { type: () => Int, nullable: true }) limit?: number,
+		@Args('minimumScore', { type: () => Float, nullable: true }) minimumScore?: number,
+	): Promise<BulletSearchResult[]> {
+		return this.bulletsService.search(uid, query, filter, limit, minimumScore);
 	}
 
 	@Mutation(() => Bullet)

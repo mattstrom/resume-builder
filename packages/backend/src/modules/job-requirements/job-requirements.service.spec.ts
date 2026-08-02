@@ -1,6 +1,6 @@
 import type { PrismaService } from '../prisma/index.js';
-import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../queue/embeddings/embedding.constants.js';
 import type { EmbeddingQueueService } from '../queue/embeddings/embedding-queue.service.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../queue/embeddings/embedding.constants.js';
 import { JobRequirementsService } from './job-requirements.service.js';
 
 jest.mock('../prisma/index.js', () => ({ PrismaService: class {} }));
@@ -69,6 +69,8 @@ describe('JobRequirementsService embeddings', () => {
 		]);
 
 		const factSql = prisma.$queryRawUnsafe.mock.calls[1][0] as string;
+		expect(factSql).toContain('$1::resume_builder.vector');
+		expect(factSql).toContain('OPERATOR(resume_builder.<=>)');
 		expect(factSql).toContain('"embeddingProfile" = $5');
 		expect(prisma.$queryRawUnsafe.mock.calls[1].slice(-2)).toEqual([
 			EMBEDDING_MODEL,

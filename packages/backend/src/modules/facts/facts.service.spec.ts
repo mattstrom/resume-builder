@@ -373,4 +373,42 @@ describe('FactsService semantic persistence', () => {
 		);
 		expect(prisma.concept.findMany).not.toHaveBeenCalled();
 	});
+
+	it('searches only fresh concepts used by the current user', async () => {
+		const first = {
+			id: 'concept-1',
+			vocabulary: 'capability',
+			key: 'mentoring',
+			label: 'Mentoring',
+			definition: null,
+			externalUri: null,
+			embeddingRevision: 1,
+			embeddedRevision: 1,
+			embeddingModel: 'fastembed/bge-base-en-v1.5',
+			embeddingProfile: 'concept-search:v1',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+		prisma.$queryRawUnsafe.mockResolvedValue([{ id: first.id, distance: 0.3 }]);
+		prisma.concept.findMany.mockResolvedValue([first]);
+
+		const result = await service.findSimilarConcepts(uid, [0.1, 0.2], undefined, 100);
+
+		const [sql, vector, owner, model, profile, vocabulary, maximumDistance, limit] =
+			prisma.$queryRawUnsafe.mock.calls[0];
+		expect(sql).toContain('OPERATOR(resume_builder.<=>)');
+		expect(sql).toContain('c."embeddedRevision" = c."embeddingRevision"');
+		expect(sql).toContain('f.uid = $2');
+		expect(sql).toContain('b.uid = $2');
+		expect([vector, owner, model, profile, vocabulary, limit]).toEqual([
+			'[0.1,0.2]',
+			uid,
+			'fastembed/bge-base-en-v1.5',
+			'concept-search:v1',
+			null,
+			50,
+		]);
+		expect(maximumDistance).toBeCloseTo(0.45);
+		expect(result).toEqual([{ concept: first, score: 0.7 }]);
+	});
 });
