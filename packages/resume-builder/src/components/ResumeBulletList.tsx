@@ -37,6 +37,7 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { getBulletPickerCandidates } from '@/lib/bullet-picker.ts';
 import { reorderItems } from '@/lib/reorder.ts';
+import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface ResumeBulletListProps {
@@ -358,6 +359,23 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 														<Badge variant="outline">
 															Already used
 														</Badge>
+													)}
+													{bullet.concepts.map(
+														({ conceptId, concept, relation }) => {
+															const presentation =
+																conceptRelationPresentation(
+																	relation,
+																);
+															return (
+																<Badge
+																	key={`${relation}:${conceptId}`}
+																	variant={presentation.variant}
+																>
+																	{presentation.label} ·{' '}
+																	{concept.label}
+																</Badge>
+															);
+														},
 													)}
 												</span>
 											</span>

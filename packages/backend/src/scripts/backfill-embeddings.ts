@@ -5,7 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import config from '../configuration.js';
 import { EmbeddingService } from '../modules/facts/embedding.service.js';
 import { FactsModule } from '../modules/facts/facts.module.js';
-import { FactsService } from '../modules/facts/facts.service.js';
+import { type FactConceptWithConcept, FactsService } from '../modules/facts/facts.service.js';
 import { PrismaModule, PrismaService } from '../modules/prisma/index.js';
 
 const SCHEMA = 'resume_builder';
@@ -16,8 +16,7 @@ interface FactRow {
 	what: string;
 	impact: string | null;
 	scale: string | null;
-	tags: string[];
-	technologies: string[];
+	concepts: FactConceptWithConcept[];
 }
 
 @Module({
@@ -38,11 +37,19 @@ async function bootstrap() {
 	const factsService = app.get(FactsService);
 	const embeddingService = app.get(EmbeddingService);
 
-	const facts = await prisma.$queryRawUnsafe<FactRow[]>(
-		`SELECT id, uid, what, impact, scale, tags, technologies
+	const factRows = await prisma.$queryRawUnsafe<Omit<FactRow, 'concepts'>[]>(
+		`SELECT id, uid, what, impact, scale
      FROM "${SCHEMA}"."Fact"
      WHERE embedding IS NULL`,
 	);
+	const conceptLinks = await prisma.factConcept.findMany({
+		where: { factId: { in: factRows.map((fact) => fact.id) } },
+		include: { concept: true },
+	});
+	const facts = factRows.map((fact) => ({
+		...fact,
+		concepts: conceptLinks.filter((link) => link.factId === fact.id),
+	}));
 
 	console.log(`Found ${facts.length} facts without embeddings`);
 

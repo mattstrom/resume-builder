@@ -15,6 +15,14 @@ const badgeVariants = cva(
 				destructive:
 					'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
 				outline: 'text-foreground',
+				relationUses:
+					'border-relation-uses/30 bg-relation-uses/10 text-relation-uses',
+				relationDemonstrates:
+					'border-relation-demonstrates/30 bg-relation-demonstrates/10 text-relation-demonstrates',
+				relationSupports:
+					'border-relation-supports/30 bg-relation-supports/10 text-relation-supports',
+				relationProduced:
+					'border-relation-produced/30 bg-relation-produced/10 text-relation-produced',
 			},
 		},
 		defaultVariants: {

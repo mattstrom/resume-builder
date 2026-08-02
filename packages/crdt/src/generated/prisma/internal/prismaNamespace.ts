@@ -388,6 +388,10 @@ export const ModelName = {
   Conversation: 'Conversation',
   ConversationMessage: 'ConversationMessage',
   Fact: 'Fact',
+  Concept: 'Concept',
+  ConceptAlias: 'ConceptAlias',
+  FactConcept: 'FactConcept',
+  ConceptRelation: 'ConceptRelation',
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
   Resume: 'Resume',
@@ -403,6 +407,7 @@ export const ModelName = {
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   Bullet: 'Bullet',
+  BulletConcept: 'BulletConcept',
   ResumeFact: 'ResumeFact',
   DocumentUpdate: 'DocumentUpdate'
 } as const
@@ -420,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "resumeFact" | "documentUpdate"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -717,6 +722,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FactCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FactCountAggregateOutputType> | number
+        }
+      }
+    }
+    Concept: {
+      payload: Prisma.$ConceptPayload<ExtArgs>
+      fields: Prisma.ConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.ConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        findMany: {
+          args: Prisma.ConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>[]
+        }
+        create: {
+          args: Prisma.ConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        createMany: {
+          args: Prisma.ConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.ConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        update: {
+          args: Prisma.ConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.ConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConcept>
+        }
+        groupBy: {
+          args: Prisma.ConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptCountAggregateOutputType> | number
+        }
+      }
+    }
+    ConceptAlias: {
+      payload: Prisma.$ConceptAliasPayload<ExtArgs>
+      fields: Prisma.ConceptAliasFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConceptAliasFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConceptAliasFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        findFirst: {
+          args: Prisma.ConceptAliasFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConceptAliasFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        findMany: {
+          args: Prisma.ConceptAliasFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>[]
+        }
+        create: {
+          args: Prisma.ConceptAliasCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        createMany: {
+          args: Prisma.ConceptAliasCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConceptAliasCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>[]
+        }
+        delete: {
+          args: Prisma.ConceptAliasDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        update: {
+          args: Prisma.ConceptAliasUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConceptAliasDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConceptAliasUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConceptAliasUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConceptAliasUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptAliasPayload>
+        }
+        aggregate: {
+          args: Prisma.ConceptAliasAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConceptAlias>
+        }
+        groupBy: {
+          args: Prisma.ConceptAliasGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptAliasGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConceptAliasCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptAliasCountAggregateOutputType> | number
+        }
+      }
+    }
+    FactConcept: {
+      payload: Prisma.$FactConceptPayload<ExtArgs>
+      fields: Prisma.FactConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FactConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FactConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.FactConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FactConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        findMany: {
+          args: Prisma.FactConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>[]
+        }
+        create: {
+          args: Prisma.FactConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        createMany: {
+          args: Prisma.FactConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FactConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.FactConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        update: {
+          args: Prisma.FactConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.FactConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FactConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FactConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.FactConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FactConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.FactConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFactConcept>
+        }
+        groupBy: {
+          args: Prisma.FactConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FactConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FactConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FactConceptCountAggregateOutputType> | number
+        }
+      }
+    }
+    ConceptRelation: {
+      payload: Prisma.$ConceptRelationPayload<ExtArgs>
+      fields: Prisma.ConceptRelationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ConceptRelationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ConceptRelationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        findFirst: {
+          args: Prisma.ConceptRelationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ConceptRelationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        findMany: {
+          args: Prisma.ConceptRelationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>[]
+        }
+        create: {
+          args: Prisma.ConceptRelationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        createMany: {
+          args: Prisma.ConceptRelationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ConceptRelationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>[]
+        }
+        delete: {
+          args: Prisma.ConceptRelationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        update: {
+          args: Prisma.ConceptRelationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        deleteMany: {
+          args: Prisma.ConceptRelationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ConceptRelationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ConceptRelationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>[]
+        }
+        upsert: {
+          args: Prisma.ConceptRelationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ConceptRelationPayload>
+        }
+        aggregate: {
+          args: Prisma.ConceptRelationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateConceptRelation>
+        }
+        groupBy: {
+          args: Prisma.ConceptRelationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptRelationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ConceptRelationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ConceptRelationCountAggregateOutputType> | number
         }
       }
     }
@@ -1814,6 +2115,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BulletConcept: {
+      payload: Prisma.$BulletConceptPayload<ExtArgs>
+      fields: Prisma.BulletConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BulletConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BulletConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.BulletConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BulletConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        findMany: {
+          args: Prisma.BulletConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>[]
+        }
+        create: {
+          args: Prisma.BulletConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        createMany: {
+          args: Prisma.BulletConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BulletConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.BulletConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        update: {
+          args: Prisma.BulletConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.BulletConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BulletConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BulletConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.BulletConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BulletConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.BulletConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBulletConcept>
+        }
+        groupBy: {
+          args: Prisma.BulletConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BulletConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BulletConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BulletConceptCountAggregateOutputType> | number
+        }
+      }
+    }
     ResumeFact: {
       payload: Prisma.$ResumeFactPayload<ExtArgs>
       fields: Prisma.ResumeFactFieldRefs
@@ -2040,20 +2415,64 @@ export type ConversationMessageScalarFieldEnum = (typeof ConversationMessageScal
 export const FactScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
-  kind: 'kind',
-  entityType: 'entityType',
-  entityId: 'entityId',
   what: 'what',
   impact: 'impact',
   scale: 'scale',
   citation: 'citation',
   citationNodeIndex: 'citationNodeIndex',
-  tags: 'tags',
-  technologies: 'technologies',
   createdAt: 'createdAt'
 } as const
 
 export type FactScalarFieldEnum = (typeof FactScalarFieldEnum)[keyof typeof FactScalarFieldEnum]
+
+
+export const ConceptScalarFieldEnum = {
+  id: 'id',
+  vocabulary: 'vocabulary',
+  key: 'key',
+  label: 'label',
+  definition: 'definition',
+  externalUri: 'externalUri',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ConceptScalarFieldEnum = (typeof ConceptScalarFieldEnum)[keyof typeof ConceptScalarFieldEnum]
+
+
+export const ConceptAliasScalarFieldEnum = {
+  id: 'id',
+  conceptId: 'conceptId',
+  label: 'label',
+  normalizedLabel: 'normalizedLabel',
+  createdAt: 'createdAt'
+} as const
+
+export type ConceptAliasScalarFieldEnum = (typeof ConceptAliasScalarFieldEnum)[keyof typeof ConceptAliasScalarFieldEnum]
+
+
+export const FactConceptScalarFieldEnum = {
+  factId: 'factId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+} as const
+
+export type FactConceptScalarFieldEnum = (typeof FactConceptScalarFieldEnum)[keyof typeof FactConceptScalarFieldEnum]
+
+
+export const ConceptRelationScalarFieldEnum = {
+  sourceConceptId: 'sourceConceptId',
+  targetConceptId: 'targetConceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+} as const
+
+export type ConceptRelationScalarFieldEnum = (typeof ConceptRelationScalarFieldEnum)[keyof typeof ConceptRelationScalarFieldEnum]
 
 
 export const ExpressionScalarFieldEnum = {
@@ -2301,6 +2720,18 @@ export const BulletScalarFieldEnum = {
 export type BulletScalarFieldEnum = (typeof BulletScalarFieldEnum)[keyof typeof BulletScalarFieldEnum]
 
 
+export const BulletConceptScalarFieldEnum = {
+  bulletId: 'bulletId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  createdAt: 'createdAt'
+} as const
+
+export type BulletConceptScalarFieldEnum = (typeof BulletConceptScalarFieldEnum)[keyof typeof BulletConceptScalarFieldEnum]
+
+
 export const ResumeFactScalarFieldEnum = {
   resumeId: 'resumeId',
   factId: 'factId',
@@ -2436,6 +2867,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -2467,20 +2912,6 @@ export type EnumLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'LocationType[]'
  */
 export type ListEnumLocationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LocationType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -2653,6 +3084,10 @@ export type GlobalOmitConfig = {
   conversation?: Prisma.ConversationOmit
   conversationMessage?: Prisma.ConversationMessageOmit
   fact?: Prisma.FactOmit
+  concept?: Prisma.ConceptOmit
+  conceptAlias?: Prisma.ConceptAliasOmit
+  factConcept?: Prisma.FactConceptOmit
+  conceptRelation?: Prisma.ConceptRelationOmit
   expression?: Prisma.ExpressionOmit
   jobRequirementFact?: Prisma.JobRequirementFactOmit
   resume?: Prisma.ResumeOmit
@@ -2668,6 +3103,7 @@ export type GlobalOmitConfig = {
   skillGroup?: Prisma.SkillGroupOmit
   volunteering?: Prisma.VolunteeringOmit
   bullet?: Prisma.BulletOmit
+  bulletConcept?: Prisma.BulletConceptOmit
   resumeFact?: Prisma.ResumeFactOmit
   documentUpdate?: Prisma.DocumentUpdateOmit
 }

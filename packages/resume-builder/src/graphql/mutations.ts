@@ -2,6 +2,32 @@ import { gql } from '@apollo/client';
 
 import { applicationFragment, resumeContentFragment } from './queries.ts';
 
+export const UPSERT_FACT_CONCEPT = gql`
+	mutation UpsertFactConcept($factId: ID!, $meaning: FactMeaningInput!) {
+		upsertFactConcept(factId: $factId, meaning: $meaning) {
+			factId
+			conceptId
+			relation
+			source
+			confidence
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
+		}
+	}
+`;
+
+export const DELETE_FACT_CONCEPT = gql`
+	mutation DeleteFactConcept($factId: ID!, $conceptId: ID!, $relation: String!) {
+		deleteFactConcept(factId: $factId, conceptId: $conceptId, relation: $relation)
+	}
+`;
+
 export const UPSERT_CONTACT_INFORMATION = gql`
 	mutation UpsertContactInformation($input: ContactInformationInput!) {
 		upsertContactInformation(input: $input) {
@@ -210,6 +236,60 @@ export const REORDER_BULLETS = gql`
 		reorderBullets(id: $id, targetId: $targetId) {
 			id
 			position
+		}
+	}
+`;
+
+export const UPSERT_BULLET_CONCEPT = gql`
+	mutation UpsertBulletConcept($bulletId: ID!, $meaning: BulletMeaningInput!) {
+		upsertBulletConcept(bulletId: $bulletId, meaning: $meaning) {
+			bulletId
+			conceptId
+			relation
+			source
+			confidence
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
+		}
+	}
+`;
+
+export const DELETE_BULLET_CONCEPT = gql`
+	mutation DeleteBulletConcept($bulletId: ID!, $conceptId: ID!, $relation: String!) {
+		deleteBulletConcept(bulletId: $bulletId, conceptId: $conceptId, relation: $relation)
+	}
+`;
+
+export const REPLACE_GENERATED_BULLET_CONCEPTS = gql`
+	mutation ReplaceGeneratedBulletConcepts(
+		$bulletId: ID!
+		$expectedText: String!
+		$meanings: [BulletMeaningInput!]!
+	) {
+		replaceGeneratedBulletConcepts(
+			bulletId: $bulletId
+			expectedText: $expectedText
+			meanings: $meanings
+		) {
+			bulletId
+			conceptId
+			relation
+			source
+			confidence
+			concept {
+				id
+				vocabulary
+				key
+				label
+				definition
+				externalUri
+			}
 		}
 	}
 `;

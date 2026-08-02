@@ -135,7 +135,7 @@ describe('LocalResumeController.moveArrayItem', () => {
 		]);
 	});
 
-	it('preserves bullet identity and provenance through edits and reordering', () => {
+	it('detaches a bank bullet when its resume text is edited', () => {
 		const controller = new LocalResumeController({ resume: createResume() });
 
 		controller.setField('data.workExperience.0.responsibilities.0.text', 'Updated text');
@@ -144,11 +144,22 @@ describe('LocalResumeController.moveArrayItem', () => {
 		const bullets = controller.getSnapshot()?.data.workExperience[0]?.responsibilities;
 		expect(bullets).toEqual([
 			{ _id: 'bullet-local-2', text: 'Two' },
-			{ _id: 'bullet-local-1', text: 'Updated text', bulletId: 'bank-1' },
+			{ _id: 'bullet-local-1', text: 'Updated text' },
 		]);
 		expect(controller.getXml()).toContain(
-			'<responsibility xml:id="bullet-local-1" bullet-id="bank-1">Updated text</responsibility>',
+			'<responsibility xml:id="bullet-local-1">Updated text</responsibility>',
 		);
+	});
+
+	it('preserves a bank reference when only bullet order changes', () => {
+		const controller = new LocalResumeController({ resume: createResume() });
+
+		controller.moveArrayItem('data.workExperience.0.responsibilities', 0, 1);
+
+		expect(controller.getSnapshot()?.data.workExperience[0]?.responsibilities).toEqual([
+			{ _id: 'bullet-local-2', text: 'Two' },
+			{ _id: 'bullet-local-1', text: 'One', bulletId: 'bank-1' },
+		]);
 	});
 });
 

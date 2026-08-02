@@ -1,7 +1,9 @@
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	Bullet,
+	BulletConcept,
 	BulletFilterInput,
+	BulletMeaningInput,
 	BulletStatus,
 	CreateBulletInput,
 	UpdateBulletInput,
@@ -63,5 +65,35 @@ export class BulletsResolver {
 		@Args('targetId', { type: () => ID }) targetId: string,
 	): Promise<Bullet[]> {
 		return this.bulletsService.reorder(uid, id, targetId);
+	}
+
+	@Mutation(() => BulletConcept)
+	async upsertBulletConcept(
+		@CurrentUser('sub') uid: string,
+		@Args('bulletId', { type: () => ID }) bulletId: string,
+		@Args('meaning') meaning: BulletMeaningInput,
+	) {
+		return this.bulletsService.upsertConcept(uid, bulletId, meaning);
+	}
+
+	@Mutation(() => Boolean)
+	async deleteBulletConcept(
+		@CurrentUser('sub') uid: string,
+		@Args('bulletId', { type: () => ID }) bulletId: string,
+		@Args('conceptId', { type: () => ID }) conceptId: string,
+		@Args('relation') relation: string,
+	): Promise<boolean> {
+		await this.bulletsService.deleteConcept(uid, bulletId, conceptId, relation);
+		return true;
+	}
+
+	@Mutation(() => [BulletConcept])
+	async replaceGeneratedBulletConcepts(
+		@CurrentUser('sub') uid: string,
+		@Args('bulletId', { type: () => ID }) bulletId: string,
+		@Args('expectedText') expectedText: string,
+		@Args('meanings', { type: () => [BulletMeaningInput] }) meanings: BulletMeaningInput[],
+	) {
+		return this.bulletsService.replaceGeneratedConcepts(uid, bulletId, expectedText, meanings);
 	}
 }

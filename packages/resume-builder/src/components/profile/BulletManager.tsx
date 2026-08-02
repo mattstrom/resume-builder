@@ -4,7 +4,7 @@ import {
 	BulletStatus,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
-import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw } from 'lucide-react';
+import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible.tsx';
+import { Combobox } from '@/components/ui/combobox.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
@@ -38,7 +39,9 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { cn } from '@/lib/utils.ts';
+import type { ConceptSuggestion } from '@/stores/facts.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface BulletManagerProps {
@@ -96,6 +99,188 @@ function scoreLevel(score: number | null | undefined): ScoreLevel {
 function statusLabel(status: BulletStatus): string {
 	return status.charAt(0).toUpperCase() + status.slice(1);
 }
+
+function conceptKey(label: string): string {
+	return label
+		.trim()
+		.toLocaleLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/(^-|-$)/g, '');
+}
+
+const ConceptEditor: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
+	const { bulletsStore, factsStore } = useStore();
+	const [label, setLabel] = useState('');
+	const [selectedSuggestion, setSelectedSuggestion] = useState<ConceptSuggestion>();
+	const [suggestions, setSuggestions] = useState<ConceptSuggestion[]>([]);
+	const [open, setOpen] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		if (!open) {
+			setLoading(false);
+			return;
+		}
+
+		let active = true;
+		setLoading(true);
+		const timer = window.setTimeout(async () => {
+			try {
+				const next = await factsStore.getConceptSuggestions('capability', label);
+				if (active) setSuggestions(next);
+			} catch {
+				if (active) setSuggestions([]);
+			} finally {
+				if (active) setLoading(false);
+			}
+		}, 150);
+
+		return () => {
+			active = false;
+			window.clearTimeout(timer);
+		};
+	}, [factsStore, label, open]);
+
+	const add = async () => {
+		const trimmedLabel = label.trim();
+		if (!trimmedLabel || bulletsStore.isUpdatingConcept) return;
+		try {
+			await bulletsStore.upsertConcept(bullet.id, {
+				relation: 'demonstrates',
+				concept: {
+					vocabulary: 'capability',
+					label: trimmedLabel,
+					key: selectedSuggestion?.key ?? conceptKey(trimmedLabel),
+				},
+				source: 'user',
+			});
+			setLabel('');
+			setSelectedSuggestion(undefined);
+			toast.success('Capability added');
+		} catch {
+			toast.error('Could not add capability');
+		}
+	};
+
+	const remove = async (conceptId: string, relation: string) => {
+		try {
+			await bulletsStore.deleteConcept(bullet.id, conceptId, relation);
+			toast.success('Concept removed');
+		} catch {
+			toast.error('Could not remove concept');
+		}
+	};
+
+	const annotate = async () => {
+		try {
+			await bulletsStore.annotateConcepts(bullet.id, bullet.text);
+			toast.success('Bullet concepts updated');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not annotate bullet');
+		}
+	};
+
+	return (
+		<section className="flex flex-col gap-3">
+			<div className="flex items-start justify-between gap-3">
+				<div>
+					<h5 className="text-sm font-medium">Concepts</h5>
+					<p className="text-xs text-muted-foreground">
+						Semantic meaning evidenced by this authoritative bullet.
+					</p>
+				</div>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					disabled={bulletsStore.isAnnotatingConcepts}
+					onClick={() => void annotate()}
+				>
+					{bulletsStore.isAnnotatingConcepts ? (
+						<Spinner data-icon="inline-start" />
+					) : (
+						<Sparkles data-icon="inline-start" />
+					)}
+					{bulletsStore.isAnnotatingConcepts ? 'Analyzing…' : 'Analyze concepts'}
+				</Button>
+			</div>
+			{bullet.concepts.length > 0 ? (
+				<div className="flex flex-wrap gap-2">
+					{bullet.concepts.map(({ conceptId, concept, relation, source }) => {
+						const presentation = conceptRelationPresentation(relation);
+						return (
+							<div
+								key={`${relation}:${conceptId}`}
+								className="flex items-center gap-1"
+							>
+								<Badge variant={presentation.variant} title={`Source: ${source}`}>
+									{presentation.label} · {concept.label}
+								</Badge>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="size-7"
+									disabled={bulletsStore.isUpdatingConcept}
+									onClick={() => void remove(conceptId, relation)}
+									aria-label={`Remove ${presentation.label} ${concept.label}`}
+								>
+									<Trash2 />
+								</Button>
+							</div>
+						);
+					})}
+				</div>
+			) : (
+				<p className="text-xs text-muted-foreground">No concepts assigned yet.</p>
+			)}
+			<div className="flex items-end gap-2">
+				<div className="min-w-0 flex-1">
+					<Label id={`bullet-capability-${bullet.id}`}>Add capability manually</Label>
+					<Combobox
+						open={open}
+						onOpenChange={setOpen}
+						value={label}
+						selectedValue={selectedSuggestion?.key}
+						onValueChange={(value, option) => {
+							setLabel(value);
+							setSelectedSuggestion(
+								option
+									? suggestions.find(({ key }) => key === option.value)
+									: undefined,
+							);
+						}}
+						options={suggestions.map(({ key, label: optionLabel, definition }) => ({
+							value: key,
+							label: optionLabel,
+							description: definition ?? undefined,
+						}))}
+						placeholder="Select or enter a capability"
+						searchPlaceholder="Search capabilities"
+						emptyMessage="No matches. You can use the value you entered."
+						loadingMessage="Loading suggestions…"
+						groupLabel="Capabilities"
+						isLoading={loading}
+						shouldFilter={false}
+						ariaLabelledby={`bullet-capability-${bullet.id}`}
+					/>
+				</div>
+				<Button
+					type="button"
+					disabled={!label.trim() || bulletsStore.isUpdatingConcept}
+					onClick={() => void add()}
+				>
+					{bulletsStore.isUpdatingConcept ? (
+						<Spinner data-icon="inline-start" />
+					) : (
+						<Plus data-icon="inline-start" />
+					)}
+					Add
+				</Button>
+			</div>
+		</section>
+	);
+});
 
 const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 	const { bulletsStore } = useStore();
@@ -174,6 +359,10 @@ const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 					}}
 				/>
 			</div>
+
+			<Separator />
+			<ConceptEditor bullet={bullet} />
+			<Separator />
 
 			<div className="grid gap-3 xl:grid-cols-2">
 				{SCORE_FIELDS.map(({ key, label }) => (
@@ -430,6 +619,21 @@ export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sou
 												>
 													{statusLabel(bullet.status)}
 												</Badge>
+												{bullet.concepts.map(
+													({ conceptId, concept, relation }) => {
+														const presentation =
+															conceptRelationPresentation(relation);
+														return (
+															<Badge
+																key={`${relation}:${conceptId}`}
+																variant={presentation.variant}
+															>
+																{presentation.label} ·{' '}
+																{concept.label}
+															</Badge>
+														);
+													},
+												)}
 											</span>
 										</Button>
 										<div

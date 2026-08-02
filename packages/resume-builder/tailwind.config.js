@@ -52,6 +52,12 @@ export default {
 					DEFAULT: 'hsl(var(--warning))',
 					foreground: 'hsl(var(--warning-foreground))',
 				},
+				relation: {
+					uses: 'hsl(var(--relation-uses))',
+					demonstrates: 'hsl(var(--relation-demonstrates))',
+					supports: 'hsl(var(--relation-supports))',
+					produced: 'hsl(var(--relation-produced))',
+				},
 				editor: {
 					DEFAULT: 'hsl(var(--editor-background))',
 					foreground: 'hsl(var(--editor-foreground))',

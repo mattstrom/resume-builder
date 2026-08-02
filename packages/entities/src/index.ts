@@ -28,6 +28,14 @@ export { FactSchema } from './generated/zod/modelSchema/FactSchema.js';
 export type { Fact } from './generated/zod/modelSchema/FactSchema.js';
 export { ExpressionSchema } from './generated/zod/modelSchema/ExpressionSchema.js';
 export type { Expression } from './generated/zod/modelSchema/ExpressionSchema.js';
+export { ConceptSchema } from './generated/zod/modelSchema/ConceptSchema.js';
+export type { Concept } from './generated/zod/modelSchema/ConceptSchema.js';
+export { ConceptAliasSchema } from './generated/zod/modelSchema/ConceptAliasSchema.js';
+export type { ConceptAlias } from './generated/zod/modelSchema/ConceptAliasSchema.js';
+export { FactConceptSchema } from './generated/zod/modelSchema/FactConceptSchema.js';
+export type { FactConcept } from './generated/zod/modelSchema/FactConceptSchema.js';
+export { ConceptRelationSchema } from './generated/zod/modelSchema/ConceptRelationSchema.js';
+export type { ConceptRelation } from './generated/zod/modelSchema/ConceptRelationSchema.js';
 export { JobRequirementFactSchema } from './generated/zod/modelSchema/JobRequirementFactSchema.js';
 export type { JobRequirementFact } from './generated/zod/modelSchema/JobRequirementFactSchema.js';
 

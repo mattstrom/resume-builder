@@ -392,6 +392,7 @@ export type BulletWhereInput = {
   clarityProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   createdAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
+  concepts?: Prisma.BulletConceptListRelationFilter
 }
 
 export type BulletOrderByWithRelationInput = {
@@ -424,6 +425,7 @@ export type BulletOrderByWithRelationInput = {
   clarityProposedEnhancements?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  concepts?: Prisma.BulletConceptOrderByRelationAggregateInput
 }
 
 export type BulletWhereUniqueInput = Prisma.AtLeast<{
@@ -459,6 +461,7 @@ export type BulletWhereUniqueInput = Prisma.AtLeast<{
   clarityProposedEnhancements?: Prisma.StringNullableListFilter<"Bullet">
   createdAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Bullet"> | Date | string
+  concepts?: Prisma.BulletConceptListRelationFilter
 }, "id">
 
 export type BulletOrderByWithAggregationInput = {
@@ -563,6 +566,7 @@ export type BulletCreateInput = {
   clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  concepts?: Prisma.BulletConceptCreateNestedManyWithoutBulletInput
 }
 
 export type BulletUncheckedCreateInput = {
@@ -595,6 +599,7 @@ export type BulletUncheckedCreateInput = {
   clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
   createdAt?: Date | string
   updatedAt?: Date | string
+  concepts?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutBulletInput
 }
 
 export type BulletUpdateInput = {
@@ -627,6 +632,7 @@ export type BulletUpdateInput = {
   clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  concepts?: Prisma.BulletConceptUpdateManyWithoutBulletNestedInput
 }
 
 export type BulletUncheckedUpdateInput = {
@@ -659,6 +665,7 @@ export type BulletUncheckedUpdateInput = {
   clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  concepts?: Prisma.BulletConceptUncheckedUpdateManyWithoutBulletNestedInput
 }
 
 export type BulletCreateManyInput = {
@@ -853,6 +860,11 @@ export type BulletSumOrderByAggregateInput = {
   clarityScore?: Prisma.SortOrder
 }
 
+export type BulletScalarRelationFilter = {
+  is?: Prisma.BulletWhereInput
+  isNot?: Prisma.BulletWhereInput
+}
+
 export type BulletCreatecontextWhatWorksWellInput = {
   set: string[]
 }
@@ -933,6 +945,193 @@ export type BulletUpdateclarityProposedEnhancementsInput = {
   push?: string | string[]
 }
 
+export type BulletCreateNestedOneWithoutConceptsInput = {
+  create?: Prisma.XOR<Prisma.BulletCreateWithoutConceptsInput, Prisma.BulletUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.BulletCreateOrConnectWithoutConceptsInput
+  connect?: Prisma.BulletWhereUniqueInput
+}
+
+export type BulletUpdateOneRequiredWithoutConceptsNestedInput = {
+  create?: Prisma.XOR<Prisma.BulletCreateWithoutConceptsInput, Prisma.BulletUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.BulletCreateOrConnectWithoutConceptsInput
+  upsert?: Prisma.BulletUpsertWithoutConceptsInput
+  connect?: Prisma.BulletWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BulletUpdateToOneWithWhereWithoutConceptsInput, Prisma.BulletUpdateWithoutConceptsInput>, Prisma.BulletUncheckedUpdateWithoutConceptsInput>
+}
+
+export type BulletCreateWithoutConceptsInput = {
+  id?: string
+  uid: string
+  text: string
+  sourceType: $Enums.BulletSourceType
+  sourceId: string
+  status?: $Enums.BulletStatus
+  position?: number
+  contextScore?: number | null
+  contextNote?: string | null
+  contextWhatWorksWell?: Prisma.BulletCreatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: string | null
+  contextProposedEnhancements?: Prisma.BulletCreatecontextProposedEnhancementsInput | string[]
+  actionScore?: number | null
+  actionNote?: string | null
+  actionWhatWorksWell?: Prisma.BulletCreateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: string | null
+  actionProposedEnhancements?: Prisma.BulletCreateactionProposedEnhancementsInput | string[]
+  outcomeScore?: number | null
+  outcomeNote?: string | null
+  outcomeWhatWorksWell?: Prisma.BulletCreateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: string | null
+  outcomeProposedEnhancements?: Prisma.BulletCreateoutcomeProposedEnhancementsInput | string[]
+  clarityScore?: number | null
+  clarityNote?: string | null
+  clarityWhatWorksWell?: Prisma.BulletCreateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: string | null
+  clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BulletUncheckedCreateWithoutConceptsInput = {
+  id?: string
+  uid: string
+  text: string
+  sourceType: $Enums.BulletSourceType
+  sourceId: string
+  status?: $Enums.BulletStatus
+  position?: number
+  contextScore?: number | null
+  contextNote?: string | null
+  contextWhatWorksWell?: Prisma.BulletCreatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: string | null
+  contextProposedEnhancements?: Prisma.BulletCreatecontextProposedEnhancementsInput | string[]
+  actionScore?: number | null
+  actionNote?: string | null
+  actionWhatWorksWell?: Prisma.BulletCreateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: string | null
+  actionProposedEnhancements?: Prisma.BulletCreateactionProposedEnhancementsInput | string[]
+  outcomeScore?: number | null
+  outcomeNote?: string | null
+  outcomeWhatWorksWell?: Prisma.BulletCreateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: string | null
+  outcomeProposedEnhancements?: Prisma.BulletCreateoutcomeProposedEnhancementsInput | string[]
+  clarityScore?: number | null
+  clarityNote?: string | null
+  clarityWhatWorksWell?: Prisma.BulletCreateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: string | null
+  clarityProposedEnhancements?: Prisma.BulletCreateclarityProposedEnhancementsInput | string[]
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type BulletCreateOrConnectWithoutConceptsInput = {
+  where: Prisma.BulletWhereUniqueInput
+  create: Prisma.XOR<Prisma.BulletCreateWithoutConceptsInput, Prisma.BulletUncheckedCreateWithoutConceptsInput>
+}
+
+export type BulletUpsertWithoutConceptsInput = {
+  update: Prisma.XOR<Prisma.BulletUpdateWithoutConceptsInput, Prisma.BulletUncheckedUpdateWithoutConceptsInput>
+  create: Prisma.XOR<Prisma.BulletCreateWithoutConceptsInput, Prisma.BulletUncheckedCreateWithoutConceptsInput>
+  where?: Prisma.BulletWhereInput
+}
+
+export type BulletUpdateToOneWithWhereWithoutConceptsInput = {
+  where?: Prisma.BulletWhereInput
+  data: Prisma.XOR<Prisma.BulletUpdateWithoutConceptsInput, Prisma.BulletUncheckedUpdateWithoutConceptsInput>
+}
+
+export type BulletUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
+  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
+  actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
+  outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
+  clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BulletUncheckedUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceType?: Prisma.EnumBulletSourceTypeFieldUpdateOperationsInput | $Enums.BulletSourceType
+  sourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumBulletStatusFieldUpdateOperationsInput | $Enums.BulletStatus
+  position?: Prisma.IntFieldUpdateOperationsInput | number
+  contextScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  contextNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextWhatWorksWell?: Prisma.BulletUpdatecontextWhatWorksWellInput | string[]
+  contextWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contextProposedEnhancements?: Prisma.BulletUpdatecontextProposedEnhancementsInput | string[]
+  actionScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actionNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionWhatWorksWell?: Prisma.BulletUpdateactionWhatWorksWellInput | string[]
+  actionWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actionProposedEnhancements?: Prisma.BulletUpdateactionProposedEnhancementsInput | string[]
+  outcomeScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  outcomeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeWhatWorksWell?: Prisma.BulletUpdateoutcomeWhatWorksWellInput | string[]
+  outcomeWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  outcomeProposedEnhancements?: Prisma.BulletUpdateoutcomeProposedEnhancementsInput | string[]
+  clarityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  clarityNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityWhatWorksWell?: Prisma.BulletUpdateclarityWhatWorksWellInput | string[]
+  clarityWhyItMatters?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clarityProposedEnhancements?: Prisma.BulletUpdateclarityProposedEnhancementsInput | string[]
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type BulletCountOutputType
+ */
+
+export type BulletCountOutputType = {
+  concepts: number
+}
+
+export type BulletCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  concepts?: boolean | BulletCountOutputTypeCountConceptsArgs
+}
+
+/**
+ * BulletCountOutputType without action
+ */
+export type BulletCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BulletCountOutputType
+   */
+  select?: Prisma.BulletCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * BulletCountOutputType without action
+ */
+export type BulletCountOutputTypeCountConceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BulletConceptWhereInput
+}
 
 
 export type BulletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -965,6 +1164,8 @@ export type BulletSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   clarityProposedEnhancements?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  concepts?: boolean | Prisma.Bullet$conceptsArgs<ExtArgs>
+  _count?: boolean | Prisma.BulletCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["bullet"]>
 
 export type BulletSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1064,10 +1265,18 @@ export type BulletSelectScalar = {
 }
 
 export type BulletOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "text" | "sourceType" | "sourceId" | "status" | "position" | "contextScore" | "contextNote" | "contextWhatWorksWell" | "contextWhyItMatters" | "contextProposedEnhancements" | "actionScore" | "actionNote" | "actionWhatWorksWell" | "actionWhyItMatters" | "actionProposedEnhancements" | "outcomeScore" | "outcomeNote" | "outcomeWhatWorksWell" | "outcomeWhyItMatters" | "outcomeProposedEnhancements" | "clarityScore" | "clarityNote" | "clarityWhatWorksWell" | "clarityWhyItMatters" | "clarityProposedEnhancements" | "createdAt" | "updatedAt", ExtArgs["result"]["bullet"]>
+export type BulletInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  concepts?: boolean | Prisma.Bullet$conceptsArgs<ExtArgs>
+  _count?: boolean | Prisma.BulletCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type BulletIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type BulletIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $BulletPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Bullet"
-  objects: {}
+  objects: {
+    concepts: Prisma.$BulletConceptPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     uid: string
@@ -1492,6 +1701,7 @@ readonly fields: BulletFieldRefs;
  */
 export interface Prisma__BulletClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  concepts<T extends Prisma.Bullet$conceptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Bullet$conceptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BulletConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1567,6 +1777,10 @@ export type BulletFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * Filter, which Bullet to fetch.
    */
   where: Prisma.BulletWhereUniqueInput
@@ -1585,6 +1799,10 @@ export type BulletFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * Filter, which Bullet to fetch.
    */
   where: Prisma.BulletWhereUniqueInput
@@ -1602,6 +1820,10 @@ export type BulletFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Bullet
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
   /**
    * Filter, which Bullet to fetch.
    */
@@ -1651,6 +1873,10 @@ export type BulletFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * Filter, which Bullet to fetch.
    */
   where?: Prisma.BulletWhereInput
@@ -1698,6 +1924,10 @@ export type BulletFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Omit specific fields from the Bullet
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
   /**
    * Filter, which Bullets to fetch.
    */
@@ -1747,6 +1977,10 @@ export type BulletCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * The data needed to create a Bullet.
    */
   data: Prisma.XOR<Prisma.BulletCreateInput, Prisma.BulletUncheckedCreateInput>
@@ -1794,6 +2028,10 @@ export type BulletUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Bullet
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
   /**
    * The data needed to update a Bullet.
    */
@@ -1861,6 +2099,10 @@ export type BulletUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * The filter to search for the Bullet to update in case it exists.
    */
   where: Prisma.BulletWhereUniqueInput
@@ -1887,6 +2129,10 @@ export type BulletDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
+  /**
    * Filter which Bullet to delete.
    */
   where: Prisma.BulletWhereUniqueInput
@@ -1907,6 +2153,30 @@ export type BulletDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
+ * Bullet.concepts
+ */
+export type Bullet$conceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BulletConcept
+   */
+  select?: Prisma.BulletConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BulletConcept
+   */
+  omit?: Prisma.BulletConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletConceptInclude<ExtArgs> | null
+  where?: Prisma.BulletConceptWhereInput
+  orderBy?: Prisma.BulletConceptOrderByWithRelationInput | Prisma.BulletConceptOrderByWithRelationInput[]
+  cursor?: Prisma.BulletConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BulletConceptScalarFieldEnum | Prisma.BulletConceptScalarFieldEnum[]
+}
+
+/**
  * Bullet without action
  */
 export type BulletDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1918,4 +2188,8 @@ export type BulletDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Bullet
    */
   omit?: Prisma.BulletOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BulletInclude<ExtArgs> | null
 }

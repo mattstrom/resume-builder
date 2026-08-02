@@ -53,6 +53,10 @@
 		--info-foreground: 0 0% 98%;
 		--warning: 38 92% 50%;
 		--warning-foreground: 38 40% 10%;
+		--relation-uses: 210 92% 45%;
+		--relation-demonstrates: 270 67% 48%;
+		--relation-supports: 142 71% 36%;
+		--relation-produced: 27 87% 45%;
 	}
 
 	.dark {
@@ -104,6 +108,10 @@
 		--info-foreground: 0 0% 95%;
 		--warning: 38 92% 60%;
 		--warning-foreground: 38 40% 10%;
+		--relation-uses: 210 92% 65%;
+		--relation-demonstrates: 270 75% 70%;
+		--relation-supports: 142 60% 55%;
+		--relation-produced: 27 87% 65%;
 	}
 }
 

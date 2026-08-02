@@ -67,11 +67,11 @@ model Conversation {
 
 // ─── ConversationMessage ─────────────────────────────────────────────────────
 model ConversationMessage {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   conversationId String
   role           String
   content        String
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
@@ -80,19 +80,11 @@ model ConversationMessage {
 
 // ─── Fact ────────────────────────────────────────────────────────────────────
 // A durable, reusable career fact owned by a user.
-// entityId references a MongoDB-resident entity (job/project/education/volunteering) —
-// plain String, no FK, same pattern as Conversation.applicationId.
 // embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
 
 model Fact {
-  id           String                    @id @default(cuid())
-  uid          String
-  /// @zod.string.describe("Category of fact (e.g. 'achievement', 'responsibility', 'skill-evidence')")
-  kind         String
-  /// @zod.string.describe("Type of the related entity (e.g. 'job', 'project', 'education')")
-  entityType   String?
-  /// @zod.string.describe("ID of the related entity")
-  entityId     String?
+  id                String                      @id @default(cuid())
+  uid               String
   /// @zod.string.describe("One or two sentence description of the fact")
   what              String
   /// @zod.string.describe("Measurable outcome or impact (e.g. 'reduced latency by 40%')")
@@ -103,22 +95,85 @@ model Fact {
   citation          String?
   /// @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
   citationNodeIndex Int?
-  tags              String[]
-  technologies String[]
-  embedding    Unsupported("vector(768)")?
-  createdAt    DateTime                  @default(now())
+  embedding         Unsupported("vector(768)")?
+  createdAt         DateTime                    @default(now())
 
   expressions Expression[]
   resumeFacts ResumeFact[]
+  concepts    FactConcept[]
 
   @@index([uid])
-  @@index([entityId])
 }
 
 // ─── Expression ──────────────────────────────────────────────────────────────
-// A rendered prose variant of a Fact — one fact can have many expressions
-// differing in length/tone.
+// Normalized semantic nodes and edges. Vocabulary/key correspond to stable IDs
+// in @resume-builder/ontologies; labels remain presentation data.
 
+model Concept {
+  id          String   @id @default(cuid())
+  vocabulary  String
+  key         String
+  label       String
+  definition  String?
+  externalUri String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  aliases           ConceptAlias[]
+  facts             FactConcept[]
+  bullets           BulletConcept[]
+  outgoingRelations ConceptRelation[] @relation("ConceptRelationSource")
+  incomingRelations ConceptRelation[] @relation("ConceptRelationTarget")
+
+  @@unique([vocabulary, key])
+  @@index([vocabulary, label])
+}
+
+model ConceptAlias {
+  id              String   @id @default(cuid())
+  conceptId       String
+  label           String
+  normalizedLabel String
+  createdAt       DateTime @default(now())
+
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@unique([conceptId, normalizedLabel])
+  @@index([normalizedLabel])
+}
+
+model FactConcept {
+  factId     String
+  conceptId  String
+  relation   String
+  source     String   @default("user")
+  confidence Float?
+  createdAt  DateTime @default(now())
+
+  fact    Fact    @relation(fields: [factId], references: [id], onDelete: Cascade)
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@id([factId, conceptId, relation])
+  @@index([conceptId, relation])
+}
+
+model ConceptRelation {
+  sourceConceptId String
+  targetConceptId String
+  relation        String
+  source          String   @default("ontology")
+  confidence      Float?
+  createdAt       DateTime @default(now())
+
+  sourceConcept Concept @relation("ConceptRelationSource", fields: [sourceConceptId], references: [id], onDelete: Cascade)
+  targetConcept Concept @relation("ConceptRelationTarget", fields: [targetConceptId], references: [id], onDelete: Cascade)
+
+  @@id([sourceConceptId, targetConceptId, relation])
+  @@index([targetConceptId, relation])
+}
+
+// A rendered prose variant of a Fact. One fact can have many expressions that
+// differ in length or tone.
 model Expression {
   id        String   @id @default(cuid())
   factId    String
@@ -142,7 +197,7 @@ model Expression {
 // embedding is intentionally Unsupported — reads/writes go through $queryRaw/$executeRaw.
 
 model JobRequirementFact {
-  id            String                    @id @default(cuid())
+  id            String                      @id @default(cuid())
   uid           String
   applicationId String
   /// @zod.string.describe("Requirement kind: 'required', 'preferred', 'responsibility', or 'culture'")
@@ -152,7 +207,7 @@ model JobRequirementFact {
   technologies  String[]
   tags          String[]
   embedding     Unsupported("vector(768)")?
-  createdAt     DateTime                  @default(now())
+  createdAt     DateTime                    @default(now())
 
   @@index([uid])
   @@index([applicationId])
@@ -164,22 +219,22 @@ model JobRequirementFact {
 // applicationId and sourceResumeId are plain strings during dual-DB transition.
 
 model Resume {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   uid            String
-  name           String  @default("")
-  company        String  @default("")
+  name           String   @default("")
+  company        String   @default("")
   level          String?
-  jobPostingUrl  String  @default("")
-  readOnly       Boolean @default(false)
-  base           Boolean @default(false)
+  jobPostingUrl  String   @default("")
+  readOnly       Boolean  @default(false)
+  base           Boolean  @default(false)
   applicationId  String?
   sourceResumeId String?
-  data           Json    @default("{}")
+  data           Json     @default("{}")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sourceResume   Resume?  @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
-  derivedResumes Resume[] @relation("ResumeVersions")
+  sourceResume   Resume?    @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
+  derivedResumes Resume[]   @relation("ResumeVersions")
   resumeXml      ResumeXml?
 
   @@index([uid])
@@ -203,12 +258,12 @@ model ResumeXml {
 // coverLetterId is a plain string during dual-DB transition.
 
 model Application {
-  id             String  @id @default(cuid())
+  id             String   @id @default(cuid())
   uid            String
   companyId      String?
-  name           String  @default("")
-  company        String  @default("")
-  jobPostingUrl  String  @default("")
+  name           String   @default("")
+  company        String   @default("")
+  jobPostingUrl  String   @default("")
   jobDescription String?
   notionId       String?
   coverLetterId  String?
@@ -332,16 +387,16 @@ model Education {
 // ─── Project ─────────────────────────────────────────────────────────────────
 
 model Project {
-  id           String      @id @default(cuid())
+  id           String       @id @default(cuid())
   uid          String
-  name         String      @default("")
-  description  String      @default("")
+  name         String       @default("")
+  description  String       @default("")
   technologies String[]
   items        String[]
   type         ProjectType?
   relevance    Float?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@index([uid])
 }
@@ -436,9 +491,26 @@ model Bullet {
   createdAt                   DateTime         @default(now())
   updatedAt                   DateTime         @updatedAt
 
+  concepts BulletConcept[]
+
   @@index([uid, status])
   @@index([uid, sourceType, sourceId])
   @@index([uid, sourceType, sourceId, position])
+}
+
+model BulletConcept {
+  bulletId   String
+  conceptId  String
+  relation   String
+  source     String   @default("user")
+  confidence Float?
+  createdAt  DateTime @default(now())
+
+  bullet  Bullet  @relation(fields: [bulletId], references: [id], onDelete: Cascade)
+  concept Concept @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@id([bulletId, conceptId, relation])
+  @@index([conceptId, relation])
 }
 
 // ─── ResumeFact ───────────────────────────────────────────────────────────────

@@ -12,6 +12,15 @@ function bullet(id: string, sourceId: string, status = BulletStatus.READY): Bull
 		sourceId,
 		status,
 		position: 0,
+		concepts: [],
+		contextWhatWorksWell: [],
+		contextProposedEnhancements: [],
+		actionWhatWorksWell: [],
+		actionProposedEnhancements: [],
+		outcomeWhatWorksWell: [],
+		outcomeProposedEnhancements: [],
+		clarityWhatWorksWell: [],
+		clarityProposedEnhancements: [],
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	};
@@ -38,5 +47,31 @@ describe('getBulletPickerCandidates', () => {
 		);
 
 		expect(result.map(({ id }) => id)).toEqual(['latency']);
+	});
+
+	it('searches capability annotations', () => {
+		const candidate = bullet('platform', 'job-1');
+		candidate.concepts = [
+			{
+				bulletId: candidate.id,
+				conceptId: 'capability-1',
+				relation: 'demonstrates',
+				source: 'user',
+				concept: {
+					id: 'capability-1',
+					vocabulary: 'capability',
+					key: 'technical-leadership',
+					label: 'Technical Leadership',
+				},
+			},
+		];
+
+		const result = getBulletPickerCandidates([candidate], {
+			search: 'leadership',
+			sourceType: BulletSourceType.JOB,
+			sourceId: 'job-1',
+		});
+
+		expect(result.map(({ id }) => id)).toEqual(['platform']);
 	});
 });

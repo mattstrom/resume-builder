@@ -21,6 +21,7 @@ export class BulletsResolver {
 			sourceId: z.string().optional(),
 			status: z.enum(BulletStatus).optional(),
 			search: z.string().optional(),
+			conceptKey: z.string().optional(),
 			includeArchived: z.boolean().optional(),
 		},
 		annotations: { destructiveHint: false, idempotentHint: true },
@@ -31,6 +32,7 @@ export class BulletsResolver {
 			sourceId?: string;
 			status?: BulletStatus;
 			search?: string;
+			conceptKey?: string;
 			includeArchived?: boolean;
 		}>,
 		{ user }: McpExtra,
@@ -39,6 +41,63 @@ export class BulletsResolver {
 		return {
 			content: [{ type: 'text', text: `Found ${bullets.length} bullets.` }],
 			structuredContent: { bullets },
+		};
+	}
+
+	@Tool({
+		name: 'upsert_bullet_concept',
+		description: 'Annotate a resume bullet with a semantic concept relationship',
+		paramsSchema: {
+			bulletId: z.string().describe('Bullet ID'),
+			relation: z.enum([
+				'is-a',
+				'relates-to',
+				'about',
+				'uses',
+				'demonstrates',
+				'supports',
+				'produced',
+			]),
+			concept: z.object({
+				vocabulary: z.enum([
+					'fact-type',
+					'entity',
+					'topic',
+					'technology',
+					'capability',
+					'outcome',
+					'artifact',
+				]),
+				key: z.string().min(1),
+				label: z.string().min(1),
+			}),
+			source: z.string().optional().describe('Assertion provenance'),
+			confidence: z.number().min(0).max(1).optional(),
+		},
+		annotations: { destructiveHint: false, idempotentHint: true },
+	})
+	async upsertBulletConcept(
+		{
+			bulletId,
+			...meaning
+		}: McpToolParams<{
+			bulletId: string;
+			relation: string;
+			concept: { vocabulary: string; key: string; label: string };
+			source?: string;
+			confidence?: number;
+		}>,
+		{ user }: McpExtra,
+	): Promise<CallToolResult> {
+		const concept = await this.bulletsService.upsertConcept(user.sub, bulletId, meaning);
+		return {
+			content: [
+				{
+					type: 'text',
+					text: `Annotated bullet ${bulletId} with ${meaning.concept.label}.`,
+				},
+			],
+			structuredContent: { concept },
 		};
 	}
 

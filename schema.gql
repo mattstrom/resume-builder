@@ -5,16 +5,12 @@
 type FactType {
   id: ID!
   uid: String!
-  kind: String!
-  entityType: String
-  entityId: String
   what: String!
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]!
-  technologies: [String!]!
+  concepts: [FactConceptType!]!
   createdAt: DateTime!
 }
 
@@ -30,6 +26,31 @@ type ExpressionType {
   length: String
   tone: String
   createdAt: DateTime!
+}
+
+type ConceptType {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+  externalUri: String
+}
+
+type ConceptSuggestionType {
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+}
+
+type FactConceptType {
+  factId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  concept: ConceptType!
 }
 
 type ResumeFactType {
@@ -400,6 +421,24 @@ type Application {
   updatedAt: DateTime!
 }
 
+type BulletConceptValue {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+  externalUri: String
+}
+
+type BulletConcept {
+  bulletId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  concept: BulletConceptValue!
+}
+
 type Bullet {
   id: ID!
   uid: String!
@@ -408,6 +447,7 @@ type Bullet {
   sourceId: ID!
   status: BulletStatus!
   position: Int!
+  concepts: [BulletConcept!]!
   contextScore: Float
   contextNote: String
   contextWhatWorksWell: [String!]!
@@ -528,8 +568,10 @@ type Query {
   listCompanies: [Company!]!
   getCompany(id: String!): Company!
   getProfile: Profile
-  facts(kind: String, entityType: String, entityId: String): [FactType!]!
+  facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
+  factConcepts(factId: ID!): [FactConceptType!]!
+  conceptSuggestions(vocabulary: String!, search: String, limit: Int): [ConceptSuggestionType!]!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
   bullets(filter: BulletFilterInput): [Bullet!]!
@@ -577,6 +619,7 @@ input BulletFilterInput {
   sourceId: ID
   status: BulletStatus
   search: String
+  conceptKey: String
   includeArchived: Boolean = false
 }
 
@@ -597,6 +640,8 @@ type Mutation {
   createFact(input: CreateFactInput!): FactType!
   updateFact(id: ID!, input: UpdateFactInput!): FactType!
   deleteFact(id: ID!): Boolean!
+  upsertFactConcept(factId: ID!, meaning: FactMeaningInput!): FactConceptType!
+  deleteFactConcept(factId: ID!, conceptId: ID!, relation: String!): Boolean!
   createExpression(factId: ID!, input: CreateExpressionInput!): ExpressionType!
   deleteExpression(factId: ID!, expressionId: ID!): Boolean!
   linkFactToResume(resumeId: ID!, input: LinkFactInput!): ResumeFactType!
@@ -605,6 +650,9 @@ type Mutation {
   updateBullet(id: ID!, input: UpdateBulletInput!): Bullet!
   setBulletStatus(id: ID!, status: BulletStatus!): Bullet!
   reorderBullets(id: ID!, targetId: ID!): [Bullet!]!
+  upsertBulletConcept(bulletId: ID!, meaning: BulletMeaningInput!): BulletConcept!
+  deleteBulletConcept(bulletId: ID!, conceptId: ID!, relation: String!): Boolean!
+  replaceGeneratedBulletConcepts(bulletId: ID!, expectedText: String!, meanings: [BulletMeaningInput!]!): [BulletConcept!]!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!
@@ -827,29 +875,34 @@ input ProfileUpdateInput {
 }
 
 input CreateFactInput {
-  kind: String!
   what: String!
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]
-  technologies: [String!]
-  entityType: String
-  entityId: String
+  meanings: [FactMeaningInput!]!
+}
+
+input FactMeaningInput {
+  relation: String!
+  concept: FactConceptReferenceInput!
+  source: String
+  confidence: Float
+}
+
+input FactConceptReferenceInput {
+  vocabulary: String!
+  key: String!
+  label: String!
 }
 
 input UpdateFactInput {
-  kind: String
   what: String
   impact: String
   scale: String
   citation: String
   citationNodeIndex: Int
-  tags: [String!]
-  technologies: [String!]
-  entityType: String
-  entityId: String
+  meanings: [FactMeaningInput!]
 }
 
 input CreateExpressionInput {
@@ -893,6 +946,19 @@ input UpdateBulletInput {
   clarityWhatWorksWell: [String!]
   clarityWhyItMatters: String
   clarityProposedEnhancements: [String!]
+}
+
+input BulletMeaningInput {
+  relation: String!
+  concept: BulletConceptReferenceInput!
+  source: String
+  confidence: Float
+}
+
+input BulletConceptReferenceInput {
+  vocabulary: String!
+  label: String!
+  key: String!
 }
 
 input JobInput {

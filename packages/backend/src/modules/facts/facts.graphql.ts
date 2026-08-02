@@ -1,5 +1,7 @@
 import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 
+import type { ConceptVocabulary, FactRelation } from './facts.service.js';
+
 @ObjectType()
 export class FactType {
 	@Field(() => ID)
@@ -7,15 +9,6 @@ export class FactType {
 
 	@Field()
 	uid: string;
-
-	@Field()
-	kind: string;
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
 
 	@Field()
 	what: string;
@@ -32,11 +25,8 @@ export class FactType {
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
 
-	@Field(() => [String])
-	tags: string[];
-
-	@Field(() => [String])
-	technologies: string[];
+	@Field(() => [FactConceptType])
+	concepts: FactConceptType[];
 
 	@Field()
 	createdAt: Date;
@@ -64,6 +54,63 @@ export class ExpressionType {
 }
 
 @ObjectType()
+export class ConceptType {
+	@Field(() => ID)
+	id: string;
+
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field({ nullable: true })
+	definition?: string;
+
+	@Field({ nullable: true })
+	externalUri?: string;
+}
+
+@ObjectType()
+export class ConceptSuggestionType {
+	@Field()
+	vocabulary: string;
+
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+
+	@Field({ nullable: true })
+	definition?: string;
+}
+
+@ObjectType()
+export class FactConceptType {
+	@Field(() => ID)
+	factId: string;
+
+	@Field(() => ID)
+	conceptId: string;
+
+	@Field()
+	relation: string;
+
+	@Field()
+	source: string;
+
+	@Field({ nullable: true })
+	confidence?: number;
+
+	@Field(() => ConceptType)
+	concept: ConceptType;
+}
+
+@ObjectType()
 export class ResumeFactType {
 	@Field()
 	resumeId: string;
@@ -88,10 +135,34 @@ export class ResumeFactType {
 }
 
 @InputType()
-export class CreateFactInput {
-	@Field()
-	kind: string;
+export class FactConceptReferenceInput {
+	@Field(() => String)
+	vocabulary: ConceptVocabulary;
 
+	@Field()
+	key: string;
+
+	@Field()
+	label: string;
+}
+
+@InputType()
+export class FactMeaningInput {
+	@Field(() => String)
+	relation: FactRelation;
+
+	@Field(() => FactConceptReferenceInput)
+	concept: FactConceptReferenceInput;
+
+	@Field({ nullable: true })
+	source?: string;
+
+	@Field({ nullable: true })
+	confidence?: number;
+}
+
+@InputType()
+export class CreateFactInput {
 	@Field()
 	what: string;
 
@@ -107,24 +178,12 @@ export class CreateFactInput {
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
 
-	@Field(() => [String], { nullable: true })
-	tags?: string[];
-
-	@Field(() => [String], { nullable: true })
-	technologies?: string[];
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
+	@Field(() => [FactMeaningInput])
+	meanings: FactMeaningInput[];
 }
 
 @InputType()
 export class UpdateFactInput {
-	@Field({ nullable: true })
-	kind?: string;
-
 	@Field({ nullable: true })
 	what?: string;
 
@@ -140,17 +199,8 @@ export class UpdateFactInput {
 	@Field(() => Int, { nullable: true })
 	citationNodeIndex?: number;
 
-	@Field(() => [String], { nullable: true })
-	tags?: string[];
-
-	@Field(() => [String], { nullable: true })
-	technologies?: string[];
-
-	@Field({ nullable: true })
-	entityType?: string;
-
-	@Field({ nullable: true })
-	entityId?: string;
+	@Field(() => [FactMeaningInput], { nullable: true })
+	meanings?: FactMeaningInput[];
 }
 
 @InputType()

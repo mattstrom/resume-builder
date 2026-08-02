@@ -324,17 +324,38 @@ export const LIST_FACTS = gql`
 		facts {
 			id
 			uid
-			kind
-			entityType
-			entityId
 			what
 			impact
 			scale
 			citation
 			citationNodeIndex
-			tags
-			technologies
+			concepts {
+				factId
+				conceptId
+				relation
+				source
+				confidence
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+					externalUri
+				}
+			}
 			createdAt
+		}
+	}
+`;
+
+export const LIST_CONCEPT_SUGGESTIONS = gql`
+	query ListConceptSuggestions($vocabulary: String!, $search: String, $limit: Int) {
+		conceptSuggestions(vocabulary: $vocabulary, search: $search, limit: $limit) {
+			vocabulary
+			key
+			label
+			definition
 		}
 	}
 `;
@@ -349,6 +370,21 @@ export const LIST_BULLETS = gql`
 			sourceId
 			status
 			position
+			concepts {
+				bulletId
+				conceptId
+				relation
+				source
+				confidence
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+					externalUri
+				}
+			}
 			contextScore
 			contextNote
 			contextWhatWorksWell

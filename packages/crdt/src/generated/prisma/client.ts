@@ -62,6 +62,26 @@ export type ConversationMessage = Prisma.ConversationMessageModel
  */
 export type Fact = Prisma.FactModel
 /**
+ * Model Concept
+ * 
+ */
+export type Concept = Prisma.ConceptModel
+/**
+ * Model ConceptAlias
+ * 
+ */
+export type ConceptAlias = Prisma.ConceptAliasModel
+/**
+ * Model FactConcept
+ * 
+ */
+export type FactConcept = Prisma.FactConceptModel
+/**
+ * Model ConceptRelation
+ * 
+ */
+export type ConceptRelation = Prisma.ConceptRelationModel
+/**
  * Model Expression
  * 
  */
@@ -136,6 +156,11 @@ export type Volunteering = Prisma.VolunteeringModel
  * 
  */
 export type Bullet = Prisma.BulletModel
+/**
+ * Model BulletConcept
+ * 
+ */
+export type BulletConcept = Prisma.BulletConceptModel
 /**
  * Model ResumeFact
  * 

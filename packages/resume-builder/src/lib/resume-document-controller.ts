@@ -3,6 +3,7 @@ import {
 	RESUME_XML_FRAGMENT,
 	RESUME_XML_NAMESPACE,
 	type Resume,
+	type ResumeBullet,
 	resumeContentFromXml,
 	resumeToXml,
 	validateResumeXml,
@@ -40,6 +41,62 @@ type ResumeCollectionValue = (typeof ResumeCollections)[keyof typeof ResumeColle
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+interface BulletContainer {
+	_id?: string;
+	responsibilities?: ResumeBullet[];
+	items?: ResumeBullet[];
+}
+
+function detachChangedBulletReferences(current: Resume, next: Resume): Resume {
+	const result = structuredClone(next);
+	const sections: Array<{
+		current: BulletContainer[] | undefined;
+		next: BulletContainer[] | undefined;
+		field: 'responsibilities' | 'items';
+	}> = [
+		{
+			current: current.data.workExperience,
+			next: result.data.workExperience,
+			field: 'responsibilities',
+		},
+		{ current: current.data.projects, next: result.data.projects, field: 'items' },
+		{
+			current: current.data.volunteering,
+			next: result.data.volunteering,
+			field: 'responsibilities',
+		},
+	];
+
+	for (const section of sections) {
+		const currentContainers = new Map(
+			(section.current ?? []).map((container, index) => [
+				container._id ?? String(index),
+				container,
+			]),
+		);
+		for (const [containerIndex, nextContainer] of (section.next ?? []).entries()) {
+			const currentContainer = currentContainers.get(
+				nextContainer._id ?? String(containerIndex),
+			);
+			const currentBullets = new Map(
+				(currentContainer?.[section.field] ?? []).map((bullet) => [bullet._id, bullet]),
+			);
+			for (const nextBullet of nextContainer[section.field] ?? []) {
+				const currentBullet = currentBullets.get(nextBullet._id);
+				if (
+					currentBullet?.bulletId &&
+					nextBullet.bulletId === currentBullet.bulletId &&
+					nextBullet.text !== currentBullet.text
+				) {
+					delete nextBullet.bulletId;
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 function escapeXml(value: string) {
@@ -300,7 +357,10 @@ export class LocalResumeController implements ResumeDocumentController {
 		}
 
 		this.pushUndoSnapshot();
-		const next = cloneWithPathValue(this.snapshot, path, value);
+		const next = detachChangedBulletReferences(
+			this.snapshot,
+			cloneWithPathValue(this.snapshot, path, value),
+		);
 		const currentXml = this.getXml();
 		this.snapshot = {
 			...next,
@@ -527,7 +587,10 @@ export class CrdtResumeController implements ResumeDocumentController {
 
 	setField(path: string, value: unknown) {
 		if (!this.snapshot) return;
-		const next = cloneWithPathValue(this.snapshot, path, value);
+		const next = detachChangedBulletReferences(
+			this.snapshot,
+			cloneWithPathValue(this.snapshot, path, value),
+		);
 		this.replaceResume(next);
 	}
 

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import type { JobRequirementFact } from '../../generated/prisma/client.js';
+import type { JobRequirementFact, Prisma } from '../../generated/prisma/client.js';
 import { EmbeddingService } from '../facts/embedding.service.js';
 import { PrismaService } from '../prisma/index.js';
 
@@ -18,6 +18,10 @@ export interface CreateJobRequirementDto {
 export interface SimilarJobRequirement extends JobRequirementFactWithoutEmbedding {
 	distance: number;
 }
+
+type CareerFactWithConcepts = Prisma.FactGetPayload<{
+	include: { concepts: { include: { concept: true } } };
+}>;
 
 @Injectable()
 export class JobRequirementsService {
@@ -80,22 +84,7 @@ export class JobRequirementsService {
 		id: string,
 		uid: string,
 		limit = 10,
-	): Promise<
-		{
-			id: string;
-			uid: string;
-			kind: string;
-			what: string;
-			impact: string | null;
-			scale: string | null;
-			tags: string[];
-			technologies: string[];
-			entityType: string | null;
-			entityId: string | null;
-			createdAt: Date;
-			distance: number;
-		}[]
-	> {
+	): Promise<Array<CareerFactWithConcepts & { distance: number }>> {
 		const rows = await this.prisma.$queryRawUnsafe<{ embedding: string }[]>(
 			`SELECT embedding::text FROM "${SCHEMA}"."JobRequirementFact" WHERE id = $1`,
 			id,
@@ -105,8 +94,10 @@ export class JobRequirementsService {
 			return [];
 		}
 
-		return this.prisma.$queryRawUnsafe(
-			`SELECT id, uid, kind, "entityType", "entityId", what, impact, scale, tags, technologies, "createdAt",
+		const facts = await this.prisma.$queryRawUnsafe<
+			Array<Omit<CareerFactWithConcepts, 'concepts'> & { distance: number }>
+		>(
+			`SELECT id, uid, what, impact, scale, citation, "citationNodeIndex", "createdAt",
               embedding <=> $1::vector AS distance
        FROM "${SCHEMA}"."Fact"
        WHERE uid = $2 AND embedding IS NOT NULL
@@ -116,6 +107,14 @@ export class JobRequirementsService {
 			uid,
 			limit,
 		);
+		const conceptLinks = await this.prisma.factConcept.findMany({
+			where: { factId: { in: facts.map((fact) => fact.id) } },
+			include: { concept: true },
+		});
+		return facts.map((fact) => ({
+			...fact,
+			concepts: conceptLinks.filter((link) => link.factId === fact.id),
+		}));
 	}
 
 	requirementToEmbeddingText(req: {

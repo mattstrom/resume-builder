@@ -1,0 +1,25 @@
+{
+  "name": "@resume-builder/ontologies",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SKOS-flavored controlled vocabularies for career data, aligned to O*NET and ESCO",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "del-cli dist",
+    "prebuild": "npm run clean",
+    "build": "tsc --build",
+    "prewatch": "npm run clean",
+    "watch": "tsc --build --watch",
+    "test": "nx vite:test",
+    "import:onet": "node scripts/import-onet.mjs",
+    "lookup:esco": "node scripts/lookup-esco.mjs"
+  },
+  "dependencies": {
+    "zod": "^4.3.4"
+  },
+  "devDependencies": {
+    "del-cli": "^6.0.0"
+  }
+}

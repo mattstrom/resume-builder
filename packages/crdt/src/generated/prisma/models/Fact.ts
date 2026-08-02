@@ -37,9 +37,6 @@ export type FactSumAggregateOutputType = {
 export type FactMinAggregateOutputType = {
   id: string | null
   uid: string | null
-  kind: string | null
-  entityType: string | null
-  entityId: string | null
   what: string | null
   impact: string | null
   scale: string | null
@@ -51,9 +48,6 @@ export type FactMinAggregateOutputType = {
 export type FactMaxAggregateOutputType = {
   id: string | null
   uid: string | null
-  kind: string | null
-  entityType: string | null
-  entityId: string | null
   what: string | null
   impact: string | null
   scale: string | null
@@ -65,16 +59,11 @@ export type FactMaxAggregateOutputType = {
 export type FactCountAggregateOutputType = {
   id: number
   uid: number
-  kind: number
-  entityType: number
-  entityId: number
   what: number
   impact: number
   scale: number
   citation: number
   citationNodeIndex: number
-  tags: number
-  technologies: number
   createdAt: number
   _all: number
 }
@@ -91,9 +80,6 @@ export type FactSumAggregateInputType = {
 export type FactMinAggregateInputType = {
   id?: true
   uid?: true
-  kind?: true
-  entityType?: true
-  entityId?: true
   what?: true
   impact?: true
   scale?: true
@@ -105,9 +91,6 @@ export type FactMinAggregateInputType = {
 export type FactMaxAggregateInputType = {
   id?: true
   uid?: true
-  kind?: true
-  entityType?: true
-  entityId?: true
   what?: true
   impact?: true
   scale?: true
@@ -119,16 +102,11 @@ export type FactMaxAggregateInputType = {
 export type FactCountAggregateInputType = {
   id?: true
   uid?: true
-  kind?: true
-  entityType?: true
-  entityId?: true
   what?: true
   impact?: true
   scale?: true
   citation?: true
   citationNodeIndex?: true
-  tags?: true
-  technologies?: true
   createdAt?: true
   _all?: true
 }
@@ -222,16 +200,11 @@ export type FactGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type FactGroupByOutputType = {
   id: string
   uid: string
-  kind: string
-  entityType: string | null
-  entityId: string | null
   what: string
   impact: string | null
   scale: string | null
   citation: string | null
   citationNodeIndex: number | null
-  tags: string[]
-  technologies: string[]
   createdAt: Date
   _count: FactCountAggregateOutputType | null
   _avg: FactAvgAggregateOutputType | null
@@ -261,37 +234,29 @@ export type FactWhereInput = {
   NOT?: Prisma.FactWhereInput | Prisma.FactWhereInput[]
   id?: Prisma.StringFilter<"Fact"> | string
   uid?: Prisma.StringFilter<"Fact"> | string
-  kind?: Prisma.StringFilter<"Fact"> | string
-  entityType?: Prisma.StringNullableFilter<"Fact"> | string | null
-  entityId?: Prisma.StringNullableFilter<"Fact"> | string | null
   what?: Prisma.StringFilter<"Fact"> | string
   impact?: Prisma.StringNullableFilter<"Fact"> | string | null
   scale?: Prisma.StringNullableFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableFilter<"Fact"> | number | null
-  tags?: Prisma.StringNullableListFilter<"Fact">
-  technologies?: Prisma.StringNullableListFilter<"Fact">
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
+  concepts?: Prisma.FactConceptListRelationFilter
 }
 
 export type FactOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
-  entityType?: Prisma.SortOrderInput | Prisma.SortOrder
-  entityId?: Prisma.SortOrderInput | Prisma.SortOrder
   what?: Prisma.SortOrder
   impact?: Prisma.SortOrderInput | Prisma.SortOrder
   scale?: Prisma.SortOrderInput | Prisma.SortOrder
   citation?: Prisma.SortOrderInput | Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrderInput | Prisma.SortOrder
-  tags?: Prisma.SortOrder
-  technologies?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   expressions?: Prisma.ExpressionOrderByRelationAggregateInput
   resumeFacts?: Prisma.ResumeFactOrderByRelationAggregateInput
+  concepts?: Prisma.FactConceptOrderByRelationAggregateInput
 }
 
 export type FactWhereUniqueInput = Prisma.AtLeast<{
@@ -300,34 +265,25 @@ export type FactWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FactWhereInput[]
   NOT?: Prisma.FactWhereInput | Prisma.FactWhereInput[]
   uid?: Prisma.StringFilter<"Fact"> | string
-  kind?: Prisma.StringFilter<"Fact"> | string
-  entityType?: Prisma.StringNullableFilter<"Fact"> | string | null
-  entityId?: Prisma.StringNullableFilter<"Fact"> | string | null
   what?: Prisma.StringFilter<"Fact"> | string
   impact?: Prisma.StringNullableFilter<"Fact"> | string | null
   scale?: Prisma.StringNullableFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableFilter<"Fact"> | number | null
-  tags?: Prisma.StringNullableListFilter<"Fact">
-  technologies?: Prisma.StringNullableListFilter<"Fact">
   createdAt?: Prisma.DateTimeFilter<"Fact"> | Date | string
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
+  concepts?: Prisma.FactConceptListRelationFilter
 }, "id">
 
 export type FactOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
-  entityType?: Prisma.SortOrderInput | Prisma.SortOrder
-  entityId?: Prisma.SortOrderInput | Prisma.SortOrder
   what?: Prisma.SortOrder
   impact?: Prisma.SortOrderInput | Prisma.SortOrder
   scale?: Prisma.SortOrderInput | Prisma.SortOrder
   citation?: Prisma.SortOrderInput | Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrderInput | Prisma.SortOrder
-  tags?: Prisma.SortOrder
-  technologies?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FactCountOrderByAggregateInput
   _avg?: Prisma.FactAvgOrderByAggregateInput
@@ -342,160 +298,111 @@ export type FactScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FactScalarWhereWithAggregatesInput | Prisma.FactScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Fact"> | string
   uid?: Prisma.StringWithAggregatesFilter<"Fact"> | string
-  kind?: Prisma.StringWithAggregatesFilter<"Fact"> | string
-  entityType?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
-  entityId?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   what?: Prisma.StringWithAggregatesFilter<"Fact"> | string
   impact?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   scale?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   citation?: Prisma.StringNullableWithAggregatesFilter<"Fact"> | string | null
   citationNodeIndex?: Prisma.IntNullableWithAggregatesFilter<"Fact"> | number | null
-  tags?: Prisma.StringNullableListFilter<"Fact">
-  technologies?: Prisma.StringNullableListFilter<"Fact">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Fact"> | Date | string
 }
 
 export type FactCreateInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 export type FactCreateManyInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
 }
 
 export type FactUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FactUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type StringNullableListFilter<$PrismaModel = never> = {
-  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
-  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
-  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
 }
 
 export type FactCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
-  entityType?: Prisma.SortOrder
-  entityId?: Prisma.SortOrder
   what?: Prisma.SortOrder
   impact?: Prisma.SortOrder
   scale?: Prisma.SortOrder
   citation?: Prisma.SortOrder
   citationNodeIndex?: Prisma.SortOrder
-  tags?: Prisma.SortOrder
-  technologies?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -506,9 +413,6 @@ export type FactAvgOrderByAggregateInput = {
 export type FactMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
-  entityType?: Prisma.SortOrder
-  entityId?: Prisma.SortOrder
   what?: Prisma.SortOrder
   impact?: Prisma.SortOrder
   scale?: Prisma.SortOrder
@@ -520,9 +424,6 @@ export type FactMaxOrderByAggregateInput = {
 export type FactMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   uid?: Prisma.SortOrder
-  kind?: Prisma.SortOrder
-  entityType?: Prisma.SortOrder
-  entityId?: Prisma.SortOrder
   what?: Prisma.SortOrder
   impact?: Prisma.SortOrder
   scale?: Prisma.SortOrder
@@ -540,14 +441,6 @@ export type FactScalarRelationFilter = {
   isNot?: Prisma.FactWhereInput
 }
 
-export type FactCreatetagsInput = {
-  set: string[]
-}
-
-export type FactCreatetechnologiesInput = {
-  set: string[]
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -556,14 +449,18 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type FactUpdatetagsInput = {
-  set?: string[]
-  push?: string | string[]
+export type FactCreateNestedOneWithoutConceptsInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutConceptsInput
+  connect?: Prisma.FactWhereUniqueInput
 }
 
-export type FactUpdatetechnologiesInput = {
-  set?: string[]
-  push?: string | string[]
+export type FactUpdateOneRequiredWithoutConceptsNestedInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutConceptsInput
+  upsert?: Prisma.FactUpsertWithoutConceptsInput
+  connect?: Prisma.FactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutConceptsInput, Prisma.FactUpdateWithoutConceptsInput>, Prisma.FactUncheckedUpdateWithoutConceptsInput>
 }
 
 export type FactCreateNestedOneWithoutExpressionsInput = {
@@ -594,38 +491,98 @@ export type FactUpdateOneRequiredWithoutResumeFactsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutResumeFactsInput, Prisma.FactUpdateWithoutResumeFactsInput>, Prisma.FactUncheckedUpdateWithoutResumeFactsInput>
 }
 
-export type FactCreateWithoutExpressionsInput = {
+export type FactCreateWithoutConceptsInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+}
+
+export type FactUncheckedCreateWithoutConceptsInput = {
+  id?: string
+  uid: string
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+}
+
+export type FactCreateOrConnectWithoutConceptsInput = {
+  where: Prisma.FactWhereUniqueInput
+  create: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+}
+
+export type FactUpsertWithoutConceptsInput = {
+  update: Prisma.XOR<Prisma.FactUpdateWithoutConceptsInput, Prisma.FactUncheckedUpdateWithoutConceptsInput>
+  create: Prisma.XOR<Prisma.FactCreateWithoutConceptsInput, Prisma.FactUncheckedCreateWithoutConceptsInput>
+  where?: Prisma.FactWhereInput
+}
+
+export type FactUpdateToOneWithWhereWithoutConceptsInput = {
+  where?: Prisma.FactWhereInput
+  data: Prisma.XOR<Prisma.FactUpdateWithoutConceptsInput, Prisma.FactUncheckedUpdateWithoutConceptsInput>
+}
+
+export type FactUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
+  resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+}
+
+export type FactUncheckedUpdateWithoutConceptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
+  resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+}
+
+export type FactCreateWithoutExpressionsInput = {
+  id?: string
+  uid: string
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateWithoutExpressionsInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactCreateOrConnectWithoutExpressionsInput = {
@@ -647,69 +604,53 @@ export type FactUpdateToOneWithWhereWithoutExpressionsInput = {
 export type FactUpdateWithoutExpressionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutExpressionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 export type FactCreateWithoutResumeFactsInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
 }
 
 export type FactUncheckedCreateWithoutResumeFactsInput = {
   id?: string
   uid: string
-  kind: string
-  entityType?: string | null
-  entityId?: string | null
   what: string
   impact?: string | null
   scale?: string | null
   citation?: string | null
   citationNodeIndex?: number | null
-  tags?: Prisma.FactCreatetagsInput | string[]
-  technologies?: Prisma.FactCreatetechnologiesInput | string[]
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
 }
 
 export type FactCreateOrConnectWithoutResumeFactsInput = {
@@ -731,35 +672,27 @@ export type FactUpdateToOneWithWhereWithoutResumeFactsInput = {
 export type FactUpdateWithoutResumeFactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutResumeFactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   uid?: Prisma.StringFieldUpdateOperationsInput | string
-  kind?: Prisma.StringFieldUpdateOperationsInput | string
-  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  entityId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   what?: Prisma.StringFieldUpdateOperationsInput | string
   impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  tags?: Prisma.FactUpdatetagsInput | string[]
-  technologies?: Prisma.FactUpdatetechnologiesInput | string[]
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
 
 
@@ -770,11 +703,13 @@ export type FactUncheckedUpdateWithoutResumeFactsInput = {
 export type FactCountOutputType = {
   expressions: number
   resumeFacts: number
+  concepts: number
 }
 
 export type FactCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | FactCountOutputTypeCountExpressionsArgs
   resumeFacts?: boolean | FactCountOutputTypeCountResumeFactsArgs
+  concepts?: boolean | FactCountOutputTypeCountConceptsArgs
 }
 
 /**
@@ -801,78 +736,67 @@ export type FactCountOutputTypeCountResumeFactsArgs<ExtArgs extends runtime.Type
   where?: Prisma.ResumeFactWhereInput
 }
 
+/**
+ * FactCountOutputType without action
+ */
+export type FactCountOutputTypeCountConceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FactConceptWhereInput
+}
+
 
 export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   uid?: boolean
-  kind?: boolean
-  entityType?: boolean
-  entityId?: boolean
   what?: boolean
   impact?: boolean
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
-  tags?: boolean
-  technologies?: boolean
   createdAt?: boolean
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
+  concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fact"]>
 
 export type FactSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   uid?: boolean
-  kind?: boolean
-  entityType?: boolean
-  entityId?: boolean
   what?: boolean
   impact?: boolean
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
-  tags?: boolean
-  technologies?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["fact"]>
 
 export type FactSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   uid?: boolean
-  kind?: boolean
-  entityType?: boolean
-  entityId?: boolean
   what?: boolean
   impact?: boolean
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
-  tags?: boolean
-  technologies?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["fact"]>
 
 export type FactSelectScalar = {
   id?: boolean
   uid?: boolean
-  kind?: boolean
-  entityType?: boolean
-  entityId?: boolean
   what?: boolean
   impact?: boolean
   scale?: boolean
   citation?: boolean
   citationNodeIndex?: boolean
-  tags?: boolean
-  technologies?: boolean
   createdAt?: boolean
 }
 
-export type FactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "kind" | "entityType" | "entityId" | "what" | "impact" | "scale" | "citation" | "citationNodeIndex" | "tags" | "technologies" | "createdAt", ExtArgs["result"]["fact"]>
+export type FactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "what" | "impact" | "scale" | "citation" | "citationNodeIndex" | "createdAt", ExtArgs["result"]["fact"]>
 export type FactInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
+  concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FactIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -883,22 +807,11 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     expressions: Prisma.$ExpressionPayload<ExtArgs>[]
     resumeFacts: Prisma.$ResumeFactPayload<ExtArgs>[]
+    concepts: Prisma.$FactConceptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     uid: string
-    /**
-     * @zod.string.describe("Category of fact (e.g. 'achievement', 'responsibility', 'skill-evidence')")
-     */
-    kind: string
-    /**
-     * @zod.string.describe("Type of the related entity (e.g. 'job', 'project', 'education')")
-     */
-    entityType: string | null
-    /**
-     * @zod.string.describe("ID of the related entity")
-     */
-    entityId: string | null
     /**
      * @zod.string.describe("One or two sentence description of the fact")
      */
@@ -919,8 +832,6 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * @zod.number.int().describe("CRDT node index in the narrative document at the time of extraction")
      */
     citationNodeIndex: number | null
-    tags: string[]
-    technologies: string[]
     createdAt: Date
   }, ExtArgs["result"]["fact"]>
   composites: {}
@@ -1318,6 +1229,7 @@ export interface Prisma__FactClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   expressions<T extends Prisma.Fact$expressionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$expressionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resumeFacts<T extends Prisma.Fact$resumeFactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$resumeFactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumeFactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  concepts<T extends Prisma.Fact$conceptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$conceptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FactConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1349,16 +1261,11 @@ export interface Prisma__FactClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface FactFieldRefs {
   readonly id: Prisma.FieldRef<"Fact", 'String'>
   readonly uid: Prisma.FieldRef<"Fact", 'String'>
-  readonly kind: Prisma.FieldRef<"Fact", 'String'>
-  readonly entityType: Prisma.FieldRef<"Fact", 'String'>
-  readonly entityId: Prisma.FieldRef<"Fact", 'String'>
   readonly what: Prisma.FieldRef<"Fact", 'String'>
   readonly impact: Prisma.FieldRef<"Fact", 'String'>
   readonly scale: Prisma.FieldRef<"Fact", 'String'>
   readonly citation: Prisma.FieldRef<"Fact", 'String'>
   readonly citationNodeIndex: Prisma.FieldRef<"Fact", 'Int'>
-  readonly tags: Prisma.FieldRef<"Fact", 'String[]'>
-  readonly technologies: Prisma.FieldRef<"Fact", 'String[]'>
   readonly createdAt: Prisma.FieldRef<"Fact", 'DateTime'>
 }
     
@@ -1798,6 +1705,30 @@ export type Fact$resumeFactsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ResumeFactScalarFieldEnum | Prisma.ResumeFactScalarFieldEnum[]
+}
+
+/**
+ * Fact.concepts
+ */
+export type Fact$conceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FactConcept
+   */
+  select?: Prisma.FactConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FactConcept
+   */
+  omit?: Prisma.FactConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FactConceptInclude<ExtArgs> | null
+  where?: Prisma.FactConceptWhereInput
+  orderBy?: Prisma.FactConceptOrderByWithRelationInput | Prisma.FactConceptOrderByWithRelationInput[]
+  cursor?: Prisma.FactConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FactConceptScalarFieldEnum | Prisma.FactConceptScalarFieldEnum[]
 }
 
 /**
