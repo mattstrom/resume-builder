@@ -1,8 +1,10 @@
-import { Search } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { Pencil, Search } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, Fragment, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import {
 	Card,
 	CardContent,
@@ -13,6 +15,7 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
+import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { buildConceptIndex, filterConceptIndex, type ConceptUsage } from '@/lib/concept-index.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -67,12 +70,23 @@ const ConceptCard: FC<ConceptCardProps> = ({ usage }) => (
 						{index > 0 && <Separator className="my-3" />}
 						<div className="flex flex-col gap-2">
 							<p className="text-sm leading-6 text-foreground">{bullet.text}</p>
-							<div className="flex flex-wrap gap-1.5">
-								<Badge variant={relation.variant}>{relation.label}</Badge>
-								<Badge variant="outline">
-									{SOURCE_LABELS[bullet.sourceType] ?? bullet.sourceType}
-								</Badge>
-								<Badge variant="outline">{bullet.status}</Badge>
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<div className="flex flex-wrap gap-1.5">
+									<Badge variant={relation.variant}>{relation.label}</Badge>
+									<Badge variant="outline">
+										{SOURCE_LABELS[bullet.sourceType] ?? bullet.sourceType}
+									</Badge>
+									<Badge variant="outline">{bullet.status}</Badge>
+								</div>
+								<Button variant="link" size="sm" className="h-auto p-0" asChild>
+									<Link
+										to={bulletSourceRoute(bullet.sourceType)}
+										search={{ bulletId: bullet.id }}
+									>
+										<Pencil data-icon="inline-start" />
+										Edit bullet
+									</Link>
+								</Button>
 							</div>
 						</div>
 					</Fragment>

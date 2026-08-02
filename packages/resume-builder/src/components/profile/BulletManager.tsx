@@ -4,9 +4,10 @@ import {
 	BulletStatus,
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge.tsx';
@@ -39,6 +40,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { cn } from '@/lib/utils.ts';
 import type { ConceptSuggestion } from '@/stores/facts.store.ts';
@@ -47,6 +49,7 @@ import { useStore } from '@/stores/store.provider.tsx';
 interface BulletManagerProps {
 	sourceType: BulletSourceType;
 	sourceId: string;
+	linkedBulletId?: string;
 }
 
 type ScoreKey = 'context' | 'action' | 'outcome' | 'clarity';
@@ -525,27 +528,68 @@ const NewBulletDetail: FC<{
 	);
 };
 
-export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sourceId }) => {
+export const BulletManager: FC<BulletManagerProps> = observer((props) => {
+	const { sourceType, sourceId, linkedBulletId } = props;
 	const { bulletsStore } = useStore();
+	const navigate = useNavigate();
 	const [showArchived, setShowArchived] = useState(false);
 	const [selectedId, setSelectedId] = useState<string>();
 	const [creating, setCreating] = useState(false);
+	const cardRef = useRef<HTMLDivElement>(null);
+	const linkedOptionRef = useRef<HTMLDivElement>(null);
 	const bullets = bulletsStore.forSource(sourceType, sourceId, showArchived);
 	const selectedBullet = bullets.find((bullet) => bullet.id === selectedId);
+	const linkedBullet = bulletsStore.bullets.find(
+		(bullet) =>
+			bullet.id === linkedBulletId &&
+			bullet.sourceType === sourceType &&
+			bullet.sourceId === sourceId,
+	);
+
+	useEffect(() => {
+		if (!linkedBullet) return;
+		if (linkedBullet.status === BulletStatus.ARCHIVED) setShowArchived(true);
+		setCreating(false);
+		setSelectedId(linkedBullet.id);
+	}, [linkedBullet?.id, linkedBullet?.status]);
+
+	useEffect(() => {
+		if (!linkedBulletId || selectedBullet?.id !== linkedBulletId) return;
+		const frame = window.requestAnimationFrame(() => {
+			cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			linkedOptionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		});
+
+		return () => window.cancelAnimationFrame(frame);
+	}, [linkedBulletId, selectedBullet?.id]);
 
 	useEffect(() => {
 		if (creating || selectedBullet) return;
 		setSelectedId(bullets[0]?.id);
 	}, [bullets, creating, selectedBullet]);
 
+	const replaceBulletRoute = (bulletId?: string) =>
+		navigate({
+			to: bulletSourceRoute(sourceType),
+			search: bulletId ? { bulletId } : {},
+			replace: true,
+		});
+
+	const selectBullet = (bulletId: string) => {
+		setCreating(false);
+		setSelectedId(bulletId);
+		void replaceBulletRoute(bulletId);
+	};
+
 	const addBullet = async (text: string) => {
 		const id = await bulletsStore.create({ text, sourceType, sourceId });
 		setCreating(false);
 		setSelectedId(id);
+		if (id) void replaceBulletRoute(id);
 	};
 
 	return (
-		<Card>
+		<Card ref={cardRef}>
 			<CardHeader className="flex-row items-start justify-between gap-4">
 				<div>
 					<CardTitle className="text-sm">Resume bullets</CardTitle>
@@ -573,6 +617,7 @@ export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sou
 							onClick={() => {
 								setSelectedId(undefined);
 								setCreating(true);
+								void replaceBulletRoute();
 							}}
 						>
 							<Plus data-icon="inline-start" />
@@ -591,6 +636,11 @@ export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sou
 								return (
 									<div
 										key={bullet.id}
+										ref={
+											bullet.id === linkedBulletId
+												? linkedOptionRef
+												: undefined
+										}
 										role="option"
 										aria-selected={selected}
 										className={cn(
@@ -603,10 +653,7 @@ export const BulletManager: FC<BulletManagerProps> = observer(({ sourceType, sou
 											type="button"
 											variant="ghost"
 											className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
-											onClick={() => {
-												setCreating(false);
-												setSelectedId(bullet.id);
-											}}
+											onClick={() => selectBullet(bullet.id)}
 										>
 											<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
 												<span className="line-clamp-2">{bullet.text}</span>

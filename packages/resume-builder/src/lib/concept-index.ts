@@ -1,9 +1,9 @@
-import type { BulletConcept } from '@resume-builder/entities';
+import { type BulletConcept, BulletSourceType } from '@resume-builder/entities';
 
 export interface ConceptIndexBullet {
 	id: string;
 	text: string;
-	sourceType: string;
+	sourceType: BulletSourceType;
 	sourceId: string;
 	status: string;
 	concepts: BulletConcept[];

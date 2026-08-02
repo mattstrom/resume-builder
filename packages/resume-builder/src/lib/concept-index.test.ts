@@ -1,4 +1,4 @@
-import type { BulletConcept } from '@resume-builder/entities';
+import { type BulletConcept, BulletSourceType } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
 
 import { buildConceptIndex, filterConceptIndex, type ConceptIndexBullet } from './concept-index.ts';
@@ -23,7 +23,7 @@ const bullets: ConceptIndexBullet[] = [
 	{
 		id: 'bullet-1',
 		text: 'Built a React application',
-		sourceType: 'job',
+		sourceType: BulletSourceType.JOB,
 		sourceId: 'job-1',
 		status: 'ready',
 		concepts: [conceptLink('bullet-1', 'react', 'React', 'technology', 'uses')],
@@ -31,7 +31,7 @@ const bullets: ConceptIndexBullet[] = [
 	{
 		id: 'bullet-2',
 		text: 'Mentored five engineers using React',
-		sourceType: 'job',
+		sourceType: BulletSourceType.JOB,
 		sourceId: 'job-2',
 		status: 'draft',
 		concepts: [
