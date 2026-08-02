@@ -3,11 +3,19 @@ import { outdent } from 'outdent';
 
 import config from '@/config';
 
+import { bulletConceptAnnotationQualityScorer } from '../scorers/bullet-concept-annotation-quality.scorer';
+
 export const bulletConceptAnnotatorAgent = new Agent({
 	id: 'bullet-concept-annotator-agent',
 	name: 'Bullet Concept Annotator',
 	description: 'Classifies the semantic meaning explicitly evidenced by a resume bullet',
 	model: config.llms.defaultModel,
+	scorers: {
+		bulletConceptAnnotationQuality: {
+			scorer: bulletConceptAnnotationQualityScorer,
+			sampling: { type: 'none' },
+		},
+	},
 	instructions: outdent`
 		Classify one resume bullet into a small, precise semantic graph. Analyze only
 		the supplied bullet text. Do not rewrite it, score its quality, invent context,

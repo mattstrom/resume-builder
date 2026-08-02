@@ -35,6 +35,7 @@ import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
 import { FOCUSED_PATHS_HEADER, FOCUSED_PATHS_KEY, parseFocusedPaths } from './request-context';
+import { bulletConceptAnnotationQualityScorer } from './scorers/bullet-concept-annotation-quality.scorer';
 import { bulletScoringQualityScorer } from './scorers/bullet-scoring-quality.scorer';
 import {
 	completenessScorer,
@@ -162,6 +163,7 @@ export const mastra = new Mastra({
 		},
 	}),
 	scorers: {
+		bulletConceptAnnotationQualityScorer,
 		bulletScoringQualityScorer,
 		toolCallAppropriatenessScorer,
 		completenessScorer,
