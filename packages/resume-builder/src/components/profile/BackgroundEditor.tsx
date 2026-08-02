@@ -295,9 +295,11 @@ interface JobCardProps {
 	entry: Job;
 	expanded: boolean;
 	onExpandChange: () => void;
+	linkedBulletId?: string;
 }
 
-const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange }) => {
+const JobCard: FC<JobCardProps> = observer((props) => {
+	const { entry, expanded, onExpandChange, linkedBulletId } = props;
 	const { jobsStore } = useStore();
 
 	const title = [entry.company, entry.position].filter(Boolean).join(' · ') || 'New entry';
@@ -349,7 +351,11 @@ const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange })
 						onCommit={(v) => commit({ endDate: v || undefined })}
 					/>
 				</div>
-				<BulletManager sourceType={BulletSourceType.JOB} sourceId={entry._id} />
+				<BulletManager
+					sourceType={BulletSourceType.JOB}
+					sourceId={entry._id}
+					linkedBulletId={linkedBulletId}
+				/>
 			</div>
 		</ExpandableCard>
 	);
@@ -357,11 +363,21 @@ const JobCard: FC<JobCardProps> = observer(({ entry, expanded, onExpandChange })
 
 interface BackgroundSectionProps {
 	showHeader?: boolean;
+	bulletId?: string;
 }
 
-export const JobsSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
-	const { jobsStore } = useStore();
+export const JobsSection: FC<BackgroundSectionProps> = observer((props) => {
+	const { showHeader = true, bulletId } = props;
+	const { bulletsStore, jobsStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+	const linkedSourceId = bulletsStore.bullets.find(
+		(bullet) => bullet.id === bulletId && bullet.sourceType === BulletSourceType.JOB,
+	)?.sourceId;
+
+	useEffect(() => {
+		if (!linkedSourceId) return;
+		setExpandedIds((previous) => new Set([...previous, linkedSourceId]));
+	}, [linkedSourceId]);
 
 	const toggleExpanded = (id: string) =>
 		setExpandedIds((prev) => {
@@ -398,6 +414,7 @@ export const JobsSection: FC<BackgroundSectionProps> = observer(({ showHeader = 
 						entry={entry}
 						expanded={expandedIds.has(entry._id)}
 						onExpandChange={() => toggleExpanded(entry._id)}
+						linkedBulletId={entry._id === linkedSourceId ? bulletId : undefined}
 					/>
 				))}
 				<div className="flex gap-2">
@@ -426,9 +443,11 @@ interface ProjectCardProps {
 	entry: Project;
 	expanded: boolean;
 	onExpandChange: () => void;
+	linkedBulletId?: string;
 }
 
-const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandChange }) => {
+const ProjectCard: FC<ProjectCardProps> = observer((props) => {
+	const { entry, expanded, onExpandChange, linkedBulletId } = props;
 	const { projectsStore } = useStore();
 
 	const title = entry.name || 'New entry';
@@ -492,15 +511,28 @@ const ProjectCard: FC<ProjectCardProps> = observer(({ entry, expanded, onExpandC
 					onCommit={(v) => commit({ description: v })}
 					placeholder="Briefly describe the project and its purpose"
 				/>
-				<BulletManager sourceType={BulletSourceType.PROJECT} sourceId={entry._id} />
+				<BulletManager
+					sourceType={BulletSourceType.PROJECT}
+					sourceId={entry._id}
+					linkedBulletId={linkedBulletId}
+				/>
 			</div>
 		</ExpandableCard>
 	);
 });
 
-export const ProjectsSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
-	const { projectsStore } = useStore();
+export const ProjectsSection: FC<BackgroundSectionProps> = observer((props) => {
+	const { showHeader = true, bulletId } = props;
+	const { bulletsStore, projectsStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+	const linkedSourceId = bulletsStore.bullets.find(
+		(bullet) => bullet.id === bulletId && bullet.sourceType === BulletSourceType.PROJECT,
+	)?.sourceId;
+
+	useEffect(() => {
+		if (!linkedSourceId) return;
+		setExpandedIds((previous) => new Set([...previous, linkedSourceId]));
+	}, [linkedSourceId]);
 
 	const toggleExpanded = (id: string) =>
 		setExpandedIds((prev) => {
@@ -539,6 +571,7 @@ export const ProjectsSection: FC<BackgroundSectionProps> = observer(({ showHeade
 						entry={entry}
 						expanded={expandedIds.has(entry._id)}
 						onExpandChange={() => toggleExpanded(entry._id)}
+						linkedBulletId={entry._id === linkedSourceId ? bulletId : undefined}
 					/>
 				))}
 				<div className="flex gap-2">
@@ -663,10 +696,11 @@ interface VolunteeringCardProps {
 	entry: Volunteering;
 	expanded: boolean;
 	onExpandChange: () => void;
+	linkedBulletId?: string;
 }
 
 const VolunteeringCard: FC<VolunteeringCardProps> = observer(
-	({ entry, expanded, onExpandChange }) => {
+	({ entry, expanded, onExpandChange, linkedBulletId }) => {
 		const { volunteeringStore } = useStore();
 
 		const title =
@@ -722,6 +756,7 @@ const VolunteeringCard: FC<VolunteeringCardProps> = observer(
 					<BulletManager
 						sourceType={BulletSourceType.VOLUNTEERING}
 						sourceId={entry._id}
+						linkedBulletId={linkedBulletId}
 					/>
 				</div>
 			</ExpandableCard>
@@ -729,9 +764,18 @@ const VolunteeringCard: FC<VolunteeringCardProps> = observer(
 	},
 );
 
-export const VolunteeringSection: FC<BackgroundSectionProps> = observer(({ showHeader = true }) => {
-	const { volunteeringStore } = useStore();
+export const VolunteeringSection: FC<BackgroundSectionProps> = observer((props) => {
+	const { showHeader = true, bulletId } = props;
+	const { bulletsStore, volunteeringStore } = useStore();
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+	const linkedSourceId = bulletsStore.bullets.find(
+		(bullet) => bullet.id === bulletId && bullet.sourceType === BulletSourceType.VOLUNTEERING,
+	)?.sourceId;
+
+	useEffect(() => {
+		if (!linkedSourceId) return;
+		setExpandedIds((previous) => new Set([...previous, linkedSourceId]));
+	}, [linkedSourceId]);
 
 	const toggleExpanded = (id: string) =>
 		setExpandedIds((prev) => {
@@ -769,6 +813,7 @@ export const VolunteeringSection: FC<BackgroundSectionProps> = observer(({ showH
 						entry={entry}
 						expanded={expandedIds.has(entry._id)}
 						onExpandChange={() => toggleExpanded(entry._id)}
+						linkedBulletId={entry._id === linkedSourceId ? bulletId : undefined}
 					/>
 				))}
 				<div className="flex gap-2">

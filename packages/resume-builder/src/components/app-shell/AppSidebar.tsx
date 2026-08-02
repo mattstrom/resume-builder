@@ -13,6 +13,7 @@ import {
 	Search,
 	SlidersHorizontal,
 	Sun,
+	Tags,
 	UserRound,
 	Wrench,
 	X,
@@ -160,6 +161,12 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								<SidebarMenuButton to="/profile/facts" tooltip="Facts">
 									<Database />
 									<span>Facts</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/profile/concepts" tooltip="Concepts">
+									<Tags />
+									<span>Concepts</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
