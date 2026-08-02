@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client/react';
 import { type Bullet, BulletSourceType, type ResumeBullet } from '@resume-builder/entities';
 import {
 	ArrowDown,
@@ -11,7 +12,7 @@ import {
 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { nanoid } from 'nanoid';
-import { Fragment, type FC, useMemo, useState } from 'react';
+import { Fragment, type FC, useEffect, useMemo, useState } from 'react';
 
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import { InlineMarkdown } from '@/components/InlineMarkdown.tsx';
@@ -34,8 +35,14 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { SEARCH_BULLETS } from '@/graphql/queries.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
-import { getBulletPickerCandidates } from '@/lib/bullet-picker.ts';
+import { bulletFromGraphql, type GraphqlBullet } from '@/lib/bullet-graphql.ts';
+import {
+	type BulletPickerCandidate,
+	getBulletPickerCandidates,
+	mergeBulletPickerCandidates,
+} from '@/lib/bullet-picker.ts';
 import { reorderItems } from '@/lib/reorder.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -47,6 +54,10 @@ interface ResumeBulletListProps {
 	sourceType: BulletSourceType;
 	sourceId?: string;
 	className?: string;
+}
+
+interface SearchBulletsData {
+	searchBullets: Array<{ bullet: GraphqlBullet; score: number }>;
 }
 
 function createResumeBullet(text: string, bulletId?: string): ResumeBullet {
@@ -99,6 +110,7 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 		const { bulletsStore, uiStateStore } = useStore();
 		const [pickerOpen, setPickerOpen] = useState(false);
 		const [search, setSearch] = useState('');
+		const [debouncedSearch, setDebouncedSearch] = useState('');
 		const [editingId, setEditingId] = useState<string>();
 		const [draft, setDraft] = useState('');
 		const [insertionIndex, setInsertionIndex] = useState<number>();
@@ -108,13 +120,48 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 			items.flatMap((item) => (item.bulletId ? [item.bulletId] : [])),
 		);
 
-		const candidates = useMemo(() => {
+		useEffect(() => {
+			const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
+			return () => window.clearTimeout(timeout);
+		}, [search]);
+
+		const semanticSearchEnabled = pickerOpen && debouncedSearch.length >= 2;
+		const {
+			data: semanticData,
+			loading: semanticLoading,
+			error: semanticError,
+		} = useQuery<SearchBulletsData>(SEARCH_BULLETS, {
+			variables: {
+				query: debouncedSearch,
+				filter: { includeArchived: false },
+				limit: 10,
+				minimumScore: 0.55,
+			},
+			skip: !semanticSearchEnabled,
+			fetchPolicy: 'network-only',
+		});
+
+		const textCandidates = useMemo(() => {
 			return getBulletPickerCandidates(bulletsStore.bullets, {
 				search,
 				sourceType,
 				sourceId,
 			});
 		}, [bulletsStore.bullets, search, sourceId, sourceType]);
+		const candidates = useMemo<BulletPickerCandidate[]>(() => {
+			const hasCurrentSemanticResults =
+				semanticSearchEnabled && search.trim() === debouncedSearch && semanticData;
+			if (!hasCurrentSemanticResults) {
+				return textCandidates.map((bullet) => ({ bullet }));
+			}
+			return mergeBulletPickerCandidates(
+				semanticData.searchBullets.map(({ bullet, score }) => ({
+					bullet: bulletFromGraphql(bullet),
+					score,
+				})),
+				textCandidates,
+			);
+		}, [debouncedSearch, search, semanticData, semanticSearchEnabled, textCandidates]);
 
 		const commit = (nextItems: ResumeBullet[]) => controller?.setField(path, nextItems);
 		const beginEdit = (item: ResumeBullet) => {
@@ -314,7 +361,7 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 						if (!open) setInsertionIndex(undefined);
 					}}
 				>
-					<DialogContent>
+					<DialogContent className="sm:max-w-2xl">
 						<DialogHeader>
 							<DialogTitle>Add from bullet bank</DialogTitle>
 							<DialogDescription>
@@ -328,56 +375,66 @@ export const ResumeBulletList: FC<ResumeBulletListProps> = observer(
 							value={search}
 							onChange={(event) => setSearch(event.target.value)}
 						/>
+						{semanticLoading && search.trim() === debouncedSearch && (
+							<p className="text-xs text-muted-foreground">
+								Finding semantic matches…
+							</p>
+						)}
+						{semanticError && (
+							<p className="text-xs text-muted-foreground">
+								Semantic matching is unavailable; showing text matches.
+							</p>
+						)}
 						<ScrollArea className="max-h-96">
 							<div className="flex flex-col gap-2 pr-3">
-								{candidates.map((bullet) => {
+								{candidates.map(({ bullet, semanticScore }) => {
 									const used = usedBulletIds.has(bullet.id);
 									const matches =
 										bullet.sourceType === sourceType &&
 										bullet.sourceId === sourceId;
+									const conceptSummary = bullet.concepts
+										.map(({ concept, relation }) => {
+											const presentation =
+												conceptRelationPresentation(relation);
+											return `${presentation.label}: ${concept.label}`;
+										})
+										.join(' · ');
 									return (
 										<Button
 											key={bullet.id}
 											type="button"
 											variant="outline"
-											className="h-auto justify-start whitespace-normal text-left"
+											className="h-auto w-full min-w-0 items-start justify-start whitespace-normal px-3 py-3 text-left"
 											disabled={used}
 											onClick={() => addFromBank(bullet)}
 										>
-											<span className="flex flex-col gap-1">
-												<span>{bullet.text}</span>
-												<span className="flex gap-1">
-													<Badge variant="secondary">
+											<span className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
+												<span className="line-clamp-2 leading-snug">
+													{bullet.text}
+												</span>
+												<span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+													<Badge
+														variant="secondary"
+														className="shrink-0 capitalize"
+													>
 														{bullet.status}
 													</Badge>
-													{matches && (
-														<Badge variant="outline">
-															Matching source
-														</Badge>
+													{matches && <span>Matching source</span>}
+													{semanticScore !== undefined && (
+														<span>
+															Similarity {semanticScore.toFixed(2)}
+														</span>
 													)}
-													{used && (
-														<Badge variant="outline">
-															Already used
-														</Badge>
-													)}
-													{bullet.concepts.map(
-														({ conceptId, concept, relation }) => {
-															const presentation =
-																conceptRelationPresentation(
-																	relation,
-																);
-															return (
-																<Badge
-																	key={`${relation}:${conceptId}`}
-																	variant={presentation.variant}
-																>
-																	{presentation.label} ·{' '}
-																	{concept.label}
-																</Badge>
-															);
-														},
-													)}
+													{used && <span>Already used</span>}
 												</span>
+												{conceptSummary && (
+													<span
+														className="truncate text-xs font-normal text-muted-foreground"
+														title={conceptSummary}
+													>
+														{conceptSummary}
+													</span>
+												)}
 											</span>
 										</Button>
 									);

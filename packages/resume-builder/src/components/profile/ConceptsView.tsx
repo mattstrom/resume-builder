@@ -1,7 +1,8 @@
+import { useQuery } from '@apollo/client/react';
 import { Link } from '@tanstack/react-router';
 import { Pencil, Search } from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FC, Fragment, useMemo, useState } from 'react';
+import { type FC, Fragment, useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
@@ -15,8 +16,14 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
+import { SEARCH_CONCEPTS } from '@/graphql/queries.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
-import { buildConceptIndex, filterConceptIndex, type ConceptUsage } from '@/lib/concept-index.ts';
+import {
+	buildConceptIndex,
+	filterConceptIndex,
+	mergeConceptIndexResults,
+	type ConceptUsage,
+} from '@/lib/concept-index.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -42,9 +49,10 @@ function vocabularyLabel(vocabulary: string): string {
 
 interface ConceptCardProps {
 	usage: ConceptUsage;
+	semanticScore?: number;
 }
 
-const ConceptCard: FC<ConceptCardProps> = ({ usage }) => (
+const ConceptCard: FC<ConceptCardProps> = ({ usage, semanticScore }) => (
 	<Card>
 		<CardHeader className="gap-2 p-4 pb-3">
 			<div className="flex items-start justify-between gap-3">
@@ -60,6 +68,9 @@ const ConceptCard: FC<ConceptCardProps> = ({ usage }) => (
 			</div>
 			{usage.concept.definition && (
 				<CardDescription>{usage.concept.definition}</CardDescription>
+			)}
+			{semanticScore !== undefined && (
+				<CardDescription>Similarity {semanticScore.toFixed(2)}</CardDescription>
 			)}
 		</CardHeader>
 		<CardContent className="flex flex-col px-4 pb-4 pt-0">
@@ -96,6 +107,13 @@ const ConceptCard: FC<ConceptCardProps> = ({ usage }) => (
 	</Card>
 );
 
+interface SearchConceptsData {
+	searchConcepts: Array<{
+		score: number;
+		concept: { id: string };
+	}>;
+}
+
 const ConceptsLoading: FC = () => (
 	<div className="grid gap-4 lg:grid-cols-2">
 		{Array.from({ length: 4 }, (_, index) => (
@@ -116,9 +134,52 @@ const ConceptsLoading: FC = () => (
 export const ConceptsView: FC = observer(() => {
 	const { bulletsStore } = useStore();
 	const [search, setSearch] = useState('');
+	const [debouncedSearch, setDebouncedSearch] = useState('');
 	const bullets = bulletsStore.bullets;
 	const allUsages = useMemo(() => buildConceptIndex(bullets), [bullets]);
-	const usages = useMemo(() => filterConceptIndex(allUsages, search), [allUsages, search]);
+	const textUsages = useMemo(() => filterConceptIndex(allUsages, search), [allUsages, search]);
+
+	useEffect(() => {
+		const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
+		return () => window.clearTimeout(timeout);
+	}, [search]);
+
+	const semanticSearchEnabled = debouncedSearch.length >= 2;
+	const {
+		data: semanticData,
+		loading: semanticLoading,
+		error: semanticError,
+	} = useQuery<SearchConceptsData>(SEARCH_CONCEPTS, {
+		variables: {
+			query: debouncedSearch,
+			limit: 10,
+			minimumScore: 0.55,
+		},
+		skip: !semanticSearchEnabled,
+		fetchPolicy: 'network-only',
+	});
+	const hasCurrentSemanticResults =
+		semanticSearchEnabled && search.trim() === debouncedSearch && semanticData;
+	const usages = useMemo(
+		() =>
+			hasCurrentSemanticResults
+				? mergeConceptIndexResults(
+						allUsages,
+						semanticData.searchConcepts.map(({ concept }) => concept.id),
+						textUsages,
+					)
+				: textUsages,
+		[allUsages, hasCurrentSemanticResults, semanticData, textUsages],
+	);
+	const semanticScores = useMemo(
+		() =>
+			new Map(
+				hasCurrentSemanticResults
+					? semanticData.searchConcepts.map(({ concept, score }) => [concept.id, score])
+					: [],
+			),
+		[hasCurrentSemanticResults, semanticData],
+	);
 	const grouped = useMemo(
 		() =>
 			Object.entries(Object.groupBy(usages, ({ concept }) => concept.vocabulary)).sort(
@@ -158,6 +219,14 @@ export const ConceptsView: FC = observer(() => {
 					onChange={(event) => setSearch(event.target.value)}
 				/>
 			</InputGroup>
+			{semanticLoading && search.trim() === debouncedSearch && (
+				<p className="text-xs text-muted-foreground">Finding semantic matches…</p>
+			)}
+			{semanticError && (
+				<p className="text-xs text-muted-foreground">
+					Semantic matching is unavailable; showing text matches.
+				</p>
+			)}
 
 			{bulletsStore.loading ? (
 				<ConceptsLoading />
@@ -186,7 +255,11 @@ export const ConceptsView: FC = observer(() => {
 							</div>
 							<div className="grid items-start gap-4 lg:grid-cols-2">
 								{vocabularyUsages?.map((usage) => (
-									<ConceptCard key={usage.concept.id} usage={usage} />
+									<ConceptCard
+										key={usage.concept.id}
+										usage={usage}
+										semanticScore={semanticScores.get(usage.concept.id)}
+									/>
 								))}
 							</div>
 						</section>

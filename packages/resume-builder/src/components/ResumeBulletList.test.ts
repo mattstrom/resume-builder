@@ -1,7 +1,7 @@
 import { BulletSourceType, BulletStatus, type Bullet } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
 
-import { getBulletPickerCandidates } from '../lib/bullet-picker.ts';
+import { getBulletPickerCandidates, mergeBulletPickerCandidates } from '../lib/bullet-picker.ts';
 
 function bullet(id: string, sourceId: string, status = BulletStatus.READY): Bullet {
 	return {
@@ -73,5 +73,26 @@ describe('getBulletPickerCandidates', () => {
 		});
 
 		expect(result.map(({ id }) => id)).toEqual(['platform']);
+	});
+
+	it('keeps semantic ordering and appends text-only matches once', () => {
+		const semantic = bullet('semantic', 'job-2');
+		const overlapping = bullet('overlap', 'job-1');
+		const lexical = bullet('lexical', 'job-1');
+
+		const result = mergeBulletPickerCandidates(
+			[
+				{ bullet: semantic, score: 0.91 },
+				{ bullet: overlapping, score: 0.82 },
+			],
+			[overlapping, lexical],
+		);
+
+		expect(result.map(({ bullet: candidate }) => candidate.id)).toEqual([
+			'semantic',
+			'overlap',
+			'lexical',
+		]);
+		expect(result.map(({ semanticScore }) => semanticScore)).toEqual([0.91, 0.82, undefined]);
 	});
 });

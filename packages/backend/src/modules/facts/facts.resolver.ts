@@ -1,10 +1,12 @@
-import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Float, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 
 import { CurrentUser } from '../auth/index.js';
+import { EmbeddingService } from '../queue/embeddings/embedding.service.js';
 import {
 	CreateExpressionInput,
 	CreateFactInput,
 	ConceptSuggestionType,
+	ConceptSearchResultType,
 	ExpressionType,
 	FactConceptType,
 	FactMeaningInput,
@@ -17,7 +19,10 @@ import { ConceptVocabulary, FactRelation, FactsService } from './facts.service.j
 
 @Resolver(() => FactType)
 export class FactsResolver {
-	constructor(private readonly factsService: FactsService) {}
+	constructor(
+		private readonly factsService: FactsService,
+		private readonly embedding: EmbeddingService,
+	) {}
 
 	@Query(() => [FactType])
 	async facts(
@@ -75,6 +80,20 @@ export class FactsResolver {
 		@Args('limit', { type: () => Int, nullable: true }) limit?: number,
 	) {
 		return this.factsService.findConceptSuggestions(uid, vocabulary, search, limit);
+	}
+
+	@Query(() => [ConceptSearchResultType])
+	async searchConcepts(
+		@CurrentUser('sub') uid: string,
+		@Args('query') query: string,
+		@Args('vocabulary', { nullable: true }) vocabulary?: string,
+		@Args('limit', { type: () => Int, nullable: true }) limit?: number,
+		@Args('minimumScore', { type: () => Float, nullable: true }) minimumScore?: number,
+	): Promise<ConceptSearchResultType[]> {
+		const text = query.trim();
+		if (!text) return [];
+		const vector = await this.embedding.embed(text);
+		return this.factsService.findSimilarConcepts(uid, vector, vocabulary, limit, minimumScore);
 	}
 
 	@Mutation(() => FactConceptType)

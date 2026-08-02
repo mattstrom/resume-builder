@@ -2,6 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 
 import type { PrismaService } from '../../prisma/index.js';
 import type { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
+import type { EmbeddingService } from '../../queue/embeddings/embedding.service.js';
 import { BulletsService } from './bullets.service.js';
 
 jest.mock('../../prisma/index.js', () => ({ PrismaService: class {} }));
@@ -65,6 +66,7 @@ describe('BulletsService', () => {
 	};
 	const prisma = {
 		$transaction: jest.fn(),
+		$queryRawUnsafe: jest.fn(),
 		bullet: {
 			findMany: jest.fn(),
 			findFirst: jest.fn(),
@@ -85,12 +87,14 @@ describe('BulletsService', () => {
 	};
 	let service: BulletsService;
 	const embeddingQueue = { enqueue: jest.fn(), enqueueMany: jest.fn() };
+	const embedding = { embed: jest.fn() };
 
 	beforeEach(() => {
 		jest.clearAllMocks();
 		service = new BulletsService(
 			prisma as unknown as PrismaService,
 			embeddingQueue as unknown as EmbeddingQueueService,
+			embedding as unknown as EmbeddingService,
 		);
 		embeddingQueue.enqueue.mockResolvedValue('job-1');
 		embeddingQueue.enqueueMany.mockResolvedValue(undefined);
@@ -98,6 +102,7 @@ describe('BulletsService', () => {
 		prisma.bullet.create.mockResolvedValue(savedBullet);
 		prisma.bullet.findFirst.mockResolvedValue(savedBullet);
 		prisma.bullet.update.mockResolvedValue(savedBullet);
+		embedding.embed.mockResolvedValue([0.1, 0.2]);
 		prisma.concept.upsert.mockResolvedValue({
 			id: 'concept-1',
 			vocabulary: 'capability',
@@ -186,6 +191,56 @@ describe('BulletsService', () => {
 		expect(prisma.bullet.findMany).toHaveBeenLastCalledWith(
 			expect.objectContaining({ where: { uid } }),
 		);
+	});
+
+	it('searches only fresh bullet embeddings and preserves similarity order', async () => {
+		const secondBullet = { ...savedBullet, id: 'bullet-2', text: 'Second result' };
+		prisma.$queryRawUnsafe.mockResolvedValue([
+			{ id: secondBullet.id, distance: 0.1 },
+			{ id: savedBullet.id, distance: 0.25 },
+		]);
+		prisma.bullet.findMany.mockResolvedValue([savedBullet, secondBullet]);
+
+		const result = await service.search(uid, 'platform reliability', {}, 100);
+
+		expect(embedding.embed).toHaveBeenCalledWith('platform reliability');
+		const [
+			sql,
+			vector,
+			owner,
+			model,
+			profile,
+			sourceType,
+			sourceId,
+			status,
+			archived,
+			maximumDistance,
+			limit,
+		] = prisma.$queryRawUnsafe.mock.calls[0];
+		expect(sql).toContain('"embeddedRevision" = "embeddingRevision"');
+		expect(sql).toContain('$1::resume_builder.vector');
+		expect(sql).toContain('OPERATOR(resume_builder.<=>)');
+		expect(sql).toContain('"embeddingModel" = $3');
+		expect(sql).toContain('"embeddingProfile" = $4');
+		expect([vector, owner, model, profile]).toEqual([
+			'[0.1,0.2]',
+			uid,
+			'fastembed/bge-base-en-v1.5',
+			'bullet-job-match:v1',
+		]);
+		expect(sql).toContain('<= $9');
+		expect([sourceType, sourceId, status, archived, limit]).toEqual([
+			null,
+			null,
+			null,
+			true,
+			50,
+		]);
+		expect(maximumDistance).toBeCloseTo(0.45);
+		expect(result.map(({ bullet, score }) => [bullet.id, score])).toEqual([
+			['bullet-2', 0.9],
+			['bullet-1', 0.75],
+		]);
 	});
 
 	it('swaps positions only for bullets owned by the same source', async () => {

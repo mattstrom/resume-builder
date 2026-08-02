@@ -14,7 +14,10 @@ import { technology } from '@resume-builder/ontologies';
 import type { Prisma } from '../../../generated/prisma/client.js';
 import { PrismaService } from '../../prisma/index.js';
 import { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
-import { EMBEDDING_PROFILES } from '../../queue/embeddings/embedding.constants.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../../queue/embeddings/embedding.constants.js';
+import { EmbeddingService } from '../../queue/embeddings/embedding.service.js';
+
+const SCHEMA = 'resume_builder';
 
 const RELATION_VOCABULARIES = {
 	'is-a': 'fact-type',
@@ -31,6 +34,7 @@ export class BulletsService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly embeddingQueue: EmbeddingQueueService,
+		private readonly embedding: EmbeddingService,
 	) {}
 
 	private async enqueueBullet(bullet: { id: string; embeddingRevision: number }): Promise<void> {
@@ -103,6 +107,62 @@ export class BulletsService {
 		});
 		if (!bullet) throw new NotFoundException(`Bullet with id ${id} not found`);
 		return bullet;
+	}
+
+	async search(
+		uid: string,
+		query: string,
+		filter: BulletFilterInput = {},
+		limit = 10,
+		minimumScore = 0.55,
+	): Promise<BulletSearchMatch[]> {
+		const text = query.trim();
+		if (!text) return [];
+
+		const vector = await this.embedding.embed(text);
+		const formatted = `[${vector.join(',')}]`;
+		const boundedLimit = Math.max(1, Math.min(limit, 50));
+		const boundedMinimumScore = Math.max(0, Math.min(minimumScore, 1));
+		const maximumDistance = 1 - boundedMinimumScore;
+		const excludeArchived = !filter.status && !filter.includeArchived;
+		const rows = await this.prisma.$queryRawUnsafe<Array<{ id: string; distance: number }>>(
+			`SELECT id, embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector AS distance
+       FROM "${SCHEMA}"."Bullet"
+       WHERE uid = $2 AND embedding IS NOT NULL
+         AND "embeddedRevision" = "embeddingRevision"
+         AND "embeddingModel" = $3
+         AND "embeddingProfile" = $4
+         AND ($5::text IS NULL OR "sourceType"::text = $5)
+         AND ($6::text IS NULL OR "sourceId" = $6)
+         AND ($7::text IS NULL OR status::text = $7)
+         AND (NOT $8::boolean OR status::text <> 'archived')
+         AND embedding OPERATOR(${SCHEMA}.<=>) $1::${SCHEMA}.vector <= $9
+       ORDER BY distance
+       LIMIT $10`,
+			formatted,
+			uid,
+			EMBEDDING_MODEL,
+			EMBEDDING_PROFILES.bullet,
+			filter.sourceType ?? null,
+			filter.sourceId ?? null,
+			filter.status ?? null,
+			excludeArchived,
+			maximumDistance,
+			boundedLimit,
+		);
+
+		const bullets = await this.prisma.bullet.findMany({
+			where: { id: { in: rows.map(({ id }) => id) }, uid },
+			include: { concepts: { include: { concept: true } } },
+		});
+		const bulletsById = new Map(bullets.map((bullet) => [bullet.id, bullet]));
+
+		return rows.flatMap(({ id, distance }) => {
+			const bullet = bulletsById.get(id);
+			return bullet
+				? [{ bullet, score: Math.max(0, Math.min(1, 1 - Number(distance))) }]
+				: [];
+		});
 	}
 
 	async create(uid: string, input: CreateBulletInput): Promise<BulletWithConcepts> {
@@ -439,3 +499,8 @@ export class BulletsService {
 type BulletWithConcepts = Prisma.BulletGetPayload<{
 	include: { concepts: { include: { concept: true } } };
 }>;
+
+interface BulletSearchMatch {
+	bullet: BulletWithConcepts;
+	score: number;
+}
