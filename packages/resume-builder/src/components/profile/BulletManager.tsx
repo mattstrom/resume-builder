@@ -5,11 +5,12 @@ import {
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, RefreshCw, Sparkles, X } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { DataSourceView } from '@/components/common/DataSourceView.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -19,15 +20,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible.tsx';
-import { Combobox } from '@/components/ui/combobox.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
-import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import {
 	Select,
 	SelectContent,
@@ -40,10 +34,10 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { useDataSourceController } from '@/hooks/use-data-source-controller.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { cn } from '@/lib/utils.ts';
-import type { ConceptSuggestion } from '@/stores/facts.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface BulletManagerProps {
@@ -103,67 +97,8 @@ function statusLabel(status: BulletStatus): string {
 	return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
-function conceptKey(label: string): string {
-	return label
-		.trim()
-		.toLocaleLowerCase()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/(^-|-$)/g, '');
-}
-
 const ConceptEditor: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
-	const { bulletsStore, factsStore } = useStore();
-	const [label, setLabel] = useState('');
-	const [selectedSuggestion, setSelectedSuggestion] = useState<ConceptSuggestion>();
-	const [suggestions, setSuggestions] = useState<ConceptSuggestion[]>([]);
-	const [open, setOpen] = useState(false);
-	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		if (!open) {
-			setLoading(false);
-			return;
-		}
-
-		let active = true;
-		setLoading(true);
-		const timer = window.setTimeout(async () => {
-			try {
-				const next = await factsStore.getConceptSuggestions('capability', label);
-				if (active) setSuggestions(next);
-			} catch {
-				if (active) setSuggestions([]);
-			} finally {
-				if (active) setLoading(false);
-			}
-		}, 150);
-
-		return () => {
-			active = false;
-			window.clearTimeout(timer);
-		};
-	}, [factsStore, label, open]);
-
-	const add = async () => {
-		const trimmedLabel = label.trim();
-		if (!trimmedLabel || bulletsStore.isUpdatingConcept) return;
-		try {
-			await bulletsStore.upsertConcept(bullet.id, {
-				relation: 'demonstrates',
-				concept: {
-					vocabulary: 'capability',
-					label: trimmedLabel,
-					key: selectedSuggestion?.key ?? conceptKey(trimmedLabel),
-				},
-				source: 'user',
-			});
-			setLabel('');
-			setSelectedSuggestion(undefined);
-			toast.success('Capability added');
-		} catch {
-			toast.error('Could not add capability');
-		}
-	};
+	const { bulletsStore } = useStore();
 
 	const remove = async (conceptId: string, relation: string) => {
 		try {
@@ -208,79 +143,34 @@ const ConceptEditor: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 				</Button>
 			</div>
 			{bullet.concepts.length > 0 ? (
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-1">
 					{bullet.concepts.map(({ conceptId, concept, relation, source }) => {
 						const presentation = conceptRelationPresentation(relation);
 						return (
-							<div
+							<Badge
 								key={`${relation}:${conceptId}`}
-								className="flex items-center gap-1"
+								variant={presentation.variant}
+								title={`Source: ${source}`}
+								className="gap-1 py-0 pr-1"
 							>
-								<Badge variant={presentation.variant} title={`Source: ${source}`}>
-									{presentation.label} · {concept.label}
-								</Badge>
-								<Button
+								<span className="opacity-70">{presentation.label} ·</span>
+								{concept.label}
+								<button
 									type="button"
-									variant="ghost"
-									size="icon"
-									className="size-7"
 									disabled={bulletsStore.isUpdatingConcept}
 									onClick={() => void remove(conceptId, relation)}
 									aria-label={`Remove ${presentation.label} ${concept.label}`}
+									className="rounded-sm opacity-60 hover:opacity-100 disabled:pointer-events-none disabled:opacity-40"
 								>
-									<Trash2 />
-								</Button>
-							</div>
+									<X className="size-3" />
+								</button>
+							</Badge>
 						);
 					})}
 				</div>
 			) : (
 				<p className="text-xs text-muted-foreground">No concepts assigned yet.</p>
 			)}
-			<div className="flex items-end gap-2">
-				<div className="min-w-0 flex-1">
-					<Label id={`bullet-capability-${bullet.id}`}>Add capability manually</Label>
-					<Combobox
-						open={open}
-						onOpenChange={setOpen}
-						value={label}
-						selectedValue={selectedSuggestion?.key}
-						onValueChange={(value, option) => {
-							setLabel(value);
-							setSelectedSuggestion(
-								option
-									? suggestions.find(({ key }) => key === option.value)
-									: undefined,
-							);
-						}}
-						options={suggestions.map(({ key, label: optionLabel, definition }) => ({
-							value: key,
-							label: optionLabel,
-							description: definition ?? undefined,
-						}))}
-						placeholder="Select or enter a capability"
-						searchPlaceholder="Search capabilities"
-						emptyMessage="No matches. You can use the value you entered."
-						loadingMessage="Loading suggestions…"
-						groupLabel="Capabilities"
-						isLoading={loading}
-						shouldFilter={false}
-						ariaLabelledby={`bullet-capability-${bullet.id}`}
-					/>
-				</div>
-				<Button
-					type="button"
-					disabled={!label.trim() || bulletsStore.isUpdatingConcept}
-					onClick={() => void add()}
-				>
-					{bulletsStore.isUpdatingConcept ? (
-						<Spinner data-icon="inline-start" />
-					) : (
-						<Plus data-icon="inline-start" />
-					)}
-					Add
-				</Button>
-			</div>
 		</section>
 	);
 });
@@ -367,86 +257,104 @@ const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 			<ConceptEditor bullet={bullet} />
 			<Separator />
 
-			<div className="grid gap-3 xl:grid-cols-2">
-				{SCORE_FIELDS.map(({ key, label }) => (
-					<ScoreField key={key} bullet={bullet} scoreKey={key} label={label} />
-				))}
-			</div>
+			<ScoreRow bullet={bullet} />
 		</div>
 	);
 });
 
-const ScoreField: FC<{
-	bullet: Bullet;
-	scoreKey: ScoreKey;
-	label: string;
-}> = observer(({ bullet, scoreKey, label }) => {
-	const scoreField = `${scoreKey}Score` as keyof Bullet;
-	const noteField = `${scoreKey}Note` as keyof Bullet;
-	const whatWorksWellField = `${scoreKey}WhatWorksWell` as keyof Bullet;
-	const whyItMattersField = `${scoreKey}WhyItMatters` as keyof Bullet;
-	const proposedEnhancementsField = `${scoreKey}ProposedEnhancements` as keyof Bullet;
-	const score = bullet[scoreField as keyof Bullet] as number | null | undefined;
-	const note = bullet[noteField as keyof Bullet] as string | null | undefined;
-	const whatWorksWell = (bullet[whatWorksWellField] as string[] | undefined) ?? [];
-	const whyItMatters = bullet[whyItMattersField] as string | null | undefined;
-	const proposedEnhancements = (bullet[proposedEnhancementsField] as string[] | undefined) ?? [];
+function scoreMetric(bullet: Bullet, key: ScoreKey, label: string) {
+	const score = bullet[`${key}Score` as keyof Bullet] as number | null | undefined;
+	const note = bullet[`${key}Note` as keyof Bullet] as string | null | undefined;
+	const whatWorksWell =
+		(bullet[`${key}WhatWorksWell` as keyof Bullet] as string[] | undefined) ?? [];
+	const whyItMatters = bullet[`${key}WhyItMatters` as keyof Bullet] as string | null | undefined;
+	const proposedEnhancements =
+		(bullet[`${key}ProposedEnhancements` as keyof Bullet] as string[] | undefined) ?? [];
 	const level = scoreLevel(score);
 	const progress = score == null ? 0 : Math.min(100, Math.max(0, score * 100));
 	const hasAnalysis =
 		whatWorksWell.length > 0 || Boolean(whyItMatters) || proposedEnhancements.length > 0;
 
+	return {
+		key,
+		label,
+		note,
+		whatWorksWell,
+		whyItMatters,
+		proposedEnhancements,
+		level,
+		progress,
+		hasAnalysis,
+	};
+}
+
+const ScoreRow: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
+	const [activeKey, setActiveKey] = useState<ScoreKey>();
+	const metrics = SCORE_FIELDS.map(({ key, label }) => scoreMetric(bullet, key, label));
+	const active = metrics.find((metric) => metric.key === activeKey);
+
 	return (
-		<div className="flex min-w-0 flex-col gap-3 rounded-md border border-border bg-background p-3">
-			<div className="flex items-center justify-between gap-3">
-				<span className="text-sm font-medium">{label}</span>
-				<span className={cn('text-xs font-medium', level.textClassName)}>
-					{level.label}
-				</span>
+		<section className="flex flex-col gap-2">
+			<h5 className="text-sm font-medium">Score</h5>
+			<div className="flex gap-2">
+				{metrics.map((metric) => (
+					<button
+						key={metric.key}
+						type="button"
+						onClick={() =>
+							setActiveKey(activeKey === metric.key ? undefined : metric.key)
+						}
+						className={cn(
+							'flex-1 rounded-md border border-border bg-background p-2.5 text-left transition-colors hover:border-ring',
+							activeKey === metric.key && 'border-ring',
+						)}
+					>
+						<div className="flex items-center justify-between gap-2 text-xs">
+							<span className="font-medium">{metric.label}</span>
+							<span className={cn('font-medium', metric.level.textClassName)}>
+								{metric.level.label}
+							</span>
+						</div>
+						<Progress
+							value={metric.progress}
+							className="mt-2 h-1.5"
+							indicatorClassName={metric.level.indicatorClassName}
+							aria-label={`${metric.label} checkpoint`}
+							aria-valuetext={metric.level.label}
+						/>
+					</button>
+				))}
 			</div>
-			<Progress
-				value={progress}
-				className="h-2"
-				indicatorClassName={level.indicatorClassName}
-				aria-label={`${label} checkpoint`}
-				aria-valuetext={score == null ? 'Not scored' : level.label}
-			/>
-			<p className="text-xs leading-relaxed text-muted-foreground">
-				{note ?? 'Recalculate the score to generate feedback for this checkpoint.'}
-			</p>
-			{hasAnalysis && (
-				<Collapsible className="group flex flex-col gap-3">
-					<CollapsibleTrigger asChild>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							className="-mx-2 justify-between"
-						>
-							Analysis details
-							<ChevronDown className="transition-transform group-data-[state=open]:rotate-180" />
-						</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent className="flex flex-col gap-4">
-						<AnalysisList
-							title="What works well"
-							items={whatWorksWell}
-							emptyMessage="No clear strength was identified for this checkpoint."
-						/>
-						<Separator />
-						<AnalysisSection title="Why it matters">
-							{whyItMatters ?? 'Recalculate the score to generate an explanation.'}
-						</AnalysisSection>
-						<Separator />
-						<AnalysisList
-							title="Proposed enhancements"
-							items={proposedEnhancements}
-							emptyMessage="No material enhancement was identified."
-						/>
-					</CollapsibleContent>
-				</Collapsible>
+			{active && (
+				<div className="flex flex-col gap-3 rounded-md border border-border bg-background p-3">
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						{active.note ??
+							'Recalculate the score to generate feedback for this checkpoint.'}
+					</p>
+					{active.hasAnalysis && (
+						<>
+							<Separator />
+							<AnalysisList
+								title="What works well"
+								items={active.whatWorksWell}
+								emptyMessage="No clear strength was identified for this checkpoint."
+							/>
+							<Separator />
+							<AnalysisSection title="Why it matters">
+								{active.whyItMatters ??
+									'Recalculate the score to generate an explanation.'}
+							</AnalysisSection>
+							<Separator />
+							<AnalysisList
+								title="Proposed enhancements"
+								items={active.proposedEnhancements}
+								emptyMessage="No material enhancement was identified."
+							/>
+						</>
+					)}
+				</div>
 			)}
-		</div>
+		</section>
 	);
 });
 
@@ -532,13 +440,27 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 	const { sourceType, sourceId, linkedBulletId } = props;
 	const { bulletsStore } = useStore();
 	const navigate = useNavigate();
-	const [showArchived, setShowArchived] = useState(false);
-	const [selectedId, setSelectedId] = useState<string>();
 	const [creating, setCreating] = useState(false);
 	const cardRef = useRef<HTMLDivElement>(null);
 	const linkedOptionRef = useRef<HTMLDivElement>(null);
-	const bullets = bulletsStore.forSource(sourceType, sourceId, showArchived);
-	const selectedBullet = bullets.find((bullet) => bullet.id === selectedId);
+
+	const controller = useDataSourceController<Bullet>({
+		getId: (bullet) => bullet.id,
+		selectionMode: 'single',
+		filters: [
+			{
+				key: 'archived',
+				label: 'Hide archived',
+				predicate: (bullet) => bullet.status !== BulletStatus.ARCHIVED,
+			},
+		],
+		defaultActiveFilterKeys: ['archived'],
+	});
+	controller.setItems(bulletsStore.forSource(sourceType, sourceId, true));
+
+	const selectedBullet = controller.visibleItems.find(
+		(bullet) => bullet.id === controller.selectedId,
+	);
 	const linkedBullet = bulletsStore.bullets.find(
 		(bullet) =>
 			bullet.id === linkedBulletId &&
@@ -548,25 +470,32 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 
 	useEffect(() => {
 		if (!linkedBullet) return;
-		if (linkedBullet.status === BulletStatus.ARCHIVED) setShowArchived(true);
+		if (linkedBullet.status === BulletStatus.ARCHIVED) {
+			controller.setFilterActive('archived', false);
+		}
 		setCreating(false);
-		setSelectedId(linkedBullet.id);
+		controller.select(linkedBullet.id);
 	}, [linkedBullet?.id, linkedBullet?.status]);
 
 	useEffect(() => {
-		if (!linkedBulletId || selectedBullet?.id !== linkedBulletId) return;
+		if (!linkedBulletId || controller.selectedId !== linkedBulletId) return;
 		const frame = window.requestAnimationFrame(() => {
 			cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			linkedOptionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		});
 
 		return () => window.cancelAnimationFrame(frame);
-	}, [linkedBulletId, selectedBullet?.id]);
+	}, [linkedBulletId, controller.selectedId]);
 
 	useEffect(() => {
 		if (creating || selectedBullet) return;
-		setSelectedId(bullets[0]?.id);
-	}, [bullets, creating, selectedBullet]);
+		const first = controller.visibleItems[0];
+		if (first) {
+			controller.select(first.id);
+		} else {
+			controller.clearSelection();
+		}
+	}, [controller.visibleItems, creating, selectedBullet]);
 
 	const replaceBulletRoute = (bulletId?: string) =>
 		navigate({
@@ -577,15 +506,31 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 
 	const selectBullet = (bulletId: string) => {
 		setCreating(false);
-		setSelectedId(bulletId);
+		controller.select(bulletId);
 		void replaceBulletRoute(bulletId);
+	};
+
+	const startCreating = () => {
+		controller.clearSelection();
+		setCreating(true);
+		void replaceBulletRoute();
+	};
+
+	const cancelCreating = () => {
+		setCreating(false);
+		const first = controller.visibleItems[0];
+		if (first) controller.select(first.id);
 	};
 
 	const addBullet = async (text: string) => {
 		const id = await bulletsStore.create({ text, sourceType, sourceId });
 		setCreating(false);
-		setSelectedId(id);
-		if (id) void replaceBulletRoute(id);
+		if (id) {
+			controller.select(id);
+			void replaceBulletRoute(id);
+		} else {
+			controller.clearSelection();
+		}
 	};
 
 	return (
@@ -597,162 +542,131 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 						Reusable statements for tailored resumes.
 					</CardDescription>
 				</div>
-				<div className="flex items-center gap-2">
-					<Label htmlFor={`archived-${sourceType}-${sourceId}`}>Show archived</Label>
-					<Switch
-						id={`archived-${sourceType}-${sourceId}`}
-						checked={showArchived}
-						onCheckedChange={setShowArchived}
-					/>
+				<div className="flex items-center gap-3">
+					<div className="flex items-center gap-2">
+						<Label htmlFor={`archived-${sourceType}-${sourceId}`}>Show archived</Label>
+						<Switch
+							id={`archived-${sourceType}-${sourceId}`}
+							checked={!controller.isFilterActive('archived')}
+							onCheckedChange={(checked) => controller.setFilterActive('archived', !checked)}
+						/>
+					</div>
+					<Button type="button" variant="outline" size="sm" onClick={startCreating}>
+						<Plus data-icon="inline-start" />
+						New bullet
+					</Button>
 				</div>
 			</CardHeader>
-			<CardContent className="grid min-h-[28rem] grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)] border-t p-0">
-				<div className="flex min-w-0 flex-col">
-					<div className="p-3">
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							className="w-full"
-							onClick={() => {
-								setSelectedId(undefined);
-								setCreating(true);
-								void replaceBulletRoute();
-							}}
-						>
-							<Plus data-icon="inline-start" />
-							New bullet
-						</Button>
-					</div>
-					<Separator />
-					<ScrollArea className="h-[28rem]">
-						<div
-							className="flex flex-col gap-1 p-2"
-							role="listbox"
-							aria-label="Bullets"
-						>
-							{bullets.map((bullet, index) => {
-								const selected = !creating && bullet.id === selectedId;
-								return (
-									<div
-										key={bullet.id}
-										ref={
-											bullet.id === linkedBulletId
-												? linkedOptionRef
-												: undefined
-										}
-										role="option"
-										aria-selected={selected}
-										className={cn(
-											'group flex items-center rounded-md border-l-2 border-l-transparent hover:bg-accent',
-											selected &&
-												'border-l-[var(--appbar-accent)] bg-accent text-accent-foreground',
-										)}
-									>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
-											onClick={() => selectBullet(bullet.id)}
-										>
-											<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
-												<span className="line-clamp-2">{bullet.text}</span>
-												<Badge
-													variant={
-														bullet.status === BulletStatus.DRAFT
-															? 'secondary'
-															: 'outline'
-													}
-												>
-													{statusLabel(bullet.status)}
-												</Badge>
-												{bullet.concepts.map(
-													({ conceptId, concept, relation }) => {
-														const presentation =
-															conceptRelationPresentation(relation);
-														return (
-															<Badge
-																key={`${relation}:${conceptId}`}
-																variant={presentation.variant}
-															>
-																{presentation.label} ·{' '}
-																{concept.label}
-															</Badge>
-														);
-													},
-												)}
-											</span>
-										</Button>
-										<div
-											className={cn(
-												'flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
-												selected && 'opacity-100',
+			<CardContent className="min-h-[28rem] border-t p-0">
+				<DataSourceView
+					controller={controller}
+					className="grid h-full grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)]"
+					masterClassName="flex min-w-0 flex-col overflow-y-auto"
+					detailClassName="min-w-0 overflow-y-auto border-l p-4"
+					itemsClassName="flex flex-col gap-1 p-2"
+					itemsProps={{ role: 'listbox', 'aria-label': 'Bullets' }}
+					emptyState={
+						<p className="p-3 text-sm text-muted-foreground">No bullets for this item yet.</p>
+					}
+					renderItemMaster={({ item: bullet, isSelected }) => {
+						const items = controller.visibleItems;
+						const index = items.findIndex((candidate) => candidate.id === bullet.id);
+						return (
+							<div
+								ref={bullet.id === linkedBulletId ? linkedOptionRef : undefined}
+								role="option"
+								aria-selected={isSelected}
+								className={cn(
+									'group flex items-center rounded-md border-l-2 border-l-transparent hover:bg-accent',
+									isSelected &&
+										'border-l-[var(--appbar-accent)] bg-accent text-accent-foreground',
+								)}
+							>
+								<Button
+									type="button"
+									variant="ghost"
+									className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
+									onClick={() => selectBullet(bullet.id)}
+								>
+									<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+										<span className="line-clamp-2">{bullet.text}</span>
+										<span className="flex flex-wrap items-center gap-1">
+											<Badge
+												className="py-0"
+												variant={
+													bullet.status === BulletStatus.DRAFT ? 'secondary' : 'outline'
+												}
+											>
+												{statusLabel(bullet.status)}
+											</Badge>
+											{bullet.concepts
+												.slice(0, 3)
+												.map(({ conceptId, concept, relation }) => {
+													const presentation = conceptRelationPresentation(relation);
+													return (
+														<Badge
+															key={`${relation}:${conceptId}`}
+															variant={presentation.variant}
+															className="py-0"
+														>
+															{concept.label}
+														</Badge>
+													);
+												})}
+											{bullet.concepts.length > 3 && (
+												<span className="text-xs text-muted-foreground">
+													+{bullet.concepts.length - 3} more
+												</span>
 											)}
-										>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-7"
-												disabled={index === 0}
-												onClick={() =>
-													void bulletsStore.reorder(
-														bullet.id,
-														bullets[index - 1].id,
-													)
-												}
-												aria-label="Move bullet up"
-												title="Move bullet up"
-											>
-												<ArrowUp />
-											</Button>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-7"
-												disabled={index === bullets.length - 1}
-												onClick={() =>
-													void bulletsStore.reorder(
-														bullet.id,
-														bullets[index + 1].id,
-													)
-												}
-												aria-label="Move bullet down"
-												title="Move bullet down"
-											>
-												<ArrowDown />
-											</Button>
-										</div>
-									</div>
-								);
-							})}
-							{bullets.length === 0 && (
-								<p className="p-3 text-sm text-muted-foreground">
-									No bullets for this item yet.
-								</p>
-							)}
-						</div>
-					</ScrollArea>
-				</div>
-
-				<div className="min-w-0 border-l p-4">
-					{creating ? (
-						<NewBulletDetail
-							onCancel={() => {
-								setCreating(false);
-								setSelectedId(bullets[0]?.id);
-							}}
-							onCreate={addBullet}
-						/>
-					) : selectedBullet ? (
-						<BulletDetail key={selectedBullet.id} bullet={selectedBullet} />
-					) : (
-						<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
-							Select a bullet or create a new one.
-						</div>
-					)}
-				</div>
+										</span>
+									</span>
+								</Button>
+								<div
+									className={cn(
+										'flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
+										isSelected && 'opacity-100',
+									)}
+								>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-7"
+										disabled={index <= 0}
+										onClick={() => void bulletsStore.reorder(bullet.id, items[index - 1]!.id)}
+										aria-label="Move bullet up"
+										title="Move bullet up"
+									>
+										<ArrowUp />
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-7"
+										disabled={index === -1 || index === items.length - 1}
+										onClick={() => void bulletsStore.reorder(bullet.id, items[index + 1]!.id)}
+										aria-label="Move bullet down"
+										title="Move bullet down"
+									>
+										<ArrowDown />
+									</Button>
+								</div>
+							</div>
+						);
+					}}
+					renderItemDetail={(bullet) =>
+						creating ? (
+							<NewBulletDetail onCancel={cancelCreating} onCreate={addBullet} />
+						) : bullet ? (
+							<BulletDetail key={bullet.id} bullet={bullet} />
+						) : (
+							<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+								Select a bullet or create a new one.
+							</div>
+						)
+					}
+				/>
 			</CardContent>
 		</Card>
 	);

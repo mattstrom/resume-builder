@@ -1,6 +1,7 @@
 import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { Module } from '@nestjs/common';
 
+import { ConceptsModule } from '../concepts/concepts.module.js';
 import { CrdtClientModule } from '../crdt-client/crdt-client.module.js';
 import { EntitiesModule } from '../entities/index.js';
 import { FactsModule } from '../facts/facts.module.js';
@@ -9,6 +10,7 @@ import { LlmModule } from '../llm/llm.module.js';
 import { EmbeddingsModule } from '../queue/embeddings/embeddings.module.js';
 import { ApplicationsResolver } from './applications.resolver.js';
 import { BulletsResolver } from './bullets.resolver.js';
+import { ConceptsResolver } from './concepts.resolver.js';
 import { FactsResolver } from './facts.resolver.js';
 import { HealthResolver } from './health.resolver.js';
 import { JobRequirementsResolver } from './job-requirements.resolver.js';
@@ -32,6 +34,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 		}),
 		EntitiesModule,
 		CrdtClientModule,
+		ConceptsModule,
 		FactsModule,
 		JobRequirementsModule,
 		EmbeddingsModule,
@@ -41,6 +44,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 	providers: [
 		ApplicationsResolver,
 		BulletsResolver,
+		ConceptsResolver,
 		FactsResolver,
 		JobRequirementsResolver,
 		FitAssessorPromptResolver,

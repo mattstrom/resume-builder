@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
+import { ConceptsService } from '../../concepts/concepts.service.js';
 import type { PrismaService } from '../../prisma/index.js';
 import type { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
 import type { EmbeddingService } from '../../queue/embeddings/embedding.service.js';
@@ -91,10 +92,15 @@ describe('BulletsService', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		const conceptsService = new ConceptsService(
+			prisma as unknown as PrismaService,
+			embeddingQueue as unknown as EmbeddingQueueService,
+		);
 		service = new BulletsService(
 			prisma as unknown as PrismaService,
 			embeddingQueue as unknown as EmbeddingQueueService,
 			embedding as unknown as EmbeddingService,
+			conceptsService,
 		);
 		embeddingQueue.enqueue.mockResolvedValue('job-1');
 		embeddingQueue.enqueueMany.mockResolvedValue(undefined);

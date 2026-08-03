@@ -21,9 +21,9 @@ export const ExpandableCard: FC<ExpandableCardProps> = ({
 	children,
 }) => {
 	return (
-		<Card className="mb-4 bg-card/5 border-border/50">
+		<Card className="rounded-none border-x-0 border-t-0 bg-card/5 border-border/50 first:border-t last:border-b-0">
 			<Collapsible open={expanded} onOpenChange={onExpandChange}>
-				<CardHeader className="py-3">
+				<CardHeader className="py-2">
 					<div className="flex items-center justify-between">
 						<h3 className="text-sm font-medium text-foreground">{title}</h3>
 						<div className="flex items-center gap-1">

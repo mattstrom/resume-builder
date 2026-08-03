@@ -3,8 +3,8 @@ import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { FactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
+import { ConceptVocabulary } from '../concepts/concepts.service.js';
 import {
-	ConceptVocabulary,
 	type CreateFactDto,
 	type FactMeaningDto,
 	FactRelation,
