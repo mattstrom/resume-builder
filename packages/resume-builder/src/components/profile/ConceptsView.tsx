@@ -14,8 +14,10 @@ import {
 	CardTitle,
 } from '@/components/ui/card.tsx';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
+import { Label } from '@/components/ui/label.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
+import { Switch } from '@/components/ui/switch.tsx';
 import { SEARCH_CONCEPTS } from '@/graphql/queries.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import {
@@ -25,6 +27,7 @@ import {
 	type ConceptUsage,
 } from '@/lib/concept-index.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
+import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 const VOCABULARY_LABELS: Record<string, string> = {
@@ -50,9 +53,10 @@ function vocabularyLabel(vocabulary: string): string {
 interface ConceptCardProps {
 	usage: ConceptUsage;
 	semanticScore?: number;
+	hideBulletText?: boolean;
 }
 
-const ConceptCard: FC<ConceptCardProps> = ({ usage, semanticScore }) => (
+const ConceptCard: FC<ConceptCardProps> = ({ usage, semanticScore, hideBulletText }) => (
 	<Card>
 		<CardHeader className="gap-2 p-4 pb-3">
 			<div className="flex items-start justify-between gap-3">
@@ -80,7 +84,9 @@ const ConceptCard: FC<ConceptCardProps> = ({ usage, semanticScore }) => (
 					<Fragment key={`${bullet.id}:${link.relation}`}>
 						{index > 0 && <Separator className="my-3" />}
 						<div className="flex flex-col gap-2">
-							<p className="text-sm leading-6 text-foreground">{bullet.text}</p>
+							{!hideBulletText && (
+								<p className="text-sm leading-6 text-foreground">{bullet.text}</p>
+							)}
 							<div className="flex flex-wrap items-center justify-between gap-2">
 								<div className="flex flex-wrap gap-1.5">
 									<Badge variant={relation.variant}>{relation.label}</Badge>
@@ -135,6 +141,7 @@ export const ConceptsView: FC = observer(() => {
 	const { bulletsStore } = useStore();
 	const [search, setSearch] = useState('');
 	const [debouncedSearch, setDebouncedSearch] = useState('');
+	const [hideBulletText, setHideBulletText] = useState(false);
 	const bullets = bulletsStore.bullets;
 	const allUsages = useMemo(() => buildConceptIndex(bullets), [bullets]);
 	const textUsages = useMemo(() => filterConceptIndex(allUsages, search), [allUsages, search]);
@@ -201,9 +208,17 @@ export const ConceptsView: FC = observer(() => {
 							See the bullet evidence behind each technology, capability, and outcome.
 						</p>
 					</div>
-					<div className="flex flex-wrap gap-2">
+					<div className="flex flex-wrap items-center gap-3">
 						<Badge variant="secondary">{allUsages.length} concepts</Badge>
 						<Badge variant="outline">{mappedBulletCount} mapped bullets</Badge>
+						<div className="flex items-center gap-2">
+							<Label htmlFor="hide-bullet-text">Hide bullet text</Label>
+							<Switch
+								id="hide-bullet-text"
+								checked={hideBulletText}
+								onCheckedChange={setHideBulletText}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -253,12 +268,20 @@ export const ConceptsView: FC = observer(() => {
 								</h2>
 								<Badge variant="outline">{vocabularyUsages?.length ?? 0}</Badge>
 							</div>
-							<div className="grid items-start gap-4 lg:grid-cols-2">
+							<div
+								className={cn(
+									'grid items-start gap-4',
+									hideBulletText
+										? 'lg:grid-cols-3 xl:grid-cols-4'
+										: 'lg:grid-cols-2',
+								)}
+							>
 								{vocabularyUsages?.map((usage) => (
 									<ConceptCard
 										key={usage.concept.id}
 										usage={usage}
 										semanticScore={semanticScores.get(usage.concept.id)}
+										hideBulletText={hideBulletText}
 									/>
 								))}
 							</div>
