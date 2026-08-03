@@ -31,6 +31,18 @@ describe('ConceptsService', () => {
 		);
 	});
 
+	it('casts advisory lock results to a Prisma-supported type', async () => {
+		await service.lockConcepts(prisma as never, [
+			{ vocabulary: 'technology', key: 'React', label: 'React' },
+		]);
+
+		expect(prisma.$queryRawUnsafe).toHaveBeenCalledWith(
+			'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))::text',
+			'technology',
+			'React',
+		);
+	});
+
 	it('suggests canonical technologies for the uses relationship', async () => {
 		const suggestions = await service.findConceptSuggestions(uid, 'technology', 'react', 5);
 

@@ -88,7 +88,7 @@ export class ConceptsService {
 			left.localeCompare(right),
 		)) {
 			await prisma.$queryRawUnsafe(
-				'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',
+				'SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))::text',
 				concept.vocabulary,
 				concept.key,
 			);
