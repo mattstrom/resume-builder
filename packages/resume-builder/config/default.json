@@ -1,4 +1,5 @@
 {
+  "apiUrl": "http://localhost:3000",
   "graphqlUrl": "http://localhost:3000/graphql",
   "collaborationUrl": "ws://localhost:1234",
   "mastraUrl": "http://localhost:4111",
