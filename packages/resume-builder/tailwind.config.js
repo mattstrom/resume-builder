@@ -57,6 +57,9 @@ export default {
 					demonstrates: 'hsl(var(--relation-demonstrates))',
 					supports: 'hsl(var(--relation-supports))',
 					produced: 'hsl(var(--relation-produced))',
+					type: 'hsl(var(--relation-type))',
+					'relates-to': 'hsl(var(--relation-relates-to))',
+					about: 'hsl(var(--relation-about))',
 				},
 				editor: {
 					DEFAULT: 'hsl(var(--editor-background))',

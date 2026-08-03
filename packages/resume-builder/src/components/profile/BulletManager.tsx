@@ -5,7 +5,7 @@ import {
 	type UpdateBulletInput,
 } from '@resume-builder/entities';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowDown, ArrowUp, ChevronDown, Plus, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Plus, RefreshCw, Sparkles, X } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -19,12 +19,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible.tsx';
-import { Combobox } from '@/components/ui/combobox.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
@@ -43,7 +37,6 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { cn } from '@/lib/utils.ts';
-import type { ConceptSuggestion } from '@/stores/facts.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface BulletManagerProps {
@@ -103,67 +96,8 @@ function statusLabel(status: BulletStatus): string {
 	return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
-function conceptKey(label: string): string {
-	return label
-		.trim()
-		.toLocaleLowerCase()
-		.replace(/[^a-z0-9]+/g, '-')
-		.replace(/(^-|-$)/g, '');
-}
-
 const ConceptEditor: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
-	const { bulletsStore, factsStore } = useStore();
-	const [label, setLabel] = useState('');
-	const [selectedSuggestion, setSelectedSuggestion] = useState<ConceptSuggestion>();
-	const [suggestions, setSuggestions] = useState<ConceptSuggestion[]>([]);
-	const [open, setOpen] = useState(false);
-	const [loading, setLoading] = useState(false);
-
-	useEffect(() => {
-		if (!open) {
-			setLoading(false);
-			return;
-		}
-
-		let active = true;
-		setLoading(true);
-		const timer = window.setTimeout(async () => {
-			try {
-				const next = await factsStore.getConceptSuggestions('capability', label);
-				if (active) setSuggestions(next);
-			} catch {
-				if (active) setSuggestions([]);
-			} finally {
-				if (active) setLoading(false);
-			}
-		}, 150);
-
-		return () => {
-			active = false;
-			window.clearTimeout(timer);
-		};
-	}, [factsStore, label, open]);
-
-	const add = async () => {
-		const trimmedLabel = label.trim();
-		if (!trimmedLabel || bulletsStore.isUpdatingConcept) return;
-		try {
-			await bulletsStore.upsertConcept(bullet.id, {
-				relation: 'demonstrates',
-				concept: {
-					vocabulary: 'capability',
-					label: trimmedLabel,
-					key: selectedSuggestion?.key ?? conceptKey(trimmedLabel),
-				},
-				source: 'user',
-			});
-			setLabel('');
-			setSelectedSuggestion(undefined);
-			toast.success('Capability added');
-		} catch {
-			toast.error('Could not add capability');
-		}
-	};
+	const { bulletsStore } = useStore();
 
 	const remove = async (conceptId: string, relation: string) => {
 		try {
@@ -208,79 +142,34 @@ const ConceptEditor: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 				</Button>
 			</div>
 			{bullet.concepts.length > 0 ? (
-				<div className="flex flex-wrap gap-2">
+				<div className="flex flex-wrap gap-1">
 					{bullet.concepts.map(({ conceptId, concept, relation, source }) => {
 						const presentation = conceptRelationPresentation(relation);
 						return (
-							<div
+							<Badge
 								key={`${relation}:${conceptId}`}
-								className="flex items-center gap-1"
+								variant={presentation.variant}
+								title={`Source: ${source}`}
+								className="gap-1 py-0 pr-1"
 							>
-								<Badge variant={presentation.variant} title={`Source: ${source}`}>
-									{presentation.label} · {concept.label}
-								</Badge>
-								<Button
+								<span className="opacity-70">{presentation.label} ·</span>
+								{concept.label}
+								<button
 									type="button"
-									variant="ghost"
-									size="icon"
-									className="size-7"
 									disabled={bulletsStore.isUpdatingConcept}
 									onClick={() => void remove(conceptId, relation)}
 									aria-label={`Remove ${presentation.label} ${concept.label}`}
+									className="rounded-sm opacity-60 hover:opacity-100 disabled:pointer-events-none disabled:opacity-40"
 								>
-									<Trash2 />
-								</Button>
-							</div>
+									<X className="size-3" />
+								</button>
+							</Badge>
 						);
 					})}
 				</div>
 			) : (
 				<p className="text-xs text-muted-foreground">No concepts assigned yet.</p>
 			)}
-			<div className="flex items-end gap-2">
-				<div className="min-w-0 flex-1">
-					<Label id={`bullet-capability-${bullet.id}`}>Add capability manually</Label>
-					<Combobox
-						open={open}
-						onOpenChange={setOpen}
-						value={label}
-						selectedValue={selectedSuggestion?.key}
-						onValueChange={(value, option) => {
-							setLabel(value);
-							setSelectedSuggestion(
-								option
-									? suggestions.find(({ key }) => key === option.value)
-									: undefined,
-							);
-						}}
-						options={suggestions.map(({ key, label: optionLabel, definition }) => ({
-							value: key,
-							label: optionLabel,
-							description: definition ?? undefined,
-						}))}
-						placeholder="Select or enter a capability"
-						searchPlaceholder="Search capabilities"
-						emptyMessage="No matches. You can use the value you entered."
-						loadingMessage="Loading suggestions…"
-						groupLabel="Capabilities"
-						isLoading={loading}
-						shouldFilter={false}
-						ariaLabelledby={`bullet-capability-${bullet.id}`}
-					/>
-				</div>
-				<Button
-					type="button"
-					disabled={!label.trim() || bulletsStore.isUpdatingConcept}
-					onClick={() => void add()}
-				>
-					{bulletsStore.isUpdatingConcept ? (
-						<Spinner data-icon="inline-start" />
-					) : (
-						<Plus data-icon="inline-start" />
-					)}
-					Add
-				</Button>
-			</div>
 		</section>
 	);
 });
@@ -367,86 +256,104 @@ const BulletDetail: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
 			<ConceptEditor bullet={bullet} />
 			<Separator />
 
-			<div className="grid gap-3 xl:grid-cols-2">
-				{SCORE_FIELDS.map(({ key, label }) => (
-					<ScoreField key={key} bullet={bullet} scoreKey={key} label={label} />
-				))}
-			</div>
+			<ScoreRow bullet={bullet} />
 		</div>
 	);
 });
 
-const ScoreField: FC<{
-	bullet: Bullet;
-	scoreKey: ScoreKey;
-	label: string;
-}> = observer(({ bullet, scoreKey, label }) => {
-	const scoreField = `${scoreKey}Score` as keyof Bullet;
-	const noteField = `${scoreKey}Note` as keyof Bullet;
-	const whatWorksWellField = `${scoreKey}WhatWorksWell` as keyof Bullet;
-	const whyItMattersField = `${scoreKey}WhyItMatters` as keyof Bullet;
-	const proposedEnhancementsField = `${scoreKey}ProposedEnhancements` as keyof Bullet;
-	const score = bullet[scoreField as keyof Bullet] as number | null | undefined;
-	const note = bullet[noteField as keyof Bullet] as string | null | undefined;
-	const whatWorksWell = (bullet[whatWorksWellField] as string[] | undefined) ?? [];
-	const whyItMatters = bullet[whyItMattersField] as string | null | undefined;
-	const proposedEnhancements = (bullet[proposedEnhancementsField] as string[] | undefined) ?? [];
+function scoreMetric(bullet: Bullet, key: ScoreKey, label: string) {
+	const score = bullet[`${key}Score` as keyof Bullet] as number | null | undefined;
+	const note = bullet[`${key}Note` as keyof Bullet] as string | null | undefined;
+	const whatWorksWell =
+		(bullet[`${key}WhatWorksWell` as keyof Bullet] as string[] | undefined) ?? [];
+	const whyItMatters = bullet[`${key}WhyItMatters` as keyof Bullet] as string | null | undefined;
+	const proposedEnhancements =
+		(bullet[`${key}ProposedEnhancements` as keyof Bullet] as string[] | undefined) ?? [];
 	const level = scoreLevel(score);
 	const progress = score == null ? 0 : Math.min(100, Math.max(0, score * 100));
 	const hasAnalysis =
 		whatWorksWell.length > 0 || Boolean(whyItMatters) || proposedEnhancements.length > 0;
 
+	return {
+		key,
+		label,
+		note,
+		whatWorksWell,
+		whyItMatters,
+		proposedEnhancements,
+		level,
+		progress,
+		hasAnalysis,
+	};
+}
+
+const ScoreRow: FC<{ bullet: Bullet }> = observer(({ bullet }) => {
+	const [activeKey, setActiveKey] = useState<ScoreKey>();
+	const metrics = SCORE_FIELDS.map(({ key, label }) => scoreMetric(bullet, key, label));
+	const active = metrics.find((metric) => metric.key === activeKey);
+
 	return (
-		<div className="flex min-w-0 flex-col gap-3 rounded-md border border-border bg-background p-3">
-			<div className="flex items-center justify-between gap-3">
-				<span className="text-sm font-medium">{label}</span>
-				<span className={cn('text-xs font-medium', level.textClassName)}>
-					{level.label}
-				</span>
+		<section className="flex flex-col gap-2">
+			<h5 className="text-sm font-medium">Score</h5>
+			<div className="flex gap-2">
+				{metrics.map((metric) => (
+					<button
+						key={metric.key}
+						type="button"
+						onClick={() =>
+							setActiveKey(activeKey === metric.key ? undefined : metric.key)
+						}
+						className={cn(
+							'flex-1 rounded-md border border-border bg-background p-2.5 text-left transition-colors hover:border-ring',
+							activeKey === metric.key && 'border-ring',
+						)}
+					>
+						<div className="flex items-center justify-between gap-2 text-xs">
+							<span className="font-medium">{metric.label}</span>
+							<span className={cn('font-medium', metric.level.textClassName)}>
+								{metric.level.label}
+							</span>
+						</div>
+						<Progress
+							value={metric.progress}
+							className="mt-2 h-1.5"
+							indicatorClassName={metric.level.indicatorClassName}
+							aria-label={`${metric.label} checkpoint`}
+							aria-valuetext={metric.level.label}
+						/>
+					</button>
+				))}
 			</div>
-			<Progress
-				value={progress}
-				className="h-2"
-				indicatorClassName={level.indicatorClassName}
-				aria-label={`${label} checkpoint`}
-				aria-valuetext={score == null ? 'Not scored' : level.label}
-			/>
-			<p className="text-xs leading-relaxed text-muted-foreground">
-				{note ?? 'Recalculate the score to generate feedback for this checkpoint.'}
-			</p>
-			{hasAnalysis && (
-				<Collapsible className="group flex flex-col gap-3">
-					<CollapsibleTrigger asChild>
-						<Button
-							type="button"
-							variant="ghost"
-							size="sm"
-							className="-mx-2 justify-between"
-						>
-							Analysis details
-							<ChevronDown className="transition-transform group-data-[state=open]:rotate-180" />
-						</Button>
-					</CollapsibleTrigger>
-					<CollapsibleContent className="flex flex-col gap-4">
-						<AnalysisList
-							title="What works well"
-							items={whatWorksWell}
-							emptyMessage="No clear strength was identified for this checkpoint."
-						/>
-						<Separator />
-						<AnalysisSection title="Why it matters">
-							{whyItMatters ?? 'Recalculate the score to generate an explanation.'}
-						</AnalysisSection>
-						<Separator />
-						<AnalysisList
-							title="Proposed enhancements"
-							items={proposedEnhancements}
-							emptyMessage="No material enhancement was identified."
-						/>
-					</CollapsibleContent>
-				</Collapsible>
+			{active && (
+				<div className="flex flex-col gap-3 rounded-md border border-border bg-background p-3">
+					<p className="text-xs leading-relaxed text-muted-foreground">
+						{active.note ??
+							'Recalculate the score to generate feedback for this checkpoint.'}
+					</p>
+					{active.hasAnalysis && (
+						<>
+							<Separator />
+							<AnalysisList
+								title="What works well"
+								items={active.whatWorksWell}
+								emptyMessage="No clear strength was identified for this checkpoint."
+							/>
+							<Separator />
+							<AnalysisSection title="Why it matters">
+								{active.whyItMatters ??
+									'Recalculate the score to generate an explanation.'}
+							</AnalysisSection>
+							<Separator />
+							<AnalysisList
+								title="Proposed enhancements"
+								items={active.proposedEnhancements}
+								emptyMessage="No material enhancement was identified."
+							/>
+						</>
+					)}
+				</div>
 			)}
-		</div>
+		</section>
 	);
 });
 
@@ -657,30 +564,38 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 										>
 											<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
 												<span className="line-clamp-2">{bullet.text}</span>
-												<Badge
-													variant={
-														bullet.status === BulletStatus.DRAFT
-															? 'secondary'
-															: 'outline'
-													}
-												>
-													{statusLabel(bullet.status)}
-												</Badge>
-												{bullet.concepts.map(
-													({ conceptId, concept, relation }) => {
-														const presentation =
-															conceptRelationPresentation(relation);
-														return (
-															<Badge
-																key={`${relation}:${conceptId}`}
-																variant={presentation.variant}
-															>
-																{presentation.label} ·{' '}
-																{concept.label}
-															</Badge>
-														);
-													},
-												)}
+												<span className="flex flex-wrap items-center gap-1">
+													<Badge
+														className="py-0"
+														variant={
+															bullet.status === BulletStatus.DRAFT
+																? 'secondary'
+																: 'outline'
+														}
+													>
+														{statusLabel(bullet.status)}
+													</Badge>
+													{bullet.concepts
+														.slice(0, 3)
+														.map(({ conceptId, concept, relation }) => {
+															const presentation =
+																conceptRelationPresentation(relation);
+															return (
+																<Badge
+																	key={`${relation}:${conceptId}`}
+																	variant={presentation.variant}
+																	className="py-0"
+																>
+																	{concept.label}
+																</Badge>
+															);
+														})}
+													{bullet.concepts.length > 3 && (
+														<span className="text-xs text-muted-foreground">
+															+{bullet.concepts.length - 3} more
+														</span>
+													)}
+												</span>
 											</span>
 										</Button>
 										<div

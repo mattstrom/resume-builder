@@ -23,6 +23,11 @@ const badgeVariants = cva(
 					'border-relation-supports/30 bg-relation-supports/10 text-relation-supports',
 				relationProduced:
 					'border-relation-produced/30 bg-relation-produced/10 text-relation-produced',
+				relationType: 'border-relation-type/30 bg-relation-type/10 text-relation-type',
+				relationRelatesTo:
+					'border-relation-relates-to/30 bg-relation-relates-to/10 text-relation-relates-to',
+				relationAbout:
+					'border-relation-about/30 bg-relation-about/10 text-relation-about',
 			},
 		},
 		defaultVariants: {
