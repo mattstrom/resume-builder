@@ -1,6 +1,7 @@
 {
   "graphqlUrl": "http://localhost:3000/graphql",
   "collaborationUrl": "ws://localhost:1234",
+  "mastraUrl": "http://localhost:4111",
   "auth0": {
     "domain": "login.mattstrom.com",
     "clientId": "mBzWPqBisgD23yGGtNLJSrW5ejvQZnZH",

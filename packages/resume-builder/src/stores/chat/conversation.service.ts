@@ -6,8 +6,6 @@ import { action, computed, makeObservable, observable } from 'mobx';
 import type { RootStore } from '@/stores/root.store.ts';
 import { authFetch } from '@/utils/auth.ts';
 
-const MASTRA_API_BASE = 'http://localhost:4111';
-
 interface ConversationPayload {
 	id: string;
 	title?: string;
@@ -157,14 +155,14 @@ export class ConversationService {
 		const token = await this.rootStore.authStore.getTokenSilently();
 
 		return new MastraClient({
-			baseUrl: MASTRA_API_BASE,
+			baseUrl: __CONFIG__.mastraUrl,
 			headers: { Authorization: `Bearer ${token}` },
 		});
 	}
 
 	get transport() {
 		return new DefaultChatTransport({
-			api: `${MASTRA_API_BASE}/chat/chatAgent`,
+			api: `${__CONFIG__.mastraUrl}/chat/chatAgent`,
 			body: { metadata: this.requestContext },
 			prepareSendMessagesRequest: async ({ messages }) => {
 				const { sub } = this.rootStore.authStore.user!;
