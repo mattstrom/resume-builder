@@ -10,6 +10,7 @@ import { observer } from 'mobx-react';
 import { type FC, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { DataSourceView } from '@/components/common/DataSourceView.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -21,7 +22,6 @@ import {
 } from '@/components/ui/card.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
-import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import {
 	Select,
 	SelectContent,
@@ -34,6 +34,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
+import { useDataSourceController } from '@/hooks/use-data-source-controller.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
 import { cn } from '@/lib/utils.ts';
@@ -439,13 +440,27 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 	const { sourceType, sourceId, linkedBulletId } = props;
 	const { bulletsStore } = useStore();
 	const navigate = useNavigate();
-	const [showArchived, setShowArchived] = useState(false);
-	const [selectedId, setSelectedId] = useState<string>();
 	const [creating, setCreating] = useState(false);
 	const cardRef = useRef<HTMLDivElement>(null);
 	const linkedOptionRef = useRef<HTMLDivElement>(null);
-	const bullets = bulletsStore.forSource(sourceType, sourceId, showArchived);
-	const selectedBullet = bullets.find((bullet) => bullet.id === selectedId);
+
+	const controller = useDataSourceController<Bullet>({
+		getId: (bullet) => bullet.id,
+		selectionMode: 'single',
+		filters: [
+			{
+				key: 'archived',
+				label: 'Hide archived',
+				predicate: (bullet) => bullet.status !== BulletStatus.ARCHIVED,
+			},
+		],
+		defaultActiveFilterKeys: ['archived'],
+	});
+	controller.setItems(bulletsStore.forSource(sourceType, sourceId, true));
+
+	const selectedBullet = controller.visibleItems.find(
+		(bullet) => bullet.id === controller.selectedId,
+	);
 	const linkedBullet = bulletsStore.bullets.find(
 		(bullet) =>
 			bullet.id === linkedBulletId &&
@@ -455,25 +470,32 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 
 	useEffect(() => {
 		if (!linkedBullet) return;
-		if (linkedBullet.status === BulletStatus.ARCHIVED) setShowArchived(true);
+		if (linkedBullet.status === BulletStatus.ARCHIVED) {
+			controller.setFilterActive('archived', false);
+		}
 		setCreating(false);
-		setSelectedId(linkedBullet.id);
+		controller.select(linkedBullet.id);
 	}, [linkedBullet?.id, linkedBullet?.status]);
 
 	useEffect(() => {
-		if (!linkedBulletId || selectedBullet?.id !== linkedBulletId) return;
+		if (!linkedBulletId || controller.selectedId !== linkedBulletId) return;
 		const frame = window.requestAnimationFrame(() => {
 			cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 			linkedOptionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		});
 
 		return () => window.cancelAnimationFrame(frame);
-	}, [linkedBulletId, selectedBullet?.id]);
+	}, [linkedBulletId, controller.selectedId]);
 
 	useEffect(() => {
 		if (creating || selectedBullet) return;
-		setSelectedId(bullets[0]?.id);
-	}, [bullets, creating, selectedBullet]);
+		const first = controller.visibleItems[0];
+		if (first) {
+			controller.select(first.id);
+		} else {
+			controller.clearSelection();
+		}
+	}, [controller.visibleItems, creating, selectedBullet]);
 
 	const replaceBulletRoute = (bulletId?: string) =>
 		navigate({
@@ -484,15 +506,31 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 
 	const selectBullet = (bulletId: string) => {
 		setCreating(false);
-		setSelectedId(bulletId);
+		controller.select(bulletId);
 		void replaceBulletRoute(bulletId);
+	};
+
+	const startCreating = () => {
+		controller.clearSelection();
+		setCreating(true);
+		void replaceBulletRoute();
+	};
+
+	const cancelCreating = () => {
+		setCreating(false);
+		const first = controller.visibleItems[0];
+		if (first) controller.select(first.id);
 	};
 
 	const addBullet = async (text: string) => {
 		const id = await bulletsStore.create({ text, sourceType, sourceId });
 		setCreating(false);
-		setSelectedId(id);
-		if (id) void replaceBulletRoute(id);
+		if (id) {
+			controller.select(id);
+			void replaceBulletRoute(id);
+		} else {
+			controller.clearSelection();
+		}
 	};
 
 	return (
@@ -504,170 +542,131 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 						Reusable statements for tailored resumes.
 					</CardDescription>
 				</div>
-				<div className="flex items-center gap-2">
-					<Label htmlFor={`archived-${sourceType}-${sourceId}`}>Show archived</Label>
-					<Switch
-						id={`archived-${sourceType}-${sourceId}`}
-						checked={showArchived}
-						onCheckedChange={setShowArchived}
-					/>
+				<div className="flex items-center gap-3">
+					<div className="flex items-center gap-2">
+						<Label htmlFor={`archived-${sourceType}-${sourceId}`}>Show archived</Label>
+						<Switch
+							id={`archived-${sourceType}-${sourceId}`}
+							checked={!controller.isFilterActive('archived')}
+							onCheckedChange={(checked) => controller.setFilterActive('archived', !checked)}
+						/>
+					</div>
+					<Button type="button" variant="outline" size="sm" onClick={startCreating}>
+						<Plus data-icon="inline-start" />
+						New bullet
+					</Button>
 				</div>
 			</CardHeader>
-			<CardContent className="grid min-h-[28rem] grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)] border-t p-0">
-				<div className="flex min-w-0 flex-col">
-					<div className="p-3">
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							className="w-full"
-							onClick={() => {
-								setSelectedId(undefined);
-								setCreating(true);
-								void replaceBulletRoute();
-							}}
-						>
-							<Plus data-icon="inline-start" />
-							New bullet
-						</Button>
-					</div>
-					<Separator />
-					<ScrollArea className="h-[28rem]">
-						<div
-							className="flex flex-col gap-1 p-2"
-							role="listbox"
-							aria-label="Bullets"
-						>
-							{bullets.map((bullet, index) => {
-								const selected = !creating && bullet.id === selectedId;
-								return (
-									<div
-										key={bullet.id}
-										ref={
-											bullet.id === linkedBulletId
-												? linkedOptionRef
-												: undefined
-										}
-										role="option"
-										aria-selected={selected}
-										className={cn(
-											'group flex items-center rounded-md border-l-2 border-l-transparent hover:bg-accent',
-											selected &&
-												'border-l-[var(--appbar-accent)] bg-accent text-accent-foreground',
-										)}
-									>
-										<Button
-											type="button"
-											variant="ghost"
-											className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
-											onClick={() => selectBullet(bullet.id)}
-										>
-											<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
-												<span className="line-clamp-2">{bullet.text}</span>
-												<span className="flex flex-wrap items-center gap-1">
-													<Badge
-														className="py-0"
-														variant={
-															bullet.status === BulletStatus.DRAFT
-																? 'secondary'
-																: 'outline'
-														}
-													>
-														{statusLabel(bullet.status)}
-													</Badge>
-													{bullet.concepts
-														.slice(0, 3)
-														.map(({ conceptId, concept, relation }) => {
-															const presentation =
-																conceptRelationPresentation(relation);
-															return (
-																<Badge
-																	key={`${relation}:${conceptId}`}
-																	variant={presentation.variant}
-																	className="py-0"
-																>
-																	{concept.label}
-																</Badge>
-															);
-														})}
-													{bullet.concepts.length > 3 && (
-														<span className="text-xs text-muted-foreground">
-															+{bullet.concepts.length - 3} more
-														</span>
-													)}
+			<CardContent className="min-h-[28rem] border-t p-0">
+				<DataSourceView
+					controller={controller}
+					className="grid h-full grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)]"
+					masterClassName="flex min-w-0 flex-col overflow-y-auto"
+					detailClassName="min-w-0 overflow-y-auto border-l p-4"
+					itemsClassName="flex flex-col gap-1 p-2"
+					itemsProps={{ role: 'listbox', 'aria-label': 'Bullets' }}
+					emptyState={
+						<p className="p-3 text-sm text-muted-foreground">No bullets for this item yet.</p>
+					}
+					renderItemMaster={({ item: bullet, isSelected }) => {
+						const items = controller.visibleItems;
+						const index = items.findIndex((candidate) => candidate.id === bullet.id);
+						return (
+							<div
+								ref={bullet.id === linkedBulletId ? linkedOptionRef : undefined}
+								role="option"
+								aria-selected={isSelected}
+								className={cn(
+									'group flex items-center rounded-md border-l-2 border-l-transparent hover:bg-accent',
+									isSelected &&
+										'border-l-[var(--appbar-accent)] bg-accent text-accent-foreground',
+								)}
+							>
+								<Button
+									type="button"
+									variant="ghost"
+									className="h-auto min-w-0 flex-1 justify-start whitespace-normal px-3 py-2 text-left hover:bg-transparent"
+									onClick={() => selectBullet(bullet.id)}
+								>
+									<span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+										<span className="line-clamp-2">{bullet.text}</span>
+										<span className="flex flex-wrap items-center gap-1">
+											<Badge
+												className="py-0"
+												variant={
+													bullet.status === BulletStatus.DRAFT ? 'secondary' : 'outline'
+												}
+											>
+												{statusLabel(bullet.status)}
+											</Badge>
+											{bullet.concepts
+												.slice(0, 3)
+												.map(({ conceptId, concept, relation }) => {
+													const presentation = conceptRelationPresentation(relation);
+													return (
+														<Badge
+															key={`${relation}:${conceptId}`}
+															variant={presentation.variant}
+															className="py-0"
+														>
+															{concept.label}
+														</Badge>
+													);
+												})}
+											{bullet.concepts.length > 3 && (
+												<span className="text-xs text-muted-foreground">
+													+{bullet.concepts.length - 3} more
 												</span>
-											</span>
-										</Button>
-										<div
-											className={cn(
-												'flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
-												selected && 'opacity-100',
 											)}
-										>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-7"
-												disabled={index === 0}
-												onClick={() =>
-													void bulletsStore.reorder(
-														bullet.id,
-														bullets[index - 1].id,
-													)
-												}
-												aria-label="Move bullet up"
-												title="Move bullet up"
-											>
-												<ArrowUp />
-											</Button>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-7"
-												disabled={index === bullets.length - 1}
-												onClick={() =>
-													void bulletsStore.reorder(
-														bullet.id,
-														bullets[index + 1].id,
-													)
-												}
-												aria-label="Move bullet down"
-												title="Move bullet down"
-											>
-												<ArrowDown />
-											</Button>
-										</div>
-									</div>
-								);
-							})}
-							{bullets.length === 0 && (
-								<p className="p-3 text-sm text-muted-foreground">
-									No bullets for this item yet.
-								</p>
-							)}
-						</div>
-					</ScrollArea>
-				</div>
-
-				<div className="min-w-0 border-l p-4">
-					{creating ? (
-						<NewBulletDetail
-							onCancel={() => {
-								setCreating(false);
-								setSelectedId(bullets[0]?.id);
-							}}
-							onCreate={addBullet}
-						/>
-					) : selectedBullet ? (
-						<BulletDetail key={selectedBullet.id} bullet={selectedBullet} />
-					) : (
-						<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
-							Select a bullet or create a new one.
-						</div>
-					)}
-				</div>
+										</span>
+									</span>
+								</Button>
+								<div
+									className={cn(
+										'flex shrink-0 flex-col opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100',
+										isSelected && 'opacity-100',
+									)}
+								>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-7"
+										disabled={index <= 0}
+										onClick={() => void bulletsStore.reorder(bullet.id, items[index - 1]!.id)}
+										aria-label="Move bullet up"
+										title="Move bullet up"
+									>
+										<ArrowUp />
+									</Button>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-7"
+										disabled={index === -1 || index === items.length - 1}
+										onClick={() => void bulletsStore.reorder(bullet.id, items[index + 1]!.id)}
+										aria-label="Move bullet down"
+										title="Move bullet down"
+									>
+										<ArrowDown />
+									</Button>
+								</div>
+							</div>
+						);
+					}}
+					renderItemDetail={(bullet) =>
+						creating ? (
+							<NewBulletDetail onCancel={cancelCreating} onCreate={addBullet} />
+						) : bullet ? (
+							<BulletDetail key={bullet.id} bullet={bullet} />
+						) : (
+							<div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
+								Select a bullet or create a new one.
+							</div>
+						)
+					}
+				/>
 			</CardContent>
 		</Card>
 	);

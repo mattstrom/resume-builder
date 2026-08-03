@@ -1,9 +1,11 @@
 import { useQuery } from '@apollo/client/react';
 import { Link } from '@tanstack/react-router';
-import { Pencil, Search } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { type FC, Fragment, useEffect, useMemo, useState } from 'react';
 
+import { DataSourceControls } from '@/components/common/DataSourceControls.tsx';
+import { DataSourceView } from '@/components/common/DataSourceView.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -13,12 +15,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
 import { Switch } from '@/components/ui/switch.tsx';
 import { SEARCH_CONCEPTS } from '@/graphql/queries.ts';
+import { useDataSourceController } from '@/hooks/use-data-source-controller.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import {
 	buildConceptIndex,
@@ -80,6 +82,7 @@ const ConceptCard: FC<ConceptCardProps> = ({ usage, semanticScore, hideBulletTex
 		<CardContent className="flex flex-col px-4 pb-4 pt-0">
 			{usage.bullets.map(({ bullet, link }, index) => {
 				const relation = conceptRelationPresentation(link.relation);
+
 				return (
 					<Fragment key={`${bullet.id}:${link.relation}`}>
 						{index > 0 && <Separator className="my-3" />}
@@ -139,17 +142,37 @@ const ConceptsLoading: FC = () => (
 
 export const ConceptsView: FC = observer(() => {
 	const { bulletsStore } = useStore();
-	const [search, setSearch] = useState('');
 	const [debouncedSearch, setDebouncedSearch] = useState('');
 	const [hideBulletText, setHideBulletText] = useState(false);
 	const bullets = bulletsStore.bullets;
 	const allUsages = useMemo(() => buildConceptIndex(bullets), [bullets]);
-	const textUsages = useMemo(() => filterConceptIndex(allUsages, search), [allUsages, search]);
+
+	const controller = useDataSourceController<ConceptUsage>({
+		getId: (usage) => usage.concept.id,
+		groupings: [
+			{
+				key: 'vocabulary',
+				label: 'Vocabulary',
+				groupOf: (usage) => usage.concept.vocabulary,
+				groupLabel: vocabularyLabel,
+			},
+		],
+		defaultGroupingKey: 'vocabulary',
+	});
+
+	const textUsages = useMemo(
+		() => filterConceptIndex(allUsages, controller.searchQuery),
+		[allUsages, controller.searchQuery],
+	);
 
 	useEffect(() => {
-		const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
+		const timeout = window.setTimeout(
+			() => setDebouncedSearch(controller.searchQuery.trim()),
+			250,
+		);
+
 		return () => window.clearTimeout(timeout);
-	}, [search]);
+	}, [controller.searchQuery]);
 
 	const semanticSearchEnabled = debouncedSearch.length >= 2;
 	const {
@@ -166,7 +189,7 @@ export const ConceptsView: FC = observer(() => {
 		fetchPolicy: 'network-only',
 	});
 	const hasCurrentSemanticResults =
-		semanticSearchEnabled && search.trim() === debouncedSearch && semanticData;
+		semanticSearchEnabled && controller.searchQuery.trim() === debouncedSearch && semanticData;
 	const usages = useMemo(
 		() =>
 			hasCurrentSemanticResults
@@ -187,13 +210,7 @@ export const ConceptsView: FC = observer(() => {
 			),
 		[hasCurrentSemanticResults, semanticData],
 	);
-	const grouped = useMemo(
-		() =>
-			Object.entries(Object.groupBy(usages, ({ concept }) => concept.vocabulary)).sort(
-				([left], [right]) => vocabularyLabel(left).localeCompare(vocabularyLabel(right)),
-			),
-		[usages],
-	);
+	controller.setItems(usages);
 	const mappedBulletCount = new Set(
 		allUsages.flatMap((usage) => usage.bullets.map(({ bullet }) => bullet.id)),
 	).size;
@@ -223,18 +240,14 @@ export const ConceptsView: FC = observer(() => {
 				</div>
 			</div>
 
-			<InputGroup className="max-w-2xl">
-				<InputGroupAddon>
-					<Search />
-				</InputGroupAddon>
-				<InputGroupInput
-					aria-label="Search concepts and supporting bullets"
-					placeholder="Search concepts or bullet text"
-					value={search}
-					onChange={(event) => setSearch(event.target.value)}
-				/>
-			</InputGroup>
-			{semanticLoading && search.trim() === debouncedSearch && (
+			<DataSourceControls
+				controller={controller}
+				showSearch
+				searchAriaLabel="Search concepts and supporting bullets"
+				searchPlaceholder="Search concepts or bullet text"
+				groupingAriaLabel="Group by"
+			/>
+			{semanticLoading && controller.searchQuery.trim() === debouncedSearch && (
 				<p className="text-xs text-muted-foreground">Finding semantic matches…</p>
 			)}
 			{semanticError && (
@@ -245,49 +258,45 @@ export const ConceptsView: FC = observer(() => {
 
 			{bulletsStore.loading ? (
 				<ConceptsLoading />
-			) : grouped.length === 0 ? (
-				<Card className="max-w-2xl">
-					<CardHeader>
-						<CardTitle className="text-base">
-							{allUsages.length === 0 ? 'No concepts mapped yet' : 'No matches'}
-						</CardTitle>
-						<CardDescription>
-							{allUsages.length === 0
-								? 'Add or analyze concepts on your work, project, and volunteering bullets.'
-								: 'Try a concept name, relationship, source type, status, or phrase from a bullet.'}
-						</CardDescription>
-					</CardHeader>
-				</Card>
 			) : (
-				<div className="flex flex-col gap-8">
-					{grouped.map(([vocabulary, vocabularyUsages]) => (
-						<section key={vocabulary} className="flex flex-col gap-3">
-							<div className="flex items-center gap-2">
-								<h2 className="text-base font-semibold capitalize text-foreground">
-									{vocabularyLabel(vocabulary)}
-								</h2>
-								<Badge variant="outline">{vocabularyUsages?.length ?? 0}</Badge>
-							</div>
-							<div
-								className={cn(
-									'grid items-start gap-4',
-									hideBulletText
-										? 'lg:grid-cols-3 xl:grid-cols-4'
-										: 'lg:grid-cols-2',
-								)}
-							>
-								{vocabularyUsages?.map((usage) => (
-									<ConceptCard
-										key={usage.concept.id}
-										usage={usage}
-										semanticScore={semanticScores.get(usage.concept.id)}
-										hideBulletText={hideBulletText}
-									/>
-								))}
-							</div>
-						</section>
-					))}
-				</div>
+				<DataSourceView
+					controller={controller}
+					emptyState={
+						<Card className="max-w-2xl">
+							<CardHeader>
+								<CardTitle className="text-base">
+									{allUsages.length === 0
+										? 'No concepts mapped yet'
+										: 'No matches'}
+								</CardTitle>
+								<CardDescription>
+									{allUsages.length === 0
+										? 'Add or analyze concepts on your work, project, and volunteering bullets.'
+										: 'Try a concept name, relationship, source type, status, or phrase from a bullet.'}
+								</CardDescription>
+							</CardHeader>
+						</Card>
+					}
+					itemsClassName={cn(
+						'grid items-start gap-4',
+						hideBulletText ? 'lg:grid-cols-3 xl:grid-cols-4' : 'lg:grid-cols-2',
+					)}
+					renderGroupHeader={(group) => (
+						<div className="flex items-center gap-2">
+							<h2 className="text-base font-semibold capitalize text-foreground">
+								{group.label}
+							</h2>
+							<Badge variant="outline">{group.items.length}</Badge>
+						</div>
+					)}
+					renderItem={({ item }) => (
+						<ConceptCard
+							usage={item}
+							semanticScore={semanticScores.get(item.concept.id)}
+							hideBulletText={hideBulletText}
+						/>
+					)}
+				/>
 			)}
 		</div>
 	);
