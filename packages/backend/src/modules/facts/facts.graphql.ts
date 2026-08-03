@@ -1,6 +1,7 @@
 import { Field, Float, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 
-import type { ConceptVocabulary, FactRelation } from './facts.service.js';
+import type { ConceptVocabulary } from '../concepts/concepts.service.js';
+import type { FactRelation } from './facts.service.js';
 
 @ObjectType()
 export class FactType {

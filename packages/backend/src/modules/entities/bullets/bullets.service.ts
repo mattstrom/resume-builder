@@ -12,6 +12,7 @@ import {
 import { technology } from '@resume-builder/ontologies';
 
 import type { Prisma } from '../../../generated/prisma/client.js';
+import { ConceptsService } from '../../concepts/concepts.service.js';
 import { PrismaService } from '../../prisma/index.js';
 import { EmbeddingQueueService } from '../../queue/embeddings/embedding-queue.service.js';
 import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../../queue/embeddings/embedding.constants.js';
@@ -35,6 +36,7 @@ export class BulletsService {
 		private readonly prisma: PrismaService,
 		private readonly embeddingQueue: EmbeddingQueueService,
 		private readonly embedding: EmbeddingService,
+		private readonly conceptsService: ConceptsService,
 	) {}
 
 	private async enqueueBullet(bullet: { id: string; embeddingRevision: number }): Promise<void> {
@@ -252,19 +254,8 @@ export class BulletsService {
 		const normalized = this.normalizeMeaning(meaning);
 
 		const result = await this.prisma.$transaction(async (prisma) => {
-			const concept = await prisma.concept.upsert({
-				where: {
-					vocabulary_key: {
-						vocabulary: normalized.concept.vocabulary,
-						key: normalized.concept.key,
-					},
-				},
-				create: normalized.concept,
-				update: {
-					label: normalized.concept.label,
-					embeddingRevision: { increment: 1 },
-				},
-			});
+			await this.conceptsService.lockConcepts(prisma, [normalized.concept]);
+			const concept = await this.conceptsService.upsertConcept(prisma, normalized.concept);
 			const link = await prisma.bulletConcept.upsert({
 				where: {
 					bulletId_conceptId_relation: {
@@ -295,12 +286,7 @@ export class BulletsService {
 		});
 		await Promise.all([
 			this.enqueueBullet(result.bullet),
-			this.embeddingQueue.enqueue({
-				entityType: 'concept',
-				entityId: result.link.concept.id,
-				revision: result.link.concept.embeddingRevision,
-				profile: EMBEDDING_PROFILES.concept,
-			}),
+			this.conceptsService.enqueueConcept(result.link.concept),
 		]);
 		return result.link;
 	}
@@ -331,21 +317,14 @@ export class BulletsService {
 				where: { bulletId, source: 'classifier' },
 			});
 
+			await this.conceptsService.lockConcepts(
+				prisma,
+				normalized.map((meaning) => meaning.concept),
+			);
+
 			const links: Prisma.BulletConceptCreateManyInput[] = [];
 			for (const meaning of normalized) {
-				const concept = await prisma.concept.upsert({
-					where: {
-						vocabulary_key: {
-							vocabulary: meaning.concept.vocabulary,
-							key: meaning.concept.key,
-						},
-					},
-					create: meaning.concept,
-					update: {
-						label: meaning.concept.label,
-						embeddingRevision: { increment: 1 },
-					},
-				});
+				const concept = await this.conceptsService.upsertConcept(prisma, meaning.concept);
 				links.push({
 					bulletId,
 					conceptId: concept.id,
@@ -373,14 +352,7 @@ export class BulletsService {
 		});
 		await Promise.all([
 			this.enqueueBullet(result.bullet),
-			this.embeddingQueue.enqueueMany(
-				result.concepts.map(({ concept }) => ({
-					entityType: 'concept' as const,
-					entityId: concept.id,
-					revision: concept.embeddingRevision,
-					profile: EMBEDDING_PROFILES.concept,
-				})),
-			),
+			this.conceptsService.enqueueConcepts(result.concepts.map(({ concept }) => concept)),
 		]);
 		return result.concepts;
 	}

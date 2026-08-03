@@ -2,7 +2,7 @@ import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
-import { ConceptVocabulary, FactsService } from '../facts/facts.service.js';
+import { ConceptsService, ConceptVocabulary } from '../concepts/concepts.service.js';
 import { EmbeddingService } from '../queue/embeddings/embedding.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
@@ -12,7 +12,7 @@ import { type McpToolParams } from './types.js';
 @UseGuards(McpGuard)
 export class ConceptsResolver {
 	constructor(
-		private readonly factsService: FactsService,
+		private readonly conceptsService: ConceptsService,
 		private readonly embeddingService: EmbeddingService,
 	) {}
 
@@ -35,7 +35,7 @@ export class ConceptsResolver {
 		}: McpToolParams<{ vocabulary: ConceptVocabulary; search?: string; limit?: number }>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
-		const concepts = await this.factsService.findConceptSuggestions(
+		const concepts = await this.conceptsService.findConceptSuggestions(
 			user.sub,
 			vocabulary,
 			search,
@@ -87,7 +87,7 @@ export class ConceptsResolver {
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
 		const vector = await this.embeddingService.embed(query);
-		const matches = await this.factsService.findSimilarConcepts(
+		const matches = await this.conceptsService.findSimilarConcepts(
 			user.sub,
 			vector,
 			vocabulary,
@@ -113,7 +113,7 @@ export class ConceptsResolver {
 		annotations: { destructiveHint: false, idempotentHint: true },
 	})
 	async getConcept({ id }: McpToolParams<{ id: string }>): Promise<CallToolResult> {
-		const concept = await this.factsService.findConceptById(id);
+		const concept = await this.conceptsService.findConceptById(id);
 
 		return {
 			content: [
@@ -140,7 +140,7 @@ export class ConceptsResolver {
 		conceptId,
 		relation,
 	}: McpToolParams<{ conceptId: string; relation?: string }>): Promise<CallToolResult> {
-		const relations = await this.factsService.findConceptRelations(conceptId, relation);
+		const relations = await this.conceptsService.findConceptRelations(conceptId, relation);
 
 		return {
 			content: [
@@ -162,7 +162,7 @@ export class ConceptsResolver {
 	async getConceptAliases({
 		conceptId,
 	}: McpToolParams<{ conceptId: string }>): Promise<CallToolResult> {
-		const aliases = await this.factsService.findConceptAliases(conceptId);
+		const aliases = await this.conceptsService.findConceptAliases(conceptId);
 
 		return {
 			content: [

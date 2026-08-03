@@ -1,6 +1,7 @@
 import { McpModule as NestMcpModule } from '@nestjs-mcp/server';
 import { Module } from '@nestjs/common';
 
+import { ConceptsModule } from '../concepts/concepts.module.js';
 import { CrdtClientModule } from '../crdt-client/crdt-client.module.js';
 import { EntitiesModule } from '../entities/index.js';
 import { FactsModule } from '../facts/facts.module.js';
@@ -33,6 +34,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 		}),
 		EntitiesModule,
 		CrdtClientModule,
+		ConceptsModule,
 		FactsModule,
 		JobRequirementsModule,
 		EmbeddingsModule,
