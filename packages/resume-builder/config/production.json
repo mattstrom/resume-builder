@@ -1,4 +1,5 @@
 {
+  "apiUrl": "",
   "graphqlUrl": "/graphql",
   "collaborationUrl": "/collaboration",
   "mastraUrl": "https://mastra.mattstrom.com"

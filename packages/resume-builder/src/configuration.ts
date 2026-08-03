@@ -1,4 +1,5 @@
 export interface Configuration {
+	apiUrl: string;
 	graphqlUrl: string;
 	collaborationUrl: string;
 	mastraUrl: string;
