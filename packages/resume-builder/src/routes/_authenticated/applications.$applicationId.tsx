@@ -528,7 +528,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 			await applicationStore.assess(applicationId);
 			handleStageChange('fit');
 			await refreshApplication();
-			toast.success('Assessment queued. Refresh results after it finishes.');
+			toast.success('Assessment complete.');
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : 'Assessment failed');
 		} finally {
@@ -602,7 +602,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 									disabled={!workflow.hasPosting || assessing}
 								>
 									<RefreshCw data-icon="inline-start" />
-									{assessing ? 'Starting...' : workflow.stages[1].actionLabel}
+									{assessing ? 'Assessing...' : workflow.stages[1].actionLabel}
 								</Button>
 							</div>
 						</div>
@@ -853,7 +853,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 												>
 													<Sparkles data-icon="inline-start" />
 													{assessing
-														? 'Starting assessment...'
+														? 'Assessing...'
 														: workflow.stages[1].actionLabel}
 												</Button>
 												<Button
