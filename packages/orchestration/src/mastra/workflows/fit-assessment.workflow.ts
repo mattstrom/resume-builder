@@ -65,6 +65,18 @@ function stripXmlTags(xml: string): string {
 		.trim();
 }
 
+async function getResumeBuilderTools(token: string) {
+	const { toolsets, errors } = await createResumeBuilderMcpClient(token).listToolsetsWithErrors();
+	const tools = toolsets['resumeBuilder'];
+
+	if (!tools) {
+		const reason = errors['resumeBuilder'] ?? 'connection failed';
+		throw new Error(`Could not reach the resume-builder MCP server: ${reason}`);
+	}
+
+	return tools;
+}
+
 // const extractJobDescription = createStep({
 // 	id: 'extract-job-description',
 // 	description: 'Extracts job description from the application',
@@ -92,8 +104,7 @@ const fetchAssessmentData = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId } = inputData;
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const toolsets = await createResumeBuilderMcpClient(token).listToolsets();
-		const tools = toolsets['resumeBuilder'];
+		const tools = await getResumeBuilderTools(token);
 
 		const [appResult, profileResult] = await Promise.all([
 			tools['get_application'].execute!({ id: applicationId }, {} as any),
@@ -197,8 +208,7 @@ const saveAssessmentResults = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId, jobSummary, analysis } = inputData['run-fit-assessment'];
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const toolsets = await createResumeBuilderMcpClient(token).listToolsets();
-		const tools = toolsets['resumeBuilder'];
+		const tools = await getResumeBuilderTools(token);
 
 		await tools['update_analysis'].execute!({ applicationId, analysis }, {} as any);
 
