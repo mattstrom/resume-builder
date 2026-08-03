@@ -3,6 +3,7 @@ import { technology, technologyCategory } from '@resume-builder/ontologies';
 
 import type {
 	Concept,
+	ConceptAlias,
 	Expression,
 	Fact,
 	Prisma,
@@ -111,6 +112,14 @@ export interface ConceptSearchMatch {
 export type FactConceptWithConcept = Prisma.FactConceptGetPayload<{
 	include: { concept: true };
 }>;
+
+export interface ConceptRelationEdge {
+	direction: 'outgoing' | 'incoming';
+	relation: string;
+	source: string;
+	confidence: number | null;
+	concept: Concept;
+}
 
 export type FactWithConcepts = Prisma.FactGetPayload<{
 	include: { concepts: { include: { concept: true } } };
@@ -256,7 +265,9 @@ export class FactsService {
 		const seen = new Set<string>();
 		for (const meaning of normalized) {
 			const identity = `${meaning.relation}:${meaning.concept.vocabulary}:${meaning.concept.key}`;
-			if (seen.has(identity)) continue;
+			if (seen.has(identity)) {
+				continue;
+			}
 			seen.add(identity);
 			const concept = await prisma.concept.upsert({
 				where: {
@@ -300,6 +311,7 @@ export class FactsService {
 			});
 
 			await this.replaceMeanings(prisma, created.id, dto.meanings);
+
 			return created;
 		});
 
@@ -389,6 +401,7 @@ export class FactsService {
 
 	async findFactConcepts(uid: string, factId: string): Promise<FactConceptWithConcept[]> {
 		await this.findById(uid, factId);
+
 		return this.prisma.factConcept.findMany({
 			where: { factId },
 			include: { concept: true },
@@ -407,21 +420,31 @@ export class FactsService {
 
 		if (vocabulary === 'technology') {
 			const exact = search.trim() ? technology.resolve(search)?.name : undefined;
+
 			return technology
 				.all()
 				.filter((record) =>
 					query ? record.name.toLocaleLowerCase().includes(query) : true,
 				)
 				.sort((left, right) => {
-					if (left.name === exact) return -1;
-					if (right.name === exact) return 1;
+					if (left.name === exact) {
+						return -1;
+					}
+					if (right.name === exact) {
+						return 1;
+					}
 					const leftStarts = left.name.toLocaleLowerCase().startsWith(query);
 					const rightStarts = right.name.toLocaleLowerCase().startsWith(query);
-					if (leftStarts !== rightStarts) return leftStarts ? -1 : 1;
-					if (left.hot !== right.hot) return left.hot ? -1 : 1;
+					if (leftStarts !== rightStarts) {
+						return leftStarts ? -1 : 1;
+					}
+					if (left.hot !== right.hot) {
+						return left.hot ? -1 : 1;
+					}
 					if (left.inDemand !== right.inDemand) {
 						return left.inDemand ? -1 : 1;
 					}
+
 					return left.name.localeCompare(right.name);
 				})
 				.slice(0, limit)
@@ -505,6 +528,7 @@ export class FactsService {
 
 		return rows.flatMap(({ id, distance }) => {
 			const concept = conceptsById.get(id);
+
 			return concept
 				? [{ concept, score: Math.max(0, Math.min(1, 1 - Number(distance))) }]
 				: [];
@@ -566,6 +590,7 @@ export class FactsService {
 				data: { embeddingRevision: { increment: 1 } },
 				select: { id: true, embeddingRevision: true },
 			});
+
 			return { link, fact };
 		});
 		await Promise.all([
@@ -577,6 +602,7 @@ export class FactsService {
 				profile: EMBEDDING_PROFILES.concept,
 			}),
 		]);
+
 		return result.link;
 	}
 
@@ -602,6 +628,7 @@ export class FactsService {
 			if (deleted.count === 0) {
 				throw new NotFoundException(`Concept relationship not found`);
 			}
+
 			return prisma.fact.update({
 				where: { id: factId },
 				data: { embeddingRevision: { increment: 1 } },
@@ -609,6 +636,58 @@ export class FactsService {
 			});
 		});
 		await this.enqueueFact(fact);
+	}
+
+	async findConceptById(id: string): Promise<Concept> {
+		const concept = await this.prisma.concept.findUnique({ where: { id } });
+		if (!concept) {
+			throw new NotFoundException(`Concept ${id} not found`);
+		}
+
+		return concept;
+	}
+
+	async findConceptRelations(
+		conceptId: string,
+		relation?: string,
+	): Promise<ConceptRelationEdge[]> {
+		await this.findConceptById(conceptId);
+		const [outgoing, incoming] = await Promise.all([
+			this.prisma.conceptRelation.findMany({
+				where: { sourceConceptId: conceptId, ...(relation ? { relation } : {}) },
+				include: { targetConcept: true },
+			}),
+			this.prisma.conceptRelation.findMany({
+				where: { targetConceptId: conceptId, ...(relation ? { relation } : {}) },
+				include: { sourceConcept: true },
+			}),
+		]);
+
+		return [
+			...outgoing.map((edge) => ({
+				direction: 'outgoing' as const,
+				relation: edge.relation,
+				source: edge.source,
+				confidence: edge.confidence,
+				concept: edge.targetConcept,
+			})),
+			...incoming.map((edge) => ({
+				direction: 'incoming' as const,
+				relation: edge.relation,
+				source: edge.source,
+				confidence: edge.confidence,
+				concept: edge.sourceConcept,
+			})),
+		];
+	}
+
+	async findConceptAliases(conceptId: string): Promise<ConceptAlias[]> {
+		await this.findConceptById(conceptId);
+
+		return this.prisma.conceptAlias.findMany({
+			where: { conceptId },
+			orderBy: { label: 'asc' },
+		});
 	}
 
 	factToEmbeddingText(fact: {
@@ -645,6 +724,7 @@ export class FactsService {
 			where: { factId: { in: rows.map((row) => row.id) } },
 			include: { concept: true },
 		});
+
 		return rows.map((row) => ({
 			...row,
 			concepts: concepts.filter((link) => link.factId === row.id),

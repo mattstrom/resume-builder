@@ -9,6 +9,7 @@ import { LlmModule } from '../llm/llm.module.js';
 import { EmbeddingsModule } from '../queue/embeddings/embeddings.module.js';
 import { ApplicationsResolver } from './applications.resolver.js';
 import { BulletsResolver } from './bullets.resolver.js';
+import { ConceptsResolver } from './concepts.resolver.js';
 import { FactsResolver } from './facts.resolver.js';
 import { HealthResolver } from './health.resolver.js';
 import { JobRequirementsResolver } from './job-requirements.resolver.js';
@@ -41,6 +42,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 	providers: [
 		ApplicationsResolver,
 		BulletsResolver,
+		ConceptsResolver,
 		FactsResolver,
 		JobRequirementsResolver,
 		FitAssessorPromptResolver,
