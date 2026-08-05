@@ -1,0 +1,20 @@
+# Bootstrap RBAC for the self-hosted GitHub Actions deployment runner.
+# Install this chart with administrator credentials before generating the
+# kubeconfig stored in the KUBE_CONFIG GitHub environment secret.
+
+targetNamespace: resume-builder
+
+serviceAccount:
+  name: resume-builder-deployer
+  automount: true
+  annotations: {}
+
+rbac:
+  roleName: resume-builder-deployer
+  roleBindingName: resume-builder-deployer
+
+# Disabled by default. Enable only if you intentionally want Kubernetes to
+# maintain a service-account-token Secret that can be read into a kubeconfig.
+serviceAccountTokenSecret:
+  create: false
+  name: resume-builder-deployer-token
