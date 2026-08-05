@@ -1,0 +1,6 @@
+apiVersion: v2
+name: self-hosted-runner
+description: Bootstrap RBAC for the self-hosted GitHub Actions deployment runner
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
