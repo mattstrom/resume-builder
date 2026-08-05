@@ -143,18 +143,48 @@ remaining deploy secrets from the `resume-builder-deploy` vault's
 `production-deploy` item at run time, rather than storing them as GitHub
 Actions secrets:
 
-| Field               | Purpose                                         |
-| ------------------- | ----------------------------------------------- |
-| `kube_config`       | Namespace-scoped production kubeconfig contents |
-| `postgres_password` | PostgreSQL password passed to the Helm chart    |
-| `anthropic_api_key` | Orchestration service API key                   |
-| `auth_client_id`    | Production Auth0 client ID                      |
+| Field               | Purpose                                                       |
+| ------------------- | ------------------------------------------------------------- |
+| `kube_token`        | Bearer token for the `resume-builder-deployer` ServiceAccount |
+| `postgres_password` | PostgreSQL password passed to the Helm chart                  |
+| `anthropic_api_key` | Orchestration service API key                                 |
+| `auth_client_id`    | Production Auth0 client ID                                    |
 
 Create a 1Password service account (**1Password.com > Developer > Service
 Accounts**) scoped to read-only access on the `resume-builder-deploy` vault
 only, and store its token as the `OP_SERVICE_ACCOUNT_TOKEN` secret above. The
 `1password/load-secrets-action` step masks each field's value in the job log
 and exports it as a plain environment variable for the rest of the job.
+
+The workflow assembles its kubeconfig at run time from `kube_token` plus two
+non-secret **environment variables** (\*\*Settings > Environments > production
+
+> Environment variables\*\*, not secrets — the cluster address and CA cert
+> aren't sensitive):
+
+| Variable       | Purpose                               |
+| -------------- | ------------------------------------- |
+| `KUBE_SERVER`  | Kubernetes API server URL             |
+| `KUBE_CA_DATA` | Base64-encoded cluster CA certificate |
+
+Get both from an existing admin kubeconfig for the cluster:
+
+```sh
+kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}'
+kubectl config view --minify --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
+```
+
+Generate `kube_token` with a bound ServiceAccount token, scoped to the
+`resume-builder` namespace:
+
+```sh
+kubectl create token resume-builder-deployer -n resume-builder --duration=8760h
+```
+
+This token expires after the requested duration (here, roughly a year) — it
+is not a permanent credential. Rotate it before it expires by re-running the
+command above and updating the `kube_token` field in 1Password, or deploys
+will start failing with an authentication error.
 
 `registry.mattstrom.com` fronts the MicroK8s registry without authentication,
 so the workflow pushes without a `docker login` step. The workflow gives

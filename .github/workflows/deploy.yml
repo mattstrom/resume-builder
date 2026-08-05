@@ -40,21 +40,41 @@ jobs:
           export-env: true
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          KUBE_CONFIG: op://resume-builder-deploy/production-deploy/kube_config
+          KUBE_TOKEN: op://resume-builder-deploy/production-deploy/kube_token
           POSTGRES_PASSWORD: op://resume-builder-deploy/production-deploy/postgres_password
           ANTHROPIC_API_KEY: op://resume-builder-deploy/production-deploy/anthropic_api_key
           AUTH_CLIENT_ID: op://resume-builder-deploy/production-deploy/auth_client_id
 
       - name: Prepare isolated credentials
+        env:
+          KUBE_SERVER: ${{ vars.KUBE_SERVER }}
+          KUBE_CA_DATA: ${{ vars.KUBE_CA_DATA }}
         run: |
           set -euo pipefail
-          : "${KUBE_CONFIG:?KUBE_CONFIG is not configured}"
+          : "${KUBE_TOKEN:?KUBE_TOKEN is not configured}"
+          : "${KUBE_SERVER:?KUBE_SERVER is not configured}"
+          : "${KUBE_CA_DATA:?KUBE_CA_DATA is not configured}"
 
           docker_config="$RUNNER_TEMP/docker-config"
           kubeconfig="$RUNNER_TEMP/kubeconfig"
+          ca_file="$RUNNER_TEMP/kube-ca.crt"
           mkdir -p "$docker_config"
-          printf '%s' "$KUBE_CONFIG" > "$kubeconfig"
+          printf '%s' "$KUBE_CA_DATA" | base64 -d > "$ca_file"
+
+          export KUBECONFIG="$kubeconfig"
+          kubectl config set-cluster resume-builder-deploy \
+            --server="$KUBE_SERVER" \
+            --certificate-authority="$ca_file" \
+            --embed-certs=true
+          kubectl config set-credentials resume-builder-deployer \
+            --token="$KUBE_TOKEN"
+          kubectl config set-context resume-builder-deployer@resume-builder-deploy \
+            --cluster=resume-builder-deploy \
+            --namespace="$NAMESPACE" \
+            --user=resume-builder-deployer
+          kubectl config use-context resume-builder-deployer@resume-builder-deploy
           chmod 600 "$kubeconfig"
+          rm -f "$ca_file"
 
           echo "DOCKER_CONFIG=$docker_config" >> "$GITHUB_ENV"
           echo "KUBECONFIG=$kubeconfig" >> "$GITHUB_ENV"
