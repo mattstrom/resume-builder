@@ -1,0 +1,167 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build images and deploy production
+    runs-on:
+      - self-hosted
+      - macOS
+      - resume-builder-deploy
+    environment: production
+    timeout-minutes: 120
+    env:
+      PATH: /opt/homebrew/opt/node@24/bin:/usr/local/opt/node@24/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+      REGISTRY: registry.mattstrom.com
+      TAG: ${{ github.sha }}
+      RELEASE: resume-builder
+      NAMESPACE: resume-builder
+      DOCKER_PLATFORM: ${{ vars.DOCKER_PLATFORM }}
+
+    steps:
+      - name: Check out the merged commit
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Prepare isolated credentials
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          set -euo pipefail
+          : "${KUBE_CONFIG:?KUBE_CONFIG is not configured}"
+
+          docker_config="$RUNNER_TEMP/docker-config"
+          kubeconfig="$RUNNER_TEMP/kubeconfig"
+          mkdir -p "$docker_config"
+          printf '%s' "$KUBE_CONFIG" > "$kubeconfig"
+          chmod 600 "$kubeconfig"
+
+          echo "DOCKER_CONFIG=$docker_config" >> "$GITHUB_ENV"
+          echo "KUBECONFIG=$kubeconfig" >> "$GITHUB_ENV"
+
+          if [[ -n "$DOCKER_PLATFORM" ]]; then
+            echo "DOCKER_DEFAULT_PLATFORM=$DOCKER_PLATFORM" >> "$GITHUB_ENV"
+          fi
+
+      - name: Verify runner tools and cluster access
+        run: |
+          set -euo pipefail
+
+          node --version
+          npm --version
+          docker version --client
+
+          for attempt in {1..24}; do
+            if docker info >/dev/null 2>&1; then
+              break
+            fi
+
+            if [[ "$attempt" -eq 24 ]]; then
+              echo 'Docker Desktop did not become ready within two minutes.' >&2
+              exit 1
+            fi
+
+            echo "Waiting for Docker Desktop ($attempt/24)..."
+            sleep 5
+          done
+
+          docker version
+          docker info
+          helm version
+          kubectl version --client
+          kubectl cluster-info
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Log in to the image registry
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${REGISTRY_USERNAME:?REGISTRY_USERNAME is not configured}"
+          : "${REGISTRY_PASSWORD:?REGISTRY_PASSWORD is not configured}"
+          printf '%s' "$REGISTRY_PASSWORD" |
+            docker login "$REGISTRY" \
+              --username "$REGISTRY_USERNAME" \
+              --password-stdin
+
+      - name: Build and push images
+        run: npm run docker:push -- --skip-nx-cache --parallel=1
+
+      - name: Create temporary Helm values
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
+        run: |
+          set -euo pipefail
+          : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not configured}"
+          : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is not configured}"
+          : "${AUTH_CLIENT_ID:?AUTH_CLIENT_ID is not configured}"
+
+          secret_values="$RUNNER_TEMP/helm-secret-values.json"
+          export SECRET_VALUES="$secret_values"
+          echo "SECRET_VALUES=$secret_values" >> "$GITHUB_ENV"
+
+          node --input-type=module <<'NODE'
+          import { writeFileSync } from 'node:fs';
+
+          const values = {
+            postgres: { password: process.env.POSTGRES_PASSWORD },
+            orchestration: {
+              anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+              auth0: { clientId: process.env.AUTH_CLIENT_ID },
+            },
+          };
+
+          writeFileSync(
+            process.env.SECRET_VALUES,
+            JSON.stringify(values),
+            { mode: 0o600 },
+          );
+          NODE
+
+      - name: Deploy the merged commit
+        run: |
+          set -euo pipefail
+
+          helm upgrade "$RELEASE" charts/resume-builder \
+            --install \
+            --atomic \
+            --wait \
+            --timeout 10m \
+            --namespace "$NAMESPACE" \
+            --create-namespace \
+            --values "$SECRET_VALUES" \
+            --set-string "backend.image.tag=$TAG" \
+            --set-string "web.image.tag=$TAG" \
+            --set-string "orchestration.image.tag=$TAG" \
+            --set-string "crdt.image.tag=$TAG"
+
+      - name: Remove temporary credentials
+        if: always()
+        run: |
+          if [[ -n "${DOCKER_CONFIG:-}" && "$DOCKER_CONFIG" == "$RUNNER_TEMP/"* ]]; then
+            rm -rf "$DOCKER_CONFIG"
+          fi
+
+          if [[ -n "${KUBECONFIG:-}" && "$KUBECONFIG" == "$RUNNER_TEMP/"* ]]; then
+            rm -f "$KUBECONFIG"
+          fi
+
+          if [[ -n "${SECRET_VALUES:-}" && "$SECRET_VALUES" == "$RUNNER_TEMP/"* ]]; then
+            rm -f "$SECRET_VALUES"
+          fi
