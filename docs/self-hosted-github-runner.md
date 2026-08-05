@@ -132,21 +132,35 @@ through pull requests, along with the desired reviews and CI status checks.
 The deployment listens for a `push` to `main`, which deploys the repository's
 actual post-merge commit and also makes accidental direct pushes visible.
 
-Add these environment secrets:
+Add a single environment secret:
 
-| Secret              | Purpose                                           |
-| ------------------- | ------------------------------------------------- |
-| `REGISTRY_USERNAME` | Username for `registry.mattstrom.com`             |
-| `REGISTRY_PASSWORD` | Registry token or password with image push access |
-| `KUBE_CONFIG`       | Namespace-scoped production kubeconfig contents   |
-| `POSTGRES_PASSWORD` | PostgreSQL password passed to the Helm chart      |
-| `ANTHROPIC_API_KEY` | Orchestration service API key                     |
-| `AUTH_CLIENT_ID`    | Production Auth0 client ID                        |
+| Secret                     | Purpose                                                    |
+| -------------------------- | ---------------------------------------------------------- |
+| `OP_SERVICE_ACCOUNT_TOKEN` | 1Password service account token, scoped to the vault below |
 
-Use a registry robot account or token limited to the four
-`resume-builder-*` repositories. The workflow gives `GITHUB_TOKEN` read-only
-repository access and keeps registry credentials in a temporary Docker config
-rather than the runner account's persistent Docker config.
+The workflow's "Load secrets from 1Password" step uses this token to pull the
+remaining deploy secrets from the `resume-builder-deploy` vault's
+`production-deploy` item at run time, rather than storing them as GitHub
+Actions secrets:
+
+| Field               | Purpose                                         |
+| ------------------- | ----------------------------------------------- |
+| `kube_config`       | Namespace-scoped production kubeconfig contents |
+| `postgres_password` | PostgreSQL password passed to the Helm chart    |
+| `anthropic_api_key` | Orchestration service API key                   |
+| `auth_client_id`    | Production Auth0 client ID                      |
+
+Create a 1Password service account (**1Password.com > Developer > Service
+Accounts**) scoped to read-only access on the `resume-builder-deploy` vault
+only, and store its token as the `OP_SERVICE_ACCOUNT_TOKEN` secret above. The
+`1password/load-secrets-action` step masks each field's value in the job log
+and exports it as a plain environment variable for the rest of the job.
+
+`registry.mattstrom.com` fronts the MicroK8s registry without authentication,
+so the workflow pushes without a `docker login` step. The workflow gives
+`GITHUB_TOKEN` read-only repository access and keeps the Docker config in a
+temporary, isolated directory rather than the runner account's persistent
+Docker config.
 
 ## 6. Test and operate it
 

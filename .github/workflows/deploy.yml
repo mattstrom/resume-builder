@@ -34,9 +34,18 @@ jobs:
       - name: Check out the merged commit
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Prepare isolated credentials
+      - name: Load secrets from 1Password
+        uses: 1password/load-secrets-action@e544b780808654ba8ceba5fb2fe2897103d92ff4 # v5.0.0
+        with:
+          export-env: true
         env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          KUBE_CONFIG: op://resume-builder-deploy/production-deploy/kube_config
+          POSTGRES_PASSWORD: op://resume-builder-deploy/production-deploy/postgres_password
+          ANTHROPIC_API_KEY: op://resume-builder-deploy/production-deploy/anthropic_api_key
+          AUTH_CLIENT_ID: op://resume-builder-deploy/production-deploy/auth_client_id
+
+      - name: Prepare isolated credentials
         run: |
           set -euo pipefail
           : "${KUBE_CONFIG:?KUBE_CONFIG is not configured}"
@@ -60,7 +69,7 @@ jobs:
 
           node --version
           npm --version
-          docker version --client
+          docker version
 
           for attempt in {1..24}; do
             if docker info >/dev/null 2>&1; then
@@ -85,27 +94,10 @@ jobs:
       - name: Install workspace dependencies
         run: npm ci
 
-      - name: Log in to the image registry
-        env:
-          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
-          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-        run: |
-          set -euo pipefail
-          : "${REGISTRY_USERNAME:?REGISTRY_USERNAME is not configured}"
-          : "${REGISTRY_PASSWORD:?REGISTRY_PASSWORD is not configured}"
-          printf '%s' "$REGISTRY_PASSWORD" |
-            docker login "$REGISTRY" \
-              --username "$REGISTRY_USERNAME" \
-              --password-stdin
-
       - name: Build and push images
         run: npm run docker:push -- --skip-nx-cache --parallel=1
 
       - name: Create temporary Helm values
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          AUTH_CLIENT_ID: ${{ secrets.AUTH_CLIENT_ID }}
         run: |
           set -euo pipefail
           : "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is not configured}"
