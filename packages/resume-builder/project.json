@@ -26,7 +26,7 @@
     "docker-build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker buildx build --load -f packages/resume-builder/Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-web:${TAG:-latest} ."
+        "command": "docker buildx build -f packages/resume-builder/Dockerfile -t ${REGISTRY:-registry.mattstrom.com}/resume-builder-web:${TAG:-latest} ."
       }
     },
     "docker-push": {
