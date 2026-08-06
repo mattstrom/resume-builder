@@ -29,6 +29,7 @@ jobs:
       RELEASE: resume-builder
       NAMESPACE: resume-builder
       DOCKER_PLATFORM: ${{ vars.DOCKER_PLATFORM }}
+      NX_TUI: 'false'
 
     steps:
       - name: Check out the merged commit
