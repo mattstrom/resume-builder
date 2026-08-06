@@ -571,12 +571,6 @@ input CompanyAddressInput {
 }
 
 type Query {
-  listApplications: [Application!]!
-  getApplication(id: String!): Application!
-  listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
-  getResume(id: String!): Resume!
-  listCompanies: [Company!]!
-  getCompany(id: String!): Company!
   getProfile: Profile
   facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
@@ -588,6 +582,8 @@ type Query {
   bullets(filter: BulletFilterInput): [Bullet!]!
   bullet(id: ID!): Bullet!
   searchBullets(query: String!, filter: BulletFilterInput, limit: Int, minimumScore: Float): [BulletSearchResult!]!
+  listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
+  getResume(id: String!): Resume!
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
@@ -598,6 +594,19 @@ type Query {
   listVolunteering: [Volunteering!]!
   listCoverLetters: [CoverLetter!]!
   getCoverLetter(id: String!): CoverLetter!
+  listApplications: [Application!]!
+  getApplication(id: String!): Application!
+  listCompanies: [Company!]!
+  getCompany(id: String!): Company!
+}
+
+input BulletFilterInput {
+  sourceType: BulletSourceType
+  sourceId: ID
+  status: BulletStatus
+  search: String
+  conceptKey: String
+  includeArchived: Boolean = false
 }
 
 input ResumeSortInput {
@@ -626,27 +635,7 @@ input ResumeFilterInput {
   applicationId: String
 }
 
-input BulletFilterInput {
-  sourceType: BulletSourceType
-  sourceId: ID
-  status: BulletStatus
-  search: String
-  conceptKey: String
-  includeArchived: Boolean = false
-}
-
 type Mutation {
-  createApplication(applicationData: ApplicationInput!, sourceResumeId: String): Application!
-  updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
-  deleteApplication(id: String!): Boolean!
-  patchApplication(id: String!, update: JSON!): Application!
-  createResume(resumeData: ResumeCreateInput!): Resume!
-  createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
-  deleteResume(id: String!): Boolean!
-  applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
-  createCompany(company: CompanyInput!): Company!
-  updateCompany(id: String!, company: CompanyUpdateInput!): Company!
-  deleteCompany(id: String!): Boolean!
   updateProfile(input: ProfileUpdateInput!): Profile!
   generateNarrativeSummary: GenerateNarrativeSummaryResult!
   createFact(input: CreateFactInput!): FactType!
@@ -665,6 +654,10 @@ type Mutation {
   upsertBulletConcept(bulletId: ID!, meaning: BulletMeaningInput!): BulletConcept!
   deleteBulletConcept(bulletId: ID!, conceptId: ID!, relation: String!): Boolean!
   replaceGeneratedBulletConcepts(bulletId: ID!, expectedText: String!, meanings: [BulletMeaningInput!]!): [BulletConcept!]!
+  createResume(resumeData: ResumeCreateInput!): Resume!
+  createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
+  deleteResume(id: String!): Boolean!
+  applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!
@@ -684,53 +677,108 @@ type Mutation {
   createCoverLetter(coverLetterData: CoverLetterInput!): CoverLetter!
   updateCoverLetter(id: String!, coverLetterData: CoverLetterUpdateInput!): CoverLetter!
   patchCoverLetter(id: String!, update: JSON!): CoverLetter!
+  createApplication(applicationData: ApplicationInput!, sourceResumeId: String): Application!
+  updateApplication(id: String!, applicationData: ApplicationUpdateInput!): Application!
+  deleteApplication(id: String!): Boolean!
+  patchApplication(id: String!, update: JSON!): Application!
+  createCompany(company: CompanyInput!): Company!
+  updateCompany(id: String!, company: CompanyUpdateInput!): Company!
+  deleteCompany(id: String!): Boolean!
 }
 
-input ApplicationInput {
-  name: String!
-  companyId: String
-  company: String!
-  jobPostingUrl: String!
-  jobDescription: String
-  notionId: String
-  coverLetterId: String
-  jobSummary: JobSummaryInput
-  analysis: AnalysisInput
-  notes: String
+input ProfileUpdateInput {
+  """Narrative description of the user`s work history and background"""
+  narrative: String
+
+  """Structured job search preferences"""
+  jobPreferences: JSON
 }
 
-input JobSummaryInput {
-  requiredSkills: [String!]!
-  preferredSkills: [String!]!
-  requiredEducation: String
-  requiredExperience: String
+input CreateFactInput {
+  what: String!
+  impact: String
+  scale: String
+  citation: String
+  citationNodeIndex: Int
+  meanings: [FactMeaningInput!]!
 }
 
-input AnalysisInput {
-  skillRelevance: Float!
-  experienceRelevance: Float!
-  roleLevelFit: Float
-  locationFit: Float
-  compensationFit: Float
-  companyFit: Float
-  logisticalFit: Float
-  overallFit: Float!
-  strengths: [String!]!
-  weaknesses: [String!]!
-  recommendations: [String!]!
+input FactMeaningInput {
+  relation: String!
+  concept: FactConceptReferenceInput!
+  source: String
+  confidence: Float
 }
 
-input ApplicationUpdateInput {
-  name: String
-  companyId: String
-  company: String
-  jobPostingUrl: String
-  jobDescription: String
-  notionId: String
-  coverLetterId: String
-  jobSummary: JobSummaryInput
-  analysis: AnalysisInput
-  notes: String
+input FactConceptReferenceInput {
+  vocabulary: String!
+  key: String!
+  label: String!
+}
+
+input UpdateFactInput {
+  what: String
+  impact: String
+  scale: String
+  citation: String
+  citationNodeIndex: Int
+  meanings: [FactMeaningInput!]
+}
+
+input CreateExpressionInput {
+  text: String!
+  length: String
+  tone: String
+}
+
+input LinkFactInput {
+  factId: String!
+  expressionId: String
+  section: String
+  position: Int
+}
+
+input CreateBulletInput {
+  text: String!
+  sourceType: BulletSourceType!
+  sourceId: ID!
+}
+
+input UpdateBulletInput {
+  text: String
+  contextScore: Float
+  contextNote: String
+  contextWhatWorksWell: [String!]
+  contextWhyItMatters: String
+  contextProposedEnhancements: [String!]
+  actionScore: Float
+  actionNote: String
+  actionWhatWorksWell: [String!]
+  actionWhyItMatters: String
+  actionProposedEnhancements: [String!]
+  outcomeScore: Float
+  outcomeNote: String
+  outcomeWhatWorksWell: [String!]
+  outcomeWhyItMatters: String
+  outcomeProposedEnhancements: [String!]
+  clarityScore: Float
+  clarityNote: String
+  clarityWhatWorksWell: [String!]
+  clarityWhyItMatters: String
+  clarityProposedEnhancements: [String!]
+}
+
+input BulletMeaningInput {
+  relation: String!
+  concept: BulletConceptReferenceInput!
+  source: String
+  confidence: Float
+}
+
+input BulletConceptReferenceInput {
+  vocabulary: String!
+  label: String!
+  key: String!
 }
 
 input ResumeCreateInput {
@@ -860,119 +908,6 @@ input BlankResumeCreateInput {
   sourceResumeId: String
 }
 
-input CompanyInput {
-  name: String!
-  type: CompanyType! = employer
-  website: String! = ""
-  logoUrl: String! = ""
-  locationType: LocationType! = remote
-  address: CompanyAddressInput
-}
-
-input CompanyUpdateInput {
-  name: String
-  type: CompanyType
-  website: String
-  logoUrl: String
-  locationType: LocationType
-  address: CompanyAddressInput
-}
-
-input ProfileUpdateInput {
-  """Narrative description of the user`s work history and background"""
-  narrative: String
-
-  """Structured job search preferences"""
-  jobPreferences: JSON
-}
-
-input CreateFactInput {
-  what: String!
-  impact: String
-  scale: String
-  citation: String
-  citationNodeIndex: Int
-  meanings: [FactMeaningInput!]!
-}
-
-input FactMeaningInput {
-  relation: String!
-  concept: FactConceptReferenceInput!
-  source: String
-  confidence: Float
-}
-
-input FactConceptReferenceInput {
-  vocabulary: String!
-  key: String!
-  label: String!
-}
-
-input UpdateFactInput {
-  what: String
-  impact: String
-  scale: String
-  citation: String
-  citationNodeIndex: Int
-  meanings: [FactMeaningInput!]
-}
-
-input CreateExpressionInput {
-  text: String!
-  length: String
-  tone: String
-}
-
-input LinkFactInput {
-  factId: String!
-  expressionId: String
-  section: String
-  position: Int
-}
-
-input CreateBulletInput {
-  text: String!
-  sourceType: BulletSourceType!
-  sourceId: ID!
-}
-
-input UpdateBulletInput {
-  text: String
-  contextScore: Float
-  contextNote: String
-  contextWhatWorksWell: [String!]
-  contextWhyItMatters: String
-  contextProposedEnhancements: [String!]
-  actionScore: Float
-  actionNote: String
-  actionWhatWorksWell: [String!]
-  actionWhyItMatters: String
-  actionProposedEnhancements: [String!]
-  outcomeScore: Float
-  outcomeNote: String
-  outcomeWhatWorksWell: [String!]
-  outcomeWhyItMatters: String
-  outcomeProposedEnhancements: [String!]
-  clarityScore: Float
-  clarityNote: String
-  clarityWhatWorksWell: [String!]
-  clarityWhyItMatters: String
-  clarityProposedEnhancements: [String!]
-}
-
-input BulletMeaningInput {
-  relation: String!
-  concept: BulletConceptReferenceInput!
-  source: String
-  confidence: Float
-}
-
-input BulletConceptReferenceInput {
-  vocabulary: String!
-  label: String!
-  key: String!
-}
-
 input JobInput {
   company: String
   position: String
@@ -1025,4 +960,69 @@ input CoverLetterUpdateInput {
   company: String
   jobPostingUrl: String
   content: String
+}
+
+input ApplicationInput {
+  name: String!
+  companyId: String
+  company: String!
+  jobPostingUrl: String!
+  jobDescription: String
+  notionId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
+}
+
+input JobSummaryInput {
+  requiredSkills: [String!]!
+  preferredSkills: [String!]!
+  requiredEducation: String
+  requiredExperience: String
+}
+
+input AnalysisInput {
+  skillRelevance: Float!
+  experienceRelevance: Float!
+  roleLevelFit: Float
+  locationFit: Float
+  compensationFit: Float
+  companyFit: Float
+  logisticalFit: Float
+  overallFit: Float!
+  strengths: [String!]!
+  weaknesses: [String!]!
+  recommendations: [String!]!
+}
+
+input ApplicationUpdateInput {
+  name: String
+  companyId: String
+  company: String
+  jobPostingUrl: String
+  jobDescription: String
+  notionId: String
+  coverLetterId: String
+  jobSummary: JobSummaryInput
+  analysis: AnalysisInput
+  notes: String
+}
+
+input CompanyInput {
+  name: String!
+  type: CompanyType! = employer
+  website: String! = ""
+  logoUrl: String! = ""
+  locationType: LocationType! = remote
+  address: CompanyAddressInput
+}
+
+input CompanyUpdateInput {
+  name: String
+  type: CompanyType
+  website: String
+  logoUrl: String
+  locationType: LocationType
+  address: CompanyAddressInput
 }

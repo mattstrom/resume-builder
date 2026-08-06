@@ -10,6 +10,7 @@ import {
 	Monitor,
 	Moon,
 	Palette,
+	Quote,
 	Search,
 	SlidersHorizontal,
 	Sun,
@@ -155,6 +156,12 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								<SidebarMenuButton to="/profile" tooltip="Narrative">
 									<FileText />
 									<span>Narrative</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/profile/statements" tooltip="Professional Statements">
+									<Quote />
+									<span>Professional Statements</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>

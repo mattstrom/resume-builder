@@ -4,10 +4,15 @@ import * as Y from 'yjs';
 
 import type { RootStore } from './root.store.ts';
 
-export type ProfileConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected';
+export type ProfileConnectionStatus =
+	| 'idle'
+	| 'connecting'
+	| 'connected'
+	| 'disconnected';
 
 const NARRATIVE_FIELD = 'narrative';
 const JOB_PREFERENCES_FIELD = 'jobPreferences';
+const PROFESSIONAL_STATEMENTS_FIELD = 'professionalStatements';
 
 export class ProfileStore {
 	@observable
@@ -32,6 +37,10 @@ export class ProfileStore {
 
 	get jobPreferencesMap(): Y.Map<unknown> | null {
 		return this.doc?.getMap(JOB_PREFERENCES_FIELD) ?? null;
+	}
+
+	get professionalStatementsArray(): Y.Array<Y.Map<unknown>> | null {
+		return this.doc?.getArray(PROFESSIONAL_STATEMENTS_FIELD) ?? null;
 	}
 
 	get awareness() {
