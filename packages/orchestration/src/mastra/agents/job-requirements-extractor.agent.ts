@@ -130,7 +130,7 @@ export const jobRequirementsExtractorAgent = new Agent({
 			4. Make a second pass for \`responsibility\` facts (what the role owns day-to-day)
 			5. Make a final pass for \`culture\` facts (behavioral expectations, working style)
 			6. Review your output: does any fact contain "and" that should be split? Are there duplicates?
-			7. Persist all facts in a single call to \`create_job_requirements\`
+			7. Return all facts in the requested structured output
 
 			## What You Are Not Doing
 
@@ -138,13 +138,12 @@ export const jobRequirementsExtractorAgent = new Agent({
 		`;
 	},
 	tools: async ({ requestContext }) => {
-		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const token =
+			(requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
 		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {
 			resumeBuilder_get_application: tools.resumeBuilder_get_application,
-			resumeBuilder_create_job_requirements: tools.resumeBuilder_create_job_requirements,
-			resumeBuilder_get_job_requirements: tools.resumeBuilder_get_job_requirements,
 		};
 	},
 	scorers: {},
