@@ -1,3 +1,4 @@
+import { conceptQualifierSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
 const conceptSchema = <V extends string>(vocabulary: V) =>
@@ -12,36 +13,43 @@ const meaningSchema = z.discriminatedUnion('relation', [
 		relation: z.literal('is-a'),
 		concept: conceptSchema('fact-type'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('relates-to'),
 		concept: conceptSchema('entity'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('about'),
 		concept: conceptSchema('topic'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('uses'),
 		concept: conceptSchema('technology'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('demonstrates'),
 		concept: conceptSchema('capability'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('supports'),
 		concept: conceptSchema('outcome'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 	z.object({
 		relation: z.literal('produced'),
 		concept: conceptSchema('artifact'),
 		confidence: z.number().min(0).max(1),
+		qualifier: conceptQualifierSchema.optional(),
 	}),
 ]);
 

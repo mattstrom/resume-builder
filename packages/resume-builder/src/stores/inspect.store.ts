@@ -15,6 +15,9 @@ export class InspectStore implements Disposable {
 	@observable
 	selectedPaths = new Map<string, string>();
 
+	@observable
+	conceptEvidencePaths = new Set<string>();
+
 	private disposers: DisposableStack = new DisposableStack();
 
 	constructor(private readonly rootStore: RootStore) {
@@ -57,10 +60,12 @@ export class InspectStore implements Disposable {
 
 	@computed
 	get selectedRegions() {
-		return Array.from(this.selectedPaths.entries()).map(([path, label]) => ({
-			path,
-			label,
-		}));
+		return Array.from(this.selectedPaths.entries()).map(
+			([path, label]) => ({
+				path,
+				label,
+			}),
+		);
 	}
 
 	isHighlighted = computedFn((path: string) => {
@@ -70,6 +75,23 @@ export class InspectStore implements Disposable {
 
 		return this.selectedPaths.has(path);
 	});
+
+	isConceptEvidenceHighlighted = computedFn((path: string) =>
+		this.conceptEvidencePaths.has(path),
+	);
+
+	@action
+	focusConceptEvidence(paths: string[]) {
+		this.conceptEvidencePaths.clear();
+		for (const path of paths) {
+			this.conceptEvidencePaths.add(path);
+		}
+	}
+
+	@action
+	clearConceptEvidenceFocus() {
+		this.conceptEvidencePaths.clear();
+	}
 
 	@action
 	toggleInspectMode() {

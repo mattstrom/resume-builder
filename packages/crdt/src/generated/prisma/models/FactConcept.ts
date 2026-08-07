@@ -58,6 +58,7 @@ export type FactConceptCountAggregateOutputType = {
   relation: number
   source: number
   confidence: number
+  qualifier: number
   createdAt: number
   _all: number
 }
@@ -95,6 +96,7 @@ export type FactConceptCountAggregateInputType = {
   relation?: true
   source?: true
   confidence?: true
+  qualifier?: true
   createdAt?: true
   _all?: true
 }
@@ -191,6 +193,7 @@ export type FactConceptGroupByOutputType = {
   relation: string
   source: string
   confidence: number | null
+  qualifier: runtime.JsonValue | null
   createdAt: Date
   _count: FactConceptCountAggregateOutputType | null
   _avg: FactConceptAvgAggregateOutputType | null
@@ -223,6 +226,7 @@ export type FactConceptWhereInput = {
   relation?: Prisma.StringFilter<"FactConcept"> | string
   source?: Prisma.StringFilter<"FactConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"FactConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"FactConcept">
   createdAt?: Prisma.DateTimeFilter<"FactConcept"> | Date | string
   fact?: Prisma.XOR<Prisma.FactScalarRelationFilter, Prisma.FactWhereInput>
   concept?: Prisma.XOR<Prisma.ConceptScalarRelationFilter, Prisma.ConceptWhereInput>
@@ -234,6 +238,7 @@ export type FactConceptOrderByWithRelationInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fact?: Prisma.FactOrderByWithRelationInput
   concept?: Prisma.ConceptOrderByWithRelationInput
@@ -249,6 +254,7 @@ export type FactConceptWhereUniqueInput = Prisma.AtLeast<{
   relation?: Prisma.StringFilter<"FactConcept"> | string
   source?: Prisma.StringFilter<"FactConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"FactConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"FactConcept">
   createdAt?: Prisma.DateTimeFilter<"FactConcept"> | Date | string
   fact?: Prisma.XOR<Prisma.FactScalarRelationFilter, Prisma.FactWhereInput>
   concept?: Prisma.XOR<Prisma.ConceptScalarRelationFilter, Prisma.ConceptWhereInput>
@@ -260,6 +266,7 @@ export type FactConceptOrderByWithAggregationInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FactConceptCountOrderByAggregateInput
   _avg?: Prisma.FactConceptAvgOrderByAggregateInput
@@ -277,6 +284,7 @@ export type FactConceptScalarWhereWithAggregatesInput = {
   relation?: Prisma.StringWithAggregatesFilter<"FactConcept"> | string
   source?: Prisma.StringWithAggregatesFilter<"FactConcept"> | string
   confidence?: Prisma.FloatNullableWithAggregatesFilter<"FactConcept"> | number | null
+  qualifier?: Prisma.JsonNullableWithAggregatesFilter<"FactConcept">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FactConcept"> | Date | string
 }
 
@@ -284,6 +292,7 @@ export type FactConceptCreateInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   fact: Prisma.FactCreateNestedOneWithoutConceptsInput
   concept: Prisma.ConceptCreateNestedOneWithoutFactsInput
@@ -295,6 +304,7 @@ export type FactConceptUncheckedCreateInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -302,6 +312,7 @@ export type FactConceptUpdateInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fact?: Prisma.FactUpdateOneRequiredWithoutConceptsNestedInput
   concept?: Prisma.ConceptUpdateOneRequiredWithoutFactsNestedInput
@@ -313,6 +324,7 @@ export type FactConceptUncheckedUpdateInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,6 +334,7 @@ export type FactConceptCreateManyInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -329,6 +342,7 @@ export type FactConceptUpdateManyMutationInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -338,6 +352,7 @@ export type FactConceptUncheckedUpdateManyInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -363,6 +378,7 @@ export type FactConceptCountOrderByAggregateInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
+  qualifier?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -488,6 +504,7 @@ export type FactConceptCreateWithoutFactInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   concept: Prisma.ConceptCreateNestedOneWithoutFactsInput
 }
@@ -497,6 +514,7 @@ export type FactConceptUncheckedCreateWithoutFactInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -535,6 +553,7 @@ export type FactConceptScalarWhereInput = {
   relation?: Prisma.StringFilter<"FactConcept"> | string
   source?: Prisma.StringFilter<"FactConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"FactConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"FactConcept">
   createdAt?: Prisma.DateTimeFilter<"FactConcept"> | Date | string
 }
 
@@ -542,6 +561,7 @@ export type FactConceptCreateWithoutConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   fact: Prisma.FactCreateNestedOneWithoutConceptsInput
 }
@@ -551,6 +571,7 @@ export type FactConceptUncheckedCreateWithoutConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -585,6 +606,7 @@ export type FactConceptCreateManyFactInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -592,6 +614,7 @@ export type FactConceptUpdateWithoutFactInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   concept?: Prisma.ConceptUpdateOneRequiredWithoutFactsNestedInput
 }
@@ -601,6 +624,7 @@ export type FactConceptUncheckedUpdateWithoutFactInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -609,6 +633,7 @@ export type FactConceptUncheckedUpdateManyWithoutFactInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -617,6 +642,7 @@ export type FactConceptCreateManyConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -624,6 +650,7 @@ export type FactConceptUpdateWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fact?: Prisma.FactUpdateOneRequiredWithoutConceptsNestedInput
 }
@@ -633,6 +660,7 @@ export type FactConceptUncheckedUpdateWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -641,6 +669,7 @@ export type FactConceptUncheckedUpdateManyWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -652,6 +681,7 @@ export type FactConceptSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   fact?: boolean | Prisma.FactDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -663,6 +693,7 @@ export type FactConceptSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   fact?: boolean | Prisma.FactDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -674,6 +705,7 @@ export type FactConceptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   fact?: boolean | Prisma.FactDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -685,10 +717,11 @@ export type FactConceptSelectScalar = {
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
 }
 
-export type FactConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"factId" | "conceptId" | "relation" | "source" | "confidence" | "createdAt", ExtArgs["result"]["factConcept"]>
+export type FactConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"factId" | "conceptId" | "relation" | "source" | "confidence" | "qualifier" | "createdAt", ExtArgs["result"]["factConcept"]>
 export type FactConceptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fact?: boolean | Prisma.FactDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -714,6 +747,7 @@ export type $FactConceptPayload<ExtArgs extends runtime.Types.Extensions.Interna
     relation: string
     source: string
     confidence: number | null
+    qualifier: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["factConcept"]>
   composites: {}
@@ -1145,6 +1179,7 @@ export interface FactConceptFieldRefs {
   readonly relation: Prisma.FieldRef<"FactConcept", 'String'>
   readonly source: Prisma.FieldRef<"FactConcept", 'String'>
   readonly confidence: Prisma.FieldRef<"FactConcept", 'Float'>
+  readonly qualifier: Prisma.FieldRef<"FactConcept", 'Json'>
   readonly createdAt: Prisma.FieldRef<"FactConcept", 'DateTime'>
 }
     

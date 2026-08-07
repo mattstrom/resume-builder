@@ -27,6 +27,7 @@ import { backgroundAutofillAgent } from './agents/background-autofill.agent';
 import { bulletConceptAnnotatorAgent } from './agents/bullet-concept-annotator.agent';
 import { bulletScoringAgent } from './agents/bullet-scoring.agent';
 import { chatAgent } from './agents/chat.agent';
+import { conceptEvidenceEvaluatorAgent } from './agents/concept-evidence-evaluator.agent';
 import { factsExtractorAgent } from './agents/facts-extractor.agent';
 import { fitAssessmentAgent } from './agents/fit-assessment.agent';
 import { interviewCoachAgent } from './agents/interview-coach.agent';
@@ -53,9 +54,11 @@ import { bulletConceptAnnotationWorkflow } from './workflows/bullet-concept-anno
 import { bulletScoringWorkflow } from './workflows/bullet-scoring.workflow';
 import { careerContextWorkflow } from './workflows/career-context.workflow';
 import { comparisonWorkflow } from './workflows/comparison.workflow';
+import { conceptEvidenceEvaluationWorkflow } from './workflows/concept-evidence-evaluation.workflow';
 import { narrativeDistillationWorkflow } from './workflows/distillation/narrative-distillation.workflow';
 import { factsExtractionWorkflow } from './workflows/facts-extraction.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
+import { jobConceptIdentificationWorkflow } from './workflows/job-concept-identification.workflow';
 import { professionalStatementEvaluationWorkflow } from './workflows/professional-statement-evaluation.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
@@ -83,7 +86,13 @@ export const mastra = new Mastra({
 			}),
 		],
 		cors: {
-			allowHeaders: ['X-Thread-Id', 'X-Focused-Paths'],
+			allowHeaders: [
+				'Authorization',
+				'Content-Type',
+				'X-Authorization',
+				'X-Thread-Id',
+				'X-Focused-Paths',
+			],
 		},
 		middleware: [
 			async (context, next) => {
@@ -92,11 +101,11 @@ export const mastra = new Mastra({
 					? context.req.header('X-Authorization')
 					: context.req.header('Authorization');
 
-				if (requestContext.get('mastra__isStudio') && authHeader) {
-					requestContext.set(
-						MASTRA_AUTH_TOKEN_KEY,
-						authHeader.replace('Bearer ', ''),
-					);
+				if (authHeader) {
+					const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+					if (token) {
+						requestContext.set(MASTRA_AUTH_TOKEN_KEY, token);
+					}
 				}
 
 				if (authHeader) {
@@ -142,6 +151,7 @@ export const mastra = new Mastra({
 	workflows: {
 		weatherWorkflow,
 		fitAssessmentWorkflow,
+		jobConceptIdentificationWorkflow,
 		backgroundAutofillWorkflow,
 		bulletScoringWorkflow,
 		bulletConceptAnnotationWorkflow,
@@ -149,6 +159,7 @@ export const mastra = new Mastra({
 		factsExtractionWorkflow,
 		narrativeDistillationWorkflow,
 		comparisonWorkflow,
+		conceptEvidenceEvaluationWorkflow,
 		markupJobDescriptionWorkflow,
 		professionalStatementEvaluationWorkflow,
 	},
@@ -158,6 +169,7 @@ export const mastra = new Mastra({
 		bulletScoringAgent,
 		bulletConceptAnnotatorAgent,
 		chatAgent,
+		conceptEvidenceEvaluatorAgent,
 		factsExtractor: factsExtractorAgent,
 		fitAssessmentAgent,
 		interviewCoach: interviewCoachAgent,

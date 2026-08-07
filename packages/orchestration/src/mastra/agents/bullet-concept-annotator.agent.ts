@@ -48,6 +48,10 @@ export const bulletConceptAnnotatorAgent = new Agent({
 		- Labels are concise human-readable names.
 		- Use confidence 1 for explicit statements and 0.8–0.95 for strong direct
 		  entailments. Omit any assertion below 0.8 rather than returning speculation.
+		- Put measurable constraints on the assertion as a qualifier. Normalize time
+		  durations to months. For example, "10+ years using TypeScript" is uses →
+		  TypeScript with { dimension: "experience-duration", operator: "gte",
+		  value: 120, unit: "months" }. Do not put quantities in concept labels.
 		- Do not return duplicates or near-duplicate concepts.
 		- An empty meanings array is valid when the text provides too little evidence.
 	`,

@@ -335,6 +335,14 @@ export const LIST_FACTS = gql`
 				relation
 				source
 				confidence
+				qualifier {
+					dimension
+					operator
+					value
+					min
+					max
+					unit
+				}
 				concept {
 					id
 					vocabulary
@@ -349,9 +357,98 @@ export const LIST_FACTS = gql`
 	}
 `;
 
+export const GET_JOB_REQUIREMENTS = gql`
+	query GetJobRequirements($applicationId: ID!) {
+		jobRequirements(applicationId: $applicationId) {
+			id
+			applicationId
+			kind
+			what
+			technologies
+			tags
+			concepts {
+				jobRequirementId
+				conceptId
+				relation
+				source
+				confidence
+				qualifier {
+					dimension
+					operator
+					value
+					min
+					max
+					unit
+				}
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+				}
+			}
+			createdAt
+		}
+	}
+`;
+
+export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
+	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
+		conceptEvidenceAssessment(
+			applicationId: $applicationId
+			resumeId: $resumeId
+		) {
+			id
+			applicationId
+			resumeId
+			inputHash
+			evaluatorVersion
+			result
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
+export const SAVE_CONCEPT_EVIDENCE_ASSESSMENT = gql`
+	mutation SaveConceptEvidenceAssessment(
+		$applicationId: ID!
+		$resumeId: ID!
+		$inputHash: String!
+		$evaluatorVersion: Int!
+		$result: JSON!
+	) {
+		saveConceptEvidenceAssessment(
+			applicationId: $applicationId
+			resumeId: $resumeId
+			inputHash: $inputHash
+			evaluatorVersion: $evaluatorVersion
+			result: $result
+		) {
+			id
+			applicationId
+			resumeId
+			inputHash
+			evaluatorVersion
+			result
+			createdAt
+			updatedAt
+		}
+	}
+`;
+
 export const LIST_CONCEPT_SUGGESTIONS = gql`
-	query ListConceptSuggestions($vocabulary: String!, $search: String, $limit: Int) {
-		conceptSuggestions(vocabulary: $vocabulary, search: $search, limit: $limit) {
+	query ListConceptSuggestions(
+		$vocabulary: String!
+		$search: String
+		$limit: Int
+	) {
+		conceptSuggestions(
+			vocabulary: $vocabulary
+			search: $search
+			limit: $limit
+		) {
 			vocabulary
 			key
 			label
@@ -361,7 +458,12 @@ export const LIST_CONCEPT_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_CONCEPTS = gql`
-	query SearchConcepts($query: String!, $vocabulary: String, $limit: Int, $minimumScore: Float) {
+	query SearchConcepts(
+		$query: String!
+		$vocabulary: String
+		$limit: Int
+		$minimumScore: Float
+	) {
 		searchConcepts(
 			query: $query
 			vocabulary: $vocabulary
@@ -396,6 +498,14 @@ const bulletFields = gql`
 			relation
 			source
 			confidence
+			qualifier {
+				dimension
+				operator
+				value
+				min
+				max
+				unit
+			}
 			concept {
 				id
 				vocabulary
@@ -447,7 +557,12 @@ export const SEARCH_BULLETS = gql`
 		$limit: Int
 		$minimumScore: Float
 	) {
-		searchBullets(query: $query, filter: $filter, limit: $limit, minimumScore: $minimumScore) {
+		searchBullets(
+			query: $query
+			filter: $filter
+			limit: $limit
+			minimumScore: $minimumScore
+		) {
 			score
 			bullet {
 				...BulletFields

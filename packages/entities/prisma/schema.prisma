@@ -131,8 +131,9 @@ model Concept {
   aliases           ConceptAlias[]
   facts             FactConcept[]
   bullets           BulletConcept[]
-  outgoingRelations ConceptRelation[] @relation("ConceptRelationSource")
-  incomingRelations ConceptRelation[] @relation("ConceptRelationTarget")
+  jobRequirements   JobRequirementConcept[]
+  outgoingRelations ConceptRelation[]       @relation("ConceptRelationSource")
+  incomingRelations ConceptRelation[]       @relation("ConceptRelationTarget")
 
   @@unique([vocabulary, key])
   @@index([vocabulary, label])
@@ -157,6 +158,7 @@ model FactConcept {
   relation   String
   source     String   @default("user")
   confidence Float?
+  qualifier  Json?
   createdAt  DateTime @default(now())
 
   fact    Fact    @relation(fields: [factId], references: [id], onDelete: Cascade)
@@ -222,8 +224,29 @@ model JobRequirementFact {
   embeddingProfile  String?
   createdAt         DateTime                    @default(now())
 
+  concepts JobRequirementConcept[]
+
   @@index([uid])
   @@index([applicationId])
+}
+
+// A job-side semantic assertion pointing into the shared concept graph.
+// Quantitative constraints stay on the assertion rather than becoming concepts.
+model JobRequirementConcept {
+  jobRequirementId String
+  conceptId        String
+  /// @zod.string.describe("Job-side predicate: 'requires', 'prefers', or 'expects'")
+  relation         String
+  source           String   @default("classifier")
+  confidence       Float?
+  qualifier        Json?
+  createdAt        DateTime @default(now())
+
+  jobRequirement JobRequirementFact @relation(fields: [jobRequirementId], references: [id], onDelete: Cascade)
+  concept        Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@id([jobRequirementId, conceptId, relation])
+  @@index([conceptId, relation])
 }
 
 // ─── Resume ──────────────────────────────────────────────────────────────────
@@ -246,9 +269,10 @@ model Resume {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sourceResume   Resume?    @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
-  derivedResumes Resume[]   @relation("ResumeVersions")
-  resumeXml      ResumeXml?
+  sourceResume               Resume?                     @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
+  derivedResumes             Resume[]                    @relation("ResumeVersions")
+  resumeXml                  ResumeXml?
+  conceptEvidenceAssessments ConceptEvidenceAssessment[]
 
   @@index([uid])
   @@index([applicationId])
@@ -286,10 +310,32 @@ model Application {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  companyRecord Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyRecord              Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  conceptEvidenceAssessments ConceptEvidenceAssessment[]
 
   @@index([uid])
   @@index([companyId])
+}
+
+// Latest persisted concept-to-resume evidence assessment for an application
+// resume. inputHash makes staleness explicit when either source changes.
+model ConceptEvidenceAssessment {
+  id               String   @id @default(cuid())
+  uid              String
+  applicationId    String
+  resumeId         String
+  inputHash        String
+  evaluatorVersion Int
+  result           Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  resume      Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([uid, applicationId, resumeId])
+  @@index([applicationId])
+  @@index([resumeId])
 }
 
 // ─── Company ────────────────────────────────────────────────────────────────
@@ -522,6 +568,7 @@ model BulletConcept {
   relation   String
   source     String   @default("user")
   confidence Float?
+  qualifier  Json?
   createdAt  DateTime @default(now())
 
   bullet  Bullet  @relation(fields: [bulletId], references: [id], onDelete: Cascade)

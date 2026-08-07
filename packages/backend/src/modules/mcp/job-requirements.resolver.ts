@@ -1,10 +1,11 @@
 import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
-import { JobRequirementFactSchema } from '@resume-builder/entities';
+import { conceptQualifierSchema, JobRequirementFactSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import {
 	type CreateJobRequirementDto,
+	JOB_REQUIREMENT_RELATIONS,
 	JobRequirementsService,
 } from '../job-requirements/job-requirements.service.js';
 import { McpGuard } from './mcp.guard.js';
@@ -27,6 +28,27 @@ const requirementCreateSchema = JobRequirementFactSchema.omit({
 		.optional()
 		.describe('Specific technologies or tools mentioned'),
 	tags: z.string().array().optional().describe('Lowercase hyphenated classification tags'),
+	meanings: z
+		.array(
+			z.object({
+				relation: z.enum(JOB_REQUIREMENT_RELATIONS),
+				concept: z.object({
+					vocabulary: z.enum([
+						'topic',
+						'technology',
+						'capability',
+						'outcome',
+						'artifact',
+					]),
+					key: z.string().trim().min(1),
+					label: z.string().trim().min(1),
+				}),
+				confidence: z.number().min(0).max(1).optional(),
+				qualifier: conceptQualifierSchema.optional(),
+			}),
+		)
+		.min(1)
+		.describe('Concept assertions distilled from this requirement'),
 });
 
 @Resolver()
@@ -37,7 +59,7 @@ export class JobRequirementsResolver {
 	@Tool({
 		name: 'create_job_requirements',
 		description:
-			'Create structured requirement facts extracted from a job description for a given application',
+			'Replace the structured requirement facts extracted from a job description for a given application',
 		paramsSchema: {
 			applicationId: z.string().describe('Application ID'),
 			requirements: z
@@ -56,7 +78,7 @@ export class JobRequirementsResolver {
 		}>,
 		{ user }: types.McpExtra,
 	): Promise<CallToolResult> {
-		const created = await this.jobRequirementsService.create(
+		const created = await this.jobRequirementsService.replace(
 			user.sub,
 			applicationId,
 			requirements,

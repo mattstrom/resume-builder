@@ -10,6 +10,14 @@ export const UPSERT_FACT_CONCEPT = gql`
 			relation
 			source
 			confidence
+			qualifier {
+				dimension
+				operator
+				value
+				min
+				max
+				unit
+			}
 			concept {
 				id
 				vocabulary
@@ -248,6 +256,14 @@ export const UPSERT_BULLET_CONCEPT = gql`
 			relation
 			source
 			confidence
+			qualifier {
+				dimension
+				operator
+				value
+				min
+				max
+				unit
+			}
 			concept {
 				id
 				vocabulary
@@ -282,6 +298,14 @@ export const REPLACE_GENERATED_BULLET_CONCEPTS = gql`
 			relation
 			source
 			confidence
+			qualifier {
+				dimension
+				operator
+				value
+				min
+				max
+				unit
+			}
 			concept {
 				id
 				vocabulary

@@ -168,6 +168,7 @@ export class ConceptsService {
 				OR: [
 					{ facts: { some: { fact: { uid } } } },
 					{ bullets: { some: { bullet: { uid } } } },
+					{ jobRequirements: { some: { jobRequirement: { uid } } } },
 				],
 				...(query
 					? { label: { contains: search.trim(), mode: 'insensitive' as const } }

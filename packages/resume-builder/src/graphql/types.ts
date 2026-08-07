@@ -1,4 +1,8 @@
-import type { Application, Resume } from '@resume-builder/entities';
+import type {
+	Application,
+	ConceptQualifierValue,
+	Resume,
+} from '@resume-builder/entities';
 
 export interface ListApplicationsData {
 	listApplications: Application[];
@@ -20,8 +24,76 @@ export interface GetApplicationVariables {
 	id: string;
 }
 
+export interface GetJobRequirementsData {
+	jobRequirements: JobRequirement[];
+}
+
+export interface JobRequirementConceptAssertion {
+	jobRequirementId: string;
+	conceptId: string;
+	relation: 'requires' | 'prefers' | 'expects';
+	source: string;
+	confidence?: number | null;
+	qualifier?: ConceptQualifierValue | null;
+	concept: {
+		id: string;
+		vocabulary: string;
+		key: string;
+		label: string;
+		definition?: string | null;
+	};
+}
+
+export interface JobRequirement {
+	id: string;
+	applicationId: string;
+	kind: string;
+	what: string;
+	technologies: string[];
+	tags: string[];
+	concepts: JobRequirementConceptAssertion[];
+	createdAt: string;
+}
+
+export interface GetJobRequirementsVariables {
+	applicationId: string;
+}
+
+export interface ConceptEvidenceAssessment {
+	id: string;
+	applicationId: string;
+	resumeId: string;
+	inputHash: string;
+	evaluatorVersion: number;
+	result: unknown;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface GetConceptEvidenceAssessmentData {
+	conceptEvidenceAssessment: ConceptEvidenceAssessment | null;
+}
+
+export interface ConceptEvidenceAssessmentVariables {
+	applicationId: string;
+	resumeId: string;
+}
+
+export interface SaveConceptEvidenceAssessmentData {
+	saveConceptEvidenceAssessment: ConceptEvidenceAssessment;
+}
+
+export interface SaveConceptEvidenceAssessmentVariables extends ConceptEvidenceAssessmentVariables {
+	inputHash: string;
+	evaluatorVersion: number;
+	result: unknown;
+}
+
 export interface CreateApplicationVariables {
-	applicationData: Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>;
+	applicationData: Omit<
+		Application,
+		'_id' | 'uid' | 'createdAt' | 'updatedAt'
+	>;
 	sourceResumeId?: string;
 }
 
