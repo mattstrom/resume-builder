@@ -1,3 +1,4 @@
+import { professionalStatementEvaluationSchema } from '@resume-builder/entities';
 import {
 	BadgeCheck,
 	BriefcaseBusiness,
@@ -23,6 +24,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import { toast } from 'sonner';
 import * as Y from 'yjs';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
@@ -44,6 +46,7 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import {
 	Tooltip,
@@ -52,12 +55,18 @@ import {
 	TooltipTrigger,
 } from '@/components/ui/tooltip.tsx';
 import { cn } from '@/lib/utils.ts';
-import { evaluateProfessionalStatement } from '@/lib/professional-statements.ts';
+import {
+	parseProfessionalStatementEvaluation,
+	professionalStatementCheckpointDefinitions,
+} from '@/lib/professional-statements.ts';
+import { getMastraClient } from '@/lib/mastra-client.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 const LABEL_FIELD = 'label';
 const TEXT_FIELD = 'text';
 const ID_FIELD = 'id';
+const EVALUATION_FIELD = 'evaluation';
+const EVALUATED_TEXT_FIELD = 'evaluatedText';
 
 function valueOf(statement: Y.Map<unknown>, field: string): string {
 	const value = statement.get(field);
@@ -133,6 +142,7 @@ const StatementListItem: FC<StatementListItemProps> = ({
 export const ProfessionalStatementsView: FC = observer(() => {
 	const { profileStore, uiStateStore } = useStore();
 	const [selectedId, setSelectedId] = useState<string>();
+	const [isEvaluating, setIsEvaluating] = useState(false);
 	const checkpointsGuideRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -176,11 +186,72 @@ export const ProfessionalStatementsView: FC = observer(() => {
 	const statementText = selectedStatement
 		? valueOf(selectedStatement, TEXT_FIELD)
 		: '';
-	const checkpoints = useMemo(
-		() => evaluateProfessionalStatement(statementText),
-		[statementText],
+	const serializedEvaluation = selectedStatement
+		? valueOf(selectedStatement, EVALUATION_FIELD)
+		: '';
+	const evaluation = useMemo(
+		() => parseProfessionalStatementEvaluation(serializedEvaluation),
+		[serializedEvaluation],
 	);
-	const metCount = checkpoints.filter(({ met }) => met).length;
+	const evaluatedText = selectedStatement
+		? valueOf(selectedStatement, EVALUATED_TEXT_FIELD)
+		: '';
+	const isEvaluationStale = Boolean(
+		evaluation && evaluatedText !== statementText,
+	);
+	const metCount = evaluation
+		? Object.values(evaluation.checkpoints).filter(
+				({ status }) => status === 'met',
+			).length
+		: 0;
+
+	const evaluateStatement = async () => {
+		const statement = selectedStatement;
+		const sourceText = statementText;
+		const text = sourceText.trim();
+		if (!statement || !text) {
+			toast.error('Add a professional statement before evaluating it.');
+			return;
+		}
+
+		setIsEvaluating(true);
+		try {
+			const client = await getMastraClient();
+			const workflow = client.getWorkflow(
+				'professionalStatementEvaluationWorkflow',
+			);
+			const run = await workflow.createRun();
+			const result = await run.startAsync({
+				inputData: { statement: text },
+			});
+
+			if (result.status !== 'success') {
+				throw new Error('Statement evaluation did not complete.');
+			}
+
+			const nextEvaluation = professionalStatementEvaluationSchema.parse(
+				result.result,
+			);
+			const saveEvaluation = () => {
+				statement.set(EVALUATION_FIELD, JSON.stringify(nextEvaluation));
+				statement.set(EVALUATED_TEXT_FIELD, sourceText);
+			};
+			if (statement.doc) {
+				statement.doc.transact(saveEvaluation);
+			} else {
+				saveEvaluation();
+			}
+			toast.success('Statement checkpoints updated.');
+		} catch (error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					: 'Could not evaluate this statement.',
+			);
+		} finally {
+			setIsEvaluating(false);
+		}
+	};
 
 	const deleteStatement = (index: number) => {
 		if (!statementsArray) {
@@ -389,63 +460,149 @@ export const ProfessionalStatementsView: FC = observer(() => {
 														Statement checkpoints
 													</CardTitle>
 													<CardDescription>
-														Signals detected in your
+														Evidence-based feedback
+														from your profile and
 														current draft.
 													</CardDescription>
 												</div>
-												<Badge
-													variant={
-														metCount ===
-														checkpoints.length
-															? 'secondary'
-															: 'outline'
-													}
-												>
-													{metCount}/
-													{checkpoints.length} met
-												</Badge>
+												<div className="flex items-center gap-2">
+													<Badge variant="outline">
+														{evaluation
+															? `${metCount}/6 met`
+															: 'Not evaluated'}
+													</Badge>
+													<Button
+														size="sm"
+														onClick={
+															evaluateStatement
+														}
+														disabled={
+															isEvaluating ||
+															!statementText.trim()
+														}
+													>
+														{isEvaluating ? (
+															<Spinner data-icon="inline-start" />
+														) : (
+															<Sparkles data-icon="inline-start" />
+														)}
+														{evaluation
+															? 'Re-evaluate'
+															: 'Evaluate'}
+													</Button>
+												</div>
 											</CardHeader>
-											<CardContent className="flex flex-wrap gap-2">
-												{checkpoints.map(
-													(checkpoint) => (
-														<Tooltip
-															key={checkpoint.key}
-														>
-															<TooltipTrigger
-																asChild
-															>
-																<span>
-																	<Badge
-																		variant={
-																			checkpoint.met
-																				? 'secondary'
-																				: 'outline'
-																		}
-																		className={cn(
-																			'gap-1.5 px-3 py-1.5 font-normal',
-																			checkpoint.met &&
-																				'text-success',
-																		)}
-																	>
-																		{checkpoint.met ? (
-																			<Check className="size-3" />
-																		) : (
-																			<CircleHelp className="size-3" />
-																		)}
-																		{
-																			checkpoint.label
-																		}
-																	</Badge>
-																</span>
-															</TooltipTrigger>
-															<TooltipContent>
-																{
-																	checkpoint.description
-																}
-															</TooltipContent>
-														</Tooltip>
-													),
+											<CardContent className="flex flex-col gap-3">
+												{isEvaluationStale && (
+													<Alert>
+														<Info />
+														<AlertTitle>
+															Evaluation is out of
+															date
+														</AlertTitle>
+														<AlertDescription>
+															The statement
+															changed after these
+															checkpoints were
+															graded.
+														</AlertDescription>
+													</Alert>
 												)}
+												{evaluation && (
+													<p className="text-sm text-muted-foreground">
+														{evaluation.summary}
+													</p>
+												)}
+												<div className="flex flex-wrap gap-2">
+													{professionalStatementCheckpointDefinitions.map(
+														(checkpoint) => {
+															const result =
+																evaluation
+																	?.checkpoints[
+																	checkpoint
+																		.key
+																];
+															const isMet =
+																result?.status ===
+																'met';
+															return (
+																<Tooltip
+																	key={
+																		checkpoint.key
+																	}
+																>
+																	<TooltipTrigger
+																		asChild
+																	>
+																		<span>
+																			<Badge
+																				variant={
+																					isMet
+																						? 'secondary'
+																						: 'outline'
+																				}
+																				className={cn(
+																					'gap-1.5 px-3 py-1.5 font-normal',
+																					isMet &&
+																						'text-success',
+																				)}
+																			>
+																				{isMet ? (
+																					<Check className="size-3" />
+																				) : (
+																					<CircleHelp className="size-3" />
+																				)}
+																				{
+																					checkpoint.label
+																				}
+																			</Badge>
+																		</span>
+																	</TooltipTrigger>
+																	<TooltipContent className="flex max-w-sm flex-col gap-1">
+																		{result && (
+																			<p className="font-medium capitalize">
+																				{result.status.replace(
+																					'-',
+																					' ',
+																				)}{' '}
+																				·
+																				score{' '}
+																				{Math.round(
+																					result.score *
+																						100,
+																				)}
+
+																				%
+																				·
+																				confidence{' '}
+																				{Math.round(
+																					result.confidence *
+																						100,
+																				)}
+
+																				%
+																			</p>
+																		)}
+																		<p>
+																			{result?.feedback ??
+																				checkpoint.description}
+																		</p>
+																		{result
+																			?.evidence
+																			.length ? (
+																			<p>
+																				Evidence:{' '}
+																				{result.evidence.join(
+																					'; ',
+																				)}
+																			</p>
+																		) : null}
+																	</TooltipContent>
+																</Tooltip>
+															);
+														},
+													)}
+												</div>
 											</CardContent>
 										</Card>
 									</div>

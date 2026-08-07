@@ -1,19 +1,43 @@
 import { describe, expect, it } from 'vitest';
 
-import { evaluateProfessionalStatement } from './professional-statements.ts';
+import { parseProfessionalStatementEvaluation } from './professional-statements.ts';
 
-describe('evaluateProfessionalStatement', () => {
-	it('recognizes a statement that covers every checkpoint', () => {
-		const checkpoints = evaluateProfessionalStatement(
-			'I am a software engineer with 12+ years of experience building platforms for 100+ enterprise customers. I am driven to make complex systems easier to use.',
+describe('parseProfessionalStatementEvaluation', () => {
+	it('parses a complete workflow result', () => {
+		const checkpoint = {
+			status: 'met',
+			score: 0.75,
+			confidence: 0.9,
+			evidence: ['Software engineer'],
+			feedback: 'The role is stated clearly.',
+		};
+		const result = parseProfessionalStatementEvaluation(
+			JSON.stringify({
+				overallScore: 0.75,
+				summary: 'The statement covers all six checkpoints.',
+				checkpoints: {
+					whoYouAre: checkpoint,
+					yourFoundation: checkpoint,
+					whatYouDo: checkpoint,
+					yourImpact: checkpoint,
+					yourWhy: checkpoint,
+					authenticity: checkpoint,
+				},
+			}),
 		);
 
-		expect(checkpoints.every(({ met }) => met)).toBe(true);
+		expect(result?.checkpoints.whoYouAre.status).toBe('met');
 	});
 
-	it('does not mark checkpoints met for an empty statement', () => {
-		const checkpoints = evaluateProfessionalStatement('');
-
-		expect(checkpoints.every(({ met }) => !met)).toBe(true);
+	it('rejects legacy or malformed evaluation data', () => {
+		expect(parseProfessionalStatementEvaluation('')).toBeUndefined();
+		expect(
+			parseProfessionalStatementEvaluation('{not json'),
+		).toBeUndefined();
+		expect(
+			parseProfessionalStatementEvaluation(
+				JSON.stringify({ checkpoints: [] }),
+			),
+		).toBeUndefined();
 	});
 });
