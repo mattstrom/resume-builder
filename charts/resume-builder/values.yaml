@@ -54,6 +54,9 @@ orchestration:
     clientId: ''
   # Override which Postgres database Mastra uses (defaults to postgres.database)
   postgresDatabase: ''
+  # Override the MCP endpoint the orchestration server connects to (defaults to
+  # the ingress host that routes /mcp to the backend)
+  mcpUrl: ''
   resources: {}
   nodeSelector: {}
   tolerations: []
