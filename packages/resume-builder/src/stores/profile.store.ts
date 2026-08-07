@@ -15,6 +15,8 @@ const JOB_PREFERENCES_FIELD = 'jobPreferences';
 const PROFESSIONAL_STATEMENTS_FIELD = 'professionalStatements';
 
 export class ProfileStore {
+	private connectionGeneration = 0;
+
 	@observable
 	status: ProfileConnectionStatus = 'idle';
 
@@ -56,9 +58,16 @@ export class ProfileStore {
 		if (this.provider) {
 			return;
 		}
+		const connectionGeneration = this.connectionGeneration;
 
 		const token = await this.rootStore.authStore.ensureToken();
 		const uid = this.rootStore.authStore.user?.sub;
+		if (
+			connectionGeneration !== this.connectionGeneration ||
+			this.provider
+		) {
+			return;
+		}
 
 		if (!uid) {
 			throw new Error('Cannot open profile: no authenticated user');
@@ -72,6 +81,12 @@ export class ProfileStore {
 			document: doc,
 			token,
 			onStatus: ({ status }) => {
+				if (
+					connectionGeneration !== this.connectionGeneration ||
+					this.doc !== doc
+				) {
+					return;
+				}
 				runInAction(() => {
 					this.status =
 						status === 'connected'
@@ -82,6 +97,12 @@ export class ProfileStore {
 				});
 			},
 			onSynced: () => {
+				if (
+					connectionGeneration !== this.connectionGeneration ||
+					this.doc !== doc
+				) {
+					return;
+				}
 				runInAction(() => {
 					this.isSynced = true;
 				});
@@ -90,6 +111,7 @@ export class ProfileStore {
 
 		runInAction(() => {
 			this.status = 'connecting';
+			this.isSynced = false;
 			this.doc = doc;
 			this.provider = provider;
 		});
@@ -97,6 +119,7 @@ export class ProfileStore {
 
 	@action
 	disconnect(): void {
+		this.connectionGeneration += 1;
 		this.provider?.destroy();
 		this.provider = null;
 		this.doc?.destroy();

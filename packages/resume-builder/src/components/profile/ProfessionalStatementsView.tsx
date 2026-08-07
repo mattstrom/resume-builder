@@ -153,6 +153,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 	const statementsArray = profileStore.professionalStatementsArray;
 	useYArrayDeep(statementsArray);
 	const statements = statementsArray?.toArray() ?? [];
+	const statementCount = statements.length;
 
 	const addStatement = useCallback(() => {
 		if (!statementsArray) {
@@ -168,7 +169,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 			return;
 		}
 		if (statementsArray.length === 0) {
-			addStatement();
+			setSelectedId(undefined);
 			return;
 		}
 
@@ -178,7 +179,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 		if (!hasSelection) {
 			setSelectedId(valueOf(statementsArray.get(0), ID_FIELD));
 		}
-	}, [addStatement, profileStore.isSynced, selectedId, statementsArray]);
+	}, [profileStore.isSynced, selectedId, statementCount, statementsArray]);
 
 	const selectedStatement = statements.find(
 		(statement) => valueOf(statement, ID_FIELD) === selectedId,
@@ -735,7 +736,9 @@ export const ProfessionalStatementsView: FC = observer(() => {
 							</main>
 						) : (
 							<div className="grid flex-1 place-items-center p-6 text-sm text-muted-foreground">
-								Connecting to your profile…
+								{profileStore.isSynced
+									? 'No professional statements yet. Use New statement to create one.'
+									: 'Connecting to your profile…'}
 							</div>
 						)}
 					</div>
