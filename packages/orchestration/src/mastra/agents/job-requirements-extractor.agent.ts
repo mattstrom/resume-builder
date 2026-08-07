@@ -1,7 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
-import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
+import { z } from 'zod';
 
 import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
@@ -11,7 +11,9 @@ export const jobRequirementsExtractorAgent = new Agent({
 	description:
 		'Extracts structured requirement facts from a job description for a given application',
 	model: () => 'anthropic/claude-sonnet-4-6',
-	requestContextSchema: {},
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
+	}),
 	instructions: async () => {
 		return outdent`
 			You are a **Job Requirements Extraction Agent**. Your job is to read a job description and decompose it into discrete, structured requirement facts. You are not summarizing. You are not scoring fit. You are extracting the atomic, verifiable requirements that define what this role demands.
@@ -39,9 +41,24 @@ export const jobRequirementsExtractorAgent = new Agent({
 			       | 'responsibility' // ongoing duty the role owns ("lead weekly standups", "own oncall")
 			       | 'culture'        // behavioral expectation ("thrives in ambiguity", "strong async communicator")
 
-			  what: string            // one sentence, plain factual language describing the requirement
-			  technologies: string[]  // specific named tools, languages, frameworks referenced
-			  tags: string[]          // lowercase, hyphenated classification tags
+			  what: string // one sentence, plain factual language describing the requirement
+			  meanings: [{
+			    relation: 'requires' | 'prefers' | 'expects'
+			    concept: {
+			      vocabulary: 'technology' | 'capability' | 'topic' | 'outcome' | 'artifact'
+			      key: string
+			      label: string
+			    }
+			    confidence: number
+			    qualifier?: {
+			      dimension: string
+			      operator: 'gte' | 'gt' | 'eq' | 'lte' | 'lt' | 'between' | 'approximately'
+			      value?: number
+			      min?: number
+			      max?: number
+			      unit: string
+			    }
+			  }]
 			}
 			\`\`\`
 
@@ -71,14 +88,26 @@ export const jobRequirementsExtractorAgent = new Agent({
 
 			---
 
-			## Tagging Guidelines
+			## Concept Assertion Guidelines
 
-			Tags are used for retrieval and matching against candidate facts. Use the same conventions:
-			* Lowercase and hyphenated: \`distributed-systems\`, not \`Distributed Systems\`
-			* Specific enough to be useful: \`lambda-at-edge\` is better than \`serverless\`
+			Concepts are shared with candidate facts and bullets:
+			* \`technology\`: TypeScript, Kubernetes, PostgreSQL
+			* \`capability\`: architecture, mentoring, incident response
+			* \`topic\`: distributed systems, security, developer experience
+			* \`outcome\`: reliability, SOC 2 compliance, developer productivity
+			* \`artifact\`: service, platform, migration, process
+
+			Use \`requires\` for required facts, \`prefers\` for preferred facts, and
+			\`expects\` for responsibilities and cultural expectations. Keys are lowercase
+			hyphenated except canonical technology names.
+
+			Quantities belong in qualifiers, never concept labels. Normalize durations to
+			months. "10+ years of TypeScript" becomes \`requires → TypeScript\` with
+			\`{ dimension: "experience-duration", operator: "gte", value: 120,
+			unit: "months" }\`. "8–10 years" uses \`between\`, min 96, max 120.
 
 			\`\`\`markdown
-			# Domains
+			# Domains and topics
 			backend, frontend, full-stack, infrastructure, devops, security,
 			ai, ml, developer-tooling, realtime, distributed-systems, edge,
 			observability, data, sdk, api, platform, mobile, desktop
@@ -119,5 +148,4 @@ export const jobRequirementsExtractorAgent = new Agent({
 		};
 	},
 	scorers: {},
-	memory: new Memory(),
 });

@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client/react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import type { Application, Resume } from '@resume-builder/entities';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
@@ -9,7 +9,6 @@ import {
 	ExternalLink,
 	FileCheck2,
 	FileText,
-	RefreshCw,
 	Save,
 	Sparkles,
 	Trash2,
@@ -20,7 +19,6 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { AppShell } from '@/components/app-shell/AppShell.tsx';
-import { ReadonlyDataFields } from '@/components/ReadonlyDataView.tsx';
 import { RouteError } from '@/components/RouteError.tsx';
 import { RouteLoading } from '@/components/RouteLoading.tsx';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
@@ -57,7 +55,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { CREATE_BLANK_RESUME, DELETE_RESUME, UPDATE_APPLICATION } from '@/graphql/mutations.ts';
-import { GET_APPLICATION } from '@/graphql/queries.ts';
+import { GET_APPLICATION, GET_JOB_REQUIREMENTS } from '@/graphql/queries.ts';
 import type {
 	CreateBlankResumeData,
 	CreateBlankResumeVariables,
@@ -65,6 +63,8 @@ import type {
 	DeleteResumeVariables,
 	GetApplicationData,
 	GetApplicationVariables,
+	GetJobRequirementsData,
+	GetJobRequirementsVariables,
 	UpdateApplicationData,
 	UpdateApplicationVariables,
 } from '@/graphql/types.ts';
@@ -104,25 +104,12 @@ const statusLabels: Record<WorkflowStageStatus, string> = {
 	blocked: 'Blocked',
 };
 
-const compactJobSummaryKeys = [
-	'requiredSkills',
-	'preferredSkills',
-	'requiredEducation',
-	'requiredExperience',
-	'roleLevel',
-	'techStack',
-];
-
-const compactAssessmentScoreKeys = [
-	'overallFit',
-	'skillRelevance',
-	'experienceRelevance',
-	'roleLevelFit',
-	'locationFit',
-	'compensationFit',
-	'companyFit',
-	'logisticalFit',
-];
+const requirementKindLabels: Record<string, string> = {
+	required: 'Required',
+	preferred: 'Preferred',
+	responsibility: 'Responsibilities',
+	culture: 'Ways of working',
+};
 
 const getInitialFormState = (application: Application): ApplicationFormState => ({
 	name: application.name ?? '',
@@ -137,14 +124,6 @@ const getInitialFormState = (application: Application): ApplicationFormState => 
 function optionalValue(value: string) {
 	const trimmed = value.trim();
 	return trimmed.length > 0 ? trimmed : null;
-}
-
-function formatList(values?: string[] | null) {
-	return values?.filter(Boolean).join(', ') || 'Not captured';
-}
-
-function formatScore(value?: number | null) {
-	return typeof value === 'number' ? `${Math.round(value * 100)}%` : 'No score';
 }
 
 function formatDate(value?: string | Date | null) {
@@ -167,13 +146,35 @@ function StageStatusBadge({ status }: { status: WorkflowStageStatus }) {
 	return <Badge variant={getStatusVariant(status)}>{statusLabels[status]}</Badge>;
 }
 
-function ScoreRow({ label, value }: { label: string; value?: number | null }) {
-	return (
-		<div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2">
-			<span className="text-sm text-muted-foreground">{label}</span>
-			<Badge variant="outline">{formatScore(value)}</Badge>
-		</div>
-	);
+function formatQualifier(
+	qualifier: GetJobRequirementsData['jobRequirements'][number]['concepts'][number]['qualifier'],
+) {
+	if (!qualifier) return '';
+	const formatValue = (value: number) => {
+		if (qualifier.unit === 'months' && value % 12 === 0) {
+			const years = value / 12;
+			return `${years} ${years === 1 ? 'year' : 'years'}`;
+		}
+		return `${value} ${qualifier.unit}`;
+	};
+	const dimension = qualifier.dimension.replaceAll('-', ' ');
+	if (
+		qualifier.operator === 'between' &&
+		qualifier.min !== undefined &&
+		qualifier.max !== undefined
+	) {
+		return ` · ${formatValue(qualifier.min)}–${formatValue(qualifier.max)} ${dimension}`;
+	}
+	if (qualifier.value === undefined) return '';
+	const operator = {
+		gte: '≥',
+		gt: '>',
+		eq: '=',
+		lte: '≤',
+		lt: '<',
+		approximately: '≈',
+	}[qualifier.operator];
+	return ` · ${operator ?? qualifier.operator} ${formatValue(qualifier.value)} ${dimension}`;
 }
 
 function WorkflowStageTrigger({ stage }: { stage: WorkflowStage }) {
@@ -438,17 +439,32 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	const navigate = Route.useNavigate();
 	const [application, setApplication] = useState<Application>(loadedApplication);
 	const [formState, setFormState] = useState(() => getInitialFormState(loadedApplication));
-	const [assessing, setAssessing] = useState(false);
+	const [identifyingRequirements, setIdentifyingRequirements] = useState(false);
+	const {
+		data: jobRequirementsData,
+		loading: loadingJobRequirements,
+		refetch: refetchJobRequirements,
+	} = useQuery<GetJobRequirementsData, GetJobRequirementsVariables>(GET_JOB_REQUIREMENTS, {
+		variables: { applicationId },
+		fetchPolicy: 'cache-and-network',
+	});
 	const [updateApplication, { loading: saving }] = useMutation<
 		UpdateApplicationData,
 		UpdateApplicationVariables
 	>(UPDATE_APPLICATION);
 
-	const workflow = useMemo(() => deriveApplicationWorkflow(application), [application]);
+	const jobRequirements = jobRequirementsData?.jobRequirements ?? [];
+	const workflow = useMemo(
+		() => deriveApplicationWorkflow(application, jobRequirements.length > 0),
+		[application, jobRequirements.length],
+	);
+	const requirementsStage = workflow.stages.find((stage) => stage.id === 'requirements')!;
+	const assertions = useMemo(
+		() => jobRequirements.flatMap((requirement) => requirement.concepts),
+		[jobRequirements],
+	);
 	const resumes = (application.resumes ?? []) as ResumeLink[];
 	const firstResume = resumes[0];
-	const jobSummary = application.jobSummary;
-	const analysis = application.analysis;
 
 	useEffect(() => {
 		setApplication(loadedApplication);
@@ -521,24 +537,21 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 		});
 	};
 
-	const handleAssess = async () => {
-		setAssessing(true);
+	const handleIdentifyRequirements = async () => {
+		setIdentifyingRequirements(true);
 		try {
 			await saveApplication(false);
-			await applicationStore.assess(applicationId);
-			handleStageChange('fit');
-			await refreshApplication();
-			toast.success('Assessment complete.');
+			await applicationStore.identifyJobConcepts(applicationId);
+			await refetchJobRequirements();
+			handleStageChange('requirements');
+			toast.success('Job requirements identified.');
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : 'Assessment failed');
+			toast.error(
+				error instanceof Error ? error.message : 'Requirement identification failed',
+			);
 		} finally {
-			setAssessing(false);
+			setIdentifyingRequirements(false);
 		}
-	};
-
-	const handleRefreshResults = async () => {
-		await refreshApplication();
-		toast.success('Application data refreshed');
 	};
 
 	const handleResumeCreated = async (_resume: Resume) => {
@@ -551,7 +564,8 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 
 	const reviewWarnings = [
 		!workflow.hasPosting ? 'Posting details are missing.' : null,
-		!workflow.hasAnalysis ? 'Fit analysis has not been run.' : null,
+		!workflow.hasJobDescription ? 'The job description text is missing.' : null,
+		!workflow.hasRequirements ? 'Job requirements have not been identified.' : null,
 		!workflow.hasResume ? 'No resume is linked to this application.' : null,
 		!workflow.hasCoverLetter ? 'No cover letter artifact is tracked.' : null,
 	].filter(Boolean);
@@ -576,11 +590,6 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 									<Badge variant="outline">
 										Updated {formatDate(application.updatedAt)}
 									</Badge>
-									{analysis?.overallFit !== undefined && (
-										<Badge variant="outline">
-											{formatScore(analysis.overallFit)} fit
-										</Badge>
-									)}
 								</div>
 							</div>
 							<div className="flex flex-wrap items-center gap-2">
@@ -598,11 +607,15 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 								)}
 								<Button
 									variant="outline"
-									onClick={handleAssess}
-									disabled={!workflow.hasPosting || assessing}
+									onClick={handleIdentifyRequirements}
+									disabled={
+										!workflow.hasJobDescription || identifyingRequirements
+									}
 								>
-									<RefreshCw data-icon="inline-start" />
-									{assessing ? 'Assessing...' : workflow.stages[1].actionLabel}
+									<Sparkles data-icon="inline-start" />
+									{identifyingRequirements
+										? 'Identifying...'
+										: requirementsStage.actionLabel}
 								</Button>
 							</div>
 						</div>
@@ -649,8 +662,8 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 									<CardHeader>
 										<CardTitle>Posting</CardTitle>
 										<CardDescription>
-											Capture the source material used for assessment,
-											tailoring, and final review.
+											Capture the source material used for requirement
+											identification, tailoring, and final review.
 										</CardDescription>
 									</CardHeader>
 									<CardContent className="flex flex-col gap-5">
@@ -753,180 +766,183 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 							</form>
 						</TabsContent>
 
-						<TabsContent value="fit" className="mt-0">
-							<div className="flex flex-col gap-4">
-								<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]">
-									<Card>
-										<CardHeader>
-											<CardTitle>Fit</CardTitle>
-											<CardDescription>
-												Assess the role against profile facts, preferences,
-												and available resume material.
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="flex flex-col gap-4">
-											{!workflow.hasPosting && (
-												<Alert>
-													<AlertCircle />
-													<AlertTitle>Posting required</AlertTitle>
-													<AlertDescription>
-														Add a job description or posting URL before
-														running assessment.
-													</AlertDescription>
-												</Alert>
-											)}
-											<div className="grid gap-3">
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Required skills
-													</span>
-													<span className="text-sm">
-														{formatList(jobSummary?.requiredSkills)}
-													</span>
-												</div>
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Preferred skills
-													</span>
-													<span className="text-sm">
-														{formatList(jobSummary?.preferredSkills)}
-													</span>
-												</div>
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Education
-													</span>
-													<span className="text-sm">
-														{jobSummary?.requiredEducation ||
-															'Not captured'}
-													</span>
-												</div>
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Experience
-													</span>
-													<span className="text-sm">
-														{jobSummary?.requiredExperience ||
-															'Not captured'}
-													</span>
-												</div>
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Role level
-													</span>
-													<span className="text-sm">
-														{jobSummary?.roleLevel || 'Not captured'}
-													</span>
-												</div>
-												<div className="flex flex-col gap-1 rounded-md border border-border px-3 py-2">
-													<span className="text-sm text-muted-foreground">
-														Tech stack
-													</span>
-													<span className="text-sm">
-														{formatList(jobSummary?.techStack)}
-													</span>
-												</div>
-											</div>
-											<Separator />
-											<div className="flex flex-col gap-2">
-												<div>
-													<h3 className="text-sm font-medium">
-														Job summary
-													</h3>
-													<p className="text-sm text-muted-foreground">
-														Structured requirements extracted from the
-														job posting.
-													</p>
-												</div>
-												<ReadonlyDataFields
-													data={jobSummary as Record<string, unknown>}
-													omitKeys={compactJobSummaryKeys}
-													emptyMessage="No additional job summary fields."
-												/>
-											</div>
-										</CardContent>
-										<CardFooter>
-											<div className="flex flex-wrap gap-2">
-												<Button
-													onClick={handleAssess}
-													disabled={!workflow.hasPosting || assessing}
-												>
-													<Sparkles data-icon="inline-start" />
-													{assessing
-														? 'Assessing...'
-														: workflow.stages[1].actionLabel}
-												</Button>
-												<Button
-													variant="outline"
-													onClick={handleRefreshResults}
-												>
-													<RefreshCw data-icon="inline-start" />
-													Refresh results
-												</Button>
-											</div>
-										</CardFooter>
-									</Card>
+						<TabsContent value="requirements" className="mt-0">
+							<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
+								<Card>
+									<CardHeader>
+										<CardTitle>Job requirements</CardTitle>
+										<CardDescription>
+											Distill the posting into semantic assertions that share
+											concepts with your career evidence.
+										</CardDescription>
+									</CardHeader>
+									<CardContent className="flex flex-col gap-5">
+										{!workflow.hasJobDescription && (
+											<Alert>
+												<AlertCircle />
+												<AlertTitle>Posting required</AlertTitle>
+												<AlertDescription>
+													Add a job description before identifying
+													requirements.
+												</AlertDescription>
+											</Alert>
+										)}
 
-									<Card>
-										<CardHeader>
-											<CardTitle>Assessment scores</CardTitle>
-											<CardDescription>
-												Current scoring output for this application.
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="flex flex-col gap-2">
-											<ScoreRow
-												label="Overall"
-												value={analysis?.overallFit}
-											/>
-											<ScoreRow
-												label="Skills"
-												value={analysis?.skillRelevance}
-											/>
-											<ScoreRow
-												label="Experience"
-												value={analysis?.experienceRelevance}
-											/>
-											<ScoreRow
-												label="Role level"
-												value={analysis?.roleLevelFit}
-											/>
-											<ScoreRow
-												label="Location"
-												value={analysis?.locationFit}
-											/>
-											<ScoreRow
-												label="Compensation"
-												value={analysis?.compensationFit}
-											/>
-											<ScoreRow
-												label="Company"
-												value={analysis?.companyFit}
-											/>
-											<ScoreRow
-												label="Logistics"
-												value={analysis?.logisticalFit}
-											/>
-											<Separator className="my-2" />
-											<div className="flex flex-col gap-2">
-												<div>
-													<h3 className="text-sm font-medium">
-														Job assessment
-													</h3>
+										{jobRequirements.length > 0 ? (
+											Object.entries(requirementKindLabels).map(
+												([kind, label]) => {
+													const requirements = jobRequirements.filter(
+														(requirement) => requirement.kind === kind,
+													);
+													if (requirements.length === 0) return null;
+
+													return (
+														<section
+															key={kind}
+															className="flex flex-col gap-2"
+														>
+															<div className="flex items-center justify-between gap-3">
+																<h3 className="text-sm font-medium">
+																	{label}
+																</h3>
+																<Badge variant="outline">
+																	{requirements.length}
+																</Badge>
+															</div>
+															<div className="flex flex-col gap-2">
+																{requirements.map((requirement) => (
+																	<div
+																		key={requirement.id}
+																		className="flex flex-col gap-2 rounded-md border border-border px-3 py-2"
+																	>
+																		<p className="text-sm">
+																			{requirement.what}
+																		</p>
+																		{requirement.concepts
+																			.length > 0 && (
+																			<div className="flex flex-wrap gap-1">
+																				{requirement.concepts.map(
+																					(assertion) => (
+																						<Badge
+																							key={`${assertion.relation}:${assertion.conceptId}`}
+																							variant="secondary"
+																						>
+																							{
+																								assertion.relation
+																							}
+																							:{' '}
+																							{
+																								assertion
+																									.concept
+																									.label
+																							}
+																							{formatQualifier(
+																								assertion.qualifier,
+																							)}
+																						</Badge>
+																					),
+																				)}
+																			</div>
+																		)}
+																	</div>
+																))}
+															</div>
+														</section>
+													);
+												},
+											)
+										) : (
+											<Alert>
+												<Sparkles />
+												<AlertTitle>
+													{loadingJobRequirements
+														? 'Loading identified requirements'
+														: 'No requirements identified yet'}
+												</AlertTitle>
+												<AlertDescription>
+													The AI will break the posting into explicit
+													requirements, responsibilities, and
+													working-style signals.
+												</AlertDescription>
+											</Alert>
+										)}
+									</CardContent>
+									<CardFooter>
+										<Button
+											onClick={handleIdentifyRequirements}
+											disabled={
+												!workflow.hasJobDescription ||
+												identifyingRequirements
+											}
+										>
+											<Sparkles data-icon="inline-start" />
+											{identifyingRequirements
+												? 'Identifying...'
+												: requirementsStage.actionLabel}
+										</Button>
+									</CardFooter>
+								</Card>
+
+								<Card>
+									<CardHeader>
+										<CardTitle>Assertion index</CardTitle>
+										<CardDescription>
+											Normalized job-side predicates pointing into the shared
+											concept graph.
+										</CardDescription>
+									</CardHeader>
+									<CardContent className="flex flex-col gap-5">
+										<section className="flex flex-col gap-2">
+											<h3 className="text-sm font-medium">Assertions</h3>
+											<div className="flex flex-wrap gap-2">
+												{assertions.length > 0 ? (
+													assertions.map((assertion) => (
+														<Badge
+															key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}`}
+															variant="secondary"
+														>
+															{assertion.relation}:{' '}
+															{assertion.concept.label}
+														</Badge>
+													))
+												) : (
 													<p className="text-sm text-muted-foreground">
-														Fit analysis between your profile and the
-														job requirements.
+														No assertions identified.
 													</p>
-												</div>
-												<ReadonlyDataFields
-													data={analysis as Record<string, unknown>}
-													omitKeys={compactAssessmentScoreKeys}
-													emptyMessage="No additional assessment details."
-												/>
+												)}
 											</div>
-										</CardContent>
-									</Card>
-								</div>
+										</section>
+										<Separator />
+										<section className="flex flex-col gap-2">
+											<h3 className="text-sm font-medium">
+												Quantified constraints
+											</h3>
+											<div className="flex flex-wrap gap-2">
+												{assertions.some(
+													(assertion) => assertion.qualifier,
+												) ? (
+													assertions
+														.filter((assertion) => assertion.qualifier)
+														.map((assertion) => (
+															<Badge
+																key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}:qualifier`}
+																variant="outline"
+															>
+																{assertion.concept.label}
+																{formatQualifier(
+																	assertion.qualifier,
+																)}
+															</Badge>
+														))
+												) : (
+													<p className="text-sm text-muted-foreground">
+														No quantified constraints identified.
+													</p>
+												)}
+											</div>
+										</section>
+									</CardContent>
+								</Card>
 							</div>
 						</TabsContent>
 
@@ -1071,7 +1087,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 												<CheckCircle2 />
 												<AlertTitle>Ready for review</AlertTitle>
 												<AlertDescription>
-													Posting, fit analysis, and resume are ready for
+													Posting, requirements, and resume are ready for
 													a final pass.
 												</AlertDescription>
 											</Alert>
@@ -1144,11 +1160,9 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 									<CardContent className="flex flex-col gap-3">
 										<div className="flex items-center justify-between gap-3">
 											<span className="text-sm text-muted-foreground">
-												Overall fit
+												Concept assertions
 											</span>
-											<Badge variant="outline">
-												{formatScore(analysis?.overallFit)}
-											</Badge>
+											<Badge variant="outline">{assertions.length}</Badge>
 										</div>
 										<Separator />
 										<div className="flex items-center justify-between gap-3">

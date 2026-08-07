@@ -335,6 +335,14 @@ export const LIST_FACTS = gql`
 				relation
 				source
 				confidence
+				qualifier {
+					dimension
+					operator
+					value
+					min
+					max
+					unit
+				}
 				concept {
 					id
 					vocabulary
@@ -342,6 +350,42 @@ export const LIST_FACTS = gql`
 					label
 					definition
 					externalUri
+				}
+			}
+			createdAt
+		}
+	}
+`;
+
+export const GET_JOB_REQUIREMENTS = gql`
+	query GetJobRequirements($applicationId: ID!) {
+		jobRequirements(applicationId: $applicationId) {
+			id
+			applicationId
+			kind
+			what
+			technologies
+			tags
+			concepts {
+				jobRequirementId
+				conceptId
+				relation
+				source
+				confidence
+				qualifier {
+					dimension
+					operator
+					value
+					min
+					max
+					unit
+				}
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
 				}
 			}
 			createdAt
@@ -396,6 +440,14 @@ const bulletFields = gql`
 			relation
 			source
 			confidence
+			qualifier {
+				dimension
+				operator
+				value
+				min
+				max
+				unit
+			}
 			concept {
 				id
 				vocabulary

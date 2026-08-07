@@ -38,9 +38,9 @@ export class ApplicationStore {
 		return this.query.refetch();
 	}
 
-	async assess(applicationId: string): Promise<void> {
+	async identifyJobConcepts(applicationId: string): Promise<void> {
 		const client = await getMastraClient();
-		const workflow = client.getWorkflow('fit-assessment-workflow');
+		const workflow = client.getWorkflow('job-concept-identification-workflow');
 		const run = await workflow.createRun();
 		const result = await run.startAsync({ inputData: { applicationId } });
 
@@ -48,7 +48,7 @@ export class ApplicationStore {
 			const message =
 				'error' in result && result.error instanceof Error
 					? result.error.message
-					: 'Assessment did not complete.';
+					: 'Requirement identification did not complete.';
 			throw new Error(message);
 		}
 	}

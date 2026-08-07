@@ -68,6 +68,11 @@ export type Expression = Prisma.ExpressionModel
  */
 export type JobRequirementFact = Prisma.JobRequirementFactModel
 /**
+ * Model JobRequirementConcept
+ *
+ */
+export type JobRequirementConcept = Prisma.JobRequirementConceptModel
+/**
  * Model Resume
  * 
  */

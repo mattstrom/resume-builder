@@ -1,6 +1,8 @@
 import { Field, Float, ID, InputType, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { z } from 'zod';
 
+import { ConceptQualifier, ConceptQualifierInput } from './concept-assertion.js';
+
 export enum BulletSourceType {
 	JOB = 'job',
 	PROJECT = 'project',
@@ -50,6 +52,9 @@ export class BulletConcept {
 
 	@Field(() => Float, { nullable: true })
 	confidence?: number;
+
+	@Field(() => ConceptQualifier, { nullable: true })
+	qualifier?: ConceptQualifier;
 
 	@Field(() => BulletConceptValue)
 	concept: BulletConceptValue;
@@ -275,6 +280,9 @@ export class BulletMeaningInput {
 
 	@Field(() => Float, { nullable: true })
 	confidence?: number;
+
+	@Field(() => ConceptQualifierInput, { nullable: true })
+	qualifier?: ConceptQualifierInput;
 }
 
 const scoreSchema = z.number().min(0).max(1).nullable().optional();

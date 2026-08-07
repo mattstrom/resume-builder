@@ -2,72 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type FactType {
-  id: ID!
-  uid: String!
-  what: String!
-  impact: String
-  scale: String
-  citation: String
-  citationNodeIndex: Int
-  concepts: [FactConceptType!]!
-  createdAt: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type ExpressionType {
-  id: ID!
-  factId: String!
-  text: String!
-  length: String
-  tone: String
-  createdAt: DateTime!
-}
-
-type ConceptType {
-  id: ID!
-  vocabulary: String!
-  key: String!
-  label: String!
-  definition: String
-  externalUri: String
-}
-
-type ConceptSuggestionType {
-  vocabulary: String!
-  key: String!
-  label: String!
-  definition: String
-}
-
-type ConceptSearchResultType {
-  concept: ConceptType!
-  score: Float!
-}
-
-type FactConceptType {
-  factId: ID!
-  conceptId: ID!
-  relation: String!
-  source: String!
-  confidence: Float
-  concept: ConceptType!
-}
-
-type ResumeFactType {
-  resumeId: String!
-  factId: String!
-  expressionId: String
-  section: String
-  position: Int
-  fact: FactType
-  expression: ExpressionType
-}
-
 """Contact Information"""
 type ContactInformation {
   _id: ID!
@@ -198,6 +132,20 @@ enum LocationType {
   on_site
   hybrid
   remote
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type ConceptQualifier {
+  dimension: String!
+  operator: String!
+  value: Float
+  min: Float
+  max: Float
+  unit: String!
 }
 
 type ResumeBullet {
@@ -441,6 +389,7 @@ type BulletConcept {
   relation: String!
   source: String!
   confidence: Float
+  qualifier: ConceptQualifier
   concept: BulletConceptValue!
 }
 
@@ -554,6 +503,68 @@ type ConversationMessage {
   createdAt: DateTime!
 }
 
+type FactType {
+  id: ID!
+  uid: String!
+  what: String!
+  impact: String
+  scale: String
+  citation: String
+  citationNodeIndex: Int
+  concepts: [FactConceptType!]!
+  createdAt: DateTime!
+}
+
+type ExpressionType {
+  id: ID!
+  factId: String!
+  text: String!
+  length: String
+  tone: String
+  createdAt: DateTime!
+}
+
+type ConceptType {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+  externalUri: String
+}
+
+type ConceptSuggestionType {
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+}
+
+type ConceptSearchResultType {
+  concept: ConceptType!
+  score: Float!
+}
+
+type FactConceptType {
+  factId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  qualifier: ConceptQualifier
+  concept: ConceptType!
+}
+
+type ResumeFactType {
+  resumeId: String!
+  factId: String!
+  expressionId: String
+  section: String
+  position: Int
+  fact: FactType
+  expression: ExpressionType
+}
+
 type BulletSearchResult {
   bullet: Bullet!
   score: Float!
@@ -561,6 +572,35 @@ type BulletSearchResult {
 
 type GenerateNarrativeSummaryResult {
   jobId: String!
+}
+
+type JobRequirementConceptValueType {
+  id: ID!
+  vocabulary: String!
+  key: String!
+  label: String!
+  definition: String
+}
+
+type JobRequirementConceptType {
+  jobRequirementId: ID!
+  conceptId: ID!
+  relation: String!
+  source: String!
+  confidence: Float
+  qualifier: ConceptQualifier
+  concept: JobRequirementConceptValueType!
+}
+
+type JobRequirementType {
+  id: ID!
+  applicationId: String!
+  kind: String!
+  what: String!
+  technologies: [String!]!
+  tags: [String!]!
+  concepts: [JobRequirementConceptType!]!
+  createdAt: DateTime!
 }
 
 input CompanyAddressInput {
@@ -598,6 +638,7 @@ type Query {
   getApplication(id: String!): Application!
   listCompanies: [Company!]!
   getCompany(id: String!): Company!
+  jobRequirements(applicationId: ID!): [JobRequirementType!]!
 }
 
 input BulletFilterInput {
@@ -708,12 +749,22 @@ input FactMeaningInput {
   concept: FactConceptReferenceInput!
   source: String
   confidence: Float
+  qualifier: ConceptQualifierInput
 }
 
 input FactConceptReferenceInput {
   vocabulary: String!
   key: String!
   label: String!
+}
+
+input ConceptQualifierInput {
+  dimension: String!
+  operator: String!
+  value: Float
+  min: Float
+  max: Float
+  unit: String!
 }
 
 input UpdateFactInput {
@@ -773,6 +824,7 @@ input BulletMeaningInput {
   concept: BulletConceptReferenceInput!
   source: String
   confidence: Float
+  qualifier: ConceptQualifierInput
 }
 
 input BulletConceptReferenceInput {

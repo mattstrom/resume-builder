@@ -394,6 +394,7 @@ export const ModelName = {
   ConceptRelation: 'ConceptRelation',
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
+  JobRequirementConcept: 'JobRequirementConcept',
   Resume: 'Resume',
   ResumeXml: 'ResumeXml',
   Application: 'Application',
@@ -425,7 +426,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1166,6 +1167,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.JobRequirementFactCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.JobRequirementFactCountAggregateOutputType> | number
+        }
+      }
+    }
+    JobRequirementConcept: {
+      payload: Prisma.$JobRequirementConceptPayload<ExtArgs>
+      fields: Prisma.JobRequirementConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.JobRequirementConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.JobRequirementConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.JobRequirementConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.JobRequirementConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        findMany: {
+          args: Prisma.JobRequirementConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>[]
+        }
+        create: {
+          args: Prisma.JobRequirementConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        createMany: {
+          args: Prisma.JobRequirementConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.JobRequirementConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.JobRequirementConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        update: {
+          args: Prisma.JobRequirementConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.JobRequirementConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.JobRequirementConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.JobRequirementConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.JobRequirementConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$JobRequirementConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.JobRequirementConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateJobRequirementConcept>
+        }
+        groupBy: {
+          args: Prisma.JobRequirementConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobRequirementConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.JobRequirementConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.JobRequirementConceptCountAggregateOutputType> | number
         }
       }
     }
@@ -2465,6 +2540,7 @@ export const FactConceptScalarFieldEnum = {
   relation: 'relation',
   source: 'source',
   confidence: 'confidence',
+  qualifier: 'qualifier',
   createdAt: 'createdAt'
 } as const
 
@@ -2511,6 +2587,19 @@ export const JobRequirementFactScalarFieldEnum = {
 } as const
 
 export type JobRequirementFactScalarFieldEnum = (typeof JobRequirementFactScalarFieldEnum)[keyof typeof JobRequirementFactScalarFieldEnum]
+
+
+export const JobRequirementConceptScalarFieldEnum = {
+  jobRequirementId: 'jobRequirementId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type JobRequirementConceptScalarFieldEnum = (typeof JobRequirementConceptScalarFieldEnum)[keyof typeof JobRequirementConceptScalarFieldEnum]
 
 
 export const ResumeScalarFieldEnum = {
@@ -2742,6 +2831,7 @@ export const BulletConceptScalarFieldEnum = {
   relation: 'relation',
   source: 'source',
   confidence: 'confidence',
+  qualifier: 'qualifier',
   createdAt: 'createdAt'
 } as const
 
@@ -3106,6 +3196,7 @@ export type GlobalOmitConfig = {
   conceptRelation?: Prisma.ConceptRelationOmit
   expression?: Prisma.ExpressionOmit
   jobRequirementFact?: Prisma.JobRequirementFactOmit
+  jobRequirementConcept?: Prisma.JobRequirementConceptOmit
   resume?: Prisma.ResumeOmit
   resumeXml?: Prisma.ResumeXmlOmit
   application?: Prisma.ApplicationOmit

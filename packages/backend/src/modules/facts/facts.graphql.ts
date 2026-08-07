@@ -1,4 +1,5 @@
 import { Field, Float, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { ConceptQualifier, ConceptQualifierInput } from '@resume-builder/entities';
 
 import type { ConceptVocabulary } from '../concepts/concepts.service.js';
 import type { FactRelation } from './facts.service.js';
@@ -116,6 +117,9 @@ export class FactConceptType {
 	@Field({ nullable: true })
 	confidence?: number;
 
+	@Field(() => ConceptQualifier, { nullable: true })
+	qualifier?: ConceptQualifier;
+
 	@Field(() => ConceptType)
 	concept: ConceptType;
 }
@@ -169,6 +173,9 @@ export class FactMeaningInput {
 
 	@Field({ nullable: true })
 	confidence?: number;
+
+	@Field(() => ConceptQualifierInput, { nullable: true })
+	qualifier?: ConceptQualifierInput;
 }
 
 @InputType()

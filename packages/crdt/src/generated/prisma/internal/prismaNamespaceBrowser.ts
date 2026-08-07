@@ -61,6 +61,7 @@ export const ModelName = {
   ConceptRelation: 'ConceptRelation',
   Expression: 'Expression',
   JobRequirementFact: 'JobRequirementFact',
+  JobRequirementConcept: 'JobRequirementConcept',
   Resume: 'Resume',
   ResumeXml: 'ResumeXml',
   Application: 'Application',
@@ -184,6 +185,7 @@ export const FactConceptScalarFieldEnum = {
   relation: 'relation',
   source: 'source',
   confidence: 'confidence',
+  qualifier: 'qualifier',
   createdAt: 'createdAt'
 } as const
 
@@ -230,6 +232,19 @@ export const JobRequirementFactScalarFieldEnum = {
 } as const
 
 export type JobRequirementFactScalarFieldEnum = (typeof JobRequirementFactScalarFieldEnum)[keyof typeof JobRequirementFactScalarFieldEnum]
+
+
+export const JobRequirementConceptScalarFieldEnum = {
+  jobRequirementId: 'jobRequirementId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type JobRequirementConceptScalarFieldEnum = (typeof JobRequirementConceptScalarFieldEnum)[keyof typeof JobRequirementConceptScalarFieldEnum]
 
 
 export const ResumeScalarFieldEnum = {
@@ -461,6 +476,7 @@ export const BulletConceptScalarFieldEnum = {
   relation: 'relation',
   source: 'source',
   confidence: 'confidence',
+  qualifier: 'qualifier',
   createdAt: 'createdAt'
 } as const
 

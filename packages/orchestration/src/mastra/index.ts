@@ -35,11 +35,7 @@ import { professionalStatementEvaluatorAgent } from './agents/professional-state
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
-import {
-	FOCUSED_PATHS_HEADER,
-	FOCUSED_PATHS_KEY,
-	parseFocusedPaths,
-} from './request-context';
+import { FOCUSED_PATHS_HEADER, FOCUSED_PATHS_KEY, parseFocusedPaths } from './request-context';
 import { bulletConceptAnnotationQualityScorer } from './scorers/bullet-concept-annotation-quality.scorer';
 import { bulletScoringQualityScorer } from './scorers/bullet-scoring-quality.scorer';
 import {
@@ -56,6 +52,7 @@ import { comparisonWorkflow } from './workflows/comparison.workflow';
 import { narrativeDistillationWorkflow } from './workflows/distillation/narrative-distillation.workflow';
 import { factsExtractionWorkflow } from './workflows/facts-extraction.workflow';
 import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
+import { jobConceptIdentificationWorkflow } from './workflows/job-concept-identification.workflow';
 import { professionalStatementEvaluationWorkflow } from './workflows/professional-statement-evaluation.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
@@ -69,8 +66,7 @@ const auth0Provider = new Auth0JwtProvider({
 
 const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
 	roles: DEFAULT_ROLES,
-	getUserRoles: (user) =>
-		user.permissions?.includes('studio:admin') ? ['admin'] : ['member'],
+	getUserRoles: (user) => (user.permissions?.includes('studio:admin') ? ['admin'] : ['member']),
 });
 
 export const mastra = new Mastra({
@@ -83,7 +79,13 @@ export const mastra = new Mastra({
 			}),
 		],
 		cors: {
-			allowHeaders: ['X-Thread-Id', 'X-Focused-Paths'],
+			allowHeaders: [
+				'Authorization',
+				'Content-Type',
+				'X-Authorization',
+				'X-Thread-Id',
+				'X-Focused-Paths',
+			],
 		},
 		middleware: [
 			async (context, next) => {
@@ -92,11 +94,11 @@ export const mastra = new Mastra({
 					? context.req.header('X-Authorization')
 					: context.req.header('Authorization');
 
-				if (requestContext.get('mastra__isStudio') && authHeader) {
-					requestContext.set(
-						MASTRA_AUTH_TOKEN_KEY,
-						authHeader.replace('Bearer ', ''),
-					);
+				if (authHeader) {
+					const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+					if (token) {
+						requestContext.set(MASTRA_AUTH_TOKEN_KEY, token);
+					}
 				}
 
 				if (authHeader) {
@@ -117,9 +119,7 @@ export const mastra = new Mastra({
 					requestContext.set(MASTRA_THREAD_ID_KEY, threadId);
 				}
 
-				const focusedRegions = parseFocusedPaths(
-					context.req.header(FOCUSED_PATHS_HEADER),
-				);
+				const focusedRegions = parseFocusedPaths(context.req.header(FOCUSED_PATHS_HEADER));
 				if (focusedRegions.length > 0) {
 					requestContext.set(FOCUSED_PATHS_KEY, focusedRegions);
 				}
@@ -142,6 +142,7 @@ export const mastra = new Mastra({
 	workflows: {
 		weatherWorkflow,
 		fitAssessmentWorkflow,
+		jobConceptIdentificationWorkflow,
 		backgroundAutofillWorkflow,
 		bulletScoringWorkflow,
 		bulletConceptAnnotationWorkflow,

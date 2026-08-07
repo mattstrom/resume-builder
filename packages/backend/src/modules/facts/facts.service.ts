@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { conceptQualifierSchema, type ConceptQualifierValue } from '@resume-builder/entities';
 import { technology } from '@resume-builder/ontologies';
 
 import type { Expression, Fact, Prisma, ResumeFact } from '../../generated/prisma/client.js';
@@ -37,6 +38,7 @@ export interface FactMeaningDto {
 	concept: ConceptRef;
 	source?: string;
 	confidence?: number | null;
+	qualifier?: ConceptQualifierValue | null;
 }
 
 export interface CreateFactDto {
@@ -164,6 +166,7 @@ export class FactsService {
 			concept: { vocabulary: expectedVocabulary, key, label },
 			source: meaning.source?.trim() || 'user',
 			confidence,
+			qualifier: meaning.qualifier ? conceptQualifierSchema.parse(meaning.qualifier) : null,
 		};
 	}
 
@@ -208,6 +211,7 @@ export class FactsService {
 					relation: meaning.relation,
 					source: meaning.source,
 					confidence: meaning.confidence,
+					qualifier: meaning.qualifier,
 				},
 			});
 		}

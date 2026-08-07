@@ -1,4 +1,4 @@
-import type { Application, Resume } from '@resume-builder/entities';
+import type { Application, ConceptQualifierValue, Resume } from '@resume-builder/entities';
 
 export interface ListApplicationsData {
 	listApplications: Application[];
@@ -18,6 +18,41 @@ export interface UpdateApplicationData {
 
 export interface GetApplicationVariables {
 	id: string;
+}
+
+export interface GetJobRequirementsData {
+	jobRequirements: JobRequirement[];
+}
+
+export interface JobRequirementConceptAssertion {
+	jobRequirementId: string;
+	conceptId: string;
+	relation: 'requires' | 'prefers' | 'expects';
+	source: string;
+	confidence?: number | null;
+	qualifier?: ConceptQualifierValue | null;
+	concept: {
+		id: string;
+		vocabulary: string;
+		key: string;
+		label: string;
+		definition?: string | null;
+	};
+}
+
+export interface JobRequirement {
+	id: string;
+	applicationId: string;
+	kind: string;
+	what: string;
+	technologies: string[];
+	tags: string[];
+	concepts: JobRequirementConceptAssertion[];
+	createdAt: string;
+}
+
+export interface GetJobRequirementsVariables {
+	applicationId: string;
 }
 
 export interface CreateApplicationVariables {

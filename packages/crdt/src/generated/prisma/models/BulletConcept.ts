@@ -58,6 +58,7 @@ export type BulletConceptCountAggregateOutputType = {
   relation: number
   source: number
   confidence: number
+  qualifier: number
   createdAt: number
   _all: number
 }
@@ -95,6 +96,7 @@ export type BulletConceptCountAggregateInputType = {
   relation?: true
   source?: true
   confidence?: true
+  qualifier?: true
   createdAt?: true
   _all?: true
 }
@@ -191,6 +193,7 @@ export type BulletConceptGroupByOutputType = {
   relation: string
   source: string
   confidence: number | null
+  qualifier: runtime.JsonValue | null
   createdAt: Date
   _count: BulletConceptCountAggregateOutputType | null
   _avg: BulletConceptAvgAggregateOutputType | null
@@ -223,6 +226,7 @@ export type BulletConceptWhereInput = {
   relation?: Prisma.StringFilter<"BulletConcept"> | string
   source?: Prisma.StringFilter<"BulletConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"BulletConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"BulletConcept">
   createdAt?: Prisma.DateTimeFilter<"BulletConcept"> | Date | string
   bullet?: Prisma.XOR<Prisma.BulletScalarRelationFilter, Prisma.BulletWhereInput>
   concept?: Prisma.XOR<Prisma.ConceptScalarRelationFilter, Prisma.ConceptWhereInput>
@@ -234,6 +238,7 @@ export type BulletConceptOrderByWithRelationInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   bullet?: Prisma.BulletOrderByWithRelationInput
   concept?: Prisma.ConceptOrderByWithRelationInput
@@ -249,6 +254,7 @@ export type BulletConceptWhereUniqueInput = Prisma.AtLeast<{
   relation?: Prisma.StringFilter<"BulletConcept"> | string
   source?: Prisma.StringFilter<"BulletConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"BulletConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"BulletConcept">
   createdAt?: Prisma.DateTimeFilter<"BulletConcept"> | Date | string
   bullet?: Prisma.XOR<Prisma.BulletScalarRelationFilter, Prisma.BulletWhereInput>
   concept?: Prisma.XOR<Prisma.ConceptScalarRelationFilter, Prisma.ConceptWhereInput>
@@ -260,6 +266,7 @@ export type BulletConceptOrderByWithAggregationInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.BulletConceptCountOrderByAggregateInput
   _avg?: Prisma.BulletConceptAvgOrderByAggregateInput
@@ -277,6 +284,7 @@ export type BulletConceptScalarWhereWithAggregatesInput = {
   relation?: Prisma.StringWithAggregatesFilter<"BulletConcept"> | string
   source?: Prisma.StringWithAggregatesFilter<"BulletConcept"> | string
   confidence?: Prisma.FloatNullableWithAggregatesFilter<"BulletConcept"> | number | null
+  qualifier?: Prisma.JsonNullableWithAggregatesFilter<"BulletConcept">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BulletConcept"> | Date | string
 }
 
@@ -284,6 +292,7 @@ export type BulletConceptCreateInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   bullet: Prisma.BulletCreateNestedOneWithoutConceptsInput
   concept: Prisma.ConceptCreateNestedOneWithoutBulletsInput
@@ -295,6 +304,7 @@ export type BulletConceptUncheckedCreateInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -302,6 +312,7 @@ export type BulletConceptUpdateInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bullet?: Prisma.BulletUpdateOneRequiredWithoutConceptsNestedInput
   concept?: Prisma.ConceptUpdateOneRequiredWithoutBulletsNestedInput
@@ -313,6 +324,7 @@ export type BulletConceptUncheckedUpdateInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,6 +334,7 @@ export type BulletConceptCreateManyInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -329,6 +342,7 @@ export type BulletConceptUpdateManyMutationInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -338,6 +352,7 @@ export type BulletConceptUncheckedUpdateManyInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -363,6 +378,7 @@ export type BulletConceptCountOrderByAggregateInput = {
   relation?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
+  qualifier?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -480,6 +496,7 @@ export type BulletConceptCreateWithoutConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   bullet: Prisma.BulletCreateNestedOneWithoutConceptsInput
 }
@@ -489,6 +506,7 @@ export type BulletConceptUncheckedCreateWithoutConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -527,6 +545,7 @@ export type BulletConceptScalarWhereInput = {
   relation?: Prisma.StringFilter<"BulletConcept"> | string
   source?: Prisma.StringFilter<"BulletConcept"> | string
   confidence?: Prisma.FloatNullableFilter<"BulletConcept"> | number | null
+  qualifier?: Prisma.JsonNullableFilter<"BulletConcept">
   createdAt?: Prisma.DateTimeFilter<"BulletConcept"> | Date | string
 }
 
@@ -534,6 +553,7 @@ export type BulletConceptCreateWithoutBulletInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   concept: Prisma.ConceptCreateNestedOneWithoutBulletsInput
 }
@@ -543,6 +563,7 @@ export type BulletConceptUncheckedCreateWithoutBulletInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -577,6 +598,7 @@ export type BulletConceptCreateManyConceptInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -584,6 +606,7 @@ export type BulletConceptUpdateWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bullet?: Prisma.BulletUpdateOneRequiredWithoutConceptsNestedInput
 }
@@ -593,6 +616,7 @@ export type BulletConceptUncheckedUpdateWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -601,6 +625,7 @@ export type BulletConceptUncheckedUpdateManyWithoutConceptInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -609,6 +634,7 @@ export type BulletConceptCreateManyBulletInput = {
   relation: string
   source?: string
   confidence?: number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -616,6 +642,7 @@ export type BulletConceptUpdateWithoutBulletInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   concept?: Prisma.ConceptUpdateOneRequiredWithoutBulletsNestedInput
 }
@@ -625,6 +652,7 @@ export type BulletConceptUncheckedUpdateWithoutBulletInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -633,6 +661,7 @@ export type BulletConceptUncheckedUpdateManyWithoutBulletInput = {
   relation?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  qualifier?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -644,6 +673,7 @@ export type BulletConceptSelect<ExtArgs extends runtime.Types.Extensions.Interna
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   bullet?: boolean | Prisma.BulletDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -655,6 +685,7 @@ export type BulletConceptSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   bullet?: boolean | Prisma.BulletDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -666,6 +697,7 @@ export type BulletConceptSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
   bullet?: boolean | Prisma.BulletDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -677,10 +709,11 @@ export type BulletConceptSelectScalar = {
   relation?: boolean
   source?: boolean
   confidence?: boolean
+  qualifier?: boolean
   createdAt?: boolean
 }
 
-export type BulletConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bulletId" | "conceptId" | "relation" | "source" | "confidence" | "createdAt", ExtArgs["result"]["bulletConcept"]>
+export type BulletConceptOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"bulletId" | "conceptId" | "relation" | "source" | "confidence" | "qualifier" | "createdAt", ExtArgs["result"]["bulletConcept"]>
 export type BulletConceptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bullet?: boolean | Prisma.BulletDefaultArgs<ExtArgs>
   concept?: boolean | Prisma.ConceptDefaultArgs<ExtArgs>
@@ -706,6 +739,7 @@ export type $BulletConceptPayload<ExtArgs extends runtime.Types.Extensions.Inter
     relation: string
     source: string
     confidence: number | null
+    qualifier: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["bulletConcept"]>
   composites: {}
@@ -1137,6 +1171,7 @@ export interface BulletConceptFieldRefs {
   readonly relation: Prisma.FieldRef<"BulletConcept", 'String'>
   readonly source: Prisma.FieldRef<"BulletConcept", 'String'>
   readonly confidence: Prisma.FieldRef<"BulletConcept", 'Float'>
+  readonly qualifier: Prisma.FieldRef<"BulletConcept", 'Json'>
   readonly createdAt: Prisma.FieldRef<"BulletConcept", 'DateTime'>
 }
     

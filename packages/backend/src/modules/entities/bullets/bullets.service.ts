@@ -4,6 +4,7 @@ import {
 	BulletFilterInput,
 	BulletSourceType,
 	BulletStatus,
+	conceptQualifierSchema,
 	createBulletSchema,
 	CreateBulletInput,
 	updateBulletSchema,
@@ -270,10 +271,12 @@ export class BulletsService {
 					relation: normalized.relation,
 					source: normalized.source,
 					confidence: normalized.confidence,
+					qualifier: normalized.qualifier,
 				},
 				update: {
 					source: normalized.source,
 					confidence: normalized.confidence,
+					qualifier: normalized.qualifier,
 				},
 				include: { concept: true },
 			});
@@ -331,6 +334,7 @@ export class BulletsService {
 					relation: meaning.relation,
 					source: 'classifier',
 					confidence: meaning.confidence,
+					qualifier: meaning.qualifier,
 				});
 			}
 
@@ -464,6 +468,7 @@ export class BulletsService {
 			concept: { vocabulary, key, label },
 			source: meaning.source?.trim() || 'user',
 			confidence,
+			qualifier: meaning.qualifier ? conceptQualifierSchema.parse(meaning.qualifier) : null,
 		};
 	}
 }
