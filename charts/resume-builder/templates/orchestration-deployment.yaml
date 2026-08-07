@@ -52,6 +52,8 @@ spec:
                   key: password
             - name: POSTGRES_DB
               value: {{ .Values.orchestration.postgresDatabase | default .Values.postgres.database | quote }}
+            - name: RESUME_BUILDER_MCP_URL
+              value: {{ printf "http://%s/mcp" (include "resume-builder.backend.fullname" .) | quote }}
             - name: MASTRA_AUTO_DETECT_URL
               value: 'true'
           livenessProbe:

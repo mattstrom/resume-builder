@@ -63,11 +63,15 @@ interface ResumeBuilderMCPToolsets extends Record<
 
 class ResumeBuilderMCPClient extends MCPClient {
 	constructor(token: string) {
+		const url =
+			process.env['RESUME_BUILDER_MCP_URL'] ??
+			'http://localhost:3000/mcp';
+
 		super({
 			id: 'resume-builder-mcp-client',
 			servers: {
 				resumeBuilder: {
-					url: new URL(`http://localhost:3000/mcp`),
+					url: new URL(url),
 					requestInit: {
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -87,6 +91,8 @@ class ResumeBuilderMCPClient extends MCPClient {
 	}
 }
 
-export function createResumeBuilderMcpClient(token: string): ResumeBuilderMCPClient {
+export function createResumeBuilderMcpClient(
+	token: string,
+): ResumeBuilderMCPClient {
 	return new ResumeBuilderMCPClient(token);
 }
