@@ -21,6 +21,7 @@ import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedEditorIndexRouteImport } from './routes/_authenticated/editor/index'
 import { Route as AuthenticatedProfileWorkHistoryRouteImport } from './routes/_authenticated/profile/work-history'
 import { Route as AuthenticatedProfileVolunteeringRouteImport } from './routes/_authenticated/profile/volunteering'
+import { Route as AuthenticatedProfileStatementsRouteImport } from './routes/_authenticated/profile/statements'
 import { Route as AuthenticatedProfileSkillsRouteImport } from './routes/_authenticated/profile/skills'
 import { Route as AuthenticatedProfileProjectsRouteImport } from './routes/_authenticated/profile/projects'
 import { Route as AuthenticatedProfilePreferencesRouteImport } from './routes/_authenticated/profile/preferences'
@@ -92,6 +93,12 @@ const AuthenticatedProfileVolunteeringRoute =
   AuthenticatedProfileVolunteeringRouteImport.update({
     id: '/volunteering',
     path: '/volunteering',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
+const AuthenticatedProfileStatementsRoute =
+  AuthenticatedProfileStatementsRouteImport.update({
+    id: '/statements',
+    path: '/statements',
     getParentRoute: () => AuthenticatedProfileRoute,
   } as any)
 const AuthenticatedProfileSkillsRoute =
@@ -172,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/profile/statements': typeof AuthenticatedProfileStatementsRoute
   '/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
@@ -192,6 +200,7 @@ export interface FileRoutesByTo {
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/profile/statements': typeof AuthenticatedProfileStatementsRoute
   '/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
@@ -217,6 +226,7 @@ export interface FileRoutesById {
   '/_authenticated/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/_authenticated/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/_authenticated/profile/skills': typeof AuthenticatedProfileSkillsRoute
+  '/_authenticated/profile/statements': typeof AuthenticatedProfileStatementsRoute
   '/_authenticated/profile/volunteering': typeof AuthenticatedProfileVolunteeringRoute
   '/_authenticated/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/profile/preferences'
     | '/profile/projects'
     | '/profile/skills'
+    | '/profile/statements'
     | '/profile/volunteering'
     | '/profile/work-history'
     | '/editor/'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/profile/preferences'
     | '/profile/projects'
     | '/profile/skills'
+    | '/profile/statements'
     | '/profile/volunteering'
     | '/profile/work-history'
     | '/editor'
@@ -285,6 +297,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/preferences'
     | '/_authenticated/profile/projects'
     | '/_authenticated/profile/skills'
+    | '/_authenticated/profile/statements'
     | '/_authenticated/profile/volunteering'
     | '/_authenticated/profile/work-history'
     | '/_authenticated/editor/'
@@ -384,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileVolunteeringRouteImport
       parentRoute: typeof AuthenticatedProfileRoute
     }
+    '/_authenticated/profile/statements': {
+      id: '/_authenticated/profile/statements'
+      path: '/statements'
+      fullPath: '/profile/statements'
+      preLoaderRoute: typeof AuthenticatedProfileStatementsRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
     '/_authenticated/profile/skills': {
       id: '/_authenticated/profile/skills'
       path: '/skills'
@@ -477,6 +497,7 @@ interface AuthenticatedProfileRouteChildren {
   AuthenticatedProfilePreferencesRoute: typeof AuthenticatedProfilePreferencesRoute
   AuthenticatedProfileProjectsRoute: typeof AuthenticatedProfileProjectsRoute
   AuthenticatedProfileSkillsRoute: typeof AuthenticatedProfileSkillsRoute
+  AuthenticatedProfileStatementsRoute: typeof AuthenticatedProfileStatementsRoute
   AuthenticatedProfileVolunteeringRoute: typeof AuthenticatedProfileVolunteeringRoute
   AuthenticatedProfileWorkHistoryRoute: typeof AuthenticatedProfileWorkHistoryRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
@@ -489,6 +510,7 @@ const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
   AuthenticatedProfilePreferencesRoute: AuthenticatedProfilePreferencesRoute,
   AuthenticatedProfileProjectsRoute: AuthenticatedProfileProjectsRoute,
   AuthenticatedProfileSkillsRoute: AuthenticatedProfileSkillsRoute,
+  AuthenticatedProfileStatementsRoute: AuthenticatedProfileStatementsRoute,
   AuthenticatedProfileVolunteeringRoute: AuthenticatedProfileVolunteeringRoute,
   AuthenticatedProfileWorkHistoryRoute: AuthenticatedProfileWorkHistoryRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
