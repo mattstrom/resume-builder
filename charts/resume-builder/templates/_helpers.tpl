@@ -78,6 +78,31 @@ app.kubernetes.io/component: backend
 {{- end }}
 
 {{/*
+Public MCP endpoint URL served by the backend.
+Uses `orchestration.mcpUrl` when set, otherwise derives it from the ingress
+host that routes the `/mcp` path to the backend.
+*/}}
+{{- define "resume-builder.mcpUrl" -}}
+{{- if .Values.orchestration.mcpUrl }}
+{{- .Values.orchestration.mcpUrl }}
+{{- else }}
+{{- $mcpHost := "" }}
+{{- range .Values.ingress.hosts }}
+{{- $host := .host }}
+{{- range .paths }}
+{{- if and (eq .service "backend") (eq .path "/mcp") }}
+{{- $mcpHost = $host }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if not $mcpHost }}
+{{- fail "Set orchestration.mcpUrl, or add a /mcp path routed to the backend under ingress.hosts" }}
+{{- end }}
+{{- printf "https://%s/mcp" $mcpHost }}
+{{- end }}
+{{- end }}
+
+{{/*
 Web fully qualified name
 */}}
 {{- define "resume-builder.web.fullname" -}}
