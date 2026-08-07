@@ -574,6 +574,17 @@ type GenerateNarrativeSummaryResult {
   jobId: String!
 }
 
+type ConceptEvidenceAssessmentType {
+  id: ID!
+  applicationId: ID!
+  resumeId: ID!
+  inputHash: String!
+  evaluatorVersion: Int!
+  result: JSON!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type JobRequirementConceptValueType {
   id: ID!
   vocabulary: String!
@@ -638,6 +649,7 @@ type Query {
   getApplication(id: String!): Application!
   listCompanies: [Company!]!
   getCompany(id: String!): Company!
+  conceptEvidenceAssessment(applicationId: ID!, resumeId: ID!): ConceptEvidenceAssessmentType
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
 }
 
@@ -725,6 +737,7 @@ type Mutation {
   createCompany(company: CompanyInput!): Company!
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
+  saveConceptEvidenceAssessment(applicationId: ID!, resumeId: ID!, inputHash: String!, evaluatorVersion: Int!, result: JSON!): ConceptEvidenceAssessmentType!
 }
 
 input ProfileUpdateInput {

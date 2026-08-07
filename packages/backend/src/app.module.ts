@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import config from './configuration.js';
 import { AuthModule } from './modules/auth/index.js';
 import { ChatModule } from './modules/chat/chat.module.js';
+import { ConceptEvidenceAssessmentsModule } from './modules/concept-evidence-assessments/concept-evidence-assessments.module.js';
 import { EntitiesModule } from './modules/entities/entities.module.js';
 import { FactsModule } from './modules/facts/facts.module.js';
 import { GraphQLModule } from './modules/graphql/graphql.module.js';
@@ -26,6 +27,7 @@ import { RequestSigningModule } from './modules/request-signing/index.js';
 		RequestSigningModule,
 		QueueModule,
 		ChatModule,
+		ConceptEvidenceAssessmentsModule,
 		EntitiesModule,
 		FactsModule,
 		GraphQLModule,

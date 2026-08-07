@@ -11,6 +11,7 @@ import type { JobRequirement } from '@/graphql/types.ts';
 import {
 	buildConceptEvidenceEvaluationInput,
 	deriveConceptCoverage,
+	hashConceptEvidenceEvaluationInput,
 } from './concept-coverage.ts';
 
 function requirement(
@@ -220,5 +221,32 @@ describe('buildConceptEvidenceEvaluationInput', () => {
 			text: 'Languages: TypeScript',
 			conceptIds: ['typescript'],
 		});
+	});
+});
+
+describe('hashConceptEvidenceEvaluationInput', () => {
+	it('returns a stable SHA-256 digest and changes with the evidence', async () => {
+		const resume = resumeData([]);
+		const summary = deriveConceptCoverage([], [], resume);
+		const input = buildConceptEvidenceEvaluationInput(summary, [], resume);
+
+		const first = await hashConceptEvidenceEvaluationInput(input);
+		const second = await hashConceptEvidenceEvaluationInput(input);
+		const changed = await hashConceptEvidenceEvaluationInput({
+			...input,
+			concepts: [
+				{
+					id: 'typescript',
+					key: 'typescript',
+					label: 'TypeScript',
+					relation: 'requires',
+					requirements: ['Use TypeScript'],
+				},
+			],
+		});
+
+		expect(first).toMatch(/^[a-f0-9]{64}$/);
+		expect(second).toBe(first);
+		expect(changed).not.toBe(first);
 	});
 });

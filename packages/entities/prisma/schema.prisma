@@ -132,8 +132,8 @@ model Concept {
   facts             FactConcept[]
   bullets           BulletConcept[]
   jobRequirements   JobRequirementConcept[]
-  outgoingRelations ConceptRelation[] @relation("ConceptRelationSource")
-  incomingRelations ConceptRelation[] @relation("ConceptRelationTarget")
+  outgoingRelations ConceptRelation[]       @relation("ConceptRelationSource")
+  incomingRelations ConceptRelation[]       @relation("ConceptRelationTarget")
 
   @@unique([vocabulary, key])
   @@index([vocabulary, label])
@@ -243,7 +243,7 @@ model JobRequirementConcept {
   createdAt        DateTime @default(now())
 
   jobRequirement JobRequirementFact @relation(fields: [jobRequirementId], references: [id], onDelete: Cascade)
-  concept        Concept              @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  concept        Concept            @relation(fields: [conceptId], references: [id], onDelete: Cascade)
 
   @@id([jobRequirementId, conceptId, relation])
   @@index([conceptId, relation])
@@ -269,9 +269,10 @@ model Resume {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  sourceResume   Resume?    @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
-  derivedResumes Resume[]   @relation("ResumeVersions")
-  resumeXml      ResumeXml?
+  sourceResume               Resume?                     @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
+  derivedResumes             Resume[]                    @relation("ResumeVersions")
+  resumeXml                  ResumeXml?
+  conceptEvidenceAssessments ConceptEvidenceAssessment[]
 
   @@index([uid])
   @@index([applicationId])
@@ -309,10 +310,32 @@ model Application {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  companyRecord Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  companyRecord              Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  conceptEvidenceAssessments ConceptEvidenceAssessment[]
 
   @@index([uid])
   @@index([companyId])
+}
+
+// Latest persisted concept-to-resume evidence assessment for an application
+// resume. inputHash makes staleness explicit when either source changes.
+model ConceptEvidenceAssessment {
+  id               String   @id @default(cuid())
+  uid              String
+  applicationId    String
+  resumeId         String
+  inputHash        String
+  evaluatorVersion Int
+  result           Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  resume      Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([uid, applicationId, resumeId])
+  @@index([applicationId])
+  @@index([resumeId])
 }
 
 // ─── Company ────────────────────────────────────────────────────────────────

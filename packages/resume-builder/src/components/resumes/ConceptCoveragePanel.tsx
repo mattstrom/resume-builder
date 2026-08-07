@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import {
 	Check,
 	CircleAlert,
@@ -32,15 +32,24 @@ import { Progress } from '@/components/ui/progress.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
-import { GET_JOB_REQUIREMENTS } from '@/graphql/queries.ts';
+import {
+	GET_CONCEPT_EVIDENCE_ASSESSMENT,
+	GET_JOB_REQUIREMENTS,
+	SAVE_CONCEPT_EVIDENCE_ASSESSMENT,
+} from '@/graphql/queries.ts';
 import type {
+	ConceptEvidenceAssessmentVariables,
+	GetConceptEvidenceAssessmentData,
 	GetJobRequirementsData,
 	GetJobRequirementsVariables,
+	SaveConceptEvidenceAssessmentData,
+	SaveConceptEvidenceAssessmentVariables,
 } from '@/graphql/types.ts';
 import {
 	buildConceptEvidenceEvaluationInput,
 	conceptEvidenceEvaluationSchema,
 	deriveConceptCoverage,
+	hashConceptEvidenceEvaluationInput,
 	type ConceptEvidenceEvaluation,
 	type RequirementConceptCoverage,
 } from '@/lib/concept-coverage.ts';
@@ -61,6 +70,8 @@ const relationLabels: Record<RequirementConceptCoverage['relation'], string> = {
 };
 
 type EvidenceEvaluation = ConceptEvidenceEvaluation['evaluations'][number];
+
+const CONCEPT_EVIDENCE_EVALUATOR_VERSION = 1;
 
 const gradePresentation: Record<
 	EvidenceEvaluation['grade'],
@@ -190,15 +201,21 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 		const { bulletsStore, editorStore, inspectStore } = useStore();
 		const [evaluation, setEvaluation] =
 			useState<ConceptEvidenceEvaluation>();
-		const [evaluatedFingerprint, setEvaluatedFingerprint] = useState('');
+		const [currentInputHash, setCurrentInputHash] = useState('');
+		const [evaluatedInputHash, setEvaluatedInputHash] = useState('');
+		const [evaluatedVersion, setEvaluatedVersion] = useState(0);
 		const [isEvaluating, setIsEvaluating] = useState(false);
 		const [focusedConceptId, setFocusedConceptId] = useState<string>();
+		const resumeRecord = editorStore.resumeData;
+		const resumeId = resumeRecord?._id ?? resumeRecord?.id ?? '';
 		useEffect(() => {
 			setEvaluation(undefined);
-			setEvaluatedFingerprint('');
+			setCurrentInputHash('');
+			setEvaluatedInputHash('');
+			setEvaluatedVersion(0);
 			setFocusedConceptId(undefined);
 			inspectStore.clearConceptEvidenceFocus();
-		}, [applicationId, inspectStore]);
+		}, [applicationId, inspectStore, resumeId]);
 		useEffect(
 			() => () => inspectStore.clearConceptEvidenceFocus(),
 			[inspectStore],
@@ -210,7 +227,19 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 			variables: { applicationId },
 			fetchPolicy: 'cache-and-network',
 		});
-		const resume = editorStore.resumeData?.data;
+		const { data: persistedAssessmentData } = useQuery<
+			GetConceptEvidenceAssessmentData,
+			ConceptEvidenceAssessmentVariables
+		>(GET_CONCEPT_EVIDENCE_ASSESSMENT, {
+			variables: { applicationId, resumeId },
+			skip: !resumeId,
+			fetchPolicy: 'cache-and-network',
+		});
+		const [saveAssessment] = useMutation<
+			SaveConceptEvidenceAssessmentData,
+			SaveConceptEvidenceAssessmentVariables
+		>(SAVE_CONCEPT_EVIDENCE_ASSESSMENT);
+		const resume = resumeRecord?.data;
 		const requirements = data?.jobRequirements ?? [];
 		const summary = useMemo(
 			() =>
@@ -235,8 +264,42 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 			[summary, bulletsStore.bullets, resume],
 		);
 		const evaluationFingerprint = JSON.stringify(evaluationInput);
+		useEffect(() => {
+			let cancelled = false;
+			void hashConceptEvidenceEvaluationInput(evaluationInput).then(
+				(hash) => {
+					if (!cancelled) setCurrentInputHash(hash);
+				},
+			);
+			return () => {
+				cancelled = true;
+			};
+		}, [evaluationFingerprint]);
+		const persistedAssessment =
+			persistedAssessmentData?.conceptEvidenceAssessment;
+		useEffect(() => {
+			if (
+				!persistedAssessment ||
+				persistedAssessment.applicationId !== applicationId ||
+				persistedAssessment.resumeId !== resumeId
+			) {
+				return;
+			}
+
+			const parsed = conceptEvidenceEvaluationSchema.safeParse(
+				persistedAssessment.result,
+			);
+			if (!parsed.success) return;
+
+			setEvaluation(parsed.data);
+			setEvaluatedInputHash(persistedAssessment.inputHash);
+			setEvaluatedVersion(persistedAssessment.evaluatorVersion);
+		}, [applicationId, persistedAssessment, resumeId]);
 		const isEvaluationStale = Boolean(
-			evaluation && evaluatedFingerprint !== evaluationFingerprint,
+			evaluation &&
+			currentInputHash &&
+			(evaluatedInputHash !== currentInputHash ||
+				evaluatedVersion !== CONCEPT_EVIDENCE_EVALUATOR_VERSION),
 		);
 		const evaluationByConceptId = useMemo(
 			() =>
@@ -336,11 +399,25 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 					);
 				}
 
-				setEvaluation(
-					conceptEvidenceEvaluationSchema.parse(result.result),
+				const parsedEvaluation = conceptEvidenceEvaluationSchema.parse(
+					result.result,
 				);
-				setEvaluatedFingerprint(evaluationFingerprint);
-				toast.success('Concept evidence grades updated.');
+				const inputHash =
+					await hashConceptEvidenceEvaluationInput(evaluationInput);
+				await saveAssessment({
+					variables: {
+						applicationId,
+						resumeId,
+						inputHash,
+						evaluatorVersion: CONCEPT_EVIDENCE_EVALUATOR_VERSION,
+						result: parsedEvaluation,
+					},
+				});
+				setEvaluation(parsedEvaluation);
+				setCurrentInputHash(inputHash);
+				setEvaluatedInputHash(inputHash);
+				setEvaluatedVersion(CONCEPT_EVIDENCE_EVALUATOR_VERSION);
+				toast.success('Concept evidence grades saved.');
 			} catch (error) {
 				toast.error(
 					error instanceof Error
