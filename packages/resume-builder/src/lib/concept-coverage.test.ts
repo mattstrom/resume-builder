@@ -169,6 +169,7 @@ describe('buildConceptEvidenceEvaluationInput', () => {
 			{
 				id: 'resume-title',
 				label: 'Professional title',
+				paths: ['data.title'],
 				sourceType: 'title',
 				text: 'Engineer',
 				conceptIds: [],
@@ -176,6 +177,7 @@ describe('buildConceptEvidenceEvaluationInput', () => {
 			{
 				id: 'experience-0',
 				label: 'Acme',
+				paths: ['data.workExperience.0'],
 				sourceType: 'experience',
 				text: 'Engineer at Acme',
 				conceptIds: [],
@@ -183,6 +185,7 @@ describe('buildConceptEvidenceEvaluationInput', () => {
 			{
 				id: 'bullet-react',
 				label: 'Resume bullet',
+				paths: ['data.workExperience.0.responsibilities.0'],
 				sourceType: 'bullet',
 				text: 'Used react',
 				conceptIds: ['react'],
@@ -210,10 +213,11 @@ describe('buildConceptEvidenceEvaluationInput', () => {
 			buildConceptEvidenceEvaluationInput(summary, [], resume)
 				.evidenceItems,
 		).toContainEqual({
-			id: 'skill-group-0',
+			id: 'skill-group-0-item-0',
 			label: 'Languages',
+			paths: ['data.skillGroups.0.items.0'],
 			sourceType: 'skill',
-			text: 'Languages: TypeScript, JavaScript',
+			text: 'Languages: TypeScript',
 			conceptIds: ['typescript'],
 		});
 	});

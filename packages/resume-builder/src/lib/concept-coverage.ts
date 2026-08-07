@@ -74,6 +74,7 @@ export interface ConceptEvidenceEvaluationInput {
 	evidenceItems: Array<{
 		id: string;
 		label: string;
+		paths: string[];
 		sourceType:
 			| 'title'
 			| 'summary'
@@ -95,6 +96,41 @@ export function buildConceptEvidenceEvaluationInput(
 ): ConceptEvidenceEvaluationInput {
 	const selectedBulletIds = resumeBulletIds(resume);
 	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
+	const bulletPaths = new Map<string, string[]>();
+	const addBulletPath = (bulletId: string | undefined, path: string) => {
+		if (!bulletId) return;
+		bulletPaths.set(bulletId, [...(bulletPaths.get(bulletId) ?? []), path]);
+	};
+	for (const [jobIndex, job] of resume.workExperience.entries()) {
+		for (const [
+			itemIndex,
+			responsibility,
+		] of job.responsibilities.entries()) {
+			addBulletPath(
+				responsibility.bulletId,
+				`data.workExperience.${jobIndex}.responsibilities.${itemIndex}`,
+			);
+		}
+	}
+	for (const [projectIndex, project] of resume.projects.entries()) {
+		for (const [itemIndex, item] of project.items.entries()) {
+			addBulletPath(
+				item.bulletId,
+				`data.projects.${projectIndex}.items.${itemIndex}`,
+			);
+		}
+	}
+	for (const [roleIndex, role] of (resume.volunteering ?? []).entries()) {
+		for (const [
+			itemIndex,
+			responsibility,
+		] of role.responsibilities.entries()) {
+			addBulletPath(
+				responsibility.bulletId,
+				`data.volunteering.${roleIndex}.responsibilities.${itemIndex}`,
+			);
+		}
+	}
 	const normalizeConceptLabel = (value: string) =>
 		value.toLowerCase().replace(/[^a-z0-9+#.]+/g, '');
 	const conceptIdsForLabels = (labels: string[]) => {
@@ -120,6 +156,7 @@ export function buildConceptEvidenceEvaluationInput(
 	addEvidence({
 		id: 'resume-title',
 		label: 'Professional title',
+		paths: ['data.title'],
 		sourceType: 'title',
 		text: resume.title,
 		conceptIds: [],
@@ -127,26 +164,49 @@ export function buildConceptEvidenceEvaluationInput(
 	addEvidence({
 		id: 'resume-summary',
 		label: 'Professional summary',
+		paths: ['data.summary'],
 		sourceType: 'summary',
 		text: resume.summary,
 		conceptIds: [],
 	});
 
 	for (const [index, group] of (resume.skillGroups ?? []).entries()) {
+		for (const [itemIndex, skill] of group.items.entries()) {
+			addEvidence({
+				id: `skill-group-${index}-item-${itemIndex}`,
+				label: group.name || 'Skill',
+				paths: [`data.skillGroups.${index}.items.${itemIndex}`],
+				sourceType: 'skill',
+				text: [group.name, skill].filter(Boolean).join(': '),
+				conceptIds: conceptIdsForLabels([skill]),
+			});
+		}
 		addEvidence({
-			id: `skill-group-${index}`,
-			label: group.name || 'Skills',
+			id: `skill-group-${index}-name`,
+			label: 'Skill group',
+			paths: [`data.skillGroups.${index}.name`],
 			sourceType: 'skill',
-			text: [group.name, group.items.filter(Boolean).join(', ')]
-				.filter(Boolean)
-				.join(': '),
-			conceptIds: conceptIdsForLabels(group.items),
+			text: group.name,
+			conceptIds: conceptIdsForLabels([group.name]),
 		});
 	}
+	const skillCategoryIndexes = new Map<string, number>();
+	const skillIndexesWithinCategory = new Map<string, number>();
 	for (const [index, skill] of (resume.skills ?? []).entries()) {
+		const category = skill.category || 'Other';
+		if (!skillCategoryIndexes.has(category)) {
+			skillCategoryIndexes.set(category, skillCategoryIndexes.size);
+		}
+		const categoryIndex = skillCategoryIndexes.get(category) ?? 0;
+		const itemIndex = skillIndexesWithinCategory.get(category) ?? 0;
+		skillIndexesWithinCategory.set(category, itemIndex + 1);
 		addEvidence({
 			id: `skill-${index}`,
 			label: skill.category || 'Skill',
+			paths: [
+				`data.skills.${index}`,
+				`data.skills.${categoryIndex}.items.${itemIndex}`,
+			],
 			sourceType: 'skill',
 			text: [skill.name, skill.category].filter(Boolean).join(' — '),
 			conceptIds: conceptIdsForLabels([skill.name]),
@@ -156,6 +216,7 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: `experience-${index}`,
 			label: experience.company || 'Work experience',
+			paths: [`data.workExperience.${index}`],
 			sourceType: 'experience',
 			text: [experience.position, experience.company]
 				.filter(Boolean)
@@ -167,6 +228,7 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: `project-${index}`,
 			label: project.name || 'Project',
+			paths: [`data.projects.${index}`],
 			sourceType: 'project',
 			text: [
 				project.name,
@@ -182,6 +244,7 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: `education-${index}`,
 			label: education.institution || 'Education',
+			paths: [`data.education.${index}`],
 			sourceType: 'education',
 			text: [education.degree, education.field, education.institution]
 				.filter(Boolean)
@@ -193,6 +256,7 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: `volunteering-${index}`,
 			label: volunteering.organization || 'Volunteering',
+			paths: [`data.volunteering.${index}`],
 			sourceType: 'volunteering',
 			text: [volunteering.position, volunteering.organization]
 				.filter(Boolean)
@@ -205,6 +269,7 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: bullet.id,
 			label: 'Resume bullet',
+			paths: bulletPaths.get(bullet.id) ?? [],
 			sourceType: 'bullet',
 			text: bullet.text,
 			conceptIds: bullet.concepts.map(({ conceptId }) => conceptId),

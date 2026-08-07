@@ -8,7 +8,14 @@ import {
 	Target,
 } from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FC, useEffect, useMemo, useState } from 'react';
+import {
+	type FC,
+	type FocusEvent,
+	type MouseEvent,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import { toast } from 'sonner';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
@@ -38,6 +45,7 @@ import {
 	type RequirementConceptCoverage,
 } from '@/lib/concept-coverage.ts';
 import { getMastraClient } from '@/lib/mastra-client.ts';
+import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 interface ConceptCoveragePanelProps {
@@ -68,63 +76,102 @@ const ConceptCard: FC<{
 	coverage: RequirementConceptCoverage;
 	evaluation?: EvidenceEvaluation;
 	evidenceTextById: ReadonlyMap<string, string>;
-}> = ({ coverage, evaluation, evidenceTextById }) => (
-	<Card>
-		<CardHeader className="gap-2 p-3">
-			<div className="flex items-start justify-between gap-2">
-				<CardTitle className="text-sm leading-snug">
-					{coverage.concept.label}
-				</CardTitle>
-				<Badge
-					variant={
-						evaluation
-							? gradePresentation[evaluation.grade].variant
-							: coverage.covered
-								? 'secondary'
-								: 'outline'
-					}
-				>
-					{evaluation
-						? `${gradePresentation[evaluation.grade].label} · ${Math.round(evaluation.score * 100)}`
-						: coverage.covered
-							? 'Mapped'
-							: relationLabels[coverage.relation]}
-				</Badge>
-			</div>
-			{coverage.concept.definition && (
-				<CardDescription className="line-clamp-2 text-xs">
-					{coverage.concept.definition}
-				</CardDescription>
+	isFocused: boolean;
+	onFocusEvidence: () => void;
+	onClearEvidenceFocus: () => void;
+}> = ({
+	coverage,
+	evaluation,
+	evidenceTextById,
+	isFocused,
+	onFocusEvidence,
+	onClearEvidenceFocus,
+}) => {
+	const hasEvidence = Boolean(evaluation?.evidenceItemIds.length);
+	const handleMouseLeave = (event: MouseEvent<HTMLElement>) => {
+		if (!event.currentTarget.contains(document.activeElement)) {
+			onClearEvidenceFocus();
+		}
+	};
+	const handleBlur = (event: FocusEvent<HTMLElement>) => {
+		if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+			onClearEvidenceFocus();
+		}
+	};
+
+	return (
+		<Card
+			tabIndex={hasEvidence ? 0 : undefined}
+			onMouseEnter={hasEvidence ? onFocusEvidence : undefined}
+			onMouseLeave={hasEvidence ? handleMouseLeave : undefined}
+			onFocus={hasEvidence ? onFocusEvidence : undefined}
+			onBlur={hasEvidence ? handleBlur : undefined}
+			className={cn(
+				hasEvidence && 'cursor-default focus-visible:outline-none',
+				isFocused && 'ring-2 ring-info',
 			)}
-		</CardHeader>
-		<CardContent className="flex flex-col gap-1 p-3 pt-0">
-			{evaluation && (
-				<p className="text-xs leading-relaxed text-foreground">
-					{evaluation.rationale}
-				</p>
-			)}
-			{evaluation?.evidenceItemIds.map((itemId) => {
-				const text = evidenceTextById.get(itemId);
-				return text ? (
-					<blockquote
-						key={itemId}
-						className="line-clamp-3 border-l-2 pl-2 text-xs leading-relaxed text-muted-foreground"
+			aria-label={
+				hasEvidence
+					? `${coverage.concept.label}: focus to highlight supporting resume sections`
+					: undefined
+			}
+		>
+			<CardHeader className="gap-2 p-3">
+				<div className="flex items-start justify-between gap-2">
+					<CardTitle className="text-sm leading-snug">
+						{coverage.concept.label}
+					</CardTitle>
+					<Badge
+						variant={
+							evaluation
+								? gradePresentation[evaluation.grade].variant
+								: coverage.covered
+									? 'secondary'
+									: 'outline'
+						}
 					>
-						{text}
-					</blockquote>
-				) : null;
-			})}
-			{coverage.requirements.map((requirement) => (
-				<p
-					key={requirement.id}
-					className="text-xs leading-relaxed text-muted-foreground"
-				>
-					{requirement.what}
-				</p>
-			))}
-		</CardContent>
-	</Card>
-);
+						{evaluation
+							? `${gradePresentation[evaluation.grade].label} · ${Math.round(evaluation.score * 100)}`
+							: coverage.covered
+								? 'Mapped'
+								: relationLabels[coverage.relation]}
+					</Badge>
+				</div>
+				{coverage.concept.definition && (
+					<CardDescription className="line-clamp-2 text-xs">
+						{coverage.concept.definition}
+					</CardDescription>
+				)}
+			</CardHeader>
+			<CardContent className="flex flex-col gap-1 p-3 pt-0">
+				{evaluation && (
+					<p className="text-xs leading-relaxed text-foreground">
+						{evaluation.rationale}
+					</p>
+				)}
+				{evaluation?.evidenceItemIds.map((itemId) => {
+					const text = evidenceTextById.get(itemId);
+					return text ? (
+						<blockquote
+							key={itemId}
+							className="line-clamp-3 border-l-2 pl-2 text-xs leading-relaxed text-muted-foreground"
+						>
+							{text}
+						</blockquote>
+					) : null;
+				})}
+				{coverage.requirements.map((requirement) => (
+					<p
+						key={requirement.id}
+						className="text-xs leading-relaxed text-muted-foreground"
+					>
+						{requirement.what}
+					</p>
+				))}
+			</CardContent>
+		</Card>
+	);
+};
 
 const LoadingState = () => (
 	<div
@@ -140,15 +187,22 @@ const LoadingState = () => (
 
 export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 	({ applicationId, collapsed, onToggleCollapse }) => {
-		const { bulletsStore, editorStore } = useStore();
+		const { bulletsStore, editorStore, inspectStore } = useStore();
 		const [evaluation, setEvaluation] =
 			useState<ConceptEvidenceEvaluation>();
 		const [evaluatedFingerprint, setEvaluatedFingerprint] = useState('');
 		const [isEvaluating, setIsEvaluating] = useState(false);
+		const [focusedConceptId, setFocusedConceptId] = useState<string>();
 		useEffect(() => {
 			setEvaluation(undefined);
 			setEvaluatedFingerprint('');
-		}, [applicationId]);
+			setFocusedConceptId(undefined);
+			inspectStore.clearConceptEvidenceFocus();
+		}, [applicationId, inspectStore]);
+		useEffect(
+			() => () => inspectStore.clearConceptEvidenceFocus(),
+			[inspectStore],
+		);
 		const { data, loading, error } = useQuery<
 			GetJobRequirementsData,
 			GetJobRequirementsVariables
@@ -204,6 +258,35 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 				),
 			[evaluationInput],
 		);
+		const evidencePathsById = useMemo(
+			() =>
+				new Map(
+					evaluationInput.evidenceItems.map(({ id, paths }) => [
+						id,
+						paths,
+					]),
+				),
+			[evaluationInput],
+		);
+		const focusConceptEvidence = (conceptId: string) => {
+			const evidenceItemIds =
+				evaluationByConceptId.get(conceptId)?.evidenceItemIds ?? [];
+			const paths = [
+				...new Set(
+					evidenceItemIds.flatMap(
+						(itemId) => evidencePathsById.get(itemId) ?? [],
+					),
+				),
+			];
+			if (paths.length === 0) return;
+
+			setFocusedConceptId(conceptId);
+			inspectStore.focusConceptEvidence(paths);
+		};
+		const clearConceptEvidenceFocus = () => {
+			setFocusedConceptId(undefined);
+			inspectStore.clearConceptEvidenceFocus();
+		};
 		const needsEvidence = summary.concepts.filter((coverage) => {
 			const grade = evaluationByConceptId.get(coverage.concept.id)?.grade;
 			return evaluation
@@ -235,6 +318,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 		const evaluateEvidence = async () => {
 			if (evaluationInput.concepts.length === 0) return;
 
+			clearConceptEvidenceFocus();
 			setIsEvaluating(true);
 			try {
 				const client = await getMastraClient();
@@ -380,6 +464,10 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 									</AlertTitle>
 									<AlertDescription>
 										{evaluation.summary}
+										<span className="mt-1 block">
+											Focus a concept to highlight its
+											supporting resume sections.
+										</span>
 									</AlertDescription>
 								</Alert>
 							)}
@@ -434,6 +522,18 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 												coverage.concept.id,
 											)}
 											evidenceTextById={evidenceTextById}
+											isFocused={
+												focusedConceptId ===
+												coverage.concept.id
+											}
+											onFocusEvidence={() =>
+												focusConceptEvidence(
+													coverage.concept.id,
+												)
+											}
+											onClearEvidenceFocus={
+												clearConceptEvidenceFocus
+											}
 										/>
 									))}
 								</section>
@@ -481,6 +581,18 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 												coverage.concept.id,
 											)}
 											evidenceTextById={evidenceTextById}
+											isFocused={
+												focusedConceptId ===
+												coverage.concept.id
+											}
+											onFocusEvidence={() =>
+												focusConceptEvidence(
+													coverage.concept.id,
+												)
+											}
+											onClearEvidenceFocus={
+												clearConceptEvidenceFocus
+											}
 										/>
 									))}
 								</section>
