@@ -1,4 +1,5 @@
 import type { Bullet, Resume } from '@resume-builder/entities';
+import { z } from 'zod';
 
 import type { JobRequirement } from '@/graphql/types.ts';
 
@@ -23,7 +24,7 @@ export interface ConceptCoverageSummary {
 	totalCount: number;
 }
 
-function resumeBulletIds(data: Resume['data']): Set<string> {
+export function resumeBulletIds(data: Resume['data']): Set<string> {
 	return new Set(
 		[
 			...data.workExperience.flatMap(
@@ -35,6 +36,196 @@ function resumeBulletIds(data: Resume['data']): Set<string> {
 			),
 		].flatMap(({ bulletId }) => (bulletId ? [bulletId] : [])),
 	);
+}
+
+export const conceptEvidenceGradeSchema = z.enum([
+	'strong',
+	'moderate',
+	'weak',
+	'missing',
+]);
+
+export const conceptEvidenceEvaluationSchema = z.object({
+	evaluations: z.array(
+		z.object({
+			conceptId: z.string(),
+			grade: conceptEvidenceGradeSchema,
+			score: z.number().min(0).max(1),
+			evidenceItemIds: z.array(z.string()),
+			rationale: z.string(),
+		}),
+	),
+	summary: z.string(),
+});
+
+export type ConceptEvidenceEvaluation = z.infer<
+	typeof conceptEvidenceEvaluationSchema
+>;
+
+export interface ConceptEvidenceEvaluationInput {
+	concepts: Array<{
+		id: string;
+		key: string;
+		label: string;
+		definition?: string;
+		relation: RequirementRelation;
+		requirements: string[];
+	}>;
+	evidenceItems: Array<{
+		id: string;
+		label: string;
+		sourceType:
+			| 'title'
+			| 'summary'
+			| 'skill'
+			| 'experience'
+			| 'project'
+			| 'education'
+			| 'volunteering'
+			| 'bullet';
+		text: string;
+		conceptIds: string[];
+	}>;
+}
+
+export function buildConceptEvidenceEvaluationInput(
+	summary: ConceptCoverageSummary,
+	bullets: Bullet[],
+	resume: Resume['data'],
+): ConceptEvidenceEvaluationInput {
+	const selectedBulletIds = resumeBulletIds(resume);
+	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
+	const normalizeConceptLabel = (value: string) =>
+		value.toLowerCase().replace(/[^a-z0-9+#.]+/g, '');
+	const conceptIdsForLabels = (labels: string[]) => {
+		const normalizedLabels = new Set(
+			labels.filter(Boolean).map(normalizeConceptLabel),
+		);
+		return summary.concepts
+			.filter(({ concept }) =>
+				[concept.label, concept.key].some((value) =>
+					normalizedLabels.has(normalizeConceptLabel(value)),
+				),
+			)
+			.map(({ concept }) => concept.id);
+	};
+	const addEvidence = (
+		item: ConceptEvidenceEvaluationInput['evidenceItems'][number],
+	) => {
+		if (item.text.trim()) {
+			evidenceItems.push({ ...item, text: item.text.trim() });
+		}
+	};
+
+	addEvidence({
+		id: 'resume-title',
+		label: 'Professional title',
+		sourceType: 'title',
+		text: resume.title,
+		conceptIds: [],
+	});
+	addEvidence({
+		id: 'resume-summary',
+		label: 'Professional summary',
+		sourceType: 'summary',
+		text: resume.summary,
+		conceptIds: [],
+	});
+
+	for (const [index, group] of (resume.skillGroups ?? []).entries()) {
+		addEvidence({
+			id: `skill-group-${index}`,
+			label: group.name || 'Skills',
+			sourceType: 'skill',
+			text: [group.name, group.items.filter(Boolean).join(', ')]
+				.filter(Boolean)
+				.join(': '),
+			conceptIds: conceptIdsForLabels(group.items),
+		});
+	}
+	for (const [index, skill] of (resume.skills ?? []).entries()) {
+		addEvidence({
+			id: `skill-${index}`,
+			label: skill.category || 'Skill',
+			sourceType: 'skill',
+			text: [skill.name, skill.category].filter(Boolean).join(' — '),
+			conceptIds: conceptIdsForLabels([skill.name]),
+		});
+	}
+	for (const [index, experience] of resume.workExperience.entries()) {
+		addEvidence({
+			id: `experience-${index}`,
+			label: experience.company || 'Work experience',
+			sourceType: 'experience',
+			text: [experience.position, experience.company]
+				.filter(Boolean)
+				.join(' at '),
+			conceptIds: [],
+		});
+	}
+	for (const [index, project] of resume.projects.entries()) {
+		addEvidence({
+			id: `project-${index}`,
+			label: project.name || 'Project',
+			sourceType: 'project',
+			text: [
+				project.name,
+				project.description,
+				project.technologies.join(', '),
+			]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: conceptIdsForLabels(project.technologies),
+		});
+	}
+	for (const [index, education] of resume.education.entries()) {
+		addEvidence({
+			id: `education-${index}`,
+			label: education.institution || 'Education',
+			sourceType: 'education',
+			text: [education.degree, education.field, education.institution]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: [],
+		});
+	}
+	for (const [index, volunteering] of (resume.volunteering ?? []).entries()) {
+		addEvidence({
+			id: `volunteering-${index}`,
+			label: volunteering.organization || 'Volunteering',
+			sourceType: 'volunteering',
+			text: [volunteering.position, volunteering.organization]
+				.filter(Boolean)
+				.join(' at '),
+			conceptIds: [],
+		});
+	}
+	for (const bullet of bullets) {
+		if (!selectedBulletIds.has(bullet.id)) continue;
+		addEvidence({
+			id: bullet.id,
+			label: 'Resume bullet',
+			sourceType: 'bullet',
+			text: bullet.text,
+			conceptIds: bullet.concepts.map(({ conceptId }) => conceptId),
+		});
+	}
+
+	return {
+		concepts: summary.concepts.map(
+			({ concept, relation, requirements }) => ({
+				id: concept.id,
+				key: concept.key,
+				label: concept.label,
+				...(concept.definition
+					? { definition: concept.definition }
+					: {}),
+				relation,
+				requirements: requirements.map(({ what }) => what),
+			}),
+		),
+		evidenceItems,
+	};
 }
 
 export function deriveConceptCoverage(

@@ -14,6 +14,9 @@ const badgeVariants = cva(
 					'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
 				destructive:
 					'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+				success: 'border-transparent bg-success/15 text-success',
+				info: 'border-transparent bg-info/15 text-info',
+				warning: 'border-transparent bg-warning/20 text-warning',
 				outline: 'text-foreground',
 				relationUses:
 					'border-relation-uses/30 bg-relation-uses/10 text-relation-uses',
@@ -23,7 +26,8 @@ const badgeVariants = cva(
 					'border-relation-supports/30 bg-relation-supports/10 text-relation-supports',
 				relationProduced:
 					'border-relation-produced/30 bg-relation-produced/10 text-relation-produced',
-				relationType: 'border-relation-type/30 bg-relation-type/10 text-relation-type',
+				relationType:
+					'border-relation-type/30 bg-relation-type/10 text-relation-type',
 				relationRelatesTo:
 					'border-relation-relates-to/30 bg-relation-relates-to/10 text-relation-relates-to',
 				relationAbout:
@@ -37,10 +41,14 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-	extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+	extends
+		React.HTMLAttributes<HTMLDivElement>,
+		VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-	return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+	return (
+		<div className={cn(badgeVariants({ variant }), className)} {...props} />
+	);
 }
 
 export { Badge, badgeVariants };

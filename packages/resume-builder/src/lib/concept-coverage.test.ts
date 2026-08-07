@@ -8,7 +8,10 @@ import { describe, expect, it } from 'vitest';
 
 import type { JobRequirement } from '@/graphql/types.ts';
 
-import { deriveConceptCoverage } from './concept-coverage.ts';
+import {
+	buildConceptEvidenceEvaluationInput,
+	deriveConceptCoverage,
+} from './concept-coverage.ts';
 
 function requirement(
 	id: string,
@@ -131,5 +134,87 @@ describe('deriveConceptCoverage', () => {
 		expect(summary.totalCount).toBe(1);
 		expect(summary.concepts[0].relation).toBe('requires');
 		expect(summary.concepts[0].requirements).toHaveLength(2);
+	});
+});
+
+describe('buildConceptEvidenceEvaluationInput', () => {
+	it('sends selected bullets and the surrounding resume context', () => {
+		const bullets = [
+			bullet('bullet-react', 'react'),
+			bullet('bullet-aws', 'aws'),
+		];
+		const resume = resumeData(['bullet-react']);
+		const summary = deriveConceptCoverage(
+			[requirement('req-react', 'react', 'React')],
+			bullets,
+			resume,
+		);
+
+		const input = buildConceptEvidenceEvaluationInput(
+			summary,
+			bullets,
+			resume,
+		);
+
+		expect(input.concepts).toEqual([
+			{
+				id: 'react',
+				key: 'react',
+				label: 'React',
+				relation: 'requires',
+				requirements: ['Experience with React'],
+			},
+		]);
+		expect(input.evidenceItems).toEqual([
+			{
+				id: 'resume-title',
+				label: 'Professional title',
+				sourceType: 'title',
+				text: 'Engineer',
+				conceptIds: [],
+			},
+			{
+				id: 'experience-0',
+				label: 'Acme',
+				sourceType: 'experience',
+				text: 'Engineer at Acme',
+				conceptIds: [],
+			},
+			{
+				id: 'bullet-react',
+				label: 'Resume bullet',
+				sourceType: 'bullet',
+				text: 'Used react',
+				conceptIds: ['react'],
+			},
+		]);
+	});
+
+	it('includes technologies listed in a skill group as evidence', () => {
+		const resume = resumeData([]);
+		resume.skillGroups = [
+			{
+				_id: 'group-1',
+				uid: 'user-1',
+				name: 'Languages',
+				items: ['TypeScript', 'JavaScript'],
+			},
+		];
+		const summary = deriveConceptCoverage(
+			[requirement('req-typescript', 'typescript', 'TypeScript')],
+			[],
+			resume,
+		);
+
+		expect(
+			buildConceptEvidenceEvaluationInput(summary, [], resume)
+				.evidenceItems,
+		).toContainEqual({
+			id: 'skill-group-0',
+			label: 'Languages',
+			sourceType: 'skill',
+			text: 'Languages: TypeScript, JavaScript',
+			conceptIds: ['typescript'],
+		});
 	});
 });
