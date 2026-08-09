@@ -612,3 +612,75 @@ model DocumentUpdate {
 
   @@index([name, uid, sequence(sort: Desc)])
 }
+
+// ─── FlowRun ─────────────────────────────────────────────────────────────────
+// Durable summary of one Mastra workflow run against one subject. Holds only
+// what is queryable or renderable without a second hop — step-level detail
+// stays in Mastra storage and is fetched by runId.
+//
+// The subject is a (subjectType, subjectId) pair rather than a foreign key
+// because not every subject is a row: background autofill is scoped to a
+// collection ("this user's jobs") and professional statements have no table
+// yet. This mirrors Bullet.sourceType/sourceId. The cost is that referential
+// integrity and cascade deletes move to the service layer.
+//
+// Only application-subject flows are recorded today; the other subject types
+// are listed so wiring them later needs no migration.
+//
+// Note: rows with a null subjectId (collection- and user-scoped runs) are not
+// deduplicated by the unique index, since Postgres treats nulls as distinct.
+// Revisit when the first such flow is wired.
+
+enum Flow {
+  jobDescriptionRetrieval
+  jobConceptIdentification
+  fitAssessment
+  comparison
+  conceptEvidenceEvaluation
+  markupJobDescription
+  backgroundAutofill
+  bulletScoring
+  bulletConceptAnnotation
+  professionalStatementEvaluation
+  narrativeDistillation
+  careerContext
+  factsExtraction
+}
+
+enum FlowSubject {
+  application
+  bullet
+  job
+  project
+  skill
+  volunteering
+  professionalStatement
+  profile
+}
+
+enum FlowRunStatus {
+  running
+  success
+  failed
+  suspended
+  canceled
+}
+
+model FlowRun {
+  id          String        @id @default(cuid())
+  uid         String
+  flow        Flow
+  subjectType FlowSubject
+  subjectId   String?
+  status      FlowRunStatus
+  runId       String?
+  error       String?
+  startedAt   DateTime      @default(now())
+  finishedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([uid, subjectType, subjectId, flow])
+  @@index([uid, status])
+  @@index([subjectType, subjectId])
+}

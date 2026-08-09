@@ -51,3 +51,47 @@ export const BulletStatus = {
 } as const
 
 export type BulletStatus = (typeof BulletStatus)[keyof typeof BulletStatus]
+
+
+export const Flow = {
+  jobDescriptionRetrieval: 'jobDescriptionRetrieval',
+  jobConceptIdentification: 'jobConceptIdentification',
+  fitAssessment: 'fitAssessment',
+  comparison: 'comparison',
+  conceptEvidenceEvaluation: 'conceptEvidenceEvaluation',
+  markupJobDescription: 'markupJobDescription',
+  backgroundAutofill: 'backgroundAutofill',
+  bulletScoring: 'bulletScoring',
+  bulletConceptAnnotation: 'bulletConceptAnnotation',
+  professionalStatementEvaluation: 'professionalStatementEvaluation',
+  narrativeDistillation: 'narrativeDistillation',
+  careerContext: 'careerContext',
+  factsExtraction: 'factsExtraction'
+} as const
+
+export type Flow = (typeof Flow)[keyof typeof Flow]
+
+
+export const FlowSubject = {
+  application: 'application',
+  bullet: 'bullet',
+  job: 'job',
+  project: 'project',
+  skill: 'skill',
+  volunteering: 'volunteering',
+  professionalStatement: 'professionalStatement',
+  profile: 'profile'
+} as const
+
+export type FlowSubject = (typeof FlowSubject)[keyof typeof FlowSubject]
+
+
+export const FlowRunStatus = {
+  running: 'running',
+  success: 'success',
+  failed: 'failed',
+  suspended: 'suspended',
+  canceled: 'canceled'
+} as const
+
+export type FlowRunStatus = (typeof FlowRunStatus)[keyof typeof FlowRunStatus]

@@ -8,6 +8,7 @@ import { ContactInformationModule } from './contact-information/contact-informat
 import { ConversationsModule } from './conversations/conversations.module.js';
 import { CoverLettersModule } from './cover-letters/cover-letters.module.js';
 import { EducationsModule } from './educations/educations.module.js';
+import { FlowRunsModule } from './flow-runs/flow-runs.module.js';
 import { JobsModule } from './jobs/jobs.module.js';
 import { ProfilesModule } from './profiles/profiles.module.js';
 import { ProjectsModule } from './projects/projects.module.js';
@@ -30,6 +31,7 @@ const imports = [
 	ConversationsModule,
 	ApplicationsModule,
 	CompaniesModule,
+	FlowRunsModule,
 ];
 
 @Module({

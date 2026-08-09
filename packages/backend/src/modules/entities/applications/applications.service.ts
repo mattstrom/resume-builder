@@ -1,8 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Application, ApplicationInput, ApplicationUpdateInput } from '@resume-builder/entities';
+import {
+	Application,
+	ApplicationInput,
+	ApplicationUpdateInput,
+	FlowSubject,
+} from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
 import { CompaniesService } from '../companies/companies.service.js';
+import { FlowRunsService } from '../flow-runs/flow-runs.service.js';
 import { ResumesService } from '../resumes/resumes.service.js';
 
 type ApplicationWithId = Application & { _id: string };
@@ -12,6 +18,7 @@ export class ApplicationsService {
 	constructor(
 		private readonly resumeService: ResumesService,
 		private readonly companiesService: CompaniesService,
+		private readonly flowRunsService: FlowRunsService,
 		private readonly prisma: PrismaService,
 	) {}
 
@@ -116,6 +123,10 @@ export class ApplicationsService {
 	async delete(uid: string, id: string): Promise<void> {
 		const result = await this.prisma.application.deleteMany({ where: { id, uid } });
 		if (result.count === 0) throw new NotFoundException();
+
+		// FlowRun references its subject by (type, id) rather than a foreign key,
+		// so there is no cascade to rely on here.
+		await this.flowRunsService.deleteForSubject(uid, FlowSubject.APPLICATION, id);
 	}
 
 	async patch(uid: string, id: string, update: Record<string, unknown>): Promise<void> {
