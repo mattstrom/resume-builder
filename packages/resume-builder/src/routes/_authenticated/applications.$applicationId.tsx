@@ -9,6 +9,7 @@ import {
 	ExternalLink,
 	FileCheck2,
 	FileText,
+	Globe,
 	PenLine,
 	Save,
 	Sparkles,
@@ -517,6 +518,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	const [application, setApplication] = useState<Application>(loadedApplication);
 	const [formState, setFormState] = useState(() => getInitialFormState(loadedApplication));
 	const [identifyingRequirements, setIdentifyingRequirements] = useState(false);
+	const [retrievingJobDescription, setRetrievingJobDescription] = useState(false);
 	const {
 		data: jobRequirementsData,
 		loading: loadingJobRequirements,
@@ -612,6 +614,24 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 		void navigate({
 			search: (previous) => ({ ...previous, stage }),
 		});
+	};
+
+	const handleRetrieveJobDescription = async () => {
+		setRetrievingJobDescription(true);
+		try {
+			// Persist first so the workflow reads the URL currently in the form,
+			// and so the refresh below cannot discard unsaved edits.
+			await saveApplication(false);
+			const characterCount = await applicationStore.retrieveJobDescription(applicationId);
+			await refreshApplication();
+			toast.success(`Retrieved ${characterCount.toLocaleString()} characters.`);
+		} catch (error) {
+			toast.error(
+				error instanceof Error ? error.message : 'Job description retrieval failed',
+			);
+		} finally {
+			setRetrievingJobDescription(false);
+		}
 	};
 
 	const handleIdentifyRequirements = async () => {
@@ -808,9 +828,31 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 										</div>
 
 										<div className="flex flex-col gap-2">
-											<Label htmlFor="application-job-description">
-												Job Description
-											</Label>
+											<div className="flex flex-wrap items-center justify-between gap-2">
+												<Label htmlFor="application-job-description">
+													Job Description
+												</Label>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													onClick={handleRetrieveJobDescription}
+													disabled={
+														!formState.jobPostingUrl.trim() ||
+														retrievingJobDescription
+													}
+													title={
+														formState.jobPostingUrl.trim()
+															? 'Fetch the posting and fill in the job description'
+															: 'Add a job posting URL first'
+													}
+												>
+													<Globe data-icon="inline-start" />
+													{retrievingJobDescription
+														? 'Retrieving...'
+														: 'Retrieve from URL'}
+												</Button>
+											</div>
 											<Textarea
 												id="application-job-description"
 												value={formState.jobDescription}
