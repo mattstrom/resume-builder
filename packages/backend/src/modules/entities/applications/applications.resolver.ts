@@ -4,6 +4,8 @@ import {
 	ApplicationInput,
 	ApplicationUpdateInput,
 	Company,
+	FlowRun,
+	FlowSubject,
 	Resume,
 } from '@resume-builder/entities';
 import GraphQLJSON from 'graphql-type-json';
@@ -11,6 +13,7 @@ import { type UpdateOneModel } from 'mongoose';
 
 import { CurrentUser } from '../../auth/index.js';
 import { CompaniesService } from '../companies/companies.service.js';
+import { FlowRunsService } from '../flow-runs/flow-runs.service.js';
 import { ResumesService } from '../resumes/resumes.service.js';
 import { ApplicationsService } from './applications.service.js';
 
@@ -20,6 +23,7 @@ export class ApplicationsResolver {
 		private readonly applicationsService: ApplicationsService,
 		private readonly resumesService: ResumesService,
 		private readonly companiesService: CompaniesService,
+		private readonly flowRunsService: FlowRunsService,
 	) {}
 
 	@Query(() => [Application])
@@ -75,6 +79,17 @@ export class ApplicationsResolver {
 		return this.resumesService.findAll(application.uid, undefined, {
 			applicationId: application._id,
 		});
+	}
+
+	@ResolveField(() => [FlowRun], {
+		description: 'Workflow runs recorded against this application, newest first',
+	})
+	async flowRuns(@Parent() application: Application): Promise<FlowRun[]> {
+		return this.flowRunsService.findForSubject(
+			application.uid,
+			FlowSubject.APPLICATION,
+			application._id,
+		);
 	}
 
 	@ResolveField(() => Company, { nullable: true })

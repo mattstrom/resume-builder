@@ -115,6 +115,46 @@ export class ApplicationsResolver {
 	}
 
 	@Tool({
+		name: 'update_job_description',
+		description:
+			'Stores the raw text of a job posting on an application, typically after retrieving it from the job posting URL',
+		paramsSchema: {
+			applicationId: z.string(),
+			jobDescription: z.string(),
+		},
+		annotations: {
+			destructiveHint: true,
+			idempotentHint: true,
+		},
+	})
+	async updateJobDescription(
+		{
+			applicationId,
+			jobDescription,
+		}: types.McpToolParams<{ applicationId: string; jobDescription: string }>,
+		{ user }: types.McpExtra,
+	) {
+		const savedApplication = await this.applicationsService.update(user.sub, applicationId, {
+			jobDescription,
+		});
+
+		return {
+			content: [
+				{
+					type: 'text',
+					text: outdent`
+						Job description saved for application ${savedApplication._id}.
+						${JSON.stringify({ application: savedApplication })}
+					`,
+				},
+			],
+			structuredContent: {
+				application: savedApplication,
+			},
+		};
+	}
+
+	@Tool({
 		name: 'update_analysis',
 		description:
 			'Updates the analysis of a job application with skill fit, strengths, weaknesses, and relevance scores',

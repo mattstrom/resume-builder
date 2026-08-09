@@ -6,6 +6,9 @@ type Tools =
 	| 'get_application'
 	| 'create_application'
 	| 'update_analysis'
+	| 'update_job_description'
+	| 'upsert_flow_run'
+	| 'get_flow_runs'
 	| 'read_narrative'
 	| 'edit_narrative'
 	| 'get_profile'
@@ -63,9 +66,7 @@ interface ResumeBuilderMCPToolsets extends Record<
 
 class ResumeBuilderMCPClient extends MCPClient {
 	constructor(token: string) {
-		const url =
-			process.env['RESUME_BUILDER_MCP_URL'] ??
-			'http://localhost:3000/mcp';
+		const url = process.env['RESUME_BUILDER_MCP_URL'] ?? 'http://localhost:3000/mcp';
 
 		super({
 			id: 'resume-builder-mcp-client',
@@ -91,8 +92,6 @@ class ResumeBuilderMCPClient extends MCPClient {
 	}
 }
 
-export function createResumeBuilderMcpClient(
-	token: string,
-): ResumeBuilderMCPClient {
+export function createResumeBuilderMcpClient(token: string): ResumeBuilderMCPClient {
 	return new ResumeBuilderMCPClient(token);
 }

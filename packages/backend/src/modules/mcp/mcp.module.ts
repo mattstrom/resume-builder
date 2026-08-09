@@ -12,6 +12,7 @@ import { ApplicationsResolver } from './applications.resolver.js';
 import { BulletsResolver } from './bullets.resolver.js';
 import { ConceptsResolver } from './concepts.resolver.js';
 import { FactsResolver } from './facts.resolver.js';
+import { FlowRunsResolver } from './flow-runs.resolver.js';
 import { HealthResolver } from './health.resolver.js';
 import { JobRequirementsResolver } from './job-requirements.resolver.js';
 import { NarrativeEditorResolver } from './narrative-editor.resolver.js';
@@ -46,6 +47,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 		BulletsResolver,
 		ConceptsResolver,
 		FactsResolver,
+		FlowRunsResolver,
 		JobRequirementsResolver,
 		FitAssessorPromptResolver,
 		HealthResolver,

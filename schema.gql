@@ -372,6 +372,9 @@ type Application {
   companyRecord: Company
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  """Workflow runs recorded against this application, newest first"""
+  flowRuns: [FlowRun!]!
 }
 
 type BulletConceptValue {
@@ -436,6 +439,69 @@ enum BulletStatus {
   DRAFT
   READY
   ARCHIVED
+}
+
+"""Summary of one Mastra workflow run against one subject"""
+type FlowRun {
+  id: ID!
+
+  """User ID"""
+  uid: String!
+
+  """Which workflow was run"""
+  flow: Flow!
+
+  """What kind of thing the run pertains to"""
+  subjectType: FlowSubject!
+
+  """The subject record, or null for collection- and user-scoped runs"""
+  subjectId: ID
+  status: FlowRunStatus!
+
+  """Mastra run ID — use it to fetch step-level detail"""
+  runId: String
+
+  """Failure summary, when the run failed"""
+  error: String
+  startedAt: DateTime!
+  finishedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum Flow {
+  JOB_DESCRIPTION_RETRIEVAL
+  JOB_CONCEPT_IDENTIFICATION
+  FIT_ASSESSMENT
+  COMPARISON
+  CONCEPT_EVIDENCE_EVALUATION
+  MARKUP_JOB_DESCRIPTION
+  BACKGROUND_AUTOFILL
+  BULLET_SCORING
+  BULLET_CONCEPT_ANNOTATION
+  PROFESSIONAL_STATEMENT_EVALUATION
+  NARRATIVE_DISTILLATION
+  CAREER_CONTEXT
+  FACTS_EXTRACTION
+}
+
+enum FlowSubject {
+  APPLICATION
+  BULLET
+  JOB
+  PROJECT
+  SKILL
+  VOLUNTEERING
+  PROFESSIONAL_STATEMENT
+  PROFILE
+}
+
+enum FlowRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  SUSPENDED
+  CANCELED
 }
 
 type NarrativeWorkExperience {

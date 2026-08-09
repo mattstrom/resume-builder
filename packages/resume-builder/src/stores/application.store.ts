@@ -53,6 +53,28 @@ export class ApplicationStore {
 		}
 	}
 
+	/**
+	 * Pulls the job description from the application's posting URL and saves it.
+	 * Falls back to a real browser server-side, so this can run for a while on
+	 * JavaScript-rendered postings.
+	 */
+	async retrieveJobDescription(applicationId: string): Promise<number> {
+		const client = await getMastraClient();
+		const workflow = client.getWorkflow('job-description-retrieval-workflow');
+		const run = await workflow.createRun();
+		const result = await run.startAsync({ inputData: { applicationId } });
+
+		if (result.status !== 'success') {
+			const message =
+				'error' in result && result.error instanceof Error
+					? result.error.message
+					: 'Job description retrieval did not complete.';
+			throw new Error(message);
+		}
+
+		return (result.result as { characterCount: number }).characterCount;
+	}
+
 	@action
 	selectApplication(applicationId: string | null) {
 		this.selectedApplicationId = applicationId;

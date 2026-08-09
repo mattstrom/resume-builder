@@ -23,6 +23,10 @@ export interface Config {
 		};
 		defaultModel: string;
 	};
+	browser: {
+		headless: boolean;
+		cdpUrl: string;
+	};
 }
 
 const schema = convict<Config>({
@@ -105,6 +109,20 @@ const schema = convict<Config>({
 				env: 'ANTHROPIC_API_KEY',
 				sensitive: true,
 			},
+		},
+	},
+	browser: {
+		headless: {
+			doc: 'Run the agent browser without a visible window. Required when no display is attached, such as in containers.',
+			format: Boolean,
+			default: false,
+			env: 'BROWSER_HEADLESS',
+		},
+		cdpUrl: {
+			doc: 'CDP WebSocket URL of an already-running browser. Set this to use a hosted browser instead of launching one locally.',
+			format: String,
+			default: '',
+			env: 'BROWSER_CDP_URL',
 		},
 	},
 });
