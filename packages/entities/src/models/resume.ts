@@ -1,4 +1,12 @@
-import { Field, ID, InputType, ObjectType, OmitType, registerEnumType } from '@nestjs/graphql';
+import {
+	Field,
+	ID,
+	InputType,
+	ObjectType,
+	OmitType,
+	PartialType,
+	registerEnumType,
+} from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { z } from 'zod';
@@ -185,6 +193,11 @@ export class BlankResumeCreateInput extends OmitType(ResumeCreateInput, ['data',
 	@Field({ nullable: true, description: 'Existing resume to copy content from' })
 	sourceResumeId?: string;
 }
+
+@InputType()
+export class ResumeUpdateInput extends PartialType(
+	OmitType(ResumeCreateInput, ['data', 'id'] as const),
+) {}
 
 export enum ResumeSortBy {
 	COMPANY = 'COMPANY',

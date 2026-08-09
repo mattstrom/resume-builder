@@ -1,8 +1,4 @@
-import type {
-	Application,
-	ConceptQualifierValue,
-	Resume,
-} from '@resume-builder/entities';
+import type { Application, ConceptQualifierValue, Resume } from '@resume-builder/entities';
 
 export interface ListApplicationsData {
 	listApplications: Application[];
@@ -90,10 +86,7 @@ export interface SaveConceptEvidenceAssessmentVariables extends ConceptEvidenceA
 }
 
 export interface CreateApplicationVariables {
-	applicationData: Omit<
-		Application,
-		'_id' | 'uid' | 'createdAt' | 'updatedAt'
-	>;
+	applicationData: Omit<Application, '_id' | 'uid' | 'createdAt' | 'updatedAt'>;
 	sourceResumeId?: string;
 }
 
@@ -154,6 +147,22 @@ export interface CreateBlankResumeVariables {
 		base: boolean;
 		applicationId?: string;
 		sourceResumeId?: string;
+	};
+}
+
+export interface UpdateResumeData {
+	updateResume: Resume;
+}
+
+export interface UpdateResumeVariables {
+	id: string;
+	resumeData: {
+		name?: string;
+		company?: string;
+		level?: string;
+		jobPostingUrl?: string;
+		base?: boolean;
+		applicationId?: string;
 	};
 }
 

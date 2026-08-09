@@ -7,6 +7,7 @@ import {
 	ResumeFilterInput,
 	ResumeSortBy,
 	ResumeSortInput,
+	ResumeUpdateInput,
 	resumeContentFromXml,
 	resumeToXml,
 } from '@resume-builder/entities';
@@ -142,6 +143,20 @@ export class ResumesService {
 		const xml = sourceXml ?? resumeToXml(hydrated);
 		await this.resumeXml.upsert(result.id, xml);
 		return { ...hydrated, xml };
+	}
+
+	async update(uid: string, id: string, resumeData: ResumeUpdateInput): Promise<ResumeWithId> {
+		const existing = await this.prisma.resume.findFirst({
+			where: { id, uid },
+			select: { id: true },
+		});
+
+		if (!existing) {
+			throw new NotFoundException(`Resume with id ${id} not found`);
+		}
+
+		const result = await this.prisma.resume.update({ where: { id }, data: resumeData });
+		return this.hydrate(result);
 	}
 
 	async delete(uid: string, id: string): Promise<void> {

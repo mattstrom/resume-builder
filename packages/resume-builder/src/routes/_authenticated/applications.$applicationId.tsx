@@ -9,6 +9,7 @@ import {
 	ExternalLink,
 	FileCheck2,
 	FileText,
+	PenLine,
 	Save,
 	Sparkles,
 	Trash2,
@@ -54,7 +55,12 @@ import {
 import { Separator } from '@/components/ui/separator.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import { CREATE_BLANK_RESUME, DELETE_RESUME, UPDATE_APPLICATION } from '@/graphql/mutations.ts';
+import {
+	CREATE_BLANK_RESUME,
+	DELETE_RESUME,
+	UPDATE_APPLICATION,
+	UPDATE_RESUME,
+} from '@/graphql/mutations.ts';
 import { GET_APPLICATION, GET_JOB_REQUIREMENTS } from '@/graphql/queries.ts';
 import type {
 	CreateBlankResumeData,
@@ -67,6 +73,8 @@ import type {
 	GetJobRequirementsVariables,
 	UpdateApplicationData,
 	UpdateApplicationVariables,
+	UpdateResumeData,
+	UpdateResumeVariables,
 } from '@/graphql/types.ts';
 import {
 	deriveApplicationWorkflow,
@@ -376,6 +384,75 @@ function DuplicateResumeDialog({
 	);
 }
 
+function RenameResumeDialog({
+	resume,
+	onRenamed,
+}: {
+	resume: ResumeLink;
+	onRenamed: () => Promise<void>;
+}) {
+	const [open, setOpen] = useState(false);
+	const [renaming, setRenaming] = useState(false);
+	const [updateResume] = useMutation<UpdateResumeData, UpdateResumeVariables>(UPDATE_RESUME);
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const name = (new FormData(event.currentTarget).get('name') as string).trim();
+		if (!name || name === resume.name) {
+			setOpen(false);
+			return;
+		}
+
+		setRenaming(true);
+		try {
+			await updateResume({ variables: { id: resume._id, resumeData: { name } } });
+			await onRenamed();
+			setOpen(false);
+			toast.success('Resume renamed');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to rename resume');
+		} finally {
+			setRenaming(false);
+		}
+	};
+
+	return (
+		<Dialog open={open} onOpenChange={setOpen}>
+			<Button
+				variant="outline"
+				size="sm"
+				onClick={() => setOpen(true)}
+				aria-label={`Rename ${resume.name || 'untitled resume'}`}
+			>
+				<PenLine data-icon="inline-start" />
+				Rename
+			</Button>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Rename resume</DialogTitle>
+				</DialogHeader>
+				<form onSubmit={handleSubmit} className="flex flex-col gap-4">
+					<div className="flex flex-col gap-2">
+						<Label htmlFor={`rename-resume-name-${resume._id}`}>Name</Label>
+						<Input
+							id={`rename-resume-name-${resume._id}`}
+							name="name"
+							defaultValue={resume.name || ''}
+							required
+							autoFocus
+						/>
+					</div>
+					<DialogFooter>
+						<Button type="submit" disabled={renaming}>
+							{renaming ? 'Renaming...' : 'Rename resume'}
+						</Button>
+					</DialogFooter>
+				</form>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
 function DeleteResumeDialog({
 	resume,
 	onDeleted,
@@ -555,6 +632,10 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	};
 
 	const handleResumeCreated = async (_resume: Resume) => {
+		await Promise.all([refreshApplication(), resumeStore.refetch()]);
+	};
+
+	const handleResumeRenamed = async () => {
 		await Promise.all([refreshApplication(), resumeStore.refetch()]);
 	};
 
@@ -989,6 +1070,10 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 													</div>
 												</div>
 												<div className="relative z-10 flex shrink-0 items-center gap-2">
+													<RenameResumeDialog
+														resume={resume}
+														onRenamed={handleResumeRenamed}
+													/>
 													<DuplicateResumeDialog
 														application={application}
 														resume={resume}

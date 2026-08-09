@@ -5,6 +5,7 @@ import {
 	ResumeCreateInput,
 	ResumeFilterInput,
 	ResumeSortInput,
+	ResumeUpdateInput,
 } from '@resume-builder/entities';
 
 import { CurrentUser } from '../../auth/index.js';
@@ -48,6 +49,15 @@ export class ResumeResolver {
 		@Args('resumeData') resumeData: BlankResumeCreateInput,
 	) {
 		return this.resumesService.createBlank(uid, resumeData);
+	}
+
+	@Mutation(() => Resume)
+	async updateResume(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+		@Args('resumeData') resumeData: ResumeUpdateInput,
+	) {
+		return this.resumesService.update(uid, id, resumeData);
 	}
 
 	@Mutation(() => Boolean)
