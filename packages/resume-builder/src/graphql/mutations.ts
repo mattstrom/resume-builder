@@ -357,6 +357,20 @@ export const CREATE_BLANK_RESUME = gql`
 	${resumeContentFragment}
 `;
 
+export const UPDATE_RESUME = gql`
+	mutation UpdateResume($id: String!, $resumeData: ResumeUpdateInput!) {
+		updateResume(id: $id, resumeData: $resumeData) {
+			_id
+			id
+			name
+			company
+			level
+			jobPostingUrl
+			updatedAt
+		}
+	}
+`;
+
 export const DELETE_RESUME = gql`
 	mutation DeleteResume($id: String!) {
 		deleteResume(id: $id)

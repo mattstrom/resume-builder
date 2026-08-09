@@ -16,7 +16,7 @@ export class ExplorerSidebarStore {
 	applicationSortAscending = true;
 
 	@observable
-	groupSortField: ApplicationSortField = 'DATE';
+	groupSortField: ApplicationSortField = 'NAME';
 
 	@observable
 	groupSortAscending = true;
@@ -49,7 +49,7 @@ export class ExplorerSidebarStore {
 			StorageKey.ApplicationExplorerApplicationSortAscending,
 			true,
 		);
-		this.watch('groupSortField', StorageKey.ApplicationExplorerGroupSortField, 'DATE');
+		this.watch('groupSortField', StorageKey.ApplicationExplorerGroupSortField, 'NAME');
 		this.watch('groupSortAscending', StorageKey.ApplicationExplorerGroupSortAscending, true);
 		this.watch('groupBy', StorageKey.ApplicationExplorerGroupBy, 'company');
 

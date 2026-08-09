@@ -709,6 +709,7 @@ type Mutation {
   replaceGeneratedBulletConcepts(bulletId: ID!, expectedText: String!, meanings: [BulletMeaningInput!]!): [BulletConcept!]!
   createResume(resumeData: ResumeCreateInput!): Resume!
   createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
+  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
   deleteResume(id: String!): Boolean!
   applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
   createJob(job: JobInput!): Job!
@@ -971,6 +972,26 @@ input BlankResumeCreateInput {
 
   """Existing resume to copy content from"""
   sourceResumeId: String
+}
+
+input ResumeUpdateInput {
+  """Name of the resume"""
+  name: String
+
+  """Company name"""
+  company: String
+
+  """Job level"""
+  level: String
+
+  """URL to the job posting"""
+  jobPostingUrl: String
+
+  """Whether this is a base resume for targeted versions"""
+  base: Boolean
+
+  """Application this resume belongs to"""
+  applicationId: String
 }
 
 input JobInput {
