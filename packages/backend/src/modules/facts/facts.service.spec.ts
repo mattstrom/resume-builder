@@ -34,6 +34,9 @@ describe('FactsService semantic persistence', () => {
 			findMany: jest.fn(),
 			upsert: jest.fn(),
 		},
+		// Written by `upsertConcept` when it mirrors the ontology's parent chain.
+		conceptRelation: { upsert: jest.fn() },
+		conceptAlias: { findMany: jest.fn(), upsert: jest.fn() },
 		factConcept: {
 			create: jest.fn(),
 			count: jest.fn(),
@@ -82,6 +85,11 @@ describe('FactsService semantic persistence', () => {
 			.map(([input]) => input.create as { vocabulary: string; key: string })
 			.filter((concept) => concept.vocabulary === vocabulary)
 			.map((concept) => concept.key);
+	}
+
+	/** Concept keys passed to `pg_advisory_xact_lock`, in the order acquired. */
+	function lockedKeys(): string[] {
+		return prisma.$queryRawUnsafe.mock.calls.map(([, , key]) => key as string);
 	}
 
 	beforeEach(() => {
@@ -235,7 +243,17 @@ describe('FactsService semantic persistence', () => {
 		});
 
 		expect(conceptKeys('technology')).toEqual(['React']);
-		expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(3);
+		// Two distinct spellings of React fold to one identity, so only the
+		// fact-type, entity, and React locks are taken — plus React's two
+		// ontology ancestors, which `upsertConcept` also writes. Ordered by
+		// `vocabulary:key`, which is what keeps concurrent writers deadlock-free.
+		expect(lockedKeys()).toEqual([
+			'project:resume-builder',
+			'achievement',
+			'software-development',
+			'web-platform-development-software',
+			'React',
+		]);
 	});
 
 	it('locks shared concept keys before upserting them', async () => {
@@ -246,7 +264,6 @@ describe('FactsService semantic persistence', () => {
 			),
 		});
 
-		expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(3);
 		expect(prisma.$queryRawUnsafe.mock.invocationCallOrder.at(-1)).toBeLessThan(
 			prisma.concept.upsert.mock.invocationCallOrder[0],
 		);
@@ -365,5 +382,4 @@ describe('FactsService semantic persistence', () => {
 			}),
 		);
 	});
-
 });

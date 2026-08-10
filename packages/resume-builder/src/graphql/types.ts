@@ -55,6 +55,21 @@ export interface GetJobRequirementsVariables {
 	applicationId: string;
 }
 
+/** A free-text label matched to the concept it names, plus its parent chain. */
+export interface ResolvedConceptLabel {
+	label: string;
+	conceptId: string;
+	broaderConceptIds: string[];
+}
+
+export interface ResolveConceptLabelsData {
+	resolveConceptLabels: ResolvedConceptLabel[];
+}
+
+export interface ResolveConceptLabelsVariables {
+	labels: string[];
+}
+
 export interface ConceptEvidenceAssessment {
 	id: string;
 	applicationId: string;

@@ -103,3 +103,13 @@ export const JobRequirementConceptSchema = conceptAssertionLinkSchema.extend({
 	jobRequirementId: z.string(),
 });
 export type JobRequirementConcept = z.infer<typeof JobRequirementConceptSchema>;
+
+export const SkillConceptSchema = conceptAssertionLinkSchema.extend({
+	skillId: z.string(),
+});
+export type SkillConcept = z.infer<typeof SkillConceptSchema>;
+
+export const ProjectConceptSchema = conceptAssertionLinkSchema.extend({
+	projectId: z.string(),
+});
+export type ProjectConcept = z.infer<typeof ProjectConceptSchema>;

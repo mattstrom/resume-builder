@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-export const conceptEvidenceGradeSchema = z.enum([
-	'strong',
-	'moderate',
-	'weak',
-	'missing',
-]);
+export const conceptEvidenceGradeSchema = z.enum(['strong', 'moderate', 'weak', 'missing']);
 
 export const conceptEvidenceEvaluationInputSchema = z.object({
 	concepts: z
@@ -36,7 +31,13 @@ export const conceptEvidenceEvaluationInputSchema = z.object({
 					'bullet',
 				]),
 				text: z.string().trim().min(1).max(2000),
+				/** Requirement concepts this item names directly. */
 				conceptIds: z.array(z.string().trim().min(1)),
+				/**
+				 * Requirement concepts reached only by walking up the ontology —
+				 * related, but a weaker claim than naming the concept outright.
+				 */
+				broaderConceptIds: z.array(z.string().trim().min(1)).default([]),
 			}),
 		)
 		.max(200),
@@ -55,6 +56,4 @@ export const conceptEvidenceEvaluationSchema = z.object({
 	summary: z.string().trim().min(1),
 });
 
-export type ConceptEvidenceEvaluation = z.infer<
-	typeof conceptEvidenceEvaluationSchema
->;
+export type ConceptEvidenceEvaluation = z.infer<typeof conceptEvidenceEvaluationSchema>;
