@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ResolvedConceptLabelType {
+  label: String!
+  conceptId: ID!
+  broaderConceptIds: [ID!]!
+}
+
 """Contact Information"""
 type ContactInformation {
   _id: ID!
@@ -696,6 +702,7 @@ type Query {
   searchConcepts(query: String!, vocabulary: String, limit: Int, minimumScore: Float): [ConceptSearchResultType!]!
   expressions(factId: ID!): [ExpressionType!]!
   resumeFacts(resumeId: ID!): [ResumeFactType!]!
+  resolveConceptLabels(labels: [String!]!): [ResolvedConceptLabelType!]!
   bullets(filter: BulletFilterInput): [Bullet!]!
   bullet(id: ID!): Bullet!
   searchBullets(query: String!, filter: BulletFilterInput, limit: Int, minimumScore: Float): [BulletSearchResult!]!

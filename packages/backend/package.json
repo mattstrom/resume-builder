@@ -17,7 +17,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "inspect": "npx --no-cache @modelcontextprotocol/inspector",
-    "script:backfill-embeddings": "nest start --entryFile scripts/backfill-embeddings"
+    "script:backfill-embeddings": "op run --env-file=../../.env -- nest start --entryFile scripts/backfill-embeddings",
+    "script:backfill-concept-links": "op run --env-file=../../.env -- nest start --entryFile scripts/backfill-concept-links"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

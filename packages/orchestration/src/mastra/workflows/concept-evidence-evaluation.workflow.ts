@@ -21,9 +21,7 @@ const rawEvaluationSchema = z.object({
 	summary: z.string().trim().min(1),
 });
 
-function gradeForScore(
-	score: number,
-): ConceptEvidenceEvaluation['evaluations'][number]['grade'] {
+function gradeForScore(score: number): ConceptEvidenceEvaluation['evaluations'][number]['grade'] {
 	if (score >= 0.85) return 'strong';
 	if (score >= 0.6) return 'moderate';
 	if (score >= 0.25) return 'weak';
@@ -32,8 +30,7 @@ function gradeForScore(
 
 const evaluateConceptEvidenceStep = createStep({
 	id: 'evaluate-concept-evidence',
-	description:
-		'Grades the evidence for each job concept across the complete resume',
+	description: 'Grades the evidence for each job concept across the complete resume',
 	inputSchema: conceptEvidenceEvaluationInputSchema,
 	outputSchema: conceptEvidenceEvaluationSchema,
 	execute: async ({ inputData }) => {
@@ -61,22 +58,20 @@ const evaluateConceptEvidenceStep = createStep({
 			},
 		);
 
-		const validEvidenceItemIds = new Set(
-			inputData.evidenceItems.map(({ id }) => id),
-		);
+		const validEvidenceItemIds = new Set(inputData.evidenceItems.map(({ id }) => id));
 		const rawByConceptId = new Map(
-			response.object.evaluations.map((evaluation) => [
-				evaluation.conceptId,
-				evaluation,
-			]),
+			response.object.evaluations.map((evaluation) => [evaluation.conceptId, evaluation]),
 		);
 		const evaluations = inputData.concepts.map(({ id, label }) => {
 			const raw = rawByConceptId.get(id);
+			// Deliberately `conceptIds` and not `broaderConceptIds`: the floor
+			// below asserts the author named this exact concept. A match reached
+			// by walking up the ontology is real but weaker, so it reaches the
+			// evaluator as context and earns whatever score the model gives it.
 			const explicitEvidenceItemIds = inputData.evidenceItems
 				.filter(
 					(item) =>
-						(item.sourceType === 'skill' ||
-							item.sourceType === 'project') &&
+						(item.sourceType === 'skill' || item.sourceType === 'project') &&
 						item.conceptIds.includes(id),
 				)
 				.map(({ id: itemId }) => itemId)
@@ -96,15 +91,11 @@ const evaluateConceptEvidenceStep = createStep({
 					grade: 'missing' as const,
 					score: 0,
 					evidenceItemIds: [],
-					rationale:
-						'No credible evidence was identified anywhere in the resume.',
+					rationale: 'No credible evidence was identified anywhere in the resume.',
 				};
 			}
 
-			const score = Math.max(
-				raw.score,
-				explicitEvidenceItemIds.length > 0 ? 0.6 : 0,
-			);
+			const score = Math.max(raw.score, explicitEvidenceItemIds.length > 0 ? 0.6 : 0);
 			const grade = gradeForScore(score);
 			return {
 				conceptId: id,
@@ -115,11 +106,8 @@ const evaluateConceptEvidenceStep = createStep({
 						? []
 						: [
 								...new Set(
-									[
-										...raw.evidenceItemIds,
-										...explicitEvidenceItemIds,
-									].filter((itemId) =>
-										validEvidenceItemIds.has(itemId),
+									[...raw.evidenceItemIds, ...explicitEvidenceItemIds].filter(
+										(itemId) => validEvidenceItemIds.has(itemId),
 									),
 								),
 							].slice(0, 3),
@@ -146,8 +134,7 @@ const evaluateConceptEvidenceStep = createStep({
 
 export const conceptEvidenceEvaluationWorkflow = createWorkflow({
 	id: 'concept-evidence-evaluation-workflow',
-	description:
-		'Evaluates and grades how well the complete resume evidences job concepts',
+	description: 'Evaluates and grades how well the complete resume evidences job concepts',
 	inputSchema: conceptEvidenceEvaluationInputSchema,
 	outputSchema: conceptEvidenceEvaluationSchema,
 })

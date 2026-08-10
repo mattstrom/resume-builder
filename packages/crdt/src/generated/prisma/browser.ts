@@ -123,10 +123,20 @@ export type Education = Prisma.EducationModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model ProjectConcept
+ * 
+ */
+export type ProjectConcept = Prisma.ProjectConceptModel
+/**
  * Model Skill
  * 
  */
 export type Skill = Prisma.SkillModel
+/**
+ * Model SkillConcept
+ * 
+ */
+export type SkillConcept = Prisma.SkillConceptModel
 /**
  * Model SkillGroup
  * 

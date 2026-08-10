@@ -1,7 +1,7 @@
 import type { Bullet, Resume } from '@resume-builder/entities';
 import { z } from 'zod';
 
-import type { JobRequirement } from '@/graphql/types.ts';
+import type { JobRequirement, ResolvedConceptLabel } from '@/graphql/types.ts';
 
 type RequirementRelation = JobRequirement['concepts'][number]['relation'];
 
@@ -27,23 +27,14 @@ export interface ConceptCoverageSummary {
 export function resumeBulletIds(data: Resume['data']): Set<string> {
 	return new Set(
 		[
-			...data.workExperience.flatMap(
-				({ responsibilities }) => responsibilities,
-			),
+			...data.workExperience.flatMap(({ responsibilities }) => responsibilities),
 			...data.projects.flatMap(({ items }) => items),
-			...(data.volunteering ?? []).flatMap(
-				({ responsibilities }) => responsibilities,
-			),
+			...(data.volunteering ?? []).flatMap(({ responsibilities }) => responsibilities),
 		].flatMap(({ bulletId }) => (bulletId ? [bulletId] : [])),
 	);
 }
 
-export const conceptEvidenceGradeSchema = z.enum([
-	'strong',
-	'moderate',
-	'weak',
-	'missing',
-]);
+export const conceptEvidenceGradeSchema = z.enum(['strong', 'moderate', 'weak', 'missing']);
 
 export const conceptEvidenceEvaluationSchema = z.object({
 	evaluations: z.array(
@@ -58,9 +49,7 @@ export const conceptEvidenceEvaluationSchema = z.object({
 	summary: z.string(),
 });
 
-export type ConceptEvidenceEvaluation = z.infer<
-	typeof conceptEvidenceEvaluationSchema
->;
+export type ConceptEvidenceEvaluation = z.infer<typeof conceptEvidenceEvaluationSchema>;
 
 export interface ConceptEvidenceEvaluationInput {
 	concepts: Array<{
@@ -85,7 +74,10 @@ export interface ConceptEvidenceEvaluationInput {
 			| 'volunteering'
 			| 'bullet';
 		text: string;
+		/** Requirement concepts this item names directly. */
 		conceptIds: string[];
+		/** Requirement concepts reached only by walking up the ontology. */
+		broaderConceptIds: string[];
 	}>;
 }
 
@@ -94,15 +86,44 @@ export async function hashConceptEvidenceEvaluationInput(
 ): Promise<string> {
 	const bytes = new TextEncoder().encode(JSON.stringify(input));
 	const digest = await crypto.subtle.digest('SHA-256', bytes);
-	return Array.from(new Uint8Array(digest), (byte) =>
-		byte.toString(16).padStart(2, '0'),
-	).join('');
+	return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(
+		'',
+	);
+}
+
+/**
+ * The resume's free-text labels that carry semantics worth resolving.
+ *
+ * Skill names, skill-group names and items, and project technologies — every
+ * place the resume states a capability as a bare string. Deduplicated
+ * case-insensitively, since the resolver is queried with this list verbatim.
+ */
+export function conceptLabelsForResume(resume: Resume['data']): string[] {
+	const labels = [
+		...(resume.skills ?? []).map(({ name }) => name),
+		...(resume.skillGroups ?? []).flatMap((group) => [group.name, ...group.items]),
+		...resume.projects.flatMap(({ technologies }) => technologies),
+	];
+	const seen = new Set<string>();
+
+	return labels.flatMap((label) => {
+		const trimmed = label?.trim();
+		const key = trimmed?.toLowerCase();
+
+		if (!trimmed || !key || seen.has(key)) {
+			return [];
+		}
+
+		seen.add(key);
+		return [trimmed];
+	});
 }
 
 export function buildConceptEvidenceEvaluationInput(
 	summary: ConceptCoverageSummary,
 	bullets: Bullet[],
 	resume: Resume['data'],
+	resolvedLabels: readonly ResolvedConceptLabel[] = [],
 ): ConceptEvidenceEvaluationInput {
 	const selectedBulletIds = resumeBulletIds(resume);
 	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
@@ -112,10 +133,7 @@ export function buildConceptEvidenceEvaluationInput(
 		bulletPaths.set(bulletId, [...(bulletPaths.get(bulletId) ?? []), path]);
 	};
 	for (const [jobIndex, job] of resume.workExperience.entries()) {
-		for (const [
-			itemIndex,
-			responsibility,
-		] of job.responsibilities.entries()) {
+		for (const [itemIndex, responsibility] of job.responsibilities.entries()) {
 			addBulletPath(
 				responsibility.bulletId,
 				`data.workExperience.${jobIndex}.responsibilities.${itemIndex}`,
@@ -124,40 +142,58 @@ export function buildConceptEvidenceEvaluationInput(
 	}
 	for (const [projectIndex, project] of resume.projects.entries()) {
 		for (const [itemIndex, item] of project.items.entries()) {
-			addBulletPath(
-				item.bulletId,
-				`data.projects.${projectIndex}.items.${itemIndex}`,
-			);
+			addBulletPath(item.bulletId, `data.projects.${projectIndex}.items.${itemIndex}`);
 		}
 	}
 	for (const [roleIndex, role] of (resume.volunteering ?? []).entries()) {
-		for (const [
-			itemIndex,
-			responsibility,
-		] of role.responsibilities.entries()) {
+		for (const [itemIndex, responsibility] of role.responsibilities.entries()) {
 			addBulletPath(
 				responsibility.bulletId,
 				`data.volunteering.${roleIndex}.responsibilities.${itemIndex}`,
 			);
 		}
 	}
-	const normalizeConceptLabel = (value: string) =>
-		value.toLowerCase().replace(/[^a-z0-9+#.]+/g, '');
-	const conceptIdsForLabels = (labels: string[]) => {
-		const normalizedLabels = new Set(
-			labels.filter(Boolean).map(normalizeConceptLabel),
+	// Resolution happens server-side against the technology lexicon, the learned
+	// alias table, and the concept graph — so `k8s` reaches `Kubernetes`, which
+	// comparing folded strings here never could.
+	//
+	// Exact and broader matches are kept apart because they are not equally
+	// strong evidence. Listing `Kubernetes` against a Kubernetes requirement is a
+	// direct claim; listing it against "container management software" only says
+	// the author works somewhere in that space, which the evaluator should weigh
+	// rather than be handed as a floor.
+	const requirementConceptIds = new Set(summary.concepts.map(({ concept }) => concept.id));
+	const matchesByLabel = new Map<string, { conceptIds: string[]; broaderConceptIds: string[] }>();
+	for (const resolved of resolvedLabels) {
+		const conceptIds = requirementConceptIds.has(resolved.conceptId)
+			? [resolved.conceptId]
+			: [];
+		const broaderConceptIds = resolved.broaderConceptIds.filter((id) =>
+			requirementConceptIds.has(id),
 		);
-		return summary.concepts
-			.filter(({ concept }) =>
-				[concept.label, concept.key].some((value) =>
-					normalizedLabels.has(normalizeConceptLabel(value)),
-				),
-			)
-			.map(({ concept }) => concept.id);
+
+		if (conceptIds.length > 0 || broaderConceptIds.length > 0) {
+			matchesByLabel.set(resolved.label.toLowerCase(), {
+				conceptIds,
+				broaderConceptIds,
+			});
+		}
+	}
+	const conceptIdsForLabels = (labels: string[]) => {
+		const matched = labels.filter(Boolean).flatMap((label) => {
+			const match = matchesByLabel.get(label.toLowerCase());
+
+			return match ? [match] : [];
+		});
+
+		return {
+			conceptIds: [...new Set(matched.flatMap(({ conceptIds }) => conceptIds))],
+			broaderConceptIds: [
+				...new Set(matched.flatMap(({ broaderConceptIds }) => broaderConceptIds)),
+			],
+		};
 	};
-	const addEvidence = (
-		item: ConceptEvidenceEvaluationInput['evidenceItems'][number],
-	) => {
+	const addEvidence = (item: ConceptEvidenceEvaluationInput['evidenceItems'][number]) => {
 		if (item.text.trim()) {
 			evidenceItems.push({ ...item, text: item.text.trim() });
 		}
@@ -170,6 +206,7 @@ export function buildConceptEvidenceEvaluationInput(
 		sourceType: 'title',
 		text: resume.title,
 		conceptIds: [],
+		broaderConceptIds: [],
 	});
 	addEvidence({
 		id: 'resume-summary',
@@ -178,6 +215,7 @@ export function buildConceptEvidenceEvaluationInput(
 		sourceType: 'summary',
 		text: resume.summary,
 		conceptIds: [],
+		broaderConceptIds: [],
 	});
 
 	for (const [index, group] of (resume.skillGroups ?? []).entries()) {
@@ -188,7 +226,7 @@ export function buildConceptEvidenceEvaluationInput(
 				paths: [`data.skillGroups.${index}.items.${itemIndex}`],
 				sourceType: 'skill',
 				text: [group.name, skill].filter(Boolean).join(': '),
-				conceptIds: conceptIdsForLabels([skill]),
+				...conceptIdsForLabels([skill]),
 			});
 		}
 		addEvidence({
@@ -197,7 +235,7 @@ export function buildConceptEvidenceEvaluationInput(
 			paths: [`data.skillGroups.${index}.name`],
 			sourceType: 'skill',
 			text: group.name,
-			conceptIds: conceptIdsForLabels([group.name]),
+			...conceptIdsForLabels([group.name]),
 		});
 	}
 	const skillCategoryIndexes = new Map<string, number>();
@@ -213,13 +251,10 @@ export function buildConceptEvidenceEvaluationInput(
 		addEvidence({
 			id: `skill-${index}`,
 			label: skill.category || 'Skill',
-			paths: [
-				`data.skills.${index}`,
-				`data.skills.${categoryIndex}.items.${itemIndex}`,
-			],
+			paths: [`data.skills.${index}`, `data.skills.${categoryIndex}.items.${itemIndex}`],
 			sourceType: 'skill',
 			text: [skill.name, skill.category].filter(Boolean).join(' — '),
-			conceptIds: conceptIdsForLabels([skill.name]),
+			...conceptIdsForLabels([skill.name]),
 		});
 	}
 	for (const [index, experience] of resume.workExperience.entries()) {
@@ -228,10 +263,9 @@ export function buildConceptEvidenceEvaluationInput(
 			label: experience.company || 'Work experience',
 			paths: [`data.workExperience.${index}`],
 			sourceType: 'experience',
-			text: [experience.position, experience.company]
-				.filter(Boolean)
-				.join(' at '),
+			text: [experience.position, experience.company].filter(Boolean).join(' at '),
 			conceptIds: [],
+			broaderConceptIds: [],
 		});
 	}
 	for (const [index, project] of resume.projects.entries()) {
@@ -240,14 +274,10 @@ export function buildConceptEvidenceEvaluationInput(
 			label: project.name || 'Project',
 			paths: [`data.projects.${index}`],
 			sourceType: 'project',
-			text: [
-				project.name,
-				project.description,
-				project.technologies.join(', '),
-			]
+			text: [project.name, project.description, project.technologies.join(', ')]
 				.filter(Boolean)
 				.join(' — '),
-			conceptIds: conceptIdsForLabels(project.technologies),
+			...conceptIdsForLabels(project.technologies),
 		});
 	}
 	for (const [index, education] of resume.education.entries()) {
@@ -260,6 +290,7 @@ export function buildConceptEvidenceEvaluationInput(
 				.filter(Boolean)
 				.join(' — '),
 			conceptIds: [],
+			broaderConceptIds: [],
 		});
 	}
 	for (const [index, volunteering] of (resume.volunteering ?? []).entries()) {
@@ -268,10 +299,9 @@ export function buildConceptEvidenceEvaluationInput(
 			label: volunteering.organization || 'Volunteering',
 			paths: [`data.volunteering.${index}`],
 			sourceType: 'volunteering',
-			text: [volunteering.position, volunteering.organization]
-				.filter(Boolean)
-				.join(' at '),
+			text: [volunteering.position, volunteering.organization].filter(Boolean).join(' at '),
 			conceptIds: [],
+			broaderConceptIds: [],
 		});
 	}
 	for (const bullet of bullets) {
@@ -283,22 +313,19 @@ export function buildConceptEvidenceEvaluationInput(
 			sourceType: 'bullet',
 			text: bullet.text,
 			conceptIds: bullet.concepts.map(({ conceptId }) => conceptId),
+			broaderConceptIds: [],
 		});
 	}
 
 	return {
-		concepts: summary.concepts.map(
-			({ concept, relation, requirements }) => ({
-				id: concept.id,
-				key: concept.key,
-				label: concept.label,
-				...(concept.definition
-					? { definition: concept.definition }
-					: {}),
-				relation,
-				requirements: requirements.map(({ what }) => what),
-			}),
-		),
+		concepts: summary.concepts.map(({ concept, relation, requirements }) => ({
+			id: concept.id,
+			key: concept.key,
+			label: concept.label,
+			...(concept.definition ? { definition: concept.definition } : {}),
+			relation,
+			requirements: requirements.map(({ what }) => what),
+		})),
 		evidenceItems,
 	};
 }
@@ -312,9 +339,7 @@ export function deriveConceptCoverage(
 	const coveredConceptIds = new Set(
 		bullets
 			.filter(({ id }) => selectedBulletIds.has(id))
-			.flatMap(({ concepts }) =>
-				concepts.map(({ conceptId }) => conceptId),
-			),
+			.flatMap(({ concepts }) => concepts.map(({ conceptId }) => conceptId)),
 	);
 	const conceptsById = new Map<string, RequirementConceptCoverage>();
 
@@ -322,17 +347,10 @@ export function deriveConceptCoverage(
 		for (const assertion of requirement.concepts) {
 			const existing = conceptsById.get(assertion.conceptId);
 			if (existing) {
-				if (
-					relationPriority[assertion.relation] <
-					relationPriority[existing.relation]
-				) {
+				if (relationPriority[assertion.relation] < relationPriority[existing.relation]) {
 					existing.relation = assertion.relation;
 				}
-				if (
-					!existing.requirements.some(
-						({ id }) => id === requirement.id,
-					)
-				) {
+				if (!existing.requirements.some(({ id }) => id === requirement.id)) {
 					existing.requirements.push({
 						id: requirement.id,
 						what: requirement.what,
@@ -353,8 +371,7 @@ export function deriveConceptCoverage(
 	const concepts = [...conceptsById.values()].sort(
 		(left, right) =>
 			Number(left.covered) - Number(right.covered) ||
-			relationPriority[left.relation] -
-				relationPriority[right.relation] ||
+			relationPriority[left.relation] - relationPriority[right.relation] ||
 			left.concept.label.localeCompare(right.concept.label),
 	);
 	const coveredCount = concepts.filter(({ covered }) => covered).length;

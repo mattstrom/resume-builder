@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { conceptQualifierSchema, type ConceptQualifierValue } from '@resume-builder/entities';
-import { technology } from '@resume-builder/ontologies';
+import { looseKey, technology } from '@resume-builder/ontologies';
 
 import type { Prisma } from '../../generated/prisma/client.js';
 import { type ConceptRef, ConceptsService } from '../concepts/concepts.service.js';
@@ -21,6 +21,17 @@ const JOB_CONCEPT_VOCABULARIES = new Set([
 	'outcome',
 	'artifact',
 ]);
+
+/**
+ * The predicate a requirement's `kind` implies, for requirements that arrive
+ * without classifier meanings and have to be resolved from their raw label lists.
+ */
+const RELATION_BY_KIND: Readonly<Record<string, JobRequirementRelation>> = {
+	required: 'requires',
+	preferred: 'prefers',
+	responsibility: 'expects',
+	culture: 'expects',
+};
 
 export interface JobRequirementMeaningDto {
 	relation: JobRequirementRelation;
@@ -58,14 +69,6 @@ export class JobRequirementsService {
 		private readonly conceptsService: ConceptsService,
 	) {}
 
-	private conceptKey(label: string): string {
-		return label
-			.trim()
-			.toLocaleLowerCase()
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/(^-|-$)/g, '');
-	}
-
 	private normalizeMeaning(
 		meaning: JobRequirementMeaningDto,
 	): Required<JobRequirementMeaningDto> {
@@ -91,7 +94,7 @@ export class JobRequirementsService {
 			key = record?.name ?? suppliedKey;
 			label = record?.name ?? suppliedLabel;
 		} else {
-			key = this.conceptKey(suppliedKey);
+			key = looseKey(suppliedKey);
 		}
 
 		const confidence = meaning.confidence ?? null;
@@ -108,16 +111,51 @@ export class JobRequirementsService {
 		};
 	}
 
+	/**
+	 * Derives meanings for a requirement that arrived without any.
+	 *
+	 * Extraction does not always classify, and before this the raw `technologies`
+	 * and `tags` were stored as orphan strings — invisible to concept matching
+	 * even when they named a technology the lexicon knows perfectly well. Running
+	 * them through resolution puts them in the same graph the classified ones
+	 * reach. Labels that resolve to nothing are dropped rather than invented; the
+	 * arrays still carry them as text.
+	 */
+	private async meaningsFromLabels(
+		dto: CreateJobRequirementDto,
+	): Promise<Required<JobRequirementMeaningDto>[]> {
+		const labels = [...(dto.technologies ?? []), ...(dto.tags ?? [])];
+
+		if (labels.length === 0) {
+			return [];
+		}
+
+		const { resolved } = await this.conceptsService.resolveLabels(labels);
+		const relation = RELATION_BY_KIND[dto.kind] ?? 'expects';
+
+		return resolved.map(({ concept }) => ({
+			relation,
+			concept,
+			source: 'lexicon',
+			confidence: null,
+			qualifier: null,
+		}));
+	}
+
 	private async persist(
 		uid: string,
 		applicationId: string,
 		dtos: CreateJobRequirementDto[],
 		replace: boolean,
 	): Promise<JobRequirementWithConcepts[]> {
-		const normalized = dtos.map((dto) => ({
-			...dto,
-			meanings: (dto.meanings ?? []).map((meaning) => this.normalizeMeaning(meaning)),
-		}));
+		const normalized = await Promise.all(
+			dtos.map(async (dto) => ({
+				...dto,
+				meanings: dto.meanings?.length
+					? dto.meanings.map((meaning) => this.normalizeMeaning(meaning))
+					: await this.meaningsFromLabels(dto),
+			})),
+		);
 
 		const created = await this.prisma.$transaction(async (prisma) => {
 			if (replace) {

@@ -1,21 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import {
-	Check,
-	CircleAlert,
-	PanelLeftClose,
-	PanelLeftOpen,
-	Sparkles,
-	Target,
-} from 'lucide-react';
+import { Check, CircleAlert, PanelLeftClose, PanelLeftOpen, Sparkles, Target } from 'lucide-react';
 import { observer } from 'mobx-react';
-import {
-	type FC,
-	type FocusEvent,
-	type MouseEvent,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import { type FC, type FocusEvent, type MouseEvent, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
@@ -35,6 +21,7 @@ import { Spinner } from '@/components/ui/spinner.tsx';
 import {
 	GET_CONCEPT_EVIDENCE_ASSESSMENT,
 	GET_JOB_REQUIREMENTS,
+	RESOLVE_CONCEPT_LABELS,
 	SAVE_CONCEPT_EVIDENCE_ASSESSMENT,
 } from '@/graphql/queries.ts';
 import type {
@@ -42,12 +29,15 @@ import type {
 	GetConceptEvidenceAssessmentData,
 	GetJobRequirementsData,
 	GetJobRequirementsVariables,
+	ResolveConceptLabelsData,
+	ResolveConceptLabelsVariables,
 	SaveConceptEvidenceAssessmentData,
 	SaveConceptEvidenceAssessmentVariables,
 } from '@/graphql/types.ts';
 import {
 	buildConceptEvidenceEvaluationInput,
 	conceptEvidenceEvaluationSchema,
+	conceptLabelsForResume,
 	deriveConceptCoverage,
 	hashConceptEvidenceEvaluationInput,
 	type ConceptEvidenceEvaluation,
@@ -129,9 +119,7 @@ const ConceptCard: FC<{
 		>
 			<CardHeader className="gap-2 p-3">
 				<div className="flex items-start justify-between gap-2">
-					<CardTitle className="text-sm leading-snug">
-						{coverage.concept.label}
-					</CardTitle>
+					<CardTitle className="text-sm leading-snug">{coverage.concept.label}</CardTitle>
 					<Badge
 						variant={
 							evaluation
@@ -185,10 +173,7 @@ const ConceptCard: FC<{
 };
 
 const LoadingState = () => (
-	<div
-		className="flex flex-col gap-3 p-4"
-		aria-label="Loading requirement concepts"
-	>
+	<div className="flex flex-col gap-3 p-4" aria-label="Loading requirement concepts">
 		<Skeleton className="h-2 w-full" />
 		<Skeleton className="h-24 w-full" />
 		<Skeleton className="h-24 w-full" />
@@ -199,8 +184,7 @@ const LoadingState = () => (
 export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 	({ applicationId, collapsed, onToggleCollapse }) => {
 		const { bulletsStore, editorStore, inspectStore } = useStore();
-		const [evaluation, setEvaluation] =
-			useState<ConceptEvidenceEvaluation>();
+		const [evaluation, setEvaluation] = useState<ConceptEvidenceEvaluation>();
 		const [currentInputHash, setCurrentInputHash] = useState('');
 		const [evaluatedInputHash, setEvaluatedInputHash] = useState('');
 		const [evaluatedVersion, setEvaluatedVersion] = useState(0);
@@ -216,10 +200,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 			setFocusedConceptId(undefined);
 			inspectStore.clearConceptEvidenceFocus();
 		}, [applicationId, inspectStore, resumeId]);
-		useEffect(
-			() => () => inspectStore.clearConceptEvidenceFocus(),
-			[inspectStore],
-		);
+		useEffect(() => () => inspectStore.clearConceptEvidenceFocus(), [inspectStore]);
 		const { data, loading, error } = useQuery<
 			GetJobRequirementsData,
 			GetJobRequirementsVariables
@@ -241,14 +222,23 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 		>(SAVE_CONCEPT_EVIDENCE_ASSESSMENT);
 		const resume = resumeRecord?.data;
 		const requirements = data?.jobRequirements ?? [];
+		const conceptLabels = useMemo(
+			() => (resume ? conceptLabelsForResume(resume) : []),
+			[resume],
+		);
+		const { data: resolvedLabelData } = useQuery<
+			ResolveConceptLabelsData,
+			ResolveConceptLabelsVariables
+		>(RESOLVE_CONCEPT_LABELS, {
+			variables: { labels: conceptLabels },
+			skip: conceptLabels.length === 0,
+			fetchPolicy: 'cache-first',
+		});
+		const resolvedLabels = resolvedLabelData?.resolveConceptLabels;
 		const summary = useMemo(
 			() =>
 				resume
-					? deriveConceptCoverage(
-							requirements,
-							bulletsStore.bullets,
-							resume,
-						)
+					? deriveConceptCoverage(requirements, bulletsStore.bullets, resume)
 					: { concepts: [], coveredCount: 0, totalCount: 0 },
 			[requirements, bulletsStore.bullets, resume],
 		);
@@ -259,24 +249,22 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 							summary,
 							bulletsStore.bullets,
 							resume,
+							resolvedLabels,
 						)
 					: { concepts: [], evidenceItems: [] },
-			[summary, bulletsStore.bullets, resume],
+			[summary, bulletsStore.bullets, resume, resolvedLabels],
 		);
 		const evaluationFingerprint = JSON.stringify(evaluationInput);
 		useEffect(() => {
 			let cancelled = false;
-			void hashConceptEvidenceEvaluationInput(evaluationInput).then(
-				(hash) => {
-					if (!cancelled) setCurrentInputHash(hash);
-				},
-			);
+			void hashConceptEvidenceEvaluationInput(evaluationInput).then((hash) => {
+				if (!cancelled) setCurrentInputHash(hash);
+			});
 			return () => {
 				cancelled = true;
 			};
 		}, [evaluationFingerprint]);
-		const persistedAssessment =
-			persistedAssessmentData?.conceptEvidenceAssessment;
+		const persistedAssessment = persistedAssessmentData?.conceptEvidenceAssessment;
 		useEffect(() => {
 			if (
 				!persistedAssessment ||
@@ -286,9 +274,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 				return;
 			}
 
-			const parsed = conceptEvidenceEvaluationSchema.safeParse(
-				persistedAssessment.result,
-			);
+			const parsed = conceptEvidenceEvaluationSchema.safeParse(persistedAssessment.result);
 			if (!parsed.success) return;
 
 			setEvaluation(parsed.data);
@@ -302,43 +288,22 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 				evaluatedVersion !== CONCEPT_EVIDENCE_EVALUATOR_VERSION),
 		);
 		const evaluationByConceptId = useMemo(
-			() =>
-				new Map(
-					evaluation?.evaluations.map((item) => [
-						item.conceptId,
-						item,
-					]) ?? [],
-				),
+			() => new Map(evaluation?.evaluations.map((item) => [item.conceptId, item]) ?? []),
 			[evaluation],
 		);
 		const evidenceTextById = useMemo(
-			() =>
-				new Map(
-					evaluationInput.evidenceItems.map(({ id, text }) => [
-						id,
-						text,
-					]),
-				),
+			() => new Map(evaluationInput.evidenceItems.map(({ id, text }) => [id, text])),
 			[evaluationInput],
 		);
 		const evidencePathsById = useMemo(
-			() =>
-				new Map(
-					evaluationInput.evidenceItems.map(({ id, paths }) => [
-						id,
-						paths,
-					]),
-				),
+			() => new Map(evaluationInput.evidenceItems.map(({ id, paths }) => [id, paths])),
 			[evaluationInput],
 		);
 		const focusConceptEvidence = (conceptId: string) => {
-			const evidenceItemIds =
-				evaluationByConceptId.get(conceptId)?.evidenceItemIds ?? [];
+			const evidenceItemIds = evaluationByConceptId.get(conceptId)?.evidenceItemIds ?? [];
 			const paths = [
 				...new Set(
-					evidenceItemIds.flatMap(
-						(itemId) => evidencePathsById.get(itemId) ?? [],
-					),
+					evidenceItemIds.flatMap((itemId) => evidencePathsById.get(itemId) ?? []),
 				),
 			];
 			if (paths.length === 0) return;
@@ -358,18 +323,14 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 		});
 		const evidenced = summary.concepts.filter((coverage) => {
 			const grade = evaluationByConceptId.get(coverage.concept.id)?.grade;
-			return evaluation
-				? grade === 'strong' || grade === 'moderate'
-				: coverage.covered;
+			return evaluation ? grade === 'strong' || grade === 'moderate' : coverage.covered;
 		});
 		const progress = summary.totalCount
 			? evaluation
 				? Math.round(
 						(summary.concepts.reduce(
 							(total, { concept }) =>
-								total +
-								(evaluationByConceptId.get(concept.id)?.score ??
-									0),
+								total + (evaluationByConceptId.get(concept.id)?.score ?? 0),
 							0,
 						) /
 							summary.totalCount) *
@@ -385,25 +346,18 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 			setIsEvaluating(true);
 			try {
 				const client = await getMastraClient();
-				const workflow = client.getWorkflow(
-					'conceptEvidenceEvaluationWorkflow',
-				);
+				const workflow = client.getWorkflow('conceptEvidenceEvaluationWorkflow');
 				const run = await workflow.createRun();
 				const result = await run.startAsync({
 					inputData: evaluationInput,
 				});
 
 				if (result.status !== 'success') {
-					throw new Error(
-						'Concept evidence evaluation did not complete.',
-					);
+					throw new Error('Concept evidence evaluation did not complete.');
 				}
 
-				const parsedEvaluation = conceptEvidenceEvaluationSchema.parse(
-					result.result,
-				);
-				const inputHash =
-					await hashConceptEvidenceEvaluationInput(evaluationInput);
+				const parsedEvaluation = conceptEvidenceEvaluationSchema.parse(result.result);
+				const inputHash = await hashConceptEvidenceEvaluationInput(evaluationInput);
 				await saveAssessment({
 					variables: {
 						applicationId,
@@ -420,9 +374,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 				toast.success('Concept evidence grades saved.');
 			} catch (error) {
 				toast.error(
-					error instanceof Error
-						? error.message
-						: 'Could not evaluate concept evidence.',
+					error instanceof Error ? error.message : 'Could not evaluate concept evidence.',
 				);
 			} finally {
 				setIsEvaluating(false);
@@ -453,20 +405,13 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 			>
 				<header className="flex flex-col gap-3 border-b p-4">
 					<div className="flex items-start gap-2">
-						<Target
-							className="mt-0.5 size-4 shrink-0"
-							aria-hidden="true"
-						/>
+						<Target className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
 						<div className="flex min-w-0 flex-1 flex-col gap-1">
-							<h2
-								id="concept-coverage-title"
-								className="text-sm font-semibold"
-							>
+							<h2 id="concept-coverage-title" className="text-sm font-semibold">
 								Concept coverage
 							</h2>
 							<p className="text-xs leading-relaxed text-muted-foreground">
-								How strongly the complete resume demonstrates
-								this job's concepts.
+								How strongly the complete resume demonstrates this job's concepts.
 							</p>
 						</div>
 						<Button
@@ -493,25 +438,18 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 							) : (
 								<Sparkles data-icon="inline-start" />
 							)}
-							{evaluation
-								? 'Re-evaluate evidence'
-								: 'Evaluate evidence'}
+							{evaluation ? 'Re-evaluate evidence' : 'Evaluate evidence'}
 						</Button>
 					)}
 					{summary.totalCount > 0 && (
 						<div className="flex flex-col gap-2">
 							<div className="flex items-center justify-between text-xs">
 								<span>
-									{progress}%{' '}
-									{evaluation
-										? 'evidence strength'
-										: 'mapped'}
+									{progress}% {evaluation ? 'evidence strength' : 'mapped'}
 								</span>
 								<span className="text-muted-foreground">
-									{evaluation
-										? evidenced.length
-										: summary.coveredCount}{' '}
-									of {summary.totalCount}
+									{evaluation ? evidenced.length : summary.coveredCount} of{' '}
+									{summary.totalCount}
 								</span>
 							</div>
 							<Progress
@@ -534,16 +472,14 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 									<AlertTitle className="flex items-center gap-2">
 										Agent assessment
 										{isEvaluationStale && (
-											<Badge variant="warning">
-												Out of date
-											</Badge>
+											<Badge variant="warning">Out of date</Badge>
 										)}
 									</AlertTitle>
 									<AlertDescription>
 										{evaluation.summary}
 										<span className="mt-1 block">
-											Focus a concept to highlight its
-											supporting resume sections.
+											Focus a concept to highlight its supporting resume
+											sections.
 										</span>
 									</AlertDescription>
 								</Alert>
@@ -551,24 +487,17 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 							{error && (
 								<Alert variant="destructive">
 									<CircleAlert />
-									<AlertTitle>
-										Concepts unavailable
-									</AlertTitle>
-									<AlertDescription>
-										{error.message}
-									</AlertDescription>
+									<AlertTitle>Concepts unavailable</AlertTitle>
+									<AlertDescription>{error.message}</AlertDescription>
 								</Alert>
 							)}
 
 							{!error && summary.totalCount === 0 && (
 								<Alert>
 									<Target />
-									<AlertTitle>
-										No concepts identified
-									</AlertTitle>
+									<AlertTitle>No concepts identified</AlertTitle>
 									<AlertDescription>
-										Identify job requirements to populate
-										this checklist.
+										Identify job requirements to populate this checklist.
 									</AlertDescription>
 								</Alert>
 							)}
@@ -587,9 +516,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 												? 'Needs stronger evidence'
 												: 'Needs mapping'}
 										</h3>
-										<Badge variant="outline">
-											{needsEvidence.length}
-										</Badge>
+										<Badge variant="outline">{needsEvidence.length}</Badge>
 									</div>
 									{needsEvidence.map((coverage) => (
 										<ConceptCard
@@ -599,18 +526,11 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 												coverage.concept.id,
 											)}
 											evidenceTextById={evidenceTextById}
-											isFocused={
-												focusedConceptId ===
-												coverage.concept.id
-											}
+											isFocused={focusedConceptId === coverage.concept.id}
 											onFocusEvidence={() =>
-												focusConceptEvidence(
-													coverage.concept.id,
-												)
+												focusConceptEvidence(coverage.concept.id)
 											}
-											onClearEvidenceFocus={
-												clearConceptEvidenceFocus
-											}
+											onClearEvidenceFocus={clearConceptEvidenceFocus}
 										/>
 									))}
 								</section>
@@ -642,13 +562,9 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 											id="covered-title"
 											className="text-xs font-semibold uppercase tracking-wide"
 										>
-											{evaluation
-												? 'Well evidenced'
-												: 'Mapped'}
+											{evaluation ? 'Well evidenced' : 'Mapped'}
 										</h3>
-										<Badge variant="secondary">
-											{evidenced.length}
-										</Badge>
+										<Badge variant="secondary">{evidenced.length}</Badge>
 									</div>
 									{evidenced.map((coverage) => (
 										<ConceptCard
@@ -658,18 +574,11 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 												coverage.concept.id,
 											)}
 											evidenceTextById={evidenceTextById}
-											isFocused={
-												focusedConceptId ===
-												coverage.concept.id
-											}
+											isFocused={focusedConceptId === coverage.concept.id}
 											onFocusEvidence={() =>
-												focusConceptEvidence(
-													coverage.concept.id,
-												)
+												focusConceptEvidence(coverage.concept.id)
 											}
-											onClearEvidenceFocus={
-												clearConceptEvidenceFocus
-											}
+											onClearEvidenceFocus={clearConceptEvidenceFocus}
 										/>
 									))}
 								</section>

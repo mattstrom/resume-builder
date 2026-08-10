@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { conceptQualifierSchema, type ConceptQualifierValue } from '@resume-builder/entities';
-import { technology } from '@resume-builder/ontologies';
+import { looseKey, technology } from '@resume-builder/ontologies';
 
 import type { Expression, Fact, Prisma, ResumeFact } from '../../generated/prisma/client.js';
 import { ConceptRef, ConceptsService, ConceptVocabulary } from '../concepts/concepts.service.js';
@@ -114,14 +114,6 @@ export class FactsService {
 		await this.conceptsService.enqueueConcepts(links.map(({ concept }) => concept));
 	}
 
-	private conceptKey(label: string): string {
-		return label
-			.trim()
-			.toLocaleLowerCase()
-			.replace(/[^a-z0-9]+/g, '-')
-			.replace(/(^-|-$)/g, '');
-	}
-
 	private normalizeMeaning(meaning: FactMeaningDto): Required<FactMeaningDto> {
 		const expectedVocabulary = RELATION_VOCABULARIES[meaning.relation];
 		if (!expectedVocabulary || meaning.concept.vocabulary !== expectedVocabulary) {
@@ -149,11 +141,11 @@ export class FactsService {
 					'Entity concept keys must use the form <entity-type>:<identifier>',
 				);
 			}
-			const entityType = this.conceptKey(suppliedKey.slice(0, separator));
-			const entityId = this.conceptKey(suppliedKey.slice(separator + 1));
+			const entityType = looseKey(suppliedKey.slice(0, separator));
+			const entityId = looseKey(suppliedKey.slice(separator + 1));
 			key = `${entityType}:${entityId}`;
 		} else {
-			key = this.conceptKey(suppliedKey);
+			key = looseKey(suppliedKey);
 		}
 
 		const confidence = meaning.confidence ?? null;

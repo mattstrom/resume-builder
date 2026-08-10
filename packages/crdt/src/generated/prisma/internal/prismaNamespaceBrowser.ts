@@ -72,7 +72,9 @@ export const ModelName = {
   Job: 'Job',
   Education: 'Education',
   Project: 'Project',
+  ProjectConcept: 'ProjectConcept',
   Skill: 'Skill',
+  SkillConcept: 'SkillConcept',
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   Bullet: 'Bullet',
@@ -406,6 +408,19 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const ProjectConceptScalarFieldEnum = {
+  projectId: 'projectId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectConceptScalarFieldEnum = (typeof ProjectConceptScalarFieldEnum)[keyof typeof ProjectConceptScalarFieldEnum]
+
+
 export const SkillScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
@@ -417,6 +432,19 @@ export const SkillScalarFieldEnum = {
 } as const
 
 export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
+
+
+export const SkillConceptScalarFieldEnum = {
+  skillId: 'skillId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type SkillConceptScalarFieldEnum = (typeof SkillConceptScalarFieldEnum)[keyof typeof SkillConceptScalarFieldEnum]
 
 
 export const SkillGroupScalarFieldEnum = {

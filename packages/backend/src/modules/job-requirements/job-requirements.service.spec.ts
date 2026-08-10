@@ -25,6 +25,7 @@ describe('JobRequirementsService embeddings', () => {
 		lockConcepts: jest.fn(),
 		upsertConcept: jest.fn(),
 		enqueueConcepts: jest.fn(),
+		resolveLabels: jest.fn(),
 	};
 	let service: JobRequirementsService;
 
@@ -52,6 +53,7 @@ describe('JobRequirementsService embeddings', () => {
 		});
 		queue.enqueueMany.mockResolvedValue(undefined);
 		concepts.enqueueConcepts.mockResolvedValue(undefined);
+		concepts.resolveLabels.mockResolvedValue({ resolved: [], unresolved: [] });
 	});
 
 	it('replaces stale requirements before creating the latest identification', async () => {

@@ -15,8 +15,8 @@ describe('ConceptsService', () => {
 			findUnique: jest.fn(),
 			upsert: jest.fn(),
 		},
-		conceptAlias: { findMany: jest.fn() },
-		conceptRelation: { findMany: jest.fn() },
+		conceptAlias: { findMany: jest.fn(), upsert: jest.fn() },
+		conceptRelation: { findMany: jest.fn(), upsert: jest.fn() },
 		$queryRawUnsafe: jest.fn(),
 	};
 	const embeddingQueue = { enqueue: jest.fn(), enqueueMany: jest.fn() };
@@ -25,6 +25,9 @@ describe('ConceptsService', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		prisma.conceptAlias.findMany.mockResolvedValue([]);
+		prisma.conceptRelation.findMany.mockResolvedValue([]);
+		prisma.concept.findMany.mockResolvedValue([]);
 		service = new ConceptsService(
 			prisma as unknown as PrismaService,
 			embeddingQueue as unknown as EmbeddingQueueService,
@@ -41,6 +44,118 @@ describe('ConceptsService', () => {
 			'technology',
 			'React',
 		);
+	});
+
+	describe('resolveLabels', () => {
+		it('canonicalizes shorthand and punctuation the lexicon knows', async () => {
+			const { resolved, unresolved } = await service.resolveLabels(['k8s', 'React.js']);
+
+			expect(resolved).toEqual([
+				{
+					label: 'k8s',
+					concept: {
+						vocabulary: 'technology',
+						key: 'Kubernetes',
+						label: 'Kubernetes',
+					},
+				},
+				{
+					label: 'React.js',
+					concept: {
+						vocabulary: 'technology',
+						key: 'React',
+						label: 'React',
+					},
+				},
+			]);
+			expect(unresolved).toEqual([]);
+		});
+
+		it('reports labels no authority recognizes instead of minting concepts', async () => {
+			const { resolved, unresolved } = await service.resolveLabels(['Frobnicator 9000']);
+
+			expect(resolved).toEqual([]);
+			expect(unresolved).toEqual(['Frobnicator 9000']);
+			expect(prisma.concept.upsert).not.toHaveBeenCalled();
+		});
+
+		it('collapses spellings that fold together into one lookup', async () => {
+			const { resolved } = await service.resolveLabels(['Node.js', 'NodeJS', 'node-js']);
+
+			expect(resolved).toHaveLength(1);
+			expect(resolved[0].concept.key).toBe('Node.js');
+		});
+
+		it('falls back to a learned alias before giving up on a label', async () => {
+			prisma.conceptAlias.findMany.mockResolvedValue([
+				{
+					normalizedLabel: 'ourinternaltool',
+					concept: {
+						vocabulary: 'capability',
+						key: 'deployment-tooling',
+						label: 'Deployment Tooling',
+					},
+				},
+			]);
+
+			const { resolved, unresolved } = await service.resolveLabels(['Our Internal Tool']);
+
+			expect(unresolved).toEqual([]);
+			expect(resolved[0].concept).toEqual({
+				vocabulary: 'capability',
+				key: 'deployment-tooling',
+				label: 'Deployment Tooling',
+			});
+		});
+	});
+
+	describe('ontologyAncestors', () => {
+		it('walks a technology up to its category and authored bucket', () => {
+			const ancestors = service.ontologyAncestors({
+				vocabulary: 'technology',
+				key: 'React',
+				label: 'React',
+			});
+
+			expect(ancestors.length).toBeGreaterThan(0);
+			expect(ancestors.every(({ vocabulary }) => vocabulary === 'technology-category')).toBe(
+				true,
+			);
+		});
+
+		it('returns nothing for vocabularies with no authored hierarchy', () => {
+			expect(
+				service.ontologyAncestors({
+					vocabulary: 'capability',
+					key: 'mentoring',
+					label: 'Mentoring',
+				}),
+			).toEqual([]);
+		});
+	});
+
+	describe('recordAlias', () => {
+		const concept = { id: 'concept-1', label: 'Kubernetes' } as never;
+
+		it('stores a differing spelling under its folded form', async () => {
+			await service.recordAlias(prisma as never, concept, 'k8s');
+
+			expect(prisma.conceptAlias.upsert).toHaveBeenCalledWith(
+				expect.objectContaining({
+					create: {
+						conceptId: 'concept-1',
+						label: 'k8s',
+						normalizedLabel: 'k8s',
+					},
+				}),
+			);
+		});
+
+		it('skips a restatement of the canonical label', async () => {
+			await service.recordAlias(prisma as never, concept, 'kubernetes');
+
+			expect(prisma.conceptAlias.upsert).not.toHaveBeenCalled();
+		});
 	});
 
 	it('suggests canonical technologies for the uses relationship', async () => {

@@ -280,6 +280,8 @@ export type ConceptWhereInput = {
   facts?: Prisma.FactConceptListRelationFilter
   bullets?: Prisma.BulletConceptListRelationFilter
   jobRequirements?: Prisma.JobRequirementConceptListRelationFilter
+  skills?: Prisma.SkillConceptListRelationFilter
+  projects?: Prisma.ProjectConceptListRelationFilter
   outgoingRelations?: Prisma.ConceptRelationListRelationFilter
   incomingRelations?: Prisma.ConceptRelationListRelationFilter
 }
@@ -301,6 +303,8 @@ export type ConceptOrderByWithRelationInput = {
   facts?: Prisma.FactConceptOrderByRelationAggregateInput
   bullets?: Prisma.BulletConceptOrderByRelationAggregateInput
   jobRequirements?: Prisma.JobRequirementConceptOrderByRelationAggregateInput
+  skills?: Prisma.SkillConceptOrderByRelationAggregateInput
+  projects?: Prisma.ProjectConceptOrderByRelationAggregateInput
   outgoingRelations?: Prisma.ConceptRelationOrderByRelationAggregateInput
   incomingRelations?: Prisma.ConceptRelationOrderByRelationAggregateInput
 }
@@ -326,6 +330,8 @@ export type ConceptWhereUniqueInput = Prisma.AtLeast<{
   facts?: Prisma.FactConceptListRelationFilter
   bullets?: Prisma.BulletConceptListRelationFilter
   jobRequirements?: Prisma.JobRequirementConceptListRelationFilter
+  skills?: Prisma.SkillConceptListRelationFilter
+  projects?: Prisma.ProjectConceptListRelationFilter
   outgoingRelations?: Prisma.ConceptRelationListRelationFilter
   incomingRelations?: Prisma.ConceptRelationListRelationFilter
 }, "id" | "vocabulary_key">
@@ -385,6 +391,8 @@ export type ConceptCreateInput = {
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -406,6 +414,8 @@ export type ConceptUncheckedCreateInput = {
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -427,6 +437,8 @@ export type ConceptUpdateInput = {
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -448,6 +460,8 @@ export type ConceptUncheckedUpdateInput = {
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -632,6 +646,34 @@ export type ConceptUpdateOneRequiredWithoutJobRequirementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ConceptUpdateToOneWithWhereWithoutJobRequirementsInput, Prisma.ConceptUpdateWithoutJobRequirementsInput>, Prisma.ConceptUncheckedUpdateWithoutJobRequirementsInput>
 }
 
+export type ConceptCreateNestedOneWithoutProjectsInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutProjectsInput, Prisma.ConceptUncheckedCreateWithoutProjectsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutProjectsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+}
+
+export type ConceptUpdateOneRequiredWithoutProjectsNestedInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutProjectsInput, Prisma.ConceptUncheckedCreateWithoutProjectsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutProjectsInput
+  upsert?: Prisma.ConceptUpsertWithoutProjectsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConceptUpdateToOneWithWhereWithoutProjectsInput, Prisma.ConceptUpdateWithoutProjectsInput>, Prisma.ConceptUncheckedUpdateWithoutProjectsInput>
+}
+
+export type ConceptCreateNestedOneWithoutSkillsInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutSkillsInput, Prisma.ConceptUncheckedCreateWithoutSkillsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutSkillsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+}
+
+export type ConceptUpdateOneRequiredWithoutSkillsNestedInput = {
+  create?: Prisma.XOR<Prisma.ConceptCreateWithoutSkillsInput, Prisma.ConceptUncheckedCreateWithoutSkillsInput>
+  connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutSkillsInput
+  upsert?: Prisma.ConceptUpsertWithoutSkillsInput
+  connect?: Prisma.ConceptWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConceptUpdateToOneWithWhereWithoutSkillsInput, Prisma.ConceptUpdateWithoutSkillsInput>, Prisma.ConceptUncheckedUpdateWithoutSkillsInput>
+}
+
 export type ConceptCreateNestedOneWithoutBulletsInput = {
   create?: Prisma.XOR<Prisma.ConceptCreateWithoutBulletsInput, Prisma.ConceptUncheckedCreateWithoutBulletsInput>
   connectOrCreate?: Prisma.ConceptCreateOrConnectWithoutBulletsInput
@@ -662,6 +704,8 @@ export type ConceptCreateWithoutAliasesInput = {
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -682,6 +726,8 @@ export type ConceptUncheckedCreateWithoutAliasesInput = {
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -718,6 +764,8 @@ export type ConceptUpdateWithoutAliasesInput = {
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -738,6 +786,8 @@ export type ConceptUncheckedUpdateWithoutAliasesInput = {
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -758,6 +808,8 @@ export type ConceptCreateWithoutFactsInput = {
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -778,6 +830,8 @@ export type ConceptUncheckedCreateWithoutFactsInput = {
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -814,6 +868,8 @@ export type ConceptUpdateWithoutFactsInput = {
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -834,6 +890,8 @@ export type ConceptUncheckedUpdateWithoutFactsInput = {
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -855,6 +913,8 @@ export type ConceptCreateWithoutOutgoingRelationsInput = {
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
 
@@ -875,6 +935,8 @@ export type ConceptUncheckedCreateWithoutOutgoingRelationsInput = {
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
 
@@ -900,6 +962,8 @@ export type ConceptCreateWithoutIncomingRelationsInput = {
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
 }
 
@@ -920,6 +984,8 @@ export type ConceptUncheckedCreateWithoutIncomingRelationsInput = {
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
 }
 
@@ -956,6 +1022,8 @@ export type ConceptUpdateWithoutOutgoingRelationsInput = {
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
 
@@ -976,6 +1044,8 @@ export type ConceptUncheckedUpdateWithoutOutgoingRelationsInput = {
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
 
@@ -1007,6 +1077,8 @@ export type ConceptUpdateWithoutIncomingRelationsInput = {
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
 }
 
@@ -1027,6 +1099,8 @@ export type ConceptUncheckedUpdateWithoutIncomingRelationsInput = {
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
 }
 
@@ -1046,6 +1120,8 @@ export type ConceptCreateWithoutJobRequirementsInput = {
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -1066,6 +1142,8 @@ export type ConceptUncheckedCreateWithoutJobRequirementsInput = {
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -1102,6 +1180,8 @@ export type ConceptUpdateWithoutJobRequirementsInput = {
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -1122,6 +1202,216 @@ export type ConceptUncheckedUpdateWithoutJobRequirementsInput = {
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
+}
+
+export type ConceptCreateWithoutProjectsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
+  jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptUncheckedCreateWithoutProjectsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
+  jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptCreateOrConnectWithoutProjectsInput = {
+  where: Prisma.ConceptWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutProjectsInput, Prisma.ConceptUncheckedCreateWithoutProjectsInput>
+}
+
+export type ConceptUpsertWithoutProjectsInput = {
+  update: Prisma.XOR<Prisma.ConceptUpdateWithoutProjectsInput, Prisma.ConceptUncheckedUpdateWithoutProjectsInput>
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutProjectsInput, Prisma.ConceptUncheckedCreateWithoutProjectsInput>
+  where?: Prisma.ConceptWhereInput
+}
+
+export type ConceptUpdateToOneWithWhereWithoutProjectsInput = {
+  where?: Prisma.ConceptWhereInput
+  data: Prisma.XOR<Prisma.ConceptUpdateWithoutProjectsInput, Prisma.ConceptUncheckedUpdateWithoutProjectsInput>
+}
+
+export type ConceptUpdateWithoutProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
+  jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
+}
+
+export type ConceptUncheckedUpdateWithoutProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
+  jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
+}
+
+export type ConceptCreateWithoutSkillsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptCreateNestedManyWithoutConceptInput
+  jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptUncheckedCreateWithoutSkillsInput = {
+  id?: string
+  vocabulary: string
+  key: string
+  label: string
+  definition?: string | null
+  externalUri?: string | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
+  facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
+  bullets?: Prisma.BulletConceptUncheckedCreateNestedManyWithoutConceptInput
+  jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
+  outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
+  incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
+}
+
+export type ConceptCreateOrConnectWithoutSkillsInput = {
+  where: Prisma.ConceptWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutSkillsInput, Prisma.ConceptUncheckedCreateWithoutSkillsInput>
+}
+
+export type ConceptUpsertWithoutSkillsInput = {
+  update: Prisma.XOR<Prisma.ConceptUpdateWithoutSkillsInput, Prisma.ConceptUncheckedUpdateWithoutSkillsInput>
+  create: Prisma.XOR<Prisma.ConceptCreateWithoutSkillsInput, Prisma.ConceptUncheckedCreateWithoutSkillsInput>
+  where?: Prisma.ConceptWhereInput
+}
+
+export type ConceptUpdateToOneWithWhereWithoutSkillsInput = {
+  where?: Prisma.ConceptWhereInput
+  data: Prisma.XOR<Prisma.ConceptUpdateWithoutSkillsInput, Prisma.ConceptUncheckedUpdateWithoutSkillsInput>
+}
+
+export type ConceptUpdateWithoutSkillsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUpdateManyWithoutConceptNestedInput
+  jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
+  outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
+  incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
+}
+
+export type ConceptUncheckedUpdateWithoutSkillsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  vocabulary?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  definition?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalUri?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
+  facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
+  bullets?: Prisma.BulletConceptUncheckedUpdateManyWithoutConceptNestedInput
+  jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -1142,6 +1432,8 @@ export type ConceptCreateWithoutBulletsInput = {
   aliases?: Prisma.ConceptAliasCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationCreateNestedManyWithoutTargetConceptInput
 }
@@ -1162,6 +1454,8 @@ export type ConceptUncheckedCreateWithoutBulletsInput = {
   aliases?: Prisma.ConceptAliasUncheckedCreateNestedManyWithoutConceptInput
   facts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutConceptInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutConceptInput
+  skills?: Prisma.SkillConceptUncheckedCreateNestedManyWithoutConceptInput
+  projects?: Prisma.ProjectConceptUncheckedCreateNestedManyWithoutConceptInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutSourceConceptInput
   incomingRelations?: Prisma.ConceptRelationUncheckedCreateNestedManyWithoutTargetConceptInput
 }
@@ -1198,6 +1492,8 @@ export type ConceptUpdateWithoutBulletsInput = {
   aliases?: Prisma.ConceptAliasUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUpdateManyWithoutTargetConceptNestedInput
 }
@@ -1218,6 +1514,8 @@ export type ConceptUncheckedUpdateWithoutBulletsInput = {
   aliases?: Prisma.ConceptAliasUncheckedUpdateManyWithoutConceptNestedInput
   facts?: Prisma.FactConceptUncheckedUpdateManyWithoutConceptNestedInput
   jobRequirements?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutConceptNestedInput
+  skills?: Prisma.SkillConceptUncheckedUpdateManyWithoutConceptNestedInput
+  projects?: Prisma.ProjectConceptUncheckedUpdateManyWithoutConceptNestedInput
   outgoingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutSourceConceptNestedInput
   incomingRelations?: Prisma.ConceptRelationUncheckedUpdateManyWithoutTargetConceptNestedInput
 }
@@ -1232,6 +1530,8 @@ export type ConceptCountOutputType = {
   facts: number
   bullets: number
   jobRequirements: number
+  skills: number
+  projects: number
   outgoingRelations: number
   incomingRelations: number
 }
@@ -1241,6 +1541,8 @@ export type ConceptCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   facts?: boolean | ConceptCountOutputTypeCountFactsArgs
   bullets?: boolean | ConceptCountOutputTypeCountBulletsArgs
   jobRequirements?: boolean | ConceptCountOutputTypeCountJobRequirementsArgs
+  skills?: boolean | ConceptCountOutputTypeCountSkillsArgs
+  projects?: boolean | ConceptCountOutputTypeCountProjectsArgs
   outgoingRelations?: boolean | ConceptCountOutputTypeCountOutgoingRelationsArgs
   incomingRelations?: boolean | ConceptCountOutputTypeCountIncomingRelationsArgs
 }
@@ -1286,6 +1588,20 @@ export type ConceptCountOutputTypeCountJobRequirementsArgs<ExtArgs extends runti
 /**
  * ConceptCountOutputType without action
  */
+export type ConceptCountOutputTypeCountSkillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SkillConceptWhereInput
+}
+
+/**
+ * ConceptCountOutputType without action
+ */
+export type ConceptCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectConceptWhereInput
+}
+
+/**
+ * ConceptCountOutputType without action
+ */
 export type ConceptCountOutputTypeCountOutgoingRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ConceptRelationWhereInput
 }
@@ -1315,6 +1631,8 @@ export type ConceptSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   facts?: boolean | Prisma.Concept$factsArgs<ExtArgs>
   bullets?: boolean | Prisma.Concept$bulletsArgs<ExtArgs>
   jobRequirements?: boolean | Prisma.Concept$jobRequirementsArgs<ExtArgs>
+  skills?: boolean | Prisma.Concept$skillsArgs<ExtArgs>
+  projects?: boolean | Prisma.Concept$projectsArgs<ExtArgs>
   outgoingRelations?: boolean | Prisma.Concept$outgoingRelationsArgs<ExtArgs>
   incomingRelations?: boolean | Prisma.Concept$incomingRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.ConceptCountOutputTypeDefaultArgs<ExtArgs>
@@ -1371,6 +1689,8 @@ export type ConceptInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   facts?: boolean | Prisma.Concept$factsArgs<ExtArgs>
   bullets?: boolean | Prisma.Concept$bulletsArgs<ExtArgs>
   jobRequirements?: boolean | Prisma.Concept$jobRequirementsArgs<ExtArgs>
+  skills?: boolean | Prisma.Concept$skillsArgs<ExtArgs>
+  projects?: boolean | Prisma.Concept$projectsArgs<ExtArgs>
   outgoingRelations?: boolean | Prisma.Concept$outgoingRelationsArgs<ExtArgs>
   incomingRelations?: boolean | Prisma.Concept$incomingRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.ConceptCountOutputTypeDefaultArgs<ExtArgs>
@@ -1385,6 +1705,8 @@ export type $ConceptPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     facts: Prisma.$FactConceptPayload<ExtArgs>[]
     bullets: Prisma.$BulletConceptPayload<ExtArgs>[]
     jobRequirements: Prisma.$JobRequirementConceptPayload<ExtArgs>[]
+    skills: Prisma.$SkillConceptPayload<ExtArgs>[]
+    projects: Prisma.$ProjectConceptPayload<ExtArgs>[]
     outgoingRelations: Prisma.$ConceptRelationPayload<ExtArgs>[]
     incomingRelations: Prisma.$ConceptRelationPayload<ExtArgs>[]
   }
@@ -1799,6 +2121,8 @@ export interface Prisma__ConceptClient<T, Null = never, ExtArgs extends runtime.
   facts<T extends Prisma.Concept$factsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$factsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FactConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bullets<T extends Prisma.Concept$bulletsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$bulletsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BulletConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   jobRequirements<T extends Prisma.Concept$jobRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$jobRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobRequirementConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  skills<T extends Prisma.Concept$skillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$skillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  projects<T extends Prisma.Concept$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   outgoingRelations<T extends Prisma.Concept$outgoingRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$outgoingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incomingRelations<T extends Prisma.Concept$incomingRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Concept$incomingRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2328,6 +2652,54 @@ export type Concept$jobRequirementsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.JobRequirementConceptScalarFieldEnum | Prisma.JobRequirementConceptScalarFieldEnum[]
+}
+
+/**
+ * Concept.skills
+ */
+export type Concept$skillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SkillConcept
+   */
+  select?: Prisma.SkillConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SkillConcept
+   */
+  omit?: Prisma.SkillConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SkillConceptInclude<ExtArgs> | null
+  where?: Prisma.SkillConceptWhereInput
+  orderBy?: Prisma.SkillConceptOrderByWithRelationInput | Prisma.SkillConceptOrderByWithRelationInput[]
+  cursor?: Prisma.SkillConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SkillConceptScalarFieldEnum | Prisma.SkillConceptScalarFieldEnum[]
+}
+
+/**
+ * Concept.projects
+ */
+export type Concept$projectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectConcept
+   */
+  select?: Prisma.ProjectConceptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectConcept
+   */
+  omit?: Prisma.ProjectConceptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectConceptInclude<ExtArgs> | null
+  where?: Prisma.ProjectConceptWhereInput
+  orderBy?: Prisma.ProjectConceptOrderByWithRelationInput | Prisma.ProjectConceptOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectConceptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectConceptScalarFieldEnum | Prisma.ProjectConceptScalarFieldEnum[]
 }
 
 /**

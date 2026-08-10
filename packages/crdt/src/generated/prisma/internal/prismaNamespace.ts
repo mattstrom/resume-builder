@@ -405,7 +405,9 @@ export const ModelName = {
   Job: 'Job',
   Education: 'Education',
   Project: 'Project',
+  ProjectConcept: 'ProjectConcept',
   Skill: 'Skill',
+  SkillConcept: 'SkillConcept',
   SkillGroup: 'SkillGroup',
   Volunteering: 'Volunteering',
   Bullet: 'Bullet',
@@ -428,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "skill" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "projectConcept" | "skill" | "skillConcept" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1970,6 +1972,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProjectConcept: {
+      payload: Prisma.$ProjectConceptPayload<ExtArgs>
+      fields: Prisma.ProjectConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        update: {
+          args: Prisma.ProjectConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectConcept>
+        }
+        groupBy: {
+          args: Prisma.ProjectConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectConceptCountAggregateOutputType> | number
+        }
+      }
+    }
     Skill: {
       payload: Prisma.$SkillPayload<ExtArgs>
       fields: Prisma.SkillFieldRefs
@@ -2041,6 +2117,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.SkillCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.SkillCountAggregateOutputType> | number
+        }
+      }
+    }
+    SkillConcept: {
+      payload: Prisma.$SkillConceptPayload<ExtArgs>
+      fields: Prisma.SkillConceptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SkillConceptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SkillConceptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        findFirst: {
+          args: Prisma.SkillConceptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SkillConceptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        findMany: {
+          args: Prisma.SkillConceptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>[]
+        }
+        create: {
+          args: Prisma.SkillConceptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        createMany: {
+          args: Prisma.SkillConceptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SkillConceptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>[]
+        }
+        delete: {
+          args: Prisma.SkillConceptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        update: {
+          args: Prisma.SkillConceptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        deleteMany: {
+          args: Prisma.SkillConceptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SkillConceptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SkillConceptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>[]
+        }
+        upsert: {
+          args: Prisma.SkillConceptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillConceptPayload>
+        }
+        aggregate: {
+          args: Prisma.SkillConceptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSkillConcept>
+        }
+        groupBy: {
+          args: Prisma.SkillConceptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SkillConceptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SkillConceptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SkillConceptCountAggregateOutputType> | number
         }
       }
     }
@@ -2909,6 +3059,19 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
+export const ProjectConceptScalarFieldEnum = {
+  projectId: 'projectId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectConceptScalarFieldEnum = (typeof ProjectConceptScalarFieldEnum)[keyof typeof ProjectConceptScalarFieldEnum]
+
+
 export const SkillScalarFieldEnum = {
   id: 'id',
   uid: 'uid',
@@ -2920,6 +3083,19 @@ export const SkillScalarFieldEnum = {
 } as const
 
 export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
+
+
+export const SkillConceptScalarFieldEnum = {
+  skillId: 'skillId',
+  conceptId: 'conceptId',
+  relation: 'relation',
+  source: 'source',
+  confidence: 'confidence',
+  qualifier: 'qualifier',
+  createdAt: 'createdAt'
+} as const
+
+export type SkillConceptScalarFieldEnum = (typeof SkillConceptScalarFieldEnum)[keyof typeof SkillConceptScalarFieldEnum]
 
 
 export const SkillGroupScalarFieldEnum = {
@@ -3432,7 +3608,9 @@ export type GlobalOmitConfig = {
   job?: Prisma.JobOmit
   education?: Prisma.EducationOmit
   project?: Prisma.ProjectOmit
+  projectConcept?: Prisma.ProjectConceptOmit
   skill?: Prisma.SkillOmit
+  skillConcept?: Prisma.SkillConceptOmit
   skillGroup?: Prisma.SkillGroupOmit
   volunteering?: Prisma.VolunteeringOmit
   bullet?: Prisma.BulletOmit
