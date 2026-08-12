@@ -37,7 +37,7 @@
     "@fontsource/roboto": "^5.2.10",
     "@fontsource/roboto-serif": "^5.2.9",
     "@hocuspocus/provider": "^3.4.4",
-    "@mastra/client-js": "^1.36.0",
+    "@mastra/client-js": "^1.39.0",
     "@monaco-editor/react": "^4.7.0",
     "@phosphor-icons/react": "^2.1.9",
     "@radix-ui/react-accordion": "^1.2.12",
