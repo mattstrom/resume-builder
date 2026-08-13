@@ -1,9 +1,11 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 export default {
-	framework: '@storybook/react-vite',
+	framework: getAbsolutePath('@storybook/react-vite'),
 
 	stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
 
-	addons: ['@storybook/addon-vitest'],
+	addons: [getAbsolutePath('@storybook/addon-vitest'), getAbsolutePath('@storybook/addon-docs')],
 
 	viteFinal: async (config) => {
 		config.resolve ??= {};
@@ -12,3 +14,7 @@ export default {
 		return config;
 	},
 };
+
+function getAbsolutePath(value: string): any {
+	return dirname(fileURLToPath(import.meta.resolve(`${value}/package.json`)));
+}
