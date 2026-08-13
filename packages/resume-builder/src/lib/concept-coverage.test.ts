@@ -4,10 +4,14 @@ import { describe, expect, it } from 'vitest';
 import type { JobRequirement } from '@/graphql/types.ts';
 
 import {
+	buildProfileConceptEvidenceEvaluationInput,
 	buildConceptEvidenceEvaluationInput,
+	conceptLabelsForProfile,
 	conceptLabelsForResume,
 	deriveConceptCoverage,
+	deriveProfileConceptCoverage,
 	hashConceptEvidenceEvaluationInput,
+	type ProfileEvidence,
 } from './concept-coverage.ts';
 
 function requirement(
@@ -123,6 +127,82 @@ describe('deriveConceptCoverage', () => {
 		expect(summary.totalCount).toBe(1);
 		expect(summary.concepts[0].relation).toBe('requires');
 		expect(summary.concepts[0].requirements).toHaveLength(2);
+	});
+});
+
+describe('profile concept evidence', () => {
+	const profile = (bullets: Bullet[] = []): ProfileEvidence => ({
+		bullets,
+		educations: [],
+		jobs: [],
+		projects: [
+			{
+				_id: 'project-1',
+				uid: 'user-1',
+				name: 'Platform',
+				description: 'Operated the deployment platform',
+				technologies: ['k8s'],
+				items: [],
+			},
+		],
+		skills: [
+			{
+				_id: 'skill-1',
+				uid: 'user-1',
+				name: 'TypeScript',
+				category: 'Languages',
+			},
+		],
+		volunteering: [],
+	});
+
+	it('covers concepts from every profile bullet, even when no resume selects it', () => {
+		const summary = deriveProfileConceptCoverage(
+			[requirement('req-aws', 'aws', 'AWS')],
+			[bullet('bullet-aws', 'aws')],
+		);
+
+		expect(summary.coveredCount).toBe(1);
+		expect(summary.concepts[0].covered).toBe(true);
+	});
+
+	it('does not count archived bullets as current expertise', () => {
+		const archived = bullet('bullet-aws', 'aws');
+		archived.status = BulletStatus.ARCHIVED;
+		const summary = deriveProfileConceptCoverage(
+			[requirement('req-aws', 'aws', 'AWS')],
+			[archived],
+		);
+
+		expect(summary.coveredCount).toBe(0);
+	});
+
+	it('includes profile skills and projects with resolved concept matches', () => {
+		const summary = deriveProfileConceptCoverage(
+			[
+				requirement('req-typescript', 'typescript', 'TypeScript'),
+				requirement('req-kubernetes', 'kubernetes', 'Kubernetes'),
+			],
+			[],
+		);
+		const input = buildProfileConceptEvidenceEvaluationInput(summary, profile(), [
+			{ label: 'TypeScript', conceptId: 'typescript', broaderConceptIds: [] },
+			{ label: 'k8s', conceptId: 'kubernetes', broaderConceptIds: [] },
+		]);
+
+		expect(conceptLabelsForProfile(profile())).toEqual(['TypeScript', 'k8s']);
+		expect(input.evidenceItems).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: 'profile-skill-skill-1',
+					conceptIds: ['typescript'],
+				}),
+				expect.objectContaining({
+					id: 'profile-project-project-1',
+					conceptIds: ['kubernetes'],
+				}),
+			]),
+		);
 	});
 });
 

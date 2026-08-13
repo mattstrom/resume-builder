@@ -53,6 +53,21 @@ export class ApplicationStore {
 		}
 	}
 
+	async assessFit(applicationId: string): Promise<void> {
+		const client = await getMastraClient();
+		const workflow = client.getWorkflow('fitAssessmentWorkflow');
+		const run = await workflow.createRun();
+		const result = await run.startAsync({ inputData: { applicationId } });
+
+		if (result.status !== 'success') {
+			const message =
+				'error' in result && result.error instanceof Error
+					? result.error.message
+					: 'Fit assessment did not complete.';
+			throw new Error(message);
+		}
+	}
+
 	/**
 	 * Pulls the job description from the application's posting URL and saves it.
 	 * Falls back to a real browser server-side, so this can run for a while on

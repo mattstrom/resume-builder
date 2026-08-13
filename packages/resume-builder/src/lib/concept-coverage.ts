@@ -1,4 +1,13 @@
-import type { Bullet, Resume } from '@resume-builder/entities';
+import type {
+	Bullet,
+	Education,
+	Job,
+	Project,
+	Resume,
+	Skill,
+	Volunteering,
+} from '@resume-builder/entities';
+import { BulletStatus } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import type { JobRequirement, ResolvedConceptLabel } from '@/graphql/types.ts';
@@ -22,6 +31,15 @@ export interface ConceptCoverageSummary {
 	concepts: RequirementConceptCoverage[];
 	coveredCount: number;
 	totalCount: number;
+}
+
+export interface ProfileEvidence {
+	bullets: Bullet[];
+	educations: Education[];
+	jobs: Job[];
+	projects: Project[];
+	skills: Skill[];
+	volunteering: Volunteering[];
 }
 
 export function resumeBulletIds(data: Resume['data']): Set<string> {
@@ -117,6 +135,151 @@ export function conceptLabelsForResume(resume: Resume['data']): string[] {
 		seen.add(key);
 		return [trimmed];
 	});
+}
+
+export function conceptLabelsForProfile(profile: ProfileEvidence): string[] {
+	const labels = [
+		...profile.skills.map(({ name }) => name),
+		...profile.projects.flatMap(({ technologies }) => technologies),
+	];
+	const seen = new Set<string>();
+
+	return labels.flatMap((label) => {
+		const trimmed = label?.trim();
+		const key = trimmed?.toLowerCase();
+		if (!trimmed || !key || seen.has(key)) return [];
+		seen.add(key);
+		return [trimmed];
+	});
+}
+
+function conceptMatchers(
+	summary: ConceptCoverageSummary,
+	resolvedLabels: readonly ResolvedConceptLabel[],
+) {
+	const requirementConceptIds = new Set(summary.concepts.map(({ concept }) => concept.id));
+	const matchesByLabel = new Map<string, { conceptIds: string[]; broaderConceptIds: string[] }>();
+
+	for (const resolved of resolvedLabels) {
+		const conceptIds = requirementConceptIds.has(resolved.conceptId)
+			? [resolved.conceptId]
+			: [];
+		const broaderConceptIds = resolved.broaderConceptIds.filter((id) =>
+			requirementConceptIds.has(id),
+		);
+		if (conceptIds.length > 0 || broaderConceptIds.length > 0) {
+			matchesByLabel.set(resolved.label.toLowerCase(), { conceptIds, broaderConceptIds });
+		}
+	}
+
+	return (labels: string[]) => {
+		const matched = labels.filter(Boolean).flatMap((label) => {
+			const match = matchesByLabel.get(label.toLowerCase());
+			return match ? [match] : [];
+		});
+		return {
+			conceptIds: [...new Set(matched.flatMap(({ conceptIds }) => conceptIds))],
+			broaderConceptIds: [
+				...new Set(matched.flatMap(({ broaderConceptIds }) => broaderConceptIds)),
+			],
+		};
+	};
+}
+
+export function buildProfileConceptEvidenceEvaluationInput(
+	summary: ConceptCoverageSummary,
+	profile: ProfileEvidence,
+	resolvedLabels: readonly ResolvedConceptLabel[] = [],
+): ConceptEvidenceEvaluationInput {
+	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
+	const conceptIdsForLabels = conceptMatchers(summary, resolvedLabels);
+	const addEvidence = (item: ConceptEvidenceEvaluationInput['evidenceItems'][number]) => {
+		const text = item.text.trim().slice(0, 2000);
+		if (text) evidenceItems.push({ ...item, text });
+	};
+
+	for (const skill of profile.skills) {
+		addEvidence({
+			id: `profile-skill-${skill._id}`,
+			label: skill.category || 'Skill',
+			paths: [],
+			sourceType: 'skill',
+			text: [skill.name, skill.category].filter(Boolean).join(' — '),
+			...conceptIdsForLabels([skill.name]),
+		});
+	}
+	for (const project of profile.projects) {
+		addEvidence({
+			id: `profile-project-${project._id}`,
+			label: project.name || 'Project',
+			paths: [],
+			sourceType: 'project',
+			text: [project.name, project.description, project.technologies.join(', ')]
+				.filter(Boolean)
+				.join(' — '),
+			...conceptIdsForLabels(project.technologies),
+		});
+	}
+	for (const job of profile.jobs) {
+		addEvidence({
+			id: `profile-job-${job._id}`,
+			label: job.company || 'Work experience',
+			paths: [],
+			sourceType: 'experience',
+			text: [job.position, job.company, ...job.responsibilities].filter(Boolean).join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const education of profile.educations) {
+		addEvidence({
+			id: `profile-education-${education._id}`,
+			label: education.institution || 'Education',
+			paths: [],
+			sourceType: 'education',
+			text: [education.degree, education.field, education.institution]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const role of profile.volunteering) {
+		addEvidence({
+			id: `profile-volunteering-${role._id}`,
+			label: role.organization || 'Volunteering',
+			paths: [],
+			sourceType: 'volunteering',
+			text: [role.position, role.organization, ...role.responsibilities]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const bullet of profile.bullets.filter(({ status }) => status !== BulletStatus.ARCHIVED)) {
+		addEvidence({
+			id: bullet.id,
+			label: 'Career evidence',
+			paths: [],
+			sourceType: 'bullet',
+			text: bullet.text,
+			conceptIds: bullet.concepts.map(({ conceptId }) => conceptId),
+			broaderConceptIds: [],
+		});
+	}
+
+	return {
+		concepts: summary.concepts.map(({ concept, relation, requirements }) => ({
+			id: concept.id,
+			key: concept.key,
+			label: concept.label,
+			...(concept.definition ? { definition: concept.definition } : {}),
+			relation,
+			requirements: requirements.map(({ what }) => what),
+		})),
+		evidenceItems: evidenceItems.slice(0, 200),
+	};
 }
 
 export function buildConceptEvidenceEvaluationInput(
@@ -377,4 +540,33 @@ export function deriveConceptCoverage(
 	const coveredCount = concepts.filter(({ covered }) => covered).length;
 
 	return { concepts, coveredCount, totalCount: concepts.length };
+}
+
+export function deriveProfileConceptCoverage(
+	requirements: JobRequirement[],
+	bullets: Bullet[],
+): ConceptCoverageSummary {
+	const allConceptIds = new Set(
+		bullets
+			.filter(({ status }) => status !== BulletStatus.ARCHIVED)
+			.flatMap(({ concepts }) => concepts.map(({ conceptId }) => conceptId)),
+	);
+	const emptyResume = {
+		workExperience: [],
+		projects: [],
+		volunteering: [],
+	} as unknown as Resume['data'];
+	const summary = deriveConceptCoverage(requirements, [], emptyResume);
+
+	for (const coverage of summary.concepts) {
+		coverage.covered = allConceptIds.has(coverage.concept.id);
+	}
+	summary.coveredCount = summary.concepts.filter(({ covered }) => covered).length;
+	summary.concepts.sort(
+		(left, right) =>
+			Number(left.covered) - Number(right.covered) ||
+			relationPriority[left.relation] - relationPriority[right.relation] ||
+			left.concept.label.localeCompare(right.concept.label),
+	);
+	return summary;
 }

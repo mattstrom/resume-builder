@@ -156,9 +156,12 @@ export class ApplicationsResolver {
 
 	@Tool({
 		name: 'update_analysis',
-		description:
-			'Updates the analysis of a job application with skill fit, strengths, weaknesses, and relevance scores',
-		paramsSchema: { applicationId: z.string(), analysis: analysisSchema },
+		description: 'Updates the extracted job summary and fit analysis for a job application',
+		paramsSchema: {
+			applicationId: z.string(),
+			analysis: analysisSchema,
+			jobSummary: z.record(z.string(), z.unknown()).optional(),
+		},
 		annotations: {
 			destructiveHint: true,
 			idempotentHint: false,
@@ -168,14 +171,20 @@ export class ApplicationsResolver {
 		{
 			applicationId,
 			analysis,
-		}: types.McpToolParams<{ applicationId: string; analysis: Analysis }>,
+			jobSummary,
+		}: types.McpToolParams<{
+			applicationId: string;
+			analysis: Analysis;
+			jobSummary?: Application['jobSummary'];
+		}>,
 		{ user }: types.McpExtra,
 	) {
-		const savedApplication = await this.applicationsService.updateAnalysis(
-			user.sub,
-			applicationId,
-			analysis,
-		);
+		const savedApplication = jobSummary
+			? await this.applicationsService.updateAssessment(user.sub, applicationId, {
+					jobSummary,
+					analysis,
+				})
+			: await this.applicationsService.updateAnalysis(user.sub, applicationId, analysis);
 
 		return {
 			content: [

@@ -206,7 +206,7 @@ const saveAssessmentResults = createStep({
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
 		const tools = await getResumeBuilderTools(token);
 
-		await tools['update_analysis'].execute!({ applicationId, analysis }, {} as any);
+		await tools['update_analysis'].execute!({ applicationId, jobSummary, analysis }, {} as any);
 
 		return { jobSummary, analysis };
 	},
