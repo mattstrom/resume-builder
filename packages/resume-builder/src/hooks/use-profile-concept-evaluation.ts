@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 
 import {
 	RECORD_REQUIREMENT_GRADE_FEEDBACK,
-	RESOLVE_PROFILE_KNOWLEDGE_PROPOSAL,
 	SAVE_PROFILE_KNOWLEDGE_PROPOSALS,
 } from '@/graphql/mutations.ts';
 import { GET_REQUIREMENT_GRADE_FEEDBACK, RESOLVE_CONCEPT_LABELS } from '@/graphql/queries.ts';
@@ -12,7 +11,6 @@ import type {
 	GetRequirementGradeFeedbackData,
 	GetRequirementGradeFeedbackVariables,
 	JobRequirement,
-	ProfileKnowledgeProposalRecord,
 	ResolveConceptLabelsData,
 	ResolveConceptLabelsVariables,
 } from '@/graphql/types.ts';
@@ -75,7 +73,6 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 	const [evaluatedInputHash, setEvaluatedInputHash] = useState('');
 	const [currentInputHash, setCurrentInputHash] = useState('');
 	const [isEvaluating, setIsEvaluating] = useState(false);
-	const [regradeAfterKnowledgeChange, setRegradeAfterKnowledgeChange] = useState(false);
 	const [manualRequirementGrades, setManualRequirementGrades] = useState<ManualRequirementGrades>(
 		{},
 	);
@@ -91,7 +88,6 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		RecordRequirementGradeFeedbackVariables
 	>(RECORD_REQUIREMENT_GRADE_FEEDBACK);
 	const [saveProposals] = useMutation(SAVE_PROFILE_KNOWLEDGE_PROPOSALS);
-	const [resolveProposalMutation] = useMutation(RESOLVE_PROFILE_KNOWLEDGE_PROPOSAL);
 
 	const profile = useMemo(
 		() => ({
@@ -302,25 +298,6 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		}
 	};
 
-	const proposalsByRequirementId = useMemo(() => {
-		const result = new Map<string, ProfileKnowledgeProposalRecord[]>();
-		for (const feedback of feedbackData?.requirementGradeFeedback ?? []) {
-			const proposed = feedback.proposals.filter(({ status }) => status === 'proposed');
-			if (proposed.length === 0) continue;
-			result.set(feedback.jobRequirementId, [
-				...(result.get(feedback.jobRequirementId) ?? []),
-				...proposed,
-			]);
-		}
-		return result;
-	}, [feedbackData?.requirementGradeFeedback]);
-
-	const resolveProposal = async (proposalId: string, accept: boolean) => {
-		await resolveProposalMutation({ variables: { proposalId, accept } });
-		if (accept) setRegradeAfterKnowledgeChange(true);
-		await Promise.all([refetchFeedback(), factsStore.refetch()]);
-	};
-
 	const evaluate = async () => {
 		if (evaluationInput.concepts.length === 0) return;
 		setIsEvaluating(true);
@@ -344,21 +321,6 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		}
 	};
 
-	useEffect(() => {
-		if (
-			!regradeAfterKnowledgeChange ||
-			!evaluation ||
-			!currentInputHash ||
-			currentInputHash === evaluatedInputHash
-		) {
-			return;
-		}
-		setRegradeAfterKnowledgeChange(false);
-		void evaluate().catch(() => {
-			// The stale indicator remains visible so the user can retry explicitly.
-		});
-	}, [currentInputHash, evaluatedInputHash, evaluation, regradeAfterKnowledgeChange]);
-
 	return {
 		evaluate,
 		evaluation,
@@ -367,8 +329,6 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		isEvaluating,
 		isStale: Boolean(evaluation && currentInputHash && evaluatedInputHash !== currentInputHash),
 		requirementAssessmentById,
-		proposalsByRequirementId,
-		resolveProposal,
 		score,
 		setManualRequirementGrade,
 		summary,

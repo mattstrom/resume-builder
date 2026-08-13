@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedFeedbackRouteImport } from './routes/_authenticated/feedback'
 import { Route as AuthenticatedEditorRouteImport } from './routes/_authenticated/editor'
 import { Route as publicLogoutRouteImport } from './routes/(public)/logout'
 import { Route as publicLoginRouteImport } from './routes/(public)/login'
@@ -54,6 +55,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFeedbackRoute = AuthenticatedFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedEditorRoute = AuthenticatedEditorRouteImport.update({
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
   '/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/feedback': typeof AuthenticatedFeedbackRoute
   '/home': typeof AuthenticatedHomeRoute
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/': typeof AuthenticatedIndexRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof publicLoginRoute
   '/logout': typeof publicLogoutRoute
+  '/feedback': typeof AuthenticatedFeedbackRoute
   '/home': typeof AuthenticatedHomeRoute
   '/': typeof AuthenticatedIndexRoute
   '/applications/$applicationId': typeof AuthenticatedApplicationsApplicationIdRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/(public)/login': typeof publicLoginRoute
   '/(public)/logout': typeof publicLogoutRoute
   '/_authenticated/editor': typeof AuthenticatedEditorRouteWithChildren
+  '/_authenticated/feedback': typeof AuthenticatedFeedbackRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/editor'
+    | '/feedback'
     | '/home'
     | '/profile'
     | '/'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/logout'
+    | '/feedback'
     | '/home'
     | '/'
     | '/applications/$applicationId'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/(public)/login'
     | '/(public)/logout'
     | '/_authenticated/editor'
+    | '/_authenticated/feedback'
     | '/_authenticated/home'
     | '/_authenticated/profile'
     | '/_authenticated/'
@@ -346,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/feedback': {
+      id: '/_authenticated/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof AuthenticatedFeedbackRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/editor': {
@@ -521,6 +540,7 @@ const AuthenticatedProfileRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedEditorRoute: typeof AuthenticatedEditorRouteWithChildren
+  AuthenticatedFeedbackRoute: typeof AuthenticatedFeedbackRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -531,6 +551,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedEditorRoute: AuthenticatedEditorRouteWithChildren,
+  AuthenticatedFeedbackRoute: AuthenticatedFeedbackRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

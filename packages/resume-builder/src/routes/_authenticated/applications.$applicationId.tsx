@@ -1,9 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import {
-	type Application,
-	profileKnowledgeProposalSchema,
-	type Resume,
-} from '@resume-builder/entities';
+import { type Application, type Resume } from '@resume-builder/entities';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
 	AlertCircle,
@@ -79,7 +75,6 @@ import type {
 	GetApplicationVariables,
 	GetJobRequirementsData,
 	GetJobRequirementsVariables,
-	ProfileKnowledgeProposalRecord,
 	UpdateApplicationData,
 	UpdateApplicationVariables,
 	UpdateResumeData,
@@ -167,7 +162,7 @@ function RequirementGradeControl({
 			closeDialog();
 			toast.success(
 				learn && explanation.trim()
-					? 'Grade saved and profile feedback reviewed.'
+					? 'Grade saved. Any profile updates are ready for later review.'
 					: 'Grade saved.',
 			);
 		} catch (error) {
@@ -277,65 +272,6 @@ function RequirementGradeControl({
 				</DialogContent>
 			</Dialog>
 		</>
-	);
-}
-
-function KnowledgeProposal({
-	proposal,
-	onResolve,
-}: {
-	proposal: ProfileKnowledgeProposalRecord;
-	onResolve: (proposalId: string, accept: boolean) => Promise<void>;
-}) {
-	const [resolving, setResolving] = useState(false);
-	const parsed = profileKnowledgeProposalSchema.safeParse(proposal.payload);
-	const proposedKnowledge = parsed.success
-		? parsed.data.kind === 'fact'
-			? parsed.data.fact?.what
-			: parsed.data.guidance
-		: undefined;
-	const resolve = async (accept: boolean) => {
-		setResolving(true);
-		try {
-			await onResolve(proposal.id, accept);
-			toast.success(accept ? 'Profile knowledge updated.' : 'Suggestion dismissed.');
-		} catch (error) {
-			toast.error(error instanceof Error ? error.message : 'Could not resolve suggestion.');
-		} finally {
-			setResolving(false);
-		}
-	};
-	return (
-		<Alert>
-			<Brain />
-			<AlertTitle>{proposal.title}</AlertTitle>
-			<AlertDescription className="flex flex-col gap-3">
-				<p>{proposal.rationale}</p>
-				{proposedKnowledge && (
-					<p className="font-medium text-foreground">“{proposedKnowledge}”</p>
-				)}
-				<div className="flex flex-wrap gap-2">
-					<Button
-						type="button"
-						size="sm"
-						onClick={() => void resolve(true)}
-						disabled={resolving}
-					>
-						{resolving && <Spinner data-icon="inline-start" />}
-						Accept
-					</Button>
-					<Button
-						type="button"
-						size="sm"
-						variant="outline"
-						onClick={() => void resolve(false)}
-						disabled={resolving}
-					>
-						Dismiss
-					</Button>
-				</div>
-			</AlertDescription>
-		</Alert>
 	);
 }
 
@@ -1465,27 +1401,6 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 																						)}
 																					</div>
 																				)}
-																				{profileEvaluation.proposalsByRequirementId
-																					.get(
-																						requirement.id,
-																					)
-																					?.map(
-																						(
-																							proposal,
-																						) => (
-																							<KnowledgeProposal
-																								key={
-																									proposal.id
-																								}
-																								proposal={
-																									proposal
-																								}
-																								onResolve={
-																									profileEvaluation.resolveProposal
-																								}
-																							/>
-																						),
-																					)}
 																			</div>
 																		),
 																	)}

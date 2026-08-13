@@ -434,6 +434,33 @@ export const GET_REQUIREMENT_GRADE_FEEDBACK = gql`
 	}
 `;
 
+export const GET_PROFILE_KNOWLEDGE_INBOX = gql`
+	query GetProfileKnowledgeInbox {
+		profileKnowledgeInbox {
+			proposal {
+				id
+				feedbackId
+				kind
+				title
+				rationale
+				payload
+				status
+				acceptedFactId
+				createdAt
+				resolvedAt
+			}
+			applicationId
+			applicationName
+			company
+			jobRequirementId
+			requirement
+			agentGrade
+			manualGrade
+			explanation
+		}
+	}
+`;
+
 export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
 		conceptEvidenceAssessment(applicationId: $applicationId, resumeId: $resumeId) {

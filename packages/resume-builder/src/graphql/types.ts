@@ -79,6 +79,34 @@ export interface RequirementGradeFeedbackRecord {
 	proposals: ProfileKnowledgeProposalRecord[];
 }
 
+export interface ProfileKnowledgeInboxItem {
+	proposal: ProfileKnowledgeProposalRecord;
+	applicationId: string;
+	applicationName: string;
+	company: string;
+	jobRequirementId: string;
+	requirement: string;
+	agentGrade: string;
+	manualGrade?: string | null;
+	explanation?: string | null;
+}
+
+export interface GetProfileKnowledgeInboxData {
+	profileKnowledgeInbox: ProfileKnowledgeInboxItem[];
+}
+
+export interface ResolveProfileKnowledgeProposalData {
+	resolveProfileKnowledgeProposal: Pick<
+		ProfileKnowledgeProposalRecord,
+		'id' | 'status' | 'acceptedFactId' | 'resolvedAt'
+	>;
+}
+
+export interface ResolveProfileKnowledgeProposalVariables {
+	proposalId: string;
+	accept: boolean;
+}
+
 export interface GetRequirementGradeFeedbackData {
 	requirementGradeFeedback: RequirementGradeFeedbackRecord[];
 	profileKnowledgeGuidance: string[];

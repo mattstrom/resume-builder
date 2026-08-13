@@ -93,6 +93,57 @@ describe('ProfileKnowledgeService', () => {
 		});
 	});
 
+	it('returns pending profile suggestions with their inbox context', async () => {
+		prisma.profileKnowledgeProposal.findMany.mockResolvedValue([
+			{
+				id: 'proposal-1',
+				title: 'Add Java experience',
+				feedback: {
+					agentGrade: 'weak',
+					manualGrade: 'strong',
+					explanation: 'I use Java professionally.',
+					application: {
+						id: 'application-1',
+						name: 'Platform Engineer',
+						company: 'Acme',
+					},
+					jobRequirement: {
+						id: 'requirement-1',
+						what: 'Professional Java experience',
+					},
+				},
+			},
+		]);
+
+		await expect(service.findInbox('user-1')).resolves.toEqual([
+			expect.objectContaining({
+				proposal: expect.objectContaining({ id: 'proposal-1' }),
+				applicationId: 'application-1',
+				applicationName: 'Platform Engineer',
+				company: 'Acme',
+				jobRequirementId: 'requirement-1',
+				requirement: 'Professional Java experience',
+				agentGrade: 'weak',
+				manualGrade: 'strong',
+				explanation: 'I use Java professionally.',
+			}),
+		]);
+		expect(prisma.profileKnowledgeProposal.findMany).toHaveBeenCalledWith({
+			where: { uid: 'user-1', status: 'proposed' },
+			include: {
+				feedback: {
+					include: {
+						application: {
+							select: { id: true, name: true, company: true },
+						},
+						jobRequirement: { select: { id: true, what: true } },
+					},
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+		});
+	});
+
 	it('promotes an accepted fact proposal into the canonical fact graph', async () => {
 		prisma.profileKnowledgeProposal.findFirst.mockResolvedValue({
 			id: 'proposal-1',
