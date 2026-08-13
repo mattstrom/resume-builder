@@ -1,4 +1,5 @@
 import { type ColumnDef, type RowData, useTable } from '@tanstack/react-table';
+import { Fragment, type ReactNode, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,19 +17,28 @@ export interface DataTableProps<TData extends RowData> {
 	columns: ColumnDef<DataTableFeatures, TData>[];
 	data: ReadonlyArray<TData>;
 	emptyMessage?: string;
+	expandedRowId?: string;
+	getRowId?: (row: TData, index: number) => string;
 	initialPageSize?: number;
+	renderExpandedRow?: (row: TData) => ReactNode;
 }
 
 export function DataTable<TData extends RowData>({
 	columns,
 	data,
 	emptyMessage = 'No results.',
+	expandedRowId,
+	getRowId,
 	initialPageSize = 10,
+	renderExpandedRow,
 }: DataTableProps<TData>) {
 	const table = useTable({
 		features: dataTableFeatures,
 		columns,
 		data,
+		getRowCanExpand: () => Boolean(renderExpandedRow),
+		getRowId,
+		getIsRowExpanded: expandedRowId ? (row) => row.id === expandedRowId : undefined,
 		initialState: {
 			pagination: {
 				pageIndex: 0,
@@ -36,6 +46,18 @@ export function DataTable<TData extends RowData>({
 			},
 		},
 	});
+
+	useEffect(() => {
+		if (!expandedRowId || !getRowId) return;
+		const expandedIndex = data.findIndex(
+			(row, index) => getRowId(row, index) === expandedRowId,
+		);
+		if (expandedIndex < 0) return;
+		const expandedPageIndex = Math.floor(expandedIndex / initialPageSize);
+		if (table.state.pagination.pageIndex !== expandedPageIndex) {
+			table.setPageIndex(expandedPageIndex);
+		}
+	}, [data, expandedRowId, getRowId, initialPageSize, table]);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -57,16 +79,27 @@ export function DataTable<TData extends RowData>({
 					<TableBody>
 						{table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() ? 'selected' : undefined}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											<table.FlexRender cell={cell} />
-										</TableCell>
-									))}
-								</TableRow>
+								<Fragment key={row.id}>
+									<TableRow
+										data-state={row.getIsSelected() ? 'selected' : undefined}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id}>
+												<table.FlexRender cell={cell} />
+											</TableCell>
+										))}
+									</TableRow>
+									{row.getIsExpanded() && renderExpandedRow ? (
+										<TableRow>
+											<TableCell
+												colSpan={row.getVisibleCells().length}
+												className="p-6"
+											>
+												{renderExpandedRow(row.original)}
+											</TableCell>
+										</TableRow>
+									) : null}
+								</Fragment>
 							))
 						) : (
 							<TableRow>

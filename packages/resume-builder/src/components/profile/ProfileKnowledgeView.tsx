@@ -1,13 +1,15 @@
 import { useQuery } from '@apollo/client/react';
 import { profileKnowledgeProposalSchema } from '@resume-builder/entities';
-import { Link } from '@tanstack/react-router';
+import { Link, useParams } from '@tanstack/react-router';
+import { createColumnHelper } from '@tanstack/react-table';
 import {
 	ArrowRight,
+	ArrowUpDown,
 	BookOpen,
 	CheckCircle2,
+	ChevronRight,
 	ExternalLink,
 	Inbox,
-	Network,
 	Search,
 } from 'lucide-react';
 import { observer } from 'mobx-react';
@@ -16,14 +18,8 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert.tsx';
 import { Badge, type BadgeProps } from '@/components/ui/badge.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card.tsx';
+import { Card, CardHeader } from '@/components/ui/card.tsx';
+import { DataTable, type DataTableFeatures } from '@/components/ui/data-table.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import {
 	Select,
@@ -39,6 +35,7 @@ import { GET_PROFILE_KNOWLEDGE_LEDGER } from '@/graphql/queries.ts';
 import type { GetProfileKnowledgeLedgerData, ProfileKnowledgeInboxItem } from '@/graphql/types.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { conceptRelationPresentation } from '@/lib/semantic-concepts.ts';
+import { cn } from '@/lib/utils.ts';
 import type { Fact } from '@/stores/facts.store.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -78,19 +75,30 @@ const TYPE_LABELS: Record<KnowledgeType, string> = {
 	relationship: 'Concept relationships',
 };
 
+const TYPE_NAMES: Record<KnowledgeType, string> = {
+	fact: 'Fact',
+	guidance: 'Guidance',
+	relationship: 'Relationship',
+};
+
 const STATE_PRESENTATION: Record<
 	KnowledgeState,
 	{ label: string; variant: BadgeProps['variant'] }
 > = {
-	confirmed: { label: 'Confirmed knowledge', variant: 'success' },
-	accepted: { label: 'Accepted guidance', variant: 'info' },
-	inferred: { label: 'Inferred relationship', variant: 'warning' },
+	confirmed: { label: 'Confirmed', variant: 'success' },
+	accepted: { label: 'Accepted', variant: 'info' },
+	inferred: { label: 'Inferred', variant: 'warning' },
 };
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
 	dateStyle: 'medium',
-	timeStyle: 'short',
 });
+
+const columnHelper = createColumnHelper<DataTableFeatures, LedgerEntry>();
+
+function ledgerEntryId(entry: LedgerEntry) {
+	return entry.id;
+}
 
 function sourceDetails(source: string) {
 	const normalized = source.trim().toLocaleLowerCase();
@@ -245,61 +253,51 @@ function factRelationshipEntries(fact: Fact): LedgerEntry[] {
 	});
 }
 
-function KnowledgeCard({ entry }: { entry: LedgerEntry }) {
-	const state = STATE_PRESENTATION[entry.state];
+function KnowledgeDetails({ entry }: { entry: LedgerEntry }) {
 	return (
-		<Card>
-			<CardHeader className="gap-3">
-				<div className="flex flex-wrap items-start justify-between gap-3">
-					<div className="flex min-w-0 flex-col gap-2">
-						<div className="flex flex-wrap items-center gap-2">
-							<Badge variant={state.variant}>{state.label}</Badge>
-							<Badge variant="outline">{entry.sourceLabel}</Badge>
-						</div>
-						<CardTitle className="text-base leading-6">{entry.title}</CardTitle>
-					</div>
-					{entry.createdAt && (
-						<span className="text-xs text-muted-foreground">
-							{dateFormatter.format(new Date(entry.createdAt))}
-						</span>
-					)}
-				</div>
-				<CardDescription className="leading-6">{entry.description}</CardDescription>
-			</CardHeader>
-			{entry.details && <CardContent>{entry.details}</CardContent>}
-			<CardFooter className="flex flex-wrap justify-between gap-2">
-				<Button variant="link" size="sm" className="h-auto p-0" asChild>
-					<Link to={entry.link.to} params={entry.link.params} search={entry.link.search}>
-						{entry.link.label}
-						<ArrowRight data-icon="inline-end" />
-					</Link>
-				</Button>
-				{entry.externalUri && (
-					<Button variant="ghost" size="sm" asChild>
-						<a href={entry.externalUri} target="_blank" rel="noreferrer">
-							Concept reference
-							<ExternalLink data-icon="inline-end" />
-						</a>
-					</Button>
+		<div className="flex flex-col gap-4">
+			{entry.details && <div>{entry.details}</div>}
+			<div className="flex flex-wrap items-center justify-end gap-3">
+				{entry.createdAt && (
+					<p className="mr-auto text-xs text-muted-foreground">
+						Added {dateFormatter.format(new Date(entry.createdAt))}
+					</p>
 				)}
-			</CardFooter>
-		</Card>
+				<div className="flex flex-wrap items-center gap-2">
+					{entry.externalUri && (
+						<Button variant="outline" size="sm" asChild>
+							<a href={entry.externalUri} target="_blank" rel="noreferrer">
+								Concept reference
+								<ExternalLink data-icon="inline-end" />
+							</a>
+						</Button>
+					)}
+					<Button size="sm" asChild>
+						<Link
+							to={entry.link.to}
+							params={entry.link.params}
+							search={entry.link.search}
+						>
+							{entry.link.label}
+							<ArrowRight data-icon="inline-end" />
+						</Link>
+					</Button>
+				</div>
+			</div>
+		</div>
 	);
 }
 
 function LedgerLoading() {
 	return (
-		<div className="grid items-start gap-4 lg:grid-cols-2">
-			{Array.from({ length: 4 }, (_, index) => (
-				<Card key={index}>
-					<CardHeader className="flex flex-col gap-3">
-						<Skeleton className="h-5 w-32" />
-						<Skeleton className="h-5 w-3/4" />
-						<Skeleton className="h-4 w-full" />
-					</CardHeader>
-				</Card>
-			))}
-		</div>
+		<Card>
+			<CardHeader className="flex flex-col gap-4">
+				<Skeleton className="h-10 w-full" />
+				{Array.from({ length: 5 }, (_, index) => (
+					<Skeleton key={index} className="h-14 w-full" />
+				))}
+			</CardHeader>
+		</Card>
 	);
 }
 
@@ -308,6 +306,7 @@ export const ProfileKnowledgeView = observer(() => {
 	const [typeFilter, setTypeFilter] = useState<KnowledgeType | 'all'>('all');
 	const [sourceFilter, setSourceFilter] = useState('all');
 	const [searchQuery, setSearchQuery] = useState('');
+	const { knowledgeId } = useParams({ strict: false });
 	const { data, loading, error } = useQuery<GetProfileKnowledgeLedgerData>(
 		GET_PROFILE_KNOWLEDGE_LEDGER,
 		{ fetchPolicy: 'cache-and-network' },
@@ -320,7 +319,10 @@ export const ProfileKnowledgeView = observer(() => {
 		};
 	}, []);
 
-	const accepted = data?.profileKnowledgeLedger.accepted ?? [];
+	const accepted = useMemo(
+		() => data?.profileKnowledgeLedger.accepted ?? [],
+		[data?.profileKnowledgeLedger.accepted],
+	);
 	const acceptedFactById = useMemo(
 		() =>
 			new Map(
@@ -415,6 +417,108 @@ export const ProfileKnowledgeView = observer(() => {
 	);
 	const isLoading = loading || factsStore.loading || bulletsStore.loading;
 	const pendingCount = data?.profileKnowledgeLedger.pendingSuggestionCount ?? 0;
+	const columns = useMemo(
+		() =>
+			columnHelper.columns([
+				columnHelper.accessor('title', {
+					header: ({ column }) => (
+						<Button
+							variant="ghost"
+							onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+						>
+							Knowledge
+							<ArrowUpDown data-icon="inline-end" />
+						</Button>
+					),
+					cell: ({ row }) => (
+						<div className="flex min-w-64 max-w-xl flex-col gap-1">
+							<span className="font-medium leading-5">{row.original.title}</span>
+							<span className="line-clamp-2 text-sm leading-5 text-muted-foreground">
+								{row.original.description}
+							</span>
+						</div>
+					),
+				}),
+				columnHelper.accessor('type', {
+					header: 'Type',
+					cell: ({ getValue }) => (
+						<Badge variant="outline">{TYPE_NAMES[getValue()]}</Badge>
+					),
+				}),
+				columnHelper.accessor('state', {
+					header: 'Status',
+					cell: ({ getValue }) => {
+						const state = STATE_PRESENTATION[getValue()];
+						return <Badge variant={state.variant}>{state.label}</Badge>;
+					},
+				}),
+				columnHelper.accessor('sourceLabel', {
+					header: ({ column }) => (
+						<Button
+							variant="ghost"
+							onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+						>
+							Source
+							<ArrowUpDown data-icon="inline-end" />
+						</Button>
+					),
+					cell: ({ getValue }) => (
+						<span className="whitespace-nowrap text-sm">{getValue()}</span>
+					),
+				}),
+				columnHelper.accessor(
+					(entry) => (entry.createdAt ? new Date(entry.createdAt).getTime() : 0),
+					{
+						id: 'createdAt',
+						header: ({ column }) => (
+							<Button
+								variant="ghost"
+								onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+							>
+								Added
+								<ArrowUpDown data-icon="inline-end" />
+							</Button>
+						),
+						cell: ({ row }) => (
+							<span className="whitespace-nowrap text-sm text-muted-foreground">
+								{row.original.createdAt
+									? dateFormatter.format(new Date(row.original.createdAt))
+									: '—'}
+							</span>
+						),
+					},
+				),
+				columnHelper.display({
+					id: 'actions',
+					header: () => <span className="sr-only">Details</span>,
+					cell: ({ row }) => {
+						const expanded = row.getIsExpanded();
+						return (
+							<Button variant="ghost" size="sm" asChild>
+								<Link
+									to={
+										expanded
+											? '/profile/knowledge'
+											: '/profile/knowledge/$knowledgeId'
+									}
+									params={expanded ? undefined : { knowledgeId: row.original.id }}
+									replace={expanded}
+									aria-label={`${expanded ? 'Collapse' : 'Expand'} details for ${row.original.title}`}
+								>
+									<ChevronRight
+										className={cn(
+											'transition-transform',
+											expanded && 'rotate-90',
+										)}
+									/>
+								</Link>
+							</Button>
+						);
+					},
+				}),
+			]),
+		[],
+	);
 
 	return (
 		<div className="h-full overflow-y-auto bg-background">
@@ -460,62 +564,57 @@ export const ProfileKnowledgeView = observer(() => {
 					</Alert>
 				)}
 
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-base">Filter the ledger</CardTitle>
-						<CardDescription>
-							Narrow by knowledge type, provenance source, or matching text.
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="grid gap-3 md:grid-cols-[1fr_14rem_14rem]">
-						<div className="relative">
-							<Search
-								className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-								aria-hidden="true"
-							/>
-							<Input
-								value={searchQuery}
-								onChange={(event) => setSearchQuery(event.target.value)}
-								placeholder="Search knowledge"
-								aria-label="Search profile knowledge"
-								className="pl-9"
-							/>
-						</div>
-						<Select
-							value={typeFilter}
-							onValueChange={(value) => setTypeFilter(value as KnowledgeType | 'all')}
-						>
-							<SelectTrigger aria-label="Filter by knowledge type">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectGroup>
-									<SelectItem value="all">All knowledge types</SelectItem>
-									{Object.entries(TYPE_LABELS).map(([value, label]) => (
-										<SelectItem key={value} value={value}>
-											{label}
-										</SelectItem>
-									))}
-								</SelectGroup>
-							</SelectContent>
-						</Select>
-						<Select value={sourceFilter} onValueChange={setSourceFilter}>
-							<SelectTrigger aria-label="Filter by source">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectGroup>
-									<SelectItem value="all">All sources</SelectItem>
-									{sources.map(([value, label]) => (
-										<SelectItem key={value} value={value}>
-											{label}
-										</SelectItem>
-									))}
-								</SelectGroup>
-							</SelectContent>
-						</Select>
-					</CardContent>
-				</Card>
+				<search
+					aria-label="Filter profile knowledge"
+					className="grid gap-3 md:grid-cols-[1fr_14rem_14rem]"
+				>
+					<div className="relative">
+						<Search
+							className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+							aria-hidden="true"
+						/>
+						<Input
+							value={searchQuery}
+							onChange={(event) => setSearchQuery(event.target.value)}
+							placeholder="Search knowledge"
+							aria-label="Search profile knowledge"
+							className="pl-9"
+						/>
+					</div>
+					<Select
+						value={typeFilter}
+						onValueChange={(value) => setTypeFilter(value as KnowledgeType | 'all')}
+					>
+						<SelectTrigger aria-label="Filter by knowledge type">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value="all">All knowledge types</SelectItem>
+								{Object.entries(TYPE_LABELS).map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+					<Select value={sourceFilter} onValueChange={setSourceFilter}>
+						<SelectTrigger aria-label="Filter by source">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectItem value="all">All sources</SelectItem>
+								{sources.map(([value, label]) => (
+									<SelectItem key={value} value={value}>
+										{label}
+									</SelectItem>
+								))}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</search>
 
 				{error && (
 					<Alert variant="destructive">
@@ -526,31 +625,29 @@ export const ProfileKnowledgeView = observer(() => {
 
 				{isLoading && entries.length === 0 ? (
 					<LedgerLoading />
-				) : filteredEntries.length === 0 ? (
+				) : entries.length === 0 ? (
 					<Alert>
 						<CheckCircle2 />
-						<AlertTitle>
-							{entries.length === 0
-								? 'No active knowledge yet'
-								: 'No matching knowledge'}
-						</AlertTitle>
+						<AlertTitle>No active knowledge yet</AlertTitle>
 						<AlertDescription>
-							{entries.length === 0
-								? 'Confirmed facts, accepted guidance, and active concept relationships will appear here.'
-								: 'Try changing the type, source, or search filters.'}
+							Confirmed facts, accepted guidance, and active concept relationships
+							will appear here.
 						</AlertDescription>
 					</Alert>
 				) : (
-					<div className="flex flex-col gap-6">
-						<div className="flex items-center gap-2 text-sm text-muted-foreground">
-							<Network aria-hidden="true" />
-							<span>{filteredEntries.length} ledger entries</span>
-						</div>
-						<div className="grid items-start gap-4 lg:grid-cols-2">
-							{filteredEntries.map((entry) => (
-								<KnowledgeCard key={entry.id} entry={entry} />
-							))}
-						</div>
+					<div className="flex flex-col gap-3">
+						<p className="text-sm text-muted-foreground">
+							{filteredEntries.length} of {entries.length} ledger entries
+						</p>
+						<DataTable
+							columns={columns}
+							data={filteredEntries}
+							emptyMessage="No knowledge matches these filters."
+							expandedRowId={knowledgeId}
+							getRowId={ledgerEntryId}
+							initialPageSize={15}
+							renderExpandedRow={(entry) => <KnowledgeDetails entry={entry} />}
+						/>
 					</div>
 				)}
 			</div>

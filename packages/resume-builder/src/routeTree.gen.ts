@@ -34,6 +34,7 @@ import { Route as AuthenticatedPreviewApplicationIdRouteImport } from './routes/
 import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_authenticated/export.$applicationId'
 import { Route as AuthenticatedEditorApplicationIdRouteImport } from './routes/_authenticated/editor/$applicationId'
 import { Route as AuthenticatedApplicationsApplicationIdRouteImport } from './routes/_authenticated/applications.$applicationId'
+import { Route as AuthenticatedProfileKnowledgeKnowledgeIdRouteImport } from './routes/_authenticated/profile/knowledge.$knowledgeId'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -174,6 +175,12 @@ const AuthenticatedApplicationsApplicationIdRoute =
     path: '/applications/$applicationId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedProfileKnowledgeKnowledgeIdRoute =
+  AuthenticatedProfileKnowledgeKnowledgeIdRouteImport.update({
+    id: '/$knowledgeId',
+    path: '/$knowledgeId',
+    getParentRoute: () => AuthenticatedProfileKnowledgeRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
@@ -190,7 +197,7 @@ export interface FileRoutesByFullPath {
   '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/concepts': typeof AuthenticatedProfileConceptsRoute
   '/profile/facts': typeof AuthenticatedProfileFactsRoute
-  '/profile/knowledge': typeof AuthenticatedProfileKnowledgeRoute
+  '/profile/knowledge': typeof AuthenticatedProfileKnowledgeRouteWithChildren
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/profile/skills': typeof AuthenticatedProfileSkillsRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
+  '/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof publicLoginRoute
@@ -213,7 +221,7 @@ export interface FileRoutesByTo {
   '/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/profile/concepts': typeof AuthenticatedProfileConceptsRoute
   '/profile/facts': typeof AuthenticatedProfileFactsRoute
-  '/profile/knowledge': typeof AuthenticatedProfileKnowledgeRoute
+  '/profile/knowledge': typeof AuthenticatedProfileKnowledgeRouteWithChildren
   '/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/profile/skills': typeof AuthenticatedProfileSkillsRoute
@@ -222,6 +230,7 @@ export interface FileRoutesByTo {
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -241,7 +250,7 @@ export interface FileRoutesById {
   '/_authenticated/profile/background': typeof AuthenticatedProfileBackgroundRoute
   '/_authenticated/profile/concepts': typeof AuthenticatedProfileConceptsRoute
   '/_authenticated/profile/facts': typeof AuthenticatedProfileFactsRoute
-  '/_authenticated/profile/knowledge': typeof AuthenticatedProfileKnowledgeRoute
+  '/_authenticated/profile/knowledge': typeof AuthenticatedProfileKnowledgeRouteWithChildren
   '/_authenticated/profile/preferences': typeof AuthenticatedProfilePreferencesRoute
   '/_authenticated/profile/projects': typeof AuthenticatedProfileProjectsRoute
   '/_authenticated/profile/skills': typeof AuthenticatedProfileSkillsRoute
@@ -250,6 +259,7 @@ export interface FileRoutesById {
   '/_authenticated/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -277,6 +287,7 @@ export interface FileRouteTypes {
     | '/profile/work-history'
     | '/editor/'
     | '/profile/'
+    | '/profile/knowledge/$knowledgeId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/profile/work-history'
     | '/editor'
     | '/profile'
+    | '/profile/knowledge/$knowledgeId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -327,6 +339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/work-history'
     | '/_authenticated/editor/'
     | '/_authenticated/profile/'
+    | '/_authenticated/profile/knowledge/$knowledgeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedApplicationsApplicationIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/profile/knowledge/$knowledgeId': {
+      id: '/_authenticated/profile/knowledge/$knowledgeId'
+      path: '/$knowledgeId'
+      fullPath: '/profile/knowledge/$knowledgeId'
+      preLoaderRoute: typeof AuthenticatedProfileKnowledgeKnowledgeIdRouteImport
+      parentRoute: typeof AuthenticatedProfileKnowledgeRoute
+    }
   }
 }
 
@@ -529,11 +549,26 @@ const AuthenticatedEditorRouteChildren: AuthenticatedEditorRouteChildren = {
 const AuthenticatedEditorRouteWithChildren =
   AuthenticatedEditorRoute._addFileChildren(AuthenticatedEditorRouteChildren)
 
+interface AuthenticatedProfileKnowledgeRouteChildren {
+  AuthenticatedProfileKnowledgeKnowledgeIdRoute: typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
+}
+
+const AuthenticatedProfileKnowledgeRouteChildren: AuthenticatedProfileKnowledgeRouteChildren =
+  {
+    AuthenticatedProfileKnowledgeKnowledgeIdRoute:
+      AuthenticatedProfileKnowledgeKnowledgeIdRoute,
+  }
+
+const AuthenticatedProfileKnowledgeRouteWithChildren =
+  AuthenticatedProfileKnowledgeRoute._addFileChildren(
+    AuthenticatedProfileKnowledgeRouteChildren,
+  )
+
 interface AuthenticatedProfileRouteChildren {
   AuthenticatedProfileBackgroundRoute: typeof AuthenticatedProfileBackgroundRoute
   AuthenticatedProfileConceptsRoute: typeof AuthenticatedProfileConceptsRoute
   AuthenticatedProfileFactsRoute: typeof AuthenticatedProfileFactsRoute
-  AuthenticatedProfileKnowledgeRoute: typeof AuthenticatedProfileKnowledgeRoute
+  AuthenticatedProfileKnowledgeRoute: typeof AuthenticatedProfileKnowledgeRouteWithChildren
   AuthenticatedProfilePreferencesRoute: typeof AuthenticatedProfilePreferencesRoute
   AuthenticatedProfileProjectsRoute: typeof AuthenticatedProfileProjectsRoute
   AuthenticatedProfileSkillsRoute: typeof AuthenticatedProfileSkillsRoute
@@ -547,7 +582,8 @@ const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
   AuthenticatedProfileBackgroundRoute: AuthenticatedProfileBackgroundRoute,
   AuthenticatedProfileConceptsRoute: AuthenticatedProfileConceptsRoute,
   AuthenticatedProfileFactsRoute: AuthenticatedProfileFactsRoute,
-  AuthenticatedProfileKnowledgeRoute: AuthenticatedProfileKnowledgeRoute,
+  AuthenticatedProfileKnowledgeRoute:
+    AuthenticatedProfileKnowledgeRouteWithChildren,
   AuthenticatedProfilePreferencesRoute: AuthenticatedProfilePreferencesRoute,
   AuthenticatedProfileProjectsRoute: AuthenticatedProfileProjectsRoute,
   AuthenticatedProfileSkillsRoute: AuthenticatedProfileSkillsRoute,
