@@ -6,6 +6,7 @@ import {
 	FolderKanban,
 	HeartHandshake,
 	Home,
+	Inbox,
 	LogOut,
 	Monitor,
 	Moon,
@@ -112,6 +113,12 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								<SidebarMenuButton to="/home">
 									<Home />
 									<span>Home</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/feedback" tooltip="Feedback inbox">
+									<Inbox />
+									<span>Feedback inbox</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						</SidebarMenu>

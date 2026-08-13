@@ -3,6 +3,7 @@ import GraphQLJSON from 'graphql-type-json';
 
 import { CurrentUser } from '../auth/index.js';
 import {
+	ProfileKnowledgeInboxItemType,
 	ProfileKnowledgeProposalType,
 	RequirementGradeFeedbackType,
 } from './profile-knowledge.graphql.js';
@@ -23,6 +24,11 @@ export class ProfileKnowledgeResolver {
 	@Query(() => [String])
 	profileKnowledgeGuidance(@CurrentUser('sub') uid: string) {
 		return this.profileKnowledgeService.acceptedGuidance(uid);
+	}
+
+	@Query(() => [ProfileKnowledgeInboxItemType])
+	profileKnowledgeInbox(@CurrentUser('sub') uid: string) {
+		return this.profileKnowledgeService.findInbox(uid);
 	}
 
 	@Mutation(() => RequirementGradeFeedbackType)

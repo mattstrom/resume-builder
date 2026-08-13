@@ -722,6 +722,18 @@ type RequirementGradeFeedbackType {
   proposals: [ProfileKnowledgeProposalType!]!
 }
 
+type ProfileKnowledgeInboxItemType {
+  proposal: ProfileKnowledgeProposalType!
+  applicationId: ID!
+  applicationName: String!
+  company: String!
+  jobRequirementId: ID!
+  requirement: String!
+  agentGrade: String!
+  manualGrade: String
+  explanation: String
+}
+
 input CompanyAddressInput {
   streetAddress: String
   city: String
@@ -762,6 +774,7 @@ type Query {
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
   requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
   profileKnowledgeGuidance: [String!]!
+  profileKnowledgeInbox: [ProfileKnowledgeInboxItemType!]!
 }
 
 input BulletFilterInput {

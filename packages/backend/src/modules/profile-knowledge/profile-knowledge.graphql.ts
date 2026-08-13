@@ -60,3 +60,33 @@ export class RequirementGradeFeedbackType {
 	@Field(() => [ProfileKnowledgeProposalType])
 	proposals: ProfileKnowledgeProposalType[];
 }
+
+@ObjectType()
+export class ProfileKnowledgeInboxItemType {
+	@Field(() => ProfileKnowledgeProposalType)
+	proposal: ProfileKnowledgeProposalType;
+
+	@Field(() => ID)
+	applicationId: string;
+
+	@Field()
+	applicationName: string;
+
+	@Field()
+	company: string;
+
+	@Field(() => ID)
+	jobRequirementId: string;
+
+	@Field()
+	requirement: string;
+
+	@Field()
+	agentGrade: string;
+
+	@Field(() => String, { nullable: true })
+	manualGrade?: string | null;
+
+	@Field(() => String, { nullable: true })
+	explanation?: string | null;
+}

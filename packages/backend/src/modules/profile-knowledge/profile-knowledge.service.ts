@@ -23,6 +23,35 @@ export class ProfileKnowledgeService {
 		});
 	}
 
+	async findInbox(uid: string) {
+		const proposals = await this.prisma.profileKnowledgeProposal.findMany({
+			where: { uid, status: 'proposed' },
+			include: {
+				feedback: {
+					include: {
+						application: {
+							select: { id: true, name: true, company: true },
+						},
+						jobRequirement: { select: { id: true, what: true } },
+					},
+				},
+			},
+			orderBy: { createdAt: 'desc' },
+		});
+
+		return proposals.map(({ feedback, ...proposal }) => ({
+			proposal,
+			applicationId: feedback.application.id,
+			applicationName: feedback.application.name,
+			company: feedback.application.company,
+			jobRequirementId: feedback.jobRequirement.id,
+			requirement: feedback.jobRequirement.what,
+			agentGrade: feedback.agentGrade,
+			manualGrade: feedback.manualGrade,
+			explanation: feedback.explanation,
+		}));
+	}
+
 	async acceptedGuidance(uid: string): Promise<string[]> {
 		const proposals = await this.prisma.profileKnowledgeProposal.findMany({
 			where: {
