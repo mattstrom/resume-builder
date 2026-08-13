@@ -18,6 +18,7 @@
     "start": "nx run-many -t dev -p @resume-builder/entities @resume-builder/backend @resume-builder/crdt @resume-builder/web orchestration --parallel=10",
     "start:mcp": "op run --env-file=.env -- sh -c 'docker compose up -d mcp'",
     "build": "tsc && vite build",
+    "test": "nx run-many -t test",
     "preview": "vite preview",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
