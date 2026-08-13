@@ -95,6 +95,13 @@ export interface GetProfileKnowledgeInboxData {
 	profileKnowledgeInbox: ProfileKnowledgeInboxItem[];
 }
 
+export interface GetProfileKnowledgeLedgerData {
+	profileKnowledgeLedger: {
+		accepted: ProfileKnowledgeInboxItem[];
+		pendingSuggestionCount: number;
+	};
+}
+
 export interface ResolveProfileKnowledgeProposalData {
 	resolveProfileKnowledgeProposal: Pick<
 		ProfileKnowledgeProposalRecord,

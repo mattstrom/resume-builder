@@ -52,6 +52,43 @@ export class ProfileKnowledgeService {
 		}));
 	}
 
+	async findLedger(uid: string) {
+		const [proposals, pendingSuggestionCount] = await Promise.all([
+			this.prisma.profileKnowledgeProposal.findMany({
+				where: { uid, status: 'accepted' },
+				include: {
+					feedback: {
+						include: {
+							application: {
+								select: { id: true, name: true, company: true },
+							},
+							jobRequirement: { select: { id: true, what: true } },
+						},
+					},
+				},
+				orderBy: { resolvedAt: 'desc' },
+			}),
+			this.prisma.profileKnowledgeProposal.count({
+				where: { uid, status: 'proposed' },
+			}),
+		]);
+
+		return {
+			accepted: proposals.map(({ feedback, ...proposal }) => ({
+				proposal,
+				applicationId: feedback.application.id,
+				applicationName: feedback.application.name,
+				company: feedback.application.company,
+				jobRequirementId: feedback.jobRequirement.id,
+				requirement: feedback.jobRequirement.what,
+				agentGrade: feedback.agentGrade,
+				manualGrade: feedback.manualGrade,
+				explanation: feedback.explanation,
+			})),
+			pendingSuggestionCount,
+		};
+	}
+
 	async acceptedGuidance(uid: string): Promise<string[]> {
 		const proposals = await this.prisma.profileKnowledgeProposal.findMany({
 			where: {

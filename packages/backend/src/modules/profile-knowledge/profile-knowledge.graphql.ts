@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
 
 @ObjectType()
@@ -89,4 +89,13 @@ export class ProfileKnowledgeInboxItemType {
 
 	@Field(() => String, { nullable: true })
 	explanation?: string | null;
+}
+
+@ObjectType()
+export class ProfileKnowledgeLedgerType {
+	@Field(() => [ProfileKnowledgeInboxItemType])
+	accepted: ProfileKnowledgeInboxItemType[];
+
+	@Field(() => Int)
+	pendingSuggestionCount: number;
 }

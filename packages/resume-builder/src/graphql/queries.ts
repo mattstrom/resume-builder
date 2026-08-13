@@ -461,6 +461,36 @@ export const GET_PROFILE_KNOWLEDGE_INBOX = gql`
 	}
 `;
 
+export const GET_PROFILE_KNOWLEDGE_LEDGER = gql`
+	query GetProfileKnowledgeLedger {
+		profileKnowledgeLedger {
+			accepted {
+				proposal {
+					id
+					feedbackId
+					kind
+					title
+					rationale
+					payload
+					status
+					acceptedFactId
+					createdAt
+					resolvedAt
+				}
+				applicationId
+				applicationName
+				company
+				jobRequirementId
+				requirement
+				agentGrade
+				manualGrade
+				explanation
+			}
+			pendingSuggestionCount
+		}
+	}
+`;
+
 export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
 		conceptEvidenceAssessment(applicationId: $applicationId, resumeId: $resumeId) {

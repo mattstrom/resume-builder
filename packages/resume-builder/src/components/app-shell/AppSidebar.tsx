@@ -1,6 +1,7 @@
 import {
 	ChevronsUpDown,
 	BriefcaseBusiness,
+	BookOpen,
 	Database,
 	FileText,
 	FolderKanban,
@@ -19,11 +20,11 @@ import {
 	UserRound,
 	Wrench,
 	X,
-} from "lucide-react";
-import { observer } from "mobx-react";
-import { type FC, type PropsWithChildren, useEffect, useRef } from "react";
+} from 'lucide-react';
+import { observer } from 'mobx-react';
+import { type FC, type PropsWithChildren, useEffect, useRef } from 'react';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar.tsx";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -36,8 +37,8 @@ import {
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input.tsx";
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input.tsx';
 import {
 	Sidebar as ShadcnSidebar,
 	SidebarContent,
@@ -49,11 +50,11 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { useStore } from "@/stores/store.provider.tsx";
-import type { Theme } from "@/stores/theme.store.ts";
+} from '@/components/ui/sidebar';
+import { useStore } from '@/stores/store.provider.tsx';
+import type { Theme } from '@/stores/theme.store.ts';
 
-import { SidebarResumeTree } from "../SidebarResumeTree";
+import { SidebarResumeTree } from '../SidebarResumeTree';
 
 export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 	const { authStore, themeStore, explorerSidebarStore } = useStore();
@@ -62,14 +63,14 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.metaKey && e.key === "k") {
+			if (e.metaKey && e.key === 'k') {
 				e.preventDefault();
 				searchRef.current?.focus();
 				searchRef.current?.select();
 			}
 		};
-		document.addEventListener("keydown", handleKeyDown);
-		return () => document.removeEventListener("keydown", handleKeyDown);
+		document.addEventListener('keydown', handleKeyDown);
+		return () => document.removeEventListener('keydown', handleKeyDown);
 	}, []);
 
 	return (
@@ -84,8 +85,8 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 						value={explorerSidebarStore.searchQuery}
 						onChange={(e) => explorerSidebarStore.setSearchQuery(e.target.value)}
 						onKeyDown={(e) => {
-							if (e.key === "Escape") {
-								explorerSidebarStore.setSearchQuery("");
+							if (e.key === 'Escape') {
+								explorerSidebarStore.setSearchQuery('');
 								e.currentTarget.blur();
 							}
 						}}
@@ -93,7 +94,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 					{explorerSidebarStore.searchQuery ? (
 						<button
 							className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground"
-							onClick={() => explorerSidebarStore.setSearchQuery("")}
+							onClick={() => explorerSidebarStore.setSearchQuery('')}
 						>
 							<X className="h-3 w-3" />
 						</button>
@@ -130,13 +131,19 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 					<SidebarGroupContent>
 						<SidebarMenu>
 							<SidebarMenuItem>
-								<SidebarMenuButton to="/profile/background" tooltip="Personal Details">
+								<SidebarMenuButton
+									to="/profile/background"
+									tooltip="Personal Details"
+								>
 									<UserRound />
 									<span>Personal Details</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton to="/profile/work-history" tooltip="Work History">
+								<SidebarMenuButton
+									to="/profile/work-history"
+									tooltip="Work History"
+								>
 									<BriefcaseBusiness />
 									<span>Work History</span>
 								</SidebarMenuButton>
@@ -154,7 +161,10 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton to="/profile/volunteering" tooltip="Volunteering">
+								<SidebarMenuButton
+									to="/profile/volunteering"
+									tooltip="Volunteering"
+								>
 									<HeartHandshake />
 									<span>Volunteering</span>
 								</SidebarMenuButton>
@@ -166,7 +176,10 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton to="/profile/statements" tooltip="Professional Statements">
+								<SidebarMenuButton
+									to="/profile/statements"
+									tooltip="Professional Statements"
+								>
 									<Quote />
 									<span>Professional Statements</span>
 								</SidebarMenuButton>
@@ -184,7 +197,19 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							<SidebarMenuItem>
-								<SidebarMenuButton to="/profile/preferences" tooltip="Job Preferences">
+								<SidebarMenuButton
+									to="/profile/knowledge"
+									tooltip="Profile knowledge"
+								>
+									<BookOpen />
+									<span>Profile knowledge</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton
+									to="/profile/preferences"
+									tooltip="Job Preferences"
+								>
 									<SlidersHorizontal />
 									<span>Job Preferences</span>
 								</SidebarMenuButton>
@@ -201,7 +226,7 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton
 									size="lg"
-									tooltip={user?.name ?? "Account"}
+									tooltip={user?.name ?? 'Account'}
 									className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								>
 									<Avatar className="h-8 w-8 rounded-lg">
@@ -219,11 +244,20 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 									<ChevronsUpDown className="ml-auto size-4" />
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent side="right" align="end" sideOffset={8} className="w-56">
+							<DropdownMenuContent
+								side="right"
+								align="end"
+								sideOffset={8}
+								className="w-56"
+							>
 								<DropdownMenuLabel className="font-normal">
 									<div className="flex flex-col space-y-1">
-										<p className="text-sm font-medium leading-none">{user?.name}</p>
-										<p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+										<p className="text-sm font-medium leading-none">
+											{user?.name}
+										</p>
+										<p className="text-xs leading-none text-muted-foreground">
+											{user?.email}
+										</p>
 									</div>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
@@ -239,7 +273,9 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 									<DropdownMenuSubContent className="w-40">
 										<DropdownMenuRadioGroup
 											value={themeStore.theme}
-											onValueChange={(value) => themeStore.setTheme(value as Theme)}
+											onValueChange={(value) =>
+												themeStore.setTheme(value as Theme)
+											}
 										>
 											<DropdownMenuRadioItem value="light">
 												<Sun />

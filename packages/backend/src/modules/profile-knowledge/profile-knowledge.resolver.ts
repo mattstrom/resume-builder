@@ -4,6 +4,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { CurrentUser } from '../auth/index.js';
 import {
 	ProfileKnowledgeInboxItemType,
+	ProfileKnowledgeLedgerType,
 	ProfileKnowledgeProposalType,
 	RequirementGradeFeedbackType,
 } from './profile-knowledge.graphql.js';
@@ -29,6 +30,11 @@ export class ProfileKnowledgeResolver {
 	@Query(() => [ProfileKnowledgeInboxItemType])
 	profileKnowledgeInbox(@CurrentUser('sub') uid: string) {
 		return this.profileKnowledgeService.findInbox(uid);
+	}
+
+	@Query(() => ProfileKnowledgeLedgerType)
+	profileKnowledgeLedger(@CurrentUser('sub') uid: string) {
+		return this.profileKnowledgeService.findLedger(uid);
 	}
 
 	@Mutation(() => RequirementGradeFeedbackType)

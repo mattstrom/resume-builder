@@ -734,6 +734,11 @@ type ProfileKnowledgeInboxItemType {
   explanation: String
 }
 
+type ProfileKnowledgeLedgerType {
+  accepted: [ProfileKnowledgeInboxItemType!]!
+  pendingSuggestionCount: Int!
+}
+
 input CompanyAddressInput {
   streetAddress: String
   city: String
@@ -775,6 +780,7 @@ type Query {
   requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
   profileKnowledgeGuidance: [String!]!
   profileKnowledgeInbox: [ProfileKnowledgeInboxItemType!]!
+  profileKnowledgeLedger: ProfileKnowledgeLedgerType!
 }
 
 input BulletFilterInput {
