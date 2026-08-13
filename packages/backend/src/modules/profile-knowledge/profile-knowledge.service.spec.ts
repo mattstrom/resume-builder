@@ -47,6 +47,7 @@ describe('ProfileKnowledgeService', () => {
 		profileKnowledgeProposal: {
 			findFirst: jest.fn(),
 			findMany: jest.fn(),
+			count: jest.fn(),
 			create: jest.fn(),
 			update: jest.fn(),
 		},
@@ -141,6 +142,52 @@ describe('ProfileKnowledgeService', () => {
 				},
 			},
 			orderBy: { createdAt: 'desc' },
+		});
+	});
+
+	it('returns only owned accepted knowledge with grade-feedback provenance', async () => {
+		prisma.profileKnowledgeProposal.findMany.mockResolvedValue([
+			{
+				id: 'proposal-accepted',
+				kind: 'scoring-guidance',
+				status: 'accepted',
+				feedback: {
+					agentGrade: 'weak',
+					manualGrade: 'strong',
+					explanation: 'This work was at production scale.',
+					application: {
+						id: 'application-1',
+						name: 'Platform Engineer',
+						company: 'Acme',
+					},
+					jobRequirement: {
+						id: 'requirement-1',
+						what: 'Production systems experience',
+					},
+				},
+			},
+		]);
+		prisma.profileKnowledgeProposal.count.mockResolvedValue(2);
+
+		await expect(service.findLedger('user-1')).resolves.toEqual({
+			accepted: [
+				expect.objectContaining({
+					proposal: expect.objectContaining({ id: 'proposal-accepted' }),
+					applicationId: 'application-1',
+					jobRequirementId: 'requirement-1',
+					agentGrade: 'weak',
+					manualGrade: 'strong',
+				}),
+			],
+			pendingSuggestionCount: 2,
+		});
+		expect(prisma.profileKnowledgeProposal.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: { uid: 'user-1', status: 'accepted' },
+			}),
+		);
+		expect(prisma.profileKnowledgeProposal.count).toHaveBeenCalledWith({
+			where: { uid: 'user-1', status: 'proposed' },
 		});
 	});
 
