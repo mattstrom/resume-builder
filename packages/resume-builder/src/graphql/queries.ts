@@ -407,6 +407,33 @@ export const GET_JOB_REQUIREMENTS = gql`
 	}
 `;
 
+export const GET_REQUIREMENT_GRADE_FEEDBACK = gql`
+	query GetRequirementGradeFeedback($applicationId: ID!) {
+		requirementGradeFeedback(applicationId: $applicationId) {
+			id
+			applicationId
+			jobRequirementId
+			agentGrade
+			manualGrade
+			explanation
+			createdAt
+			proposals {
+				id
+				feedbackId
+				kind
+				title
+				rationale
+				payload
+				status
+				acceptedFactId
+				createdAt
+				resolvedAt
+			}
+		}
+		profileKnowledgeGuidance
+	}
+`;
+
 export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
 		conceptEvidenceAssessment(applicationId: $applicationId, resumeId: $resumeId) {

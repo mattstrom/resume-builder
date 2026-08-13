@@ -14,6 +14,7 @@ export * from './models/application.js';
 export * from './models/bullet.js';
 export * from './models/flow-run.js';
 export * from './models/professional-statement.js';
+export * from './models/profile-knowledge.js';
 
 export * from './models/profile.js';
 export * from './models/resume-content.js';

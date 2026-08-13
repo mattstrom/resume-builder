@@ -1,9 +1,14 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import type { Application, Resume } from '@resume-builder/entities';
+import {
+	type Application,
+	profileKnowledgeProposalSchema,
+	type Resume,
+} from '@resume-builder/entities';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
 	AlertCircle,
 	ArrowRight,
+	Brain,
 	CheckCircle2,
 	CopyPlus,
 	ExternalLink,
@@ -42,6 +47,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog.tsx';
+import { Field, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
@@ -54,6 +60,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import {
@@ -72,6 +79,7 @@ import type {
 	GetApplicationVariables,
 	GetJobRequirementsData,
 	GetJobRequirementsVariables,
+	ProfileKnowledgeProposalRecord,
 	UpdateApplicationData,
 	UpdateApplicationVariables,
 	UpdateResumeData,
@@ -141,41 +149,193 @@ function RequirementGradeControl({
 }: {
 	assessment: RequirementEvidenceAssessment;
 	requirement: string;
-	onChange: (grade?: EvidenceGrade) => void;
+	onChange: (grade?: EvidenceGrade, explanation?: string) => Promise<void>;
 }) {
 	const presentation = evidenceGradePresentation[assessment.grade];
+	const [pendingGrade, setPendingGrade] = useState<EvidenceGrade>();
+	const [explanation, setExplanation] = useState('');
+	const [saving, setSaving] = useState(false);
+	const closeDialog = () => {
+		setPendingGrade(undefined);
+		setExplanation('');
+	};
+	const saveGrade = async (learn: boolean) => {
+		if (!pendingGrade) return;
+		setSaving(true);
+		try {
+			await onChange(pendingGrade, learn ? explanation : undefined);
+			closeDialog();
+			toast.success(
+				learn && explanation.trim()
+					? 'Grade saved and profile feedback reviewed.'
+					: 'Grade saved.',
+			);
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not save grade feedback.');
+		} finally {
+			setSaving(false);
+		}
+	};
 	return (
-		<div className="flex flex-wrap items-center justify-end gap-2">
-			<Badge variant={presentation.variant}>
-				{presentation.label} · {Math.round(assessment.score * 100)}
-				{assessment.manualGrade ? ' · manual' : ''}
-			</Badge>
-			<Select
-				value={assessment.manualGrade ?? 'agent'}
-				onValueChange={(value) =>
-					onChange(value === 'agent' ? undefined : (value as EvidenceGrade))
-				}
-			>
-				<SelectTrigger
-					className="h-8 w-[10.5rem]"
-					aria-label={`Adjust grade for ${requirement}`}
+		<>
+			<div className="flex flex-wrap items-center justify-end gap-2">
+				<Badge variant={presentation.variant}>
+					{presentation.label} · {Math.round(assessment.score * 100)}
+					{assessment.manualGrade ? ' · manual' : ''}
+				</Badge>
+				<Select
+					value={assessment.manualGrade ?? 'agent'}
+					onValueChange={(value) => {
+						if (value === 'agent') {
+							void onChange().catch((error) => {
+								toast.error(
+									error instanceof Error
+										? error.message
+										: 'Could not restore the agent grade.',
+								);
+							});
+							return;
+						}
+						setPendingGrade(value as EvidenceGrade);
+					}}
 				>
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectGroup>
-						<SelectItem value="agent">
-							Agent: {evidenceGradePresentation[assessment.agentGrade].label}
-						</SelectItem>
-						{evidenceGrades.map((grade) => (
-							<SelectItem key={grade} value={grade}>
-								Manual: {evidenceGradePresentation[grade].label}
+					<SelectTrigger
+						className="h-8 w-[10.5rem]"
+						aria-label={`Adjust grade for ${requirement}`}
+					>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectItem value="agent">
+								Agent: {evidenceGradePresentation[assessment.agentGrade].label}
 							</SelectItem>
-						))}
-					</SelectGroup>
-				</SelectContent>
-			</Select>
-		</div>
+							{evidenceGrades.map((grade) => (
+								<SelectItem key={grade} value={grade}>
+									Manual: {evidenceGradePresentation[grade].label}
+								</SelectItem>
+							))}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</div>
+			<Dialog open={Boolean(pendingGrade)} onOpenChange={(open) => !open && closeDialog()}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>What did the grader miss?</DialogTitle>
+						<DialogDescription>
+							Your grade will be saved either way. Add context if this correction
+							should improve the broader profile the system uses about you.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="flex flex-col gap-3">
+						<p className="text-sm">{requirement}</p>
+						<Field>
+							<FieldLabel htmlFor="grade-feedback-explanation">
+								Correction context
+							</FieldLabel>
+							<Textarea
+								id="grade-feedback-explanation"
+								value={explanation}
+								onChange={(event) => setExplanation(event.target.value)}
+								placeholder="For example: I have several years of professional Java experience."
+								maxLength={2000}
+								disabled={saving}
+							/>
+						</Field>
+					</div>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={closeDialog}
+							disabled={saving}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => void saveGrade(false)}
+							disabled={saving}
+						>
+							Save grade only
+						</Button>
+						<Button
+							type="button"
+							onClick={() => void saveGrade(true)}
+							disabled={saving || !explanation.trim()}
+						>
+							{saving ? (
+								<Spinner data-icon="inline-start" />
+							) : (
+								<Brain data-icon="inline-start" />
+							)}
+							Save and learn
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
+}
+
+function KnowledgeProposal({
+	proposal,
+	onResolve,
+}: {
+	proposal: ProfileKnowledgeProposalRecord;
+	onResolve: (proposalId: string, accept: boolean) => Promise<void>;
+}) {
+	const [resolving, setResolving] = useState(false);
+	const parsed = profileKnowledgeProposalSchema.safeParse(proposal.payload);
+	const proposedKnowledge = parsed.success
+		? parsed.data.kind === 'fact'
+			? parsed.data.fact?.what
+			: parsed.data.guidance
+		: undefined;
+	const resolve = async (accept: boolean) => {
+		setResolving(true);
+		try {
+			await onResolve(proposal.id, accept);
+			toast.success(accept ? 'Profile knowledge updated.' : 'Suggestion dismissed.');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not resolve suggestion.');
+		} finally {
+			setResolving(false);
+		}
+	};
+	return (
+		<Alert>
+			<Brain />
+			<AlertTitle>{proposal.title}</AlertTitle>
+			<AlertDescription className="flex flex-col gap-3">
+				<p>{proposal.rationale}</p>
+				{proposedKnowledge && (
+					<p className="font-medium text-foreground">“{proposedKnowledge}”</p>
+				)}
+				<div className="flex flex-wrap gap-2">
+					<Button
+						type="button"
+						size="sm"
+						onClick={() => void resolve(true)}
+						disabled={resolving}
+					>
+						{resolving && <Spinner data-icon="inline-start" />}
+						Accept
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						onClick={() => void resolve(false)}
+						disabled={resolving}
+					>
+						Dismiss
+					</Button>
+				</div>
+			</AlertDescription>
+		</Alert>
 	);
 }
 
@@ -1240,10 +1400,12 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 																								}
 																								onChange={(
 																									grade,
+																									explanation,
 																								) =>
 																									profileEvaluation.setManualRequirementGrade(
 																										requirement.id,
 																										grade,
+																										explanation,
 																									)
 																								}
 																							/>
@@ -1303,6 +1465,27 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 																						)}
 																					</div>
 																				)}
+																				{profileEvaluation.proposalsByRequirementId
+																					.get(
+																						requirement.id,
+																					)
+																					?.map(
+																						(
+																							proposal,
+																						) => (
+																							<KnowledgeProposal
+																								key={
+																									proposal.id
+																								}
+																								proposal={
+																									proposal
+																								}
+																								onResolve={
+																									profileEvaluation.resolveProposal
+																								}
+																							/>
+																						),
+																					)}
 																			</div>
 																		),
 																	)}

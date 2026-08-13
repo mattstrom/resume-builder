@@ -102,9 +102,10 @@ model Fact {
   embeddingProfile  String?
   createdAt         DateTime                    @default(now())
 
-  expressions Expression[]
-  resumeFacts ResumeFact[]
-  concepts    FactConcept[]
+  expressions        Expression[]
+  resumeFacts        ResumeFact[]
+  concepts           FactConcept[]
+  knowledgeProposals ProfileKnowledgeProposal[]
 
   @@index([uid])
 }
@@ -226,7 +227,8 @@ model JobRequirementFact {
   embeddingProfile  String?
   createdAt         DateTime                    @default(now())
 
-  concepts JobRequirementConcept[]
+  concepts      JobRequirementConcept[]
+  gradeFeedback RequirementGradeFeedback[]
 
   @@index([uid])
   @@index([applicationId])
@@ -314,6 +316,7 @@ model Application {
 
   companyRecord              Company?                    @relation(fields: [companyId], references: [id], onDelete: SetNull)
   conceptEvidenceAssessments ConceptEvidenceAssessment[]
+  requirementGradeFeedback   RequirementGradeFeedback[]
 
   @@index([uid])
   @@index([companyId])
@@ -338,6 +341,50 @@ model ConceptEvidenceAssessment {
   @@unique([uid, applicationId, resumeId])
   @@index([applicationId])
   @@index([resumeId])
+}
+
+// Append-only record of a human correction to an agent-generated requirement
+// grade. The newest record for a requirement is its effective override state;
+// a null manualGrade explicitly restores the agent grade.
+model RequirementGradeFeedback {
+  id               String   @id @default(cuid())
+  uid              String
+  applicationId    String
+  jobRequirementId String
+  agentGrade       String
+  manualGrade      String?
+  explanation      String?
+  createdAt        DateTime @default(now())
+
+  application    Application                @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  jobRequirement JobRequirementFact         @relation(fields: [jobRequirementId], references: [id], onDelete: Cascade)
+  proposals      ProfileKnowledgeProposal[]
+
+  @@index([uid, applicationId, createdAt])
+  @@index([jobRequirementId, createdAt])
+}
+
+// A curator-generated suggestion derived from feedback. Proposals remain
+// inert until the user accepts them. Accepted fact proposals link to the
+// canonical Fact they created; guidance proposals are consumed by graders.
+model ProfileKnowledgeProposal {
+  id             String    @id @default(cuid())
+  uid            String
+  feedbackId     String
+  kind           String
+  title          String
+  rationale      String
+  payload        Json
+  status         String    @default("proposed")
+  acceptedFactId String?
+  createdAt      DateTime  @default(now())
+  resolvedAt     DateTime?
+
+  feedback     RequirementGradeFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  acceptedFact Fact?                    @relation(fields: [acceptedFactId], references: [id], onDelete: SetNull)
+
+  @@index([uid, status])
+  @@index([feedbackId])
 }
 
 // ─── Company ────────────────────────────────────────────────────────────────

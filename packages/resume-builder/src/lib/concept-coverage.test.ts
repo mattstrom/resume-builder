@@ -168,11 +168,9 @@ describe('requirement evidence assessments', () => {
 			],
 		]);
 
-		const assessments = deriveRequirementEvidenceAssessments(
-			[jobRequirement],
-			evaluations,
-			{ 'req-languages': 'strong' },
-		);
+		const assessments = deriveRequirementEvidenceAssessments([jobRequirement], evaluations, {
+			'req-languages': 'strong',
+		});
 
 		expect(assessments.get('req-languages')).toEqual({
 			agentGrade: 'weak',
@@ -258,6 +256,34 @@ describe('profile concept evidence', () => {
 				}),
 			]),
 		);
+	});
+
+	it('includes confirmed facts and accepted guidance in future grading input', () => {
+		const summary = deriveProfileConceptCoverage([requirement('req-java', 'java', 'Java')], []);
+		const input = buildProfileConceptEvidenceEvaluationInput(
+			summary,
+			{
+				...profile(),
+				facts: [
+					{
+						id: 'fact-java',
+						what: 'Has several years of Java experience.',
+						concepts: [{ conceptId: 'java', relation: 'uses' }],
+					},
+				],
+			},
+			[],
+			['Treat lists joined by “or” as alternatives.'],
+		);
+
+		expect(input.evidenceItems).toContainEqual(
+			expect.objectContaining({
+				id: 'profile-fact-fact-java',
+				sourceType: 'fact',
+				conceptIds: ['java'],
+			}),
+		);
+		expect(input.profileGuidance).toEqual(['Treat lists joined by “or” as alternatives.']);
 	});
 });
 

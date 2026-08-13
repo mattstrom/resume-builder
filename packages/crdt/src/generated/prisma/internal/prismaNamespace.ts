@@ -399,6 +399,8 @@ export const ModelName = {
   ResumeXml: 'ResumeXml',
   Application: 'Application',
   ConceptEvidenceAssessment: 'ConceptEvidenceAssessment',
+  RequirementGradeFeedback: 'RequirementGradeFeedback',
+  ProfileKnowledgeProposal: 'ProfileKnowledgeProposal',
   Company: 'Company',
   CoverLetter: 'CoverLetter',
   ContactInformation: 'ContactInformation',
@@ -430,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "projectConcept" | "skill" | "skillConcept" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "requirementGradeFeedback" | "profileKnowledgeProposal" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "projectConcept" | "skill" | "skillConcept" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1525,6 +1527,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ConceptEvidenceAssessmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ConceptEvidenceAssessmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    RequirementGradeFeedback: {
+      payload: Prisma.$RequirementGradeFeedbackPayload<ExtArgs>
+      fields: Prisma.RequirementGradeFeedbackFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RequirementGradeFeedbackFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RequirementGradeFeedbackFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        findFirst: {
+          args: Prisma.RequirementGradeFeedbackFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RequirementGradeFeedbackFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        findMany: {
+          args: Prisma.RequirementGradeFeedbackFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>[]
+        }
+        create: {
+          args: Prisma.RequirementGradeFeedbackCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        createMany: {
+          args: Prisma.RequirementGradeFeedbackCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RequirementGradeFeedbackCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>[]
+        }
+        delete: {
+          args: Prisma.RequirementGradeFeedbackDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        update: {
+          args: Prisma.RequirementGradeFeedbackUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        deleteMany: {
+          args: Prisma.RequirementGradeFeedbackDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RequirementGradeFeedbackUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RequirementGradeFeedbackUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>[]
+        }
+        upsert: {
+          args: Prisma.RequirementGradeFeedbackUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RequirementGradeFeedbackPayload>
+        }
+        aggregate: {
+          args: Prisma.RequirementGradeFeedbackAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRequirementGradeFeedback>
+        }
+        groupBy: {
+          args: Prisma.RequirementGradeFeedbackGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequirementGradeFeedbackGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RequirementGradeFeedbackCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RequirementGradeFeedbackCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProfileKnowledgeProposal: {
+      payload: Prisma.$ProfileKnowledgeProposalPayload<ExtArgs>
+      fields: Prisma.ProfileKnowledgeProposalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProfileKnowledgeProposalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProfileKnowledgeProposalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        findFirst: {
+          args: Prisma.ProfileKnowledgeProposalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProfileKnowledgeProposalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        findMany: {
+          args: Prisma.ProfileKnowledgeProposalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>[]
+        }
+        create: {
+          args: Prisma.ProfileKnowledgeProposalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        createMany: {
+          args: Prisma.ProfileKnowledgeProposalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProfileKnowledgeProposalCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>[]
+        }
+        delete: {
+          args: Prisma.ProfileKnowledgeProposalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        update: {
+          args: Prisma.ProfileKnowledgeProposalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProfileKnowledgeProposalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProfileKnowledgeProposalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProfileKnowledgeProposalUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProfileKnowledgeProposalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfileKnowledgeProposalPayload>
+        }
+        aggregate: {
+          args: Prisma.ProfileKnowledgeProposalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProfileKnowledgeProposal>
+        }
+        groupBy: {
+          args: Prisma.ProfileKnowledgeProposalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfileKnowledgeProposalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProfileKnowledgeProposalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfileKnowledgeProposalCountAggregateOutputType> | number
         }
       }
     }
@@ -2965,6 +3115,37 @@ export const ConceptEvidenceAssessmentScalarFieldEnum = {
 export type ConceptEvidenceAssessmentScalarFieldEnum = (typeof ConceptEvidenceAssessmentScalarFieldEnum)[keyof typeof ConceptEvidenceAssessmentScalarFieldEnum]
 
 
+export const RequirementGradeFeedbackScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  applicationId: 'applicationId',
+  jobRequirementId: 'jobRequirementId',
+  agentGrade: 'agentGrade',
+  manualGrade: 'manualGrade',
+  explanation: 'explanation',
+  createdAt: 'createdAt'
+} as const
+
+export type RequirementGradeFeedbackScalarFieldEnum = (typeof RequirementGradeFeedbackScalarFieldEnum)[keyof typeof RequirementGradeFeedbackScalarFieldEnum]
+
+
+export const ProfileKnowledgeProposalScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  feedbackId: 'feedbackId',
+  kind: 'kind',
+  title: 'title',
+  rationale: 'rationale',
+  payload: 'payload',
+  status: 'status',
+  acceptedFactId: 'acceptedFactId',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+} as const
+
+export type ProfileKnowledgeProposalScalarFieldEnum = (typeof ProfileKnowledgeProposalScalarFieldEnum)[keyof typeof ProfileKnowledgeProposalScalarFieldEnum]
+
+
 export const CompanyScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3602,6 +3783,8 @@ export type GlobalOmitConfig = {
   resumeXml?: Prisma.ResumeXmlOmit
   application?: Prisma.ApplicationOmit
   conceptEvidenceAssessment?: Prisma.ConceptEvidenceAssessmentOmit
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackOmit
+  profileKnowledgeProposal?: Prisma.ProfileKnowledgeProposalOmit
   company?: Prisma.CompanyOmit
   coverLetter?: Prisma.CoverLetterOmit
   contactInformation?: Prisma.ContactInformationOmit

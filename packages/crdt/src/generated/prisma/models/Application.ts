@@ -248,6 +248,7 @@ export type ApplicationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
   companyRecord?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentListRelationFilter
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackListRelationFilter
 }
 
 export type ApplicationOrderByWithRelationInput = {
@@ -267,6 +268,7 @@ export type ApplicationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   companyRecord?: Prisma.CompanyOrderByWithRelationInput
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentOrderByRelationAggregateInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackOrderByRelationAggregateInput
 }
 
 export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
@@ -289,6 +291,7 @@ export type ApplicationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Application"> | Date | string
   companyRecord?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentListRelationFilter
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackListRelationFilter
 }, "id">
 
 export type ApplicationOrderByWithAggregationInput = {
@@ -347,6 +350,7 @@ export type ApplicationCreateInput = {
   updatedAt?: Date | string
   companyRecord?: Prisma.CompanyCreateNestedOneWithoutApplicationsInput
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentCreateNestedManyWithoutApplicationInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateInput = {
@@ -365,6 +369,7 @@ export type ApplicationUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedCreateNestedManyWithoutApplicationInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationUpdateInput = {
@@ -383,6 +388,7 @@ export type ApplicationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyRecord?: Prisma.CompanyUpdateOneWithoutApplicationsNestedInput
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUpdateManyWithoutApplicationNestedInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateInput = {
@@ -401,6 +407,7 @@ export type ApplicationUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedUpdateManyWithoutApplicationNestedInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateManyInput = {
@@ -529,6 +536,20 @@ export type ApplicationUpdateOneRequiredWithoutConceptEvidenceAssessmentsNestedI
   update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicationUpdateToOneWithWhereWithoutConceptEvidenceAssessmentsInput, Prisma.ApplicationUpdateWithoutConceptEvidenceAssessmentsInput>, Prisma.ApplicationUncheckedUpdateWithoutConceptEvidenceAssessmentsInput>
 }
 
+export type ApplicationCreateNestedOneWithoutRequirementGradeFeedbackInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedCreateWithoutRequirementGradeFeedbackInput>
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutRequirementGradeFeedbackInput
+  connect?: Prisma.ApplicationWhereUniqueInput
+}
+
+export type ApplicationUpdateOneRequiredWithoutRequirementGradeFeedbackNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicationCreateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedCreateWithoutRequirementGradeFeedbackInput>
+  connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutRequirementGradeFeedbackInput
+  upsert?: Prisma.ApplicationUpsertWithoutRequirementGradeFeedbackInput
+  connect?: Prisma.ApplicationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicationUpdateToOneWithWhereWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUpdateWithoutRequirementGradeFeedbackInput>, Prisma.ApplicationUncheckedUpdateWithoutRequirementGradeFeedbackInput>
+}
+
 export type ApplicationCreateNestedManyWithoutCompanyRecordInput = {
   create?: Prisma.XOR<Prisma.ApplicationCreateWithoutCompanyRecordInput, Prisma.ApplicationUncheckedCreateWithoutCompanyRecordInput> | Prisma.ApplicationCreateWithoutCompanyRecordInput[] | Prisma.ApplicationUncheckedCreateWithoutCompanyRecordInput[]
   connectOrCreate?: Prisma.ApplicationCreateOrConnectWithoutCompanyRecordInput | Prisma.ApplicationCreateOrConnectWithoutCompanyRecordInput[]
@@ -586,6 +607,7 @@ export type ApplicationCreateWithoutConceptEvidenceAssessmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   companyRecord?: Prisma.CompanyCreateNestedOneWithoutApplicationsInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutConceptEvidenceAssessmentsInput = {
@@ -603,6 +625,7 @@ export type ApplicationUncheckedCreateWithoutConceptEvidenceAssessmentsInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutConceptEvidenceAssessmentsInput = {
@@ -636,6 +659,7 @@ export type ApplicationUpdateWithoutConceptEvidenceAssessmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyRecord?: Prisma.CompanyUpdateOneWithoutApplicationsNestedInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutConceptEvidenceAssessmentsInput = {
@@ -653,6 +677,95 @@ export type ApplicationUncheckedUpdateWithoutConceptEvidenceAssessmentsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedUpdateManyWithoutApplicationNestedInput
+}
+
+export type ApplicationCreateWithoutRequirementGradeFeedbackInput = {
+  id?: string
+  uid: string
+  name?: string
+  company?: string
+  jobPostingUrl?: string
+  jobDescription?: string | null
+  notionId?: string | null
+  coverLetterId?: string | null
+  jobSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyRecord?: Prisma.CompanyCreateNestedOneWithoutApplicationsInput
+  conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentCreateNestedManyWithoutApplicationInput
+}
+
+export type ApplicationUncheckedCreateWithoutRequirementGradeFeedbackInput = {
+  id?: string
+  uid: string
+  companyId?: string | null
+  name?: string
+  company?: string
+  jobPostingUrl?: string
+  jobDescription?: string | null
+  notionId?: string | null
+  coverLetterId?: string | null
+  jobSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedCreateNestedManyWithoutApplicationInput
+}
+
+export type ApplicationCreateOrConnectWithoutRequirementGradeFeedbackInput = {
+  where: Prisma.ApplicationWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicationCreateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedCreateWithoutRequirementGradeFeedbackInput>
+}
+
+export type ApplicationUpsertWithoutRequirementGradeFeedbackInput = {
+  update: Prisma.XOR<Prisma.ApplicationUpdateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedUpdateWithoutRequirementGradeFeedbackInput>
+  create: Prisma.XOR<Prisma.ApplicationCreateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedCreateWithoutRequirementGradeFeedbackInput>
+  where?: Prisma.ApplicationWhereInput
+}
+
+export type ApplicationUpdateToOneWithWhereWithoutRequirementGradeFeedbackInput = {
+  where?: Prisma.ApplicationWhereInput
+  data: Prisma.XOR<Prisma.ApplicationUpdateWithoutRequirementGradeFeedbackInput, Prisma.ApplicationUncheckedUpdateWithoutRequirementGradeFeedbackInput>
+}
+
+export type ApplicationUpdateWithoutRequirementGradeFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.StringFieldUpdateOperationsInput | string
+  jobPostingUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  jobDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverLetterId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyRecord?: Prisma.CompanyUpdateOneWithoutApplicationsNestedInput
+  conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUpdateManyWithoutApplicationNestedInput
+}
+
+export type ApplicationUncheckedUpdateWithoutRequirementGradeFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  company?: Prisma.StringFieldUpdateOperationsInput | string
+  jobPostingUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  jobDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coverLetterId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jobSummary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  analysis?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationCreateWithoutCompanyRecordInput = {
@@ -670,6 +783,7 @@ export type ApplicationCreateWithoutCompanyRecordInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentCreateNestedManyWithoutApplicationInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationUncheckedCreateWithoutCompanyRecordInput = {
@@ -687,6 +801,7 @@ export type ApplicationUncheckedCreateWithoutCompanyRecordInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedCreateNestedManyWithoutApplicationInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedCreateNestedManyWithoutApplicationInput
 }
 
 export type ApplicationCreateOrConnectWithoutCompanyRecordInput = {
@@ -766,6 +881,7 @@ export type ApplicationUpdateWithoutCompanyRecordInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUpdateManyWithoutApplicationNestedInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateWithoutCompanyRecordInput = {
@@ -783,6 +899,7 @@ export type ApplicationUncheckedUpdateWithoutCompanyRecordInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   conceptEvidenceAssessments?: Prisma.ConceptEvidenceAssessmentUncheckedUpdateManyWithoutApplicationNestedInput
+  requirementGradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedUpdateManyWithoutApplicationNestedInput
 }
 
 export type ApplicationUncheckedUpdateManyWithoutCompanyRecordInput = {
@@ -808,10 +925,12 @@ export type ApplicationUncheckedUpdateManyWithoutCompanyRecordInput = {
 
 export type ApplicationCountOutputType = {
   conceptEvidenceAssessments: number
+  requirementGradeFeedback: number
 }
 
 export type ApplicationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   conceptEvidenceAssessments?: boolean | ApplicationCountOutputTypeCountConceptEvidenceAssessmentsArgs
+  requirementGradeFeedback?: boolean | ApplicationCountOutputTypeCountRequirementGradeFeedbackArgs
 }
 
 /**
@@ -829,6 +948,13 @@ export type ApplicationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
  */
 export type ApplicationCountOutputTypeCountConceptEvidenceAssessmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ConceptEvidenceAssessmentWhereInput
+}
+
+/**
+ * ApplicationCountOutputType without action
+ */
+export type ApplicationCountOutputTypeCountRequirementGradeFeedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequirementGradeFeedbackWhereInput
 }
 
 
@@ -849,6 +975,7 @@ export type ApplicationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedAt?: boolean
   companyRecord?: boolean | Prisma.Application$companyRecordArgs<ExtArgs>
   conceptEvidenceAssessments?: boolean | Prisma.Application$conceptEvidenceAssessmentsArgs<ExtArgs>
+  requirementGradeFeedback?: boolean | Prisma.Application$requirementGradeFeedbackArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["application"]>
 
@@ -909,6 +1036,7 @@ export type ApplicationOmit<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type ApplicationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   companyRecord?: boolean | Prisma.Application$companyRecordArgs<ExtArgs>
   conceptEvidenceAssessments?: boolean | Prisma.Application$conceptEvidenceAssessmentsArgs<ExtArgs>
+  requirementGradeFeedback?: boolean | Prisma.Application$requirementGradeFeedbackArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApplicationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -923,6 +1051,7 @@ export type $ApplicationPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     companyRecord: Prisma.$CompanyPayload<ExtArgs> | null
     conceptEvidenceAssessments: Prisma.$ConceptEvidenceAssessmentPayload<ExtArgs>[]
+    requirementGradeFeedback: Prisma.$RequirementGradeFeedbackPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1335,6 +1464,7 @@ export interface Prisma__ApplicationClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   companyRecord<T extends Prisma.Application$companyRecordArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$companyRecordArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   conceptEvidenceAssessments<T extends Prisma.Application$conceptEvidenceAssessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$conceptEvidenceAssessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ConceptEvidenceAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  requirementGradeFeedback<T extends Prisma.Application$requirementGradeFeedbackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Application$requirementGradeFeedbackArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequirementGradeFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1819,6 +1949,30 @@ export type Application$conceptEvidenceAssessmentsArgs<ExtArgs extends runtime.T
   take?: number
   skip?: number
   distinct?: Prisma.ConceptEvidenceAssessmentScalarFieldEnum | Prisma.ConceptEvidenceAssessmentScalarFieldEnum[]
+}
+
+/**
+ * Application.requirementGradeFeedback
+ */
+export type Application$requirementGradeFeedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RequirementGradeFeedback
+   */
+  select?: Prisma.RequirementGradeFeedbackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RequirementGradeFeedback
+   */
+  omit?: Prisma.RequirementGradeFeedbackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RequirementGradeFeedbackInclude<ExtArgs> | null
+  where?: Prisma.RequirementGradeFeedbackWhereInput
+  orderBy?: Prisma.RequirementGradeFeedbackOrderByWithRelationInput | Prisma.RequirementGradeFeedbackOrderByWithRelationInput[]
+  cursor?: Prisma.RequirementGradeFeedbackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RequirementGradeFeedbackScalarFieldEnum | Prisma.RequirementGradeFeedbackScalarFieldEnum[]
 }
 
 /**

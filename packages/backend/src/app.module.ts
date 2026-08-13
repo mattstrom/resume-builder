@@ -14,6 +14,7 @@ import { LoggingModule } from './modules/logging/logging.module.js';
 import { McpModule } from './modules/mcp/mcp.module.js';
 import { PdfModule } from './modules/pdf/pdf.module.js';
 import { PrismaModule } from './modules/prisma/index.js';
+import { ProfileKnowledgeModule } from './modules/profile-knowledge/profile-knowledge.module.js';
 import { QueueModule } from './modules/queue/queue.module.js';
 import { RequestSigningModule } from './modules/request-signing/index.js';
 
@@ -35,6 +36,7 @@ import { RequestSigningModule } from './modules/request-signing/index.js';
 		McpModule,
 		PrismaModule,
 		PdfModule,
+		ProfileKnowledgeModule,
 		LoggingModule,
 		LlmModule,
 	],

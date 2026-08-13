@@ -251,7 +251,7 @@ export const ConceptCoveragePanel: FC<ConceptCoveragePanelProps> = observer(
 							resume,
 							resolvedLabels,
 						)
-					: { concepts: [], evidenceItems: [] },
+					: { concepts: [], evidenceItems: [], profileGuidance: [] },
 			[summary, bulletsStore.bullets, resume, resolvedLabels],
 		);
 		const evaluationFingerprint = JSON.stringify(evaluationInput);

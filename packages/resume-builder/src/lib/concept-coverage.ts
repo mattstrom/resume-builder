@@ -36,6 +36,13 @@ export interface ConceptCoverageSummary {
 export interface ProfileEvidence {
 	bullets: Bullet[];
 	educations: Education[];
+	facts?: Array<{
+		id: string;
+		what: string;
+		impact?: string;
+		scale?: string;
+		concepts: Array<{ conceptId: string; relation: string }>;
+	}>;
 	jobs: Job[];
 	projects: Project[];
 	skills: Skill[];
@@ -70,10 +77,7 @@ export const conceptEvidenceEvaluationSchema = z.object({
 export type ConceptEvidenceEvaluation = z.infer<typeof conceptEvidenceEvaluationSchema>;
 export type EvidenceGrade = ConceptEvidenceEvaluation['evaluations'][number]['grade'];
 
-export const manualRequirementGradesSchema = z.record(
-	z.string(),
-	conceptEvidenceGradeSchema,
-);
+export const manualRequirementGradesSchema = z.record(z.string(), conceptEvidenceGradeSchema);
 
 export type ManualRequirementGrades = z.infer<typeof manualRequirementGradesSchema>;
 
@@ -101,10 +105,7 @@ export function gradeForEvidenceScore(score: number): EvidenceGrade {
 
 export function deriveRequirementEvidenceAssessments(
 	requirements: readonly JobRequirement[],
-	evaluationByConceptId: ReadonlyMap<
-		string,
-		ConceptEvidenceEvaluation['evaluations'][number]
-	>,
+	evaluationByConceptId: ReadonlyMap<string, ConceptEvidenceEvaluation['evaluations'][number]>,
 	manualGrades: ManualRequirementGrades = {},
 ): Map<string, RequirementEvidenceAssessment> {
 	return new Map(
@@ -115,8 +116,7 @@ export function deriveRequirementEvidenceAssessments(
 			});
 			if (scores.length === 0) return [];
 
-			const agentScore =
-				scores.reduce((total, score) => total + score, 0) / scores.length;
+			const agentScore = scores.reduce((total, score) => total + score, 0) / scores.length;
 			const agentGrade = gradeForEvidenceScore(agentScore);
 			const manualGrade = manualGrades[requirement.id];
 			return [
@@ -166,6 +166,7 @@ export interface ConceptEvidenceEvaluationInput {
 			| 'experience'
 			| 'project'
 			| 'education'
+			| 'fact'
 			| 'volunteering'
 			| 'bullet';
 		text: string;
@@ -174,6 +175,7 @@ export interface ConceptEvidenceEvaluationInput {
 		/** Requirement concepts reached only by walking up the ontology. */
 		broaderConceptIds: string[];
 	}>;
+	profileGuidance: string[];
 }
 
 export async function hashConceptEvidenceEvaluationInput(
@@ -267,6 +269,7 @@ export function buildProfileConceptEvidenceEvaluationInput(
 	summary: ConceptCoverageSummary,
 	profile: ProfileEvidence,
 	resolvedLabels: readonly ResolvedConceptLabel[] = [],
+	profileGuidance: readonly string[] = [],
 ): ConceptEvidenceEvaluationInput {
 	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
 	const conceptIdsForLabels = conceptMatchers(summary, resolvedLabels);
@@ -283,6 +286,21 @@ export function buildProfileConceptEvidenceEvaluationInput(
 			sourceType: 'skill',
 			text: [skill.name, skill.category].filter(Boolean).join(' — '),
 			...conceptIdsForLabels([skill.name]),
+		});
+	}
+	for (const fact of profile.facts ?? []) {
+		addEvidence({
+			id: `profile-fact-${fact.id}`,
+			label: 'Confirmed profile fact',
+			paths: [],
+			sourceType: 'fact',
+			text: [fact.what, fact.impact, fact.scale].filter(Boolean).join(' — '),
+			conceptIds: fact.concepts
+				.filter(({ conceptId }) =>
+					summary.concepts.some(({ concept }) => concept.id === conceptId),
+				)
+				.map(({ conceptId }) => conceptId),
+			broaderConceptIds: [],
 		});
 	}
 	for (const project of profile.projects) {
@@ -356,6 +374,7 @@ export function buildProfileConceptEvidenceEvaluationInput(
 			requirements: requirements.map(({ what }) => what),
 		})),
 		evidenceItems: evidenceItems.slice(0, 200),
+		profileGuidance: [...profileGuidance],
 	};
 }
 
@@ -567,6 +586,7 @@ export function buildConceptEvidenceEvaluationInput(
 			requirements: requirements.map(({ what }) => what),
 		})),
 		evidenceItems,
+		profileGuidance: [],
 	};
 }
 

@@ -283,6 +283,7 @@ export type FactWhereInput = {
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
   concepts?: Prisma.FactConceptListRelationFilter
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalListRelationFilter
 }
 
 export type FactOrderByWithRelationInput = {
@@ -301,6 +302,7 @@ export type FactOrderByWithRelationInput = {
   expressions?: Prisma.ExpressionOrderByRelationAggregateInput
   resumeFacts?: Prisma.ResumeFactOrderByRelationAggregateInput
   concepts?: Prisma.FactConceptOrderByRelationAggregateInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalOrderByRelationAggregateInput
 }
 
 export type FactWhereUniqueInput = Prisma.AtLeast<{
@@ -322,6 +324,7 @@ export type FactWhereUniqueInput = Prisma.AtLeast<{
   expressions?: Prisma.ExpressionListRelationFilter
   resumeFacts?: Prisma.ResumeFactListRelationFilter
   concepts?: Prisma.FactConceptListRelationFilter
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalListRelationFilter
 }, "id">
 
 export type FactOrderByWithAggregationInput = {
@@ -378,6 +381,7 @@ export type FactCreateInput = {
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactUncheckedCreateInput = {
@@ -396,6 +400,7 @@ export type FactUncheckedCreateInput = {
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactUpdateInput = {
@@ -414,6 +419,7 @@ export type FactUpdateInput = {
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactUncheckedUpdateInput = {
@@ -432,6 +438,7 @@ export type FactUncheckedUpdateInput = {
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactCreateManyInput = {
@@ -541,6 +548,11 @@ export type FactScalarRelationFilter = {
   isNot?: Prisma.FactWhereInput
 }
 
+export type FactNullableScalarRelationFilter = {
+  is?: Prisma.FactWhereInput | null
+  isNot?: Prisma.FactWhereInput | null
+}
+
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -585,6 +597,22 @@ export type FactUpdateOneRequiredWithoutExpressionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutExpressionsInput, Prisma.FactUpdateWithoutExpressionsInput>, Prisma.FactUncheckedUpdateWithoutExpressionsInput>
 }
 
+export type FactCreateNestedOneWithoutKnowledgeProposalsInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedCreateWithoutKnowledgeProposalsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutKnowledgeProposalsInput
+  connect?: Prisma.FactWhereUniqueInput
+}
+
+export type FactUpdateOneWithoutKnowledgeProposalsNestedInput = {
+  create?: Prisma.XOR<Prisma.FactCreateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedCreateWithoutKnowledgeProposalsInput>
+  connectOrCreate?: Prisma.FactCreateOrConnectWithoutKnowledgeProposalsInput
+  upsert?: Prisma.FactUpsertWithoutKnowledgeProposalsInput
+  disconnect?: Prisma.FactWhereInput | boolean
+  delete?: Prisma.FactWhereInput | boolean
+  connect?: Prisma.FactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FactUpdateToOneWithWhereWithoutKnowledgeProposalsInput, Prisma.FactUpdateWithoutKnowledgeProposalsInput>, Prisma.FactUncheckedUpdateWithoutKnowledgeProposalsInput>
+}
+
 export type FactCreateNestedOneWithoutResumeFactsInput = {
   create?: Prisma.XOR<Prisma.FactCreateWithoutResumeFactsInput, Prisma.FactUncheckedCreateWithoutResumeFactsInput>
   connectOrCreate?: Prisma.FactCreateOrConnectWithoutResumeFactsInput
@@ -614,6 +642,7 @@ export type FactCreateWithoutConceptsInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactUncheckedCreateWithoutConceptsInput = {
@@ -631,6 +660,7 @@ export type FactUncheckedCreateWithoutConceptsInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactCreateOrConnectWithoutConceptsInput = {
@@ -664,6 +694,7 @@ export type FactUpdateWithoutConceptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutConceptsInput = {
@@ -681,6 +712,7 @@ export type FactUncheckedUpdateWithoutConceptsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactCreateWithoutExpressionsInput = {
@@ -698,6 +730,7 @@ export type FactCreateWithoutExpressionsInput = {
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactUncheckedCreateWithoutExpressionsInput = {
@@ -715,6 +748,7 @@ export type FactUncheckedCreateWithoutExpressionsInput = {
   createdAt?: Date | string
   resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactCreateOrConnectWithoutExpressionsInput = {
@@ -748,6 +782,7 @@ export type FactUpdateWithoutExpressionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutExpressionsInput = {
@@ -763,6 +798,95 @@ export type FactUncheckedUpdateWithoutExpressionsInput = {
   embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedUpdateManyWithoutAcceptedFactNestedInput
+}
+
+export type FactCreateWithoutKnowledgeProposalsInput = {
+  id?: string
+  uid: string
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
+}
+
+export type FactUncheckedCreateWithoutKnowledgeProposalsInput = {
+  id?: string
+  uid: string
+  what: string
+  impact?: string | null
+  scale?: string | null
+  citation?: string | null
+  citationNodeIndex?: number | null
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
+  resumeFacts?: Prisma.ResumeFactUncheckedCreateNestedManyWithoutFactInput
+  concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
+}
+
+export type FactCreateOrConnectWithoutKnowledgeProposalsInput = {
+  where: Prisma.FactWhereUniqueInput
+  create: Prisma.XOR<Prisma.FactCreateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedCreateWithoutKnowledgeProposalsInput>
+}
+
+export type FactUpsertWithoutKnowledgeProposalsInput = {
+  update: Prisma.XOR<Prisma.FactUpdateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedUpdateWithoutKnowledgeProposalsInput>
+  create: Prisma.XOR<Prisma.FactCreateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedCreateWithoutKnowledgeProposalsInput>
+  where?: Prisma.FactWhereInput
+}
+
+export type FactUpdateToOneWithWhereWithoutKnowledgeProposalsInput = {
+  where?: Prisma.FactWhereInput
+  data: Prisma.XOR<Prisma.FactUpdateWithoutKnowledgeProposalsInput, Prisma.FactUncheckedUpdateWithoutKnowledgeProposalsInput>
+}
+
+export type FactUpdateWithoutKnowledgeProposalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
+  resumeFacts?: Prisma.ResumeFactUpdateManyWithoutFactNestedInput
+  concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
+}
+
+export type FactUncheckedUpdateWithoutKnowledgeProposalsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scale?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  citationNodeIndex?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   resumeFacts?: Prisma.ResumeFactUncheckedUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
 }
@@ -782,6 +906,7 @@ export type FactCreateWithoutResumeFactsInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactUncheckedCreateWithoutResumeFactsInput = {
@@ -799,6 +924,7 @@ export type FactUncheckedCreateWithoutResumeFactsInput = {
   createdAt?: Date | string
   expressions?: Prisma.ExpressionUncheckedCreateNestedManyWithoutFactInput
   concepts?: Prisma.FactConceptUncheckedCreateNestedManyWithoutFactInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedCreateNestedManyWithoutAcceptedFactInput
 }
 
 export type FactCreateOrConnectWithoutResumeFactsInput = {
@@ -832,6 +958,7 @@ export type FactUpdateWithoutResumeFactsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUpdateManyWithoutAcceptedFactNestedInput
 }
 
 export type FactUncheckedUpdateWithoutResumeFactsInput = {
@@ -849,6 +976,7 @@ export type FactUncheckedUpdateWithoutResumeFactsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expressions?: Prisma.ExpressionUncheckedUpdateManyWithoutFactNestedInput
   concepts?: Prisma.FactConceptUncheckedUpdateManyWithoutFactNestedInput
+  knowledgeProposals?: Prisma.ProfileKnowledgeProposalUncheckedUpdateManyWithoutAcceptedFactNestedInput
 }
 
 
@@ -860,12 +988,14 @@ export type FactCountOutputType = {
   expressions: number
   resumeFacts: number
   concepts: number
+  knowledgeProposals: number
 }
 
 export type FactCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expressions?: boolean | FactCountOutputTypeCountExpressionsArgs
   resumeFacts?: boolean | FactCountOutputTypeCountResumeFactsArgs
   concepts?: boolean | FactCountOutputTypeCountConceptsArgs
+  knowledgeProposals?: boolean | FactCountOutputTypeCountKnowledgeProposalsArgs
 }
 
 /**
@@ -899,6 +1029,13 @@ export type FactCountOutputTypeCountConceptsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.FactConceptWhereInput
 }
 
+/**
+ * FactCountOutputType without action
+ */
+export type FactCountOutputTypeCountKnowledgeProposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProfileKnowledgeProposalWhereInput
+}
+
 
 export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -916,6 +1053,7 @@ export type FactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
   concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
+  knowledgeProposals?: boolean | Prisma.Fact$knowledgeProposalsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fact"]>
 
@@ -969,6 +1107,7 @@ export type FactInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   expressions?: boolean | Prisma.Fact$expressionsArgs<ExtArgs>
   resumeFacts?: boolean | Prisma.Fact$resumeFactsArgs<ExtArgs>
   concepts?: boolean | Prisma.Fact$conceptsArgs<ExtArgs>
+  knowledgeProposals?: boolean | Prisma.Fact$knowledgeProposalsArgs<ExtArgs>
   _count?: boolean | Prisma.FactCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FactIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -980,6 +1119,7 @@ export type $FactPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     expressions: Prisma.$ExpressionPayload<ExtArgs>[]
     resumeFacts: Prisma.$ResumeFactPayload<ExtArgs>[]
     concepts: Prisma.$FactConceptPayload<ExtArgs>[]
+    knowledgeProposals: Prisma.$ProfileKnowledgeProposalPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1406,6 +1546,7 @@ export interface Prisma__FactClient<T, Null = never, ExtArgs extends runtime.Typ
   expressions<T extends Prisma.Fact$expressionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$expressionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpressionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resumeFacts<T extends Prisma.Fact$resumeFactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$resumeFactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResumeFactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   concepts<T extends Prisma.Fact$conceptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$conceptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FactConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  knowledgeProposals<T extends Prisma.Fact$knowledgeProposalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Fact$knowledgeProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProfileKnowledgeProposalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1909,6 +2050,30 @@ export type Fact$conceptsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.FactConceptScalarFieldEnum | Prisma.FactConceptScalarFieldEnum[]
+}
+
+/**
+ * Fact.knowledgeProposals
+ */
+export type Fact$knowledgeProposalsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProfileKnowledgeProposal
+   */
+  select?: Prisma.ProfileKnowledgeProposalSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProfileKnowledgeProposal
+   */
+  omit?: Prisma.ProfileKnowledgeProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProfileKnowledgeProposalInclude<ExtArgs> | null
+  where?: Prisma.ProfileKnowledgeProposalWhereInput
+  orderBy?: Prisma.ProfileKnowledgeProposalOrderByWithRelationInput | Prisma.ProfileKnowledgeProposalOrderByWithRelationInput[]
+  cursor?: Prisma.ProfileKnowledgeProposalWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProfileKnowledgeProposalScalarFieldEnum | Prisma.ProfileKnowledgeProposalScalarFieldEnum[]
 }
 
 /**

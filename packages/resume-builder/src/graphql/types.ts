@@ -55,6 +55,39 @@ export interface GetJobRequirementsVariables {
 	applicationId: string;
 }
 
+export interface ProfileKnowledgeProposalRecord {
+	id: string;
+	feedbackId: string;
+	kind: 'fact' | 'requirement-interpretation' | 'scoring-guidance';
+	title: string;
+	rationale: string;
+	payload: unknown;
+	status: 'proposed' | 'accepted' | 'rejected';
+	acceptedFactId?: string | null;
+	createdAt: string;
+	resolvedAt?: string | null;
+}
+
+export interface RequirementGradeFeedbackRecord {
+	id: string;
+	applicationId: string;
+	jobRequirementId: string;
+	agentGrade: string;
+	manualGrade?: string | null;
+	explanation?: string | null;
+	createdAt: string;
+	proposals: ProfileKnowledgeProposalRecord[];
+}
+
+export interface GetRequirementGradeFeedbackData {
+	requirementGradeFeedback: RequirementGradeFeedbackRecord[];
+	profileKnowledgeGuidance: string[];
+}
+
+export interface GetRequirementGradeFeedbackVariables {
+	applicationId: string;
+}
+
 /** A free-text label matched to the concept it names, plus its parent chain. */
 export interface ResolvedConceptLabel {
 	label: string;

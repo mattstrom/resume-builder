@@ -698,6 +698,30 @@ type JobRequirementType {
   createdAt: DateTime!
 }
 
+type ProfileKnowledgeProposalType {
+  id: ID!
+  feedbackId: ID!
+  kind: String!
+  title: String!
+  rationale: String!
+  payload: JSON!
+  status: String!
+  acceptedFactId: ID
+  createdAt: DateTime!
+  resolvedAt: DateTime
+}
+
+type RequirementGradeFeedbackType {
+  id: ID!
+  applicationId: ID!
+  jobRequirementId: ID!
+  agentGrade: String!
+  manualGrade: String
+  explanation: String
+  createdAt: DateTime!
+  proposals: [ProfileKnowledgeProposalType!]!
+}
+
 input CompanyAddressInput {
   streetAddress: String
   city: String
@@ -736,6 +760,8 @@ type Query {
   getCompany(id: String!): Company!
   conceptEvidenceAssessment(applicationId: ID!, resumeId: ID!): ConceptEvidenceAssessmentType
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
+  requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
+  profileKnowledgeGuidance: [String!]!
 }
 
 input BulletFilterInput {
@@ -824,6 +850,9 @@ type Mutation {
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
   saveConceptEvidenceAssessment(applicationId: ID!, resumeId: ID!, inputHash: String!, evaluatorVersion: Int!, result: JSON!): ConceptEvidenceAssessmentType!
+  recordRequirementGradeFeedback(applicationId: ID!, jobRequirementId: ID!, agentGrade: String!, manualGrade: String, explanation: String): RequirementGradeFeedbackType!
+  saveProfileKnowledgeProposals(feedbackId: ID!, result: JSON!): [ProfileKnowledgeProposalType!]!
+  resolveProfileKnowledgeProposal(proposalId: ID!, accept: Boolean!): ProfileKnowledgeProposalType!
 }
 
 input ProfileUpdateInput {
