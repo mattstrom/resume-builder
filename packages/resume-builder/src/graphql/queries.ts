@@ -155,9 +155,13 @@ export const applicationFragment = gql`
 			skillRelevance
 			experienceRelevance
 			roleLevelFit
+			roleLevelFitExplanation
 			locationFit
+			locationFitExplanation
 			compensationFit
+			compensationFitExplanation
 			companyFit
+			companyFitExplanation
 			logisticalFit
 			overallFit
 			strengths

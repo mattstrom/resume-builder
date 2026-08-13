@@ -148,7 +148,15 @@ function scoreVariant(score: number) {
 	return 'destructive' as const;
 }
 
-function FitMetric({ label, value }: { label: string; value?: number }) {
+function FitMetric({
+	label,
+	value,
+	explanation,
+}: {
+	label: string;
+	value?: number;
+	explanation?: string;
+}) {
 	return (
 		<div className="flex flex-col gap-2 rounded-md border border-border p-3">
 			<div className="flex items-center justify-between gap-3">
@@ -160,6 +168,12 @@ function FitMetric({ label, value }: { label: string; value?: number }) {
 				)}
 			</div>
 			<Progress value={(value ?? 0) * 100} className="h-2" />
+			<p className="text-sm leading-relaxed text-muted-foreground">
+				{explanation ||
+					(value === undefined
+						? 'The assessment did not find enough information to score this preference.'
+						: 'Reassess fit to generate a detailed explanation for this score.')}
+			</p>
 		</div>
 	);
 }
@@ -1022,18 +1036,34 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 													<FitMetric
 														label="Role level"
 														value={application.analysis.roleLevelFit}
+														explanation={
+															application.analysis
+																.roleLevelFitExplanation
+														}
 													/>
 													<FitMetric
 														label="Location"
 														value={application.analysis.locationFit}
+														explanation={
+															application.analysis
+																.locationFitExplanation
+														}
 													/>
 													<FitMetric
 														label="Compensation"
 														value={application.analysis.compensationFit}
+														explanation={
+															application.analysis
+																.compensationFitExplanation
+														}
 													/>
 													<FitMetric
 														label="Company"
 														value={application.analysis.companyFit}
+														explanation={
+															application.analysis
+																.companyFitExplanation
+														}
 													/>
 												</div>
 												{application.analysis.recommendations.length >
@@ -1042,10 +1072,15 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 														<CheckCircle2 />
 														<AlertTitle>Recommendation</AlertTitle>
 														<AlertDescription>
-															{
-																application.analysis
-																	.recommendations[0]
-															}
+															<ul className="flex list-disc flex-col gap-1 pl-4">
+																{application.analysis.recommendations.map(
+																	(recommendation) => (
+																		<li key={recommendation}>
+																			{recommendation}
+																		</li>
+																	),
+																)}
+															</ul>
 														</AlertDescription>
 													</Alert>
 												)}

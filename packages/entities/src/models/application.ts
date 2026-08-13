@@ -94,12 +94,26 @@ export class Analysis {
 	@Prop({ type: Number })
 	roleLevelFit?: number;
 
+	@Field({
+		nullable: true,
+		description: 'Evidence-based explanation for the role-level preference score',
+	})
+	@Prop({ type: String })
+	roleLevelFitExplanation?: string;
+
 	@Field(() => Float, {
 		nullable: true,
 		description: 'Fit for the candidate location preferences (0-1)',
 	})
 	@Prop({ type: Number })
 	locationFit?: number;
+
+	@Field({
+		nullable: true,
+		description: 'Evidence-based explanation for the location preference score',
+	})
+	@Prop({ type: String })
+	locationFitExplanation?: string;
 
 	@Field(() => Float, {
 		nullable: true,
@@ -108,12 +122,26 @@ export class Analysis {
 	@Prop({ type: Number })
 	compensationFit?: number;
 
+	@Field({
+		nullable: true,
+		description: 'Evidence-based explanation for the compensation preference score',
+	})
+	@Prop({ type: String })
+	compensationFitExplanation?: string;
+
 	@Field(() => Float, {
 		nullable: true,
 		description: 'Fit for company stage, domain, and culture (0-1)',
 	})
 	@Prop({ type: Number })
 	companyFit?: number;
+
+	@Field({
+		nullable: true,
+		description: 'Evidence-based explanation for the company preference score',
+	})
+	@Prop({ type: String })
+	companyFitExplanation?: string;
 
 	@Field(() => Float, {
 		nullable: true,
@@ -258,14 +286,26 @@ export class AnalysisInput {
 	@Field(() => Float, { nullable: true })
 	roleLevelFit?: number;
 
+	@Field({ nullable: true })
+	roleLevelFitExplanation?: string;
+
 	@Field(() => Float, { nullable: true })
 	locationFit?: number;
+
+	@Field({ nullable: true })
+	locationFitExplanation?: string;
 
 	@Field(() => Float, { nullable: true })
 	compensationFit?: number;
 
+	@Field({ nullable: true })
+	compensationFitExplanation?: string;
+
 	@Field(() => Float, { nullable: true })
 	companyFit?: number;
+
+	@Field({ nullable: true })
+	companyFitExplanation?: string;
 
 	@Field(() => Float, { nullable: true })
 	logisticalFit?: number;
@@ -336,9 +376,13 @@ export const analysisSchema = z.object({
 	skillRelevance: z.number().min(0).max(1),
 	experienceRelevance: z.number().min(0).max(1),
 	roleLevelFit: z.number().min(0).max(1).optional(),
+	roleLevelFitExplanation: z.string().trim().min(1).max(800).optional(),
 	locationFit: z.number().min(0).max(1).optional(),
+	locationFitExplanation: z.string().trim().min(1).max(800).optional(),
 	compensationFit: z.number().min(0).max(1).optional(),
+	compensationFitExplanation: z.string().trim().min(1).max(800).optional(),
 	companyFit: z.number().min(0).max(1).optional(),
+	companyFitExplanation: z.string().trim().min(1).max(800).optional(),
 	logisticalFit: z.number().min(0).max(1).optional(),
 	overallFit: z.number().min(0).max(1),
 	strengths: z.array(z.string()),
