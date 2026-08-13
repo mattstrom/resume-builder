@@ -11,9 +11,14 @@ import {
 	buildProfileConceptEvidenceEvaluationInput,
 	conceptEvidenceEvaluationSchema,
 	conceptLabelsForProfile,
+	deriveRequirementEvidenceAssessments,
 	deriveProfileConceptCoverage,
 	hashConceptEvidenceEvaluationInput,
 	type ConceptEvidenceEvaluation,
+	type EvidenceGrade,
+	manualRequirementGradesSchema,
+	type ManualRequirementGrades,
+	scoreRequirementEvidenceAssessments,
 } from '@/lib/concept-coverage.ts';
 import { getMastraClient } from '@/lib/mastra-client.ts';
 import { useStore } from '@/stores/store.provider.tsx';
@@ -24,6 +29,7 @@ interface CachedEvaluation {
 	evaluatorVersion: number;
 	inputHash: string;
 	result: ConceptEvidenceEvaluation;
+	manualRequirementGrades?: ManualRequirementGrades;
 }
 
 export function useProfileConceptEvaluation(applicationId: string, requirements: JobRequirement[]) {
@@ -39,6 +45,8 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 	const [evaluatedInputHash, setEvaluatedInputHash] = useState('');
 	const [currentInputHash, setCurrentInputHash] = useState('');
 	const [isEvaluating, setIsEvaluating] = useState(false);
+	const [manualRequirementGrades, setManualRequirementGrades] =
+		useState<ManualRequirementGrades>({});
 
 	const profile = useMemo(
 		() => ({
@@ -83,6 +91,13 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 	const evaluationFingerprint = JSON.stringify(evaluationInput);
 
 	useEffect(() => {
+		setEvaluation(undefined);
+		setEvaluatedInputHash('');
+		setCurrentInputHash('');
+		setManualRequirementGrades({});
+	}, [applicationId]);
+
+	useEffect(() => {
 		let cancelled = false;
 		void hashConceptEvidenceEvaluationInput(evaluationInput).then((hash) => {
 			if (!cancelled) setCurrentInputHash(hash);
@@ -102,6 +117,10 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 			if (result.success && parsed.evaluatorVersion === EVALUATOR_VERSION) {
 				setEvaluation(result.data);
 				setEvaluatedInputHash(parsed.inputHash);
+				const manualGrades = manualRequirementGradesSchema.safeParse(
+					parsed.manualRequirementGrades ?? {},
+				);
+				setManualRequirementGrades(manualGrades.success ? manualGrades.data : {});
 			}
 		} catch {
 			localStorage.removeItem(`profile-concept-evaluation:${applicationId}`);
@@ -116,17 +135,47 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		() => new Map(evaluationInput.evidenceItems.map((item) => [item.id, item])),
 		[evaluationInput],
 	);
-	const score = summary.totalCount
-		? Math.round(
-				(summary.concepts.reduce(
-					(total, { concept }) =>
-						total + (evaluationByConceptId.get(concept.id)?.score ?? 0),
-					0,
-				) /
-					summary.totalCount) *
-					100,
-			)
-		: 0;
+	const requirementAssessmentById = useMemo(
+		() =>
+			deriveRequirementEvidenceAssessments(
+				requirements,
+				evaluationByConceptId,
+				manualRequirementGrades,
+			),
+		[evaluationByConceptId, manualRequirementGrades, requirements],
+	);
+	const score = scoreRequirementEvidenceAssessments(requirementAssessmentById);
+
+	const saveCachedEvaluation = (
+		result: ConceptEvidenceEvaluation,
+		inputHash: string,
+		manualGrades: ManualRequirementGrades,
+	) => {
+		const cached: CachedEvaluation = {
+			evaluatorVersion: EVALUATOR_VERSION,
+			inputHash,
+			result,
+			manualRequirementGrades: manualGrades,
+		};
+		localStorage.setItem(
+			`profile-concept-evaluation:${applicationId}`,
+			JSON.stringify(cached),
+		);
+	};
+
+	const setManualRequirementGrade = (
+		requirementId: string,
+		grade?: EvidenceGrade,
+	) => {
+		if (!evaluation) return;
+		setManualRequirementGrades((current) => {
+			const next = { ...current };
+			if (grade) next[requirementId] = grade;
+			else delete next[requirementId];
+			saveCachedEvaluation(evaluation, evaluatedInputHash || currentInputHash, next);
+			return next;
+		});
+	};
 
 	const evaluate = async () => {
 		if (evaluationInput.concepts.length === 0) return;
@@ -142,15 +191,7 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 
 			const parsed = conceptEvidenceEvaluationSchema.parse(result.result);
 			const inputHash = await hashConceptEvidenceEvaluationInput(evaluationInput);
-			const cached: CachedEvaluation = {
-				evaluatorVersion: EVALUATOR_VERSION,
-				inputHash,
-				result: parsed,
-			};
-			localStorage.setItem(
-				`profile-concept-evaluation:${applicationId}`,
-				JSON.stringify(cached),
-			);
+			saveCachedEvaluation(parsed, inputHash, manualRequirementGrades);
 			setEvaluation(parsed);
 			setCurrentInputHash(inputHash);
 			setEvaluatedInputHash(inputHash);
@@ -166,7 +207,9 @@ export function useProfileConceptEvaluation(applicationId: string, requirements:
 		evidenceById,
 		isEvaluating,
 		isStale: Boolean(evaluation && currentInputHash && evaluatedInputHash !== currentInputHash),
+		requirementAssessmentById,
 		score,
+		setManualRequirementGrade,
 		summary,
 	};
 }

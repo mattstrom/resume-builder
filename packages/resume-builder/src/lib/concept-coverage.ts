@@ -68,6 +68,83 @@ export const conceptEvidenceEvaluationSchema = z.object({
 });
 
 export type ConceptEvidenceEvaluation = z.infer<typeof conceptEvidenceEvaluationSchema>;
+export type EvidenceGrade = ConceptEvidenceEvaluation['evaluations'][number]['grade'];
+
+export const manualRequirementGradesSchema = z.record(
+	z.string(),
+	conceptEvidenceGradeSchema,
+);
+
+export type ManualRequirementGrades = z.infer<typeof manualRequirementGradesSchema>;
+
+const manualGradeScores: Record<EvidenceGrade, number> = {
+	strong: 1,
+	moderate: 0.7,
+	weak: 0.4,
+	missing: 0,
+};
+
+export interface RequirementEvidenceAssessment {
+	agentGrade: EvidenceGrade;
+	agentScore: number;
+	grade: EvidenceGrade;
+	score: number;
+	manualGrade?: EvidenceGrade;
+}
+
+export function gradeForEvidenceScore(score: number): EvidenceGrade {
+	if (score >= 0.85) return 'strong';
+	if (score >= 0.6) return 'moderate';
+	if (score >= 0.25) return 'weak';
+	return 'missing';
+}
+
+export function deriveRequirementEvidenceAssessments(
+	requirements: readonly JobRequirement[],
+	evaluationByConceptId: ReadonlyMap<
+		string,
+		ConceptEvidenceEvaluation['evaluations'][number]
+	>,
+	manualGrades: ManualRequirementGrades = {},
+): Map<string, RequirementEvidenceAssessment> {
+	return new Map(
+		requirements.flatMap((requirement) => {
+			const scores = requirement.concepts.flatMap(({ conceptId }) => {
+				const evaluation = evaluationByConceptId.get(conceptId);
+				return evaluation ? [evaluation.score] : [];
+			});
+			if (scores.length === 0) return [];
+
+			const agentScore =
+				scores.reduce((total, score) => total + score, 0) / scores.length;
+			const agentGrade = gradeForEvidenceScore(agentScore);
+			const manualGrade = manualGrades[requirement.id];
+			return [
+				[
+					requirement.id,
+					{
+						agentGrade,
+						agentScore,
+						grade: manualGrade ?? agentGrade,
+						score: manualGrade ? manualGradeScores[manualGrade] : agentScore,
+						manualGrade,
+					},
+				] as const,
+			];
+		}),
+	);
+}
+
+export function scoreRequirementEvidenceAssessments(
+	assessments: ReadonlyMap<string, RequirementEvidenceAssessment>,
+): number {
+	if (assessments.size === 0) return 0;
+	return Math.round(
+		([...assessments.values()].reduce((total, { score }) => total + score, 0) /
+			assessments.size) *
+			100,
+	);
+}
 
 export interface ConceptEvidenceEvaluationInput {
 	concepts: Array<{

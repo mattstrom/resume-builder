@@ -85,7 +85,7 @@ import {
 	type WorkflowStageId,
 	type WorkflowStageStatus,
 } from '@/lib/application-workflow.ts';
-import type { ConceptEvidenceEvaluation } from '@/lib/concept-coverage.ts';
+import type { EvidenceGrade, RequirementEvidenceAssessment } from '@/lib/concept-coverage.ts';
 import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -122,8 +122,6 @@ const requirementKindLabels: Record<string, string> = {
 	culture: 'Ways of working',
 };
 
-type EvidenceGrade = ConceptEvidenceEvaluation['evaluations'][number]['grade'];
-
 const evidenceGradePresentation: Record<
 	EvidenceGrade,
 	{ label: string; variant: 'success' | 'info' | 'warning' | 'destructive' }
@@ -134,11 +132,51 @@ const evidenceGradePresentation: Record<
 	missing: { label: 'Missing', variant: 'destructive' },
 };
 
-function gradeForScore(score: number): EvidenceGrade {
-	if (score >= 0.85) return 'strong';
-	if (score >= 0.6) return 'moderate';
-	if (score >= 0.25) return 'weak';
-	return 'missing';
+const evidenceGrades: EvidenceGrade[] = ['strong', 'moderate', 'weak', 'missing'];
+
+function RequirementGradeControl({
+	assessment,
+	requirement,
+	onChange,
+}: {
+	assessment: RequirementEvidenceAssessment;
+	requirement: string;
+	onChange: (grade?: EvidenceGrade) => void;
+}) {
+	const presentation = evidenceGradePresentation[assessment.grade];
+	return (
+		<div className="flex flex-wrap items-center justify-end gap-2">
+			<Badge variant={presentation.variant}>
+				{presentation.label} · {Math.round(assessment.score * 100)}
+				{assessment.manualGrade ? ' · manual' : ''}
+			</Badge>
+			<Select
+				value={assessment.manualGrade ?? 'agent'}
+				onValueChange={(value) =>
+					onChange(value === 'agent' ? undefined : (value as EvidenceGrade))
+				}
+			>
+				<SelectTrigger
+					className="h-8 w-[10.5rem]"
+					aria-label={`Adjust grade for ${requirement}`}
+				>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectGroup>
+						<SelectItem value="agent">
+							Agent: {evidenceGradePresentation[assessment.agentGrade].label}
+						</SelectItem>
+						{evidenceGrades.map((grade) => (
+							<SelectItem key={grade} value={grade}>
+								Manual: {evidenceGradePresentation[grade].label}
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
+		</div>
+	);
 }
 
 function scoreVariant(score: number) {
@@ -1102,7 +1140,8 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 													<CardTitle>Job requirements</CardTitle>
 													<CardDescription>
 														Grades use all expertise in your profile,
-														not only the current resume.
+														not only the current resume. Use each grade
+														menu to correct the agent's assessment.
 													</CardDescription>
 												</div>
 												{profileEvaluation.summary.totalCount > 0 && (
@@ -1187,66 +1226,28 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 																						}
 																					</p>
 																					{profileEvaluation.evaluation &&
-																						(() => {
-																							const scores =
-																								requirement.concepts.flatMap(
-																									(
-																										assertion,
-																									) => {
-																										const item =
-																											profileEvaluation.evaluationByConceptId.get(
-																												assertion.conceptId,
-																											);
-																										return item
-																											? [
-																													item.score,
-																												]
-																											: [];
-																									},
-																								);
-																							if (
-																								scores.length ===
-																								0
-																							)
-																								return null;
-																							const score =
-																								scores.reduce(
-																									(
-																										sum,
-																										value,
-																									) =>
-																										sum +
-																										value,
-																									0,
-																								) /
-																								scores.length;
-																							const grade =
-																								gradeForScore(
-																									score,
-																								);
-																							return (
-																								<Badge
-																									variant={
-																										evidenceGradePresentation[
-																											grade
-																										]
-																											.variant
-																									}
-																								>
-																									{
-																										evidenceGradePresentation[
-																											grade
-																										]
-																											.label
-																									}{' '}
-																									·{' '}
-																									{Math.round(
-																										score *
-																											100,
-																									)}
-																								</Badge>
-																							);
-																						})()}
+																						profileEvaluation.requirementAssessmentById.get(
+																							requirement.id,
+																						) && (
+																							<RequirementGradeControl
+																								assessment={
+																									profileEvaluation.requirementAssessmentById.get(
+																										requirement.id,
+																									)!
+																								}
+																								requirement={
+																									requirement.what
+																								}
+																								onChange={(
+																									grade,
+																								) =>
+																									profileEvaluation.setManualRequirementGrade(
+																										requirement.id,
+																										grade,
+																									)
+																								}
+																							/>
+																						)}
 																				</div>
 																				{requirement
 																					.concepts

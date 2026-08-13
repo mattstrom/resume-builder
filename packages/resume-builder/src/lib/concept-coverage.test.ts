@@ -9,9 +9,11 @@ import {
 	conceptLabelsForProfile,
 	conceptLabelsForResume,
 	deriveConceptCoverage,
+	deriveRequirementEvidenceAssessments,
 	deriveProfileConceptCoverage,
 	hashConceptEvidenceEvaluationInput,
 	type ProfileEvidence,
+	scoreRequirementEvidenceAssessments,
 } from './concept-coverage.ts';
 
 function requirement(
@@ -127,6 +129,59 @@ describe('deriveConceptCoverage', () => {
 		expect(summary.totalCount).toBe(1);
 		expect(summary.concepts[0].relation).toBe('requires');
 		expect(summary.concepts[0].requirements).toHaveLength(2);
+	});
+});
+
+describe('requirement evidence assessments', () => {
+	it('keeps the agent grade while applying a manual requirement override', () => {
+		const jobRequirement = requirement('req-languages', 'typescript', 'TypeScript');
+		jobRequirement.concepts.push({
+			...jobRequirement.concepts[0],
+			conceptId: 'go',
+			concept: {
+				...jobRequirement.concepts[0].concept,
+				id: 'go',
+				key: 'go',
+				label: 'Go',
+			},
+		});
+		const evaluations = new Map([
+			[
+				'typescript',
+				{
+					conceptId: 'typescript',
+					grade: 'strong' as const,
+					score: 1,
+					evidenceItemIds: ['skill-typescript'],
+					rationale: 'Direct evidence',
+				},
+			],
+			[
+				'go',
+				{
+					conceptId: 'go',
+					grade: 'missing' as const,
+					score: 0,
+					evidenceItemIds: [],
+					rationale: 'No direct evidence',
+				},
+			],
+		]);
+
+		const assessments = deriveRequirementEvidenceAssessments(
+			[jobRequirement],
+			evaluations,
+			{ 'req-languages': 'strong' },
+		);
+
+		expect(assessments.get('req-languages')).toEqual({
+			agentGrade: 'weak',
+			agentScore: 0.5,
+			grade: 'strong',
+			score: 1,
+			manualGrade: 'strong',
+		});
+		expect(scoreRequirementEvidenceAssessments(assessments)).toBe(100);
 	});
 });
 
