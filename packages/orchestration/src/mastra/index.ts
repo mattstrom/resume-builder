@@ -35,6 +35,8 @@ import { jobDescriptionRetrieverAgent } from './agents/job-description-retriever
 import { jobPostingBrowserAgent } from './agents/job-posting-browser.agent';
 import { jobRequirementsExtractorAgent } from './agents/job-requirements-extractor.agent';
 import { professionalStatementEvaluatorAgent } from './agents/professional-statement-evaluator.agent';
+import { profileCuratorFormatterAgent } from './agents/profile-curator-formatter.agent';
+import { profileCuratorAgent } from './agents/profile-curator.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
@@ -59,6 +61,7 @@ import { fitAssessmentWorkflow } from './workflows/fit-assessment.workflow';
 import { jobConceptIdentificationWorkflow } from './workflows/job-concept-identification.workflow';
 import { jobDescriptionRetrievalWorkflow } from './workflows/job-description-retrieval.workflow';
 import { professionalStatementEvaluationWorkflow } from './workflows/professional-statement-evaluation.workflow';
+import { profileCurationWorkflow } from './workflows/profile-curation.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
 console.log(`Configuration:\n${configuration}`);
@@ -159,6 +162,7 @@ export const mastra = new Mastra({
 		conceptEvidenceEvaluationWorkflow,
 		markupJobDescriptionWorkflow,
 		professionalStatementEvaluationWorkflow,
+		profileCurationWorkflow,
 	},
 	agents: {
 		applicationReviewer: applicationReviewerAgent,
@@ -174,6 +178,8 @@ export const mastra = new Mastra({
 		jobPostingBrowser: jobPostingBrowserAgent,
 		jobRequirementsExtractor: jobRequirementsExtractorAgent,
 		professionalStatementEvaluatorAgent,
+		profileCurator: profileCuratorAgent,
+		profileCuratorFormatter: profileCuratorFormatterAgent,
 		weatherAgent,
 		webAgent,
 	},

@@ -27,6 +27,7 @@ export const conceptEvidenceEvaluationInputSchema = z.object({
 					'experience',
 					'project',
 					'education',
+					'fact',
 					'volunteering',
 					'bullet',
 				]),
@@ -41,6 +42,7 @@ export const conceptEvidenceEvaluationInputSchema = z.object({
 			}),
 		)
 		.max(200),
+	profileGuidance: z.array(z.string().trim().min(1).max(500)).max(100).default([]),
 });
 
 export const conceptEvidenceItemSchema = z.object({

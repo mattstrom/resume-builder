@@ -479,10 +479,6 @@ export type EnumFlowRunStatusFieldUpdateOperationsInput = {
   set?: $Enums.FlowRunStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 
 
 export type FlowRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{

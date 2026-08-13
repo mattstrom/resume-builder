@@ -73,6 +73,20 @@ export const FIT_ASSESSOR_SYSTEM_PROMPT = outdent`
 	- 0.3 = large bureaucratic org, or less-exciting industry
 	- 0.0 = major red flags (known poor culture, severe domain misalignment)
 
+	## Preference fit explanations
+
+	For every preference score, populate its matching explanation field:
+	- roleLevelFitExplanation
+	- locationFitExplanation
+	- compensationFitExplanation
+	- companyFitExplanation
+
+	Each explanation must be 1–3 concise sentences and identify: the relevant
+	posting evidence, the candidate preference it was compared with, and why that
+	evidence supports the selected rubric anchor. If the posting omits or obscures
+	the needed information, say that explicitly and name what should be clarified.
+	Do not merely restate the score or duplicate a generic recommendation.
+
 	---
 
 	## Composite Formulas

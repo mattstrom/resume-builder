@@ -66,6 +66,8 @@ export const ModelName = {
   ResumeXml: 'ResumeXml',
   Application: 'Application',
   ConceptEvidenceAssessment: 'ConceptEvidenceAssessment',
+  RequirementGradeFeedback: 'RequirementGradeFeedback',
+  ProfileKnowledgeProposal: 'ProfileKnowledgeProposal',
   Company: 'Company',
   CoverLetter: 'CoverLetter',
   ContactInformation: 'ContactInformation',
@@ -312,6 +314,37 @@ export const ConceptEvidenceAssessmentScalarFieldEnum = {
 } as const
 
 export type ConceptEvidenceAssessmentScalarFieldEnum = (typeof ConceptEvidenceAssessmentScalarFieldEnum)[keyof typeof ConceptEvidenceAssessmentScalarFieldEnum]
+
+
+export const RequirementGradeFeedbackScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  applicationId: 'applicationId',
+  jobRequirementId: 'jobRequirementId',
+  agentGrade: 'agentGrade',
+  manualGrade: 'manualGrade',
+  explanation: 'explanation',
+  createdAt: 'createdAt'
+} as const
+
+export type RequirementGradeFeedbackScalarFieldEnum = (typeof RequirementGradeFeedbackScalarFieldEnum)[keyof typeof RequirementGradeFeedbackScalarFieldEnum]
+
+
+export const ProfileKnowledgeProposalScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  feedbackId: 'feedbackId',
+  kind: 'kind',
+  title: 'title',
+  rationale: 'rationale',
+  payload: 'payload',
+  status: 'status',
+  acceptedFactId: 'acceptedFactId',
+  createdAt: 'createdAt',
+  resolvedAt: 'resolvedAt'
+} as const
+
+export type ProfileKnowledgeProposalScalarFieldEnum = (typeof ProfileKnowledgeProposalScalarFieldEnum)[keyof typeof ProfileKnowledgeProposalScalarFieldEnum]
 
 
 export const CompanyScalarFieldEnum = {

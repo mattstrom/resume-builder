@@ -1,4 +1,13 @@
-import type { Bullet, Resume } from '@resume-builder/entities';
+import type {
+	Bullet,
+	Education,
+	Job,
+	Project,
+	Resume,
+	Skill,
+	Volunteering,
+} from '@resume-builder/entities';
+import { BulletStatus } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import type { JobRequirement, ResolvedConceptLabel } from '@/graphql/types.ts';
@@ -22,6 +31,22 @@ export interface ConceptCoverageSummary {
 	concepts: RequirementConceptCoverage[];
 	coveredCount: number;
 	totalCount: number;
+}
+
+export interface ProfileEvidence {
+	bullets: Bullet[];
+	educations: Education[];
+	facts?: Array<{
+		id: string;
+		what: string;
+		impact?: string;
+		scale?: string;
+		concepts: Array<{ conceptId: string; relation: string }>;
+	}>;
+	jobs: Job[];
+	projects: Project[];
+	skills: Skill[];
+	volunteering: Volunteering[];
 }
 
 export function resumeBulletIds(data: Resume['data']): Set<string> {
@@ -50,6 +75,76 @@ export const conceptEvidenceEvaluationSchema = z.object({
 });
 
 export type ConceptEvidenceEvaluation = z.infer<typeof conceptEvidenceEvaluationSchema>;
+export type EvidenceGrade = ConceptEvidenceEvaluation['evaluations'][number]['grade'];
+
+export const manualRequirementGradesSchema = z.record(z.string(), conceptEvidenceGradeSchema);
+
+export type ManualRequirementGrades = z.infer<typeof manualRequirementGradesSchema>;
+
+const manualGradeScores: Record<EvidenceGrade, number> = {
+	strong: 1,
+	moderate: 0.7,
+	weak: 0.4,
+	missing: 0,
+};
+
+export interface RequirementEvidenceAssessment {
+	agentGrade: EvidenceGrade;
+	agentScore: number;
+	grade: EvidenceGrade;
+	score: number;
+	manualGrade?: EvidenceGrade;
+}
+
+export function gradeForEvidenceScore(score: number): EvidenceGrade {
+	if (score >= 0.85) return 'strong';
+	if (score >= 0.6) return 'moderate';
+	if (score >= 0.25) return 'weak';
+	return 'missing';
+}
+
+export function deriveRequirementEvidenceAssessments(
+	requirements: readonly JobRequirement[],
+	evaluationByConceptId: ReadonlyMap<string, ConceptEvidenceEvaluation['evaluations'][number]>,
+	manualGrades: ManualRequirementGrades = {},
+): Map<string, RequirementEvidenceAssessment> {
+	return new Map(
+		requirements.flatMap((requirement) => {
+			const scores = requirement.concepts.flatMap(({ conceptId }) => {
+				const evaluation = evaluationByConceptId.get(conceptId);
+				return evaluation ? [evaluation.score] : [];
+			});
+			if (scores.length === 0) return [];
+
+			const agentScore = scores.reduce((total, score) => total + score, 0) / scores.length;
+			const agentGrade = gradeForEvidenceScore(agentScore);
+			const manualGrade = manualGrades[requirement.id];
+			return [
+				[
+					requirement.id,
+					{
+						agentGrade,
+						agentScore,
+						grade: manualGrade ?? agentGrade,
+						score: manualGrade ? manualGradeScores[manualGrade] : agentScore,
+						manualGrade,
+					},
+				] as const,
+			];
+		}),
+	);
+}
+
+export function scoreRequirementEvidenceAssessments(
+	assessments: ReadonlyMap<string, RequirementEvidenceAssessment>,
+): number {
+	if (assessments.size === 0) return 0;
+	return Math.round(
+		([...assessments.values()].reduce((total, { score }) => total + score, 0) /
+			assessments.size) *
+			100,
+	);
+}
 
 export interface ConceptEvidenceEvaluationInput {
 	concepts: Array<{
@@ -71,6 +166,7 @@ export interface ConceptEvidenceEvaluationInput {
 			| 'experience'
 			| 'project'
 			| 'education'
+			| 'fact'
 			| 'volunteering'
 			| 'bullet';
 		text: string;
@@ -79,6 +175,7 @@ export interface ConceptEvidenceEvaluationInput {
 		/** Requirement concepts reached only by walking up the ontology. */
 		broaderConceptIds: string[];
 	}>;
+	profileGuidance: string[];
 }
 
 export async function hashConceptEvidenceEvaluationInput(
@@ -117,6 +214,168 @@ export function conceptLabelsForResume(resume: Resume['data']): string[] {
 		seen.add(key);
 		return [trimmed];
 	});
+}
+
+export function conceptLabelsForProfile(profile: ProfileEvidence): string[] {
+	const labels = [
+		...profile.skills.map(({ name }) => name),
+		...profile.projects.flatMap(({ technologies }) => technologies),
+	];
+	const seen = new Set<string>();
+
+	return labels.flatMap((label) => {
+		const trimmed = label?.trim();
+		const key = trimmed?.toLowerCase();
+		if (!trimmed || !key || seen.has(key)) return [];
+		seen.add(key);
+		return [trimmed];
+	});
+}
+
+function conceptMatchers(
+	summary: ConceptCoverageSummary,
+	resolvedLabels: readonly ResolvedConceptLabel[],
+) {
+	const requirementConceptIds = new Set(summary.concepts.map(({ concept }) => concept.id));
+	const matchesByLabel = new Map<string, { conceptIds: string[]; broaderConceptIds: string[] }>();
+
+	for (const resolved of resolvedLabels) {
+		const conceptIds = requirementConceptIds.has(resolved.conceptId)
+			? [resolved.conceptId]
+			: [];
+		const broaderConceptIds = resolved.broaderConceptIds.filter((id) =>
+			requirementConceptIds.has(id),
+		);
+		if (conceptIds.length > 0 || broaderConceptIds.length > 0) {
+			matchesByLabel.set(resolved.label.toLowerCase(), { conceptIds, broaderConceptIds });
+		}
+	}
+
+	return (labels: string[]) => {
+		const matched = labels.filter(Boolean).flatMap((label) => {
+			const match = matchesByLabel.get(label.toLowerCase());
+			return match ? [match] : [];
+		});
+		return {
+			conceptIds: [...new Set(matched.flatMap(({ conceptIds }) => conceptIds))],
+			broaderConceptIds: [
+				...new Set(matched.flatMap(({ broaderConceptIds }) => broaderConceptIds)),
+			],
+		};
+	};
+}
+
+export function buildProfileConceptEvidenceEvaluationInput(
+	summary: ConceptCoverageSummary,
+	profile: ProfileEvidence,
+	resolvedLabels: readonly ResolvedConceptLabel[] = [],
+	profileGuidance: readonly string[] = [],
+): ConceptEvidenceEvaluationInput {
+	const evidenceItems: ConceptEvidenceEvaluationInput['evidenceItems'] = [];
+	const conceptIdsForLabels = conceptMatchers(summary, resolvedLabels);
+	const addEvidence = (item: ConceptEvidenceEvaluationInput['evidenceItems'][number]) => {
+		const text = item.text.trim().slice(0, 2000);
+		if (text) evidenceItems.push({ ...item, text });
+	};
+
+	for (const skill of profile.skills) {
+		addEvidence({
+			id: `profile-skill-${skill._id}`,
+			label: skill.category || 'Skill',
+			paths: [],
+			sourceType: 'skill',
+			text: [skill.name, skill.category].filter(Boolean).join(' — '),
+			...conceptIdsForLabels([skill.name]),
+		});
+	}
+	for (const fact of profile.facts ?? []) {
+		addEvidence({
+			id: `profile-fact-${fact.id}`,
+			label: 'Confirmed profile fact',
+			paths: [],
+			sourceType: 'fact',
+			text: [fact.what, fact.impact, fact.scale].filter(Boolean).join(' — '),
+			conceptIds: fact.concepts
+				.filter(({ conceptId }) =>
+					summary.concepts.some(({ concept }) => concept.id === conceptId),
+				)
+				.map(({ conceptId }) => conceptId),
+			broaderConceptIds: [],
+		});
+	}
+	for (const project of profile.projects) {
+		addEvidence({
+			id: `profile-project-${project._id}`,
+			label: project.name || 'Project',
+			paths: [],
+			sourceType: 'project',
+			text: [project.name, project.description, project.technologies.join(', ')]
+				.filter(Boolean)
+				.join(' — '),
+			...conceptIdsForLabels(project.technologies),
+		});
+	}
+	for (const job of profile.jobs) {
+		addEvidence({
+			id: `profile-job-${job._id}`,
+			label: job.company || 'Work experience',
+			paths: [],
+			sourceType: 'experience',
+			text: [job.position, job.company, ...job.responsibilities].filter(Boolean).join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const education of profile.educations) {
+		addEvidence({
+			id: `profile-education-${education._id}`,
+			label: education.institution || 'Education',
+			paths: [],
+			sourceType: 'education',
+			text: [education.degree, education.field, education.institution]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const role of profile.volunteering) {
+		addEvidence({
+			id: `profile-volunteering-${role._id}`,
+			label: role.organization || 'Volunteering',
+			paths: [],
+			sourceType: 'volunteering',
+			text: [role.position, role.organization, ...role.responsibilities]
+				.filter(Boolean)
+				.join(' — '),
+			conceptIds: [],
+			broaderConceptIds: [],
+		});
+	}
+	for (const bullet of profile.bullets.filter(({ status }) => status !== BulletStatus.ARCHIVED)) {
+		addEvidence({
+			id: bullet.id,
+			label: 'Career evidence',
+			paths: [],
+			sourceType: 'bullet',
+			text: bullet.text,
+			conceptIds: bullet.concepts.map(({ conceptId }) => conceptId),
+			broaderConceptIds: [],
+		});
+	}
+
+	return {
+		concepts: summary.concepts.map(({ concept, relation, requirements }) => ({
+			id: concept.id,
+			key: concept.key,
+			label: concept.label,
+			...(concept.definition ? { definition: concept.definition } : {}),
+			relation,
+			requirements: requirements.map(({ what }) => what),
+		})),
+		evidenceItems: evidenceItems.slice(0, 200),
+		profileGuidance: [...profileGuidance],
+	};
 }
 
 export function buildConceptEvidenceEvaluationInput(
@@ -327,6 +586,7 @@ export function buildConceptEvidenceEvaluationInput(
 			requirements: requirements.map(({ what }) => what),
 		})),
 		evidenceItems,
+		profileGuidance: [],
 	};
 }
 
@@ -377,4 +637,33 @@ export function deriveConceptCoverage(
 	const coveredCount = concepts.filter(({ covered }) => covered).length;
 
 	return { concepts, coveredCount, totalCount: concepts.length };
+}
+
+export function deriveProfileConceptCoverage(
+	requirements: JobRequirement[],
+	bullets: Bullet[],
+): ConceptCoverageSummary {
+	const allConceptIds = new Set(
+		bullets
+			.filter(({ status }) => status !== BulletStatus.ARCHIVED)
+			.flatMap(({ concepts }) => concepts.map(({ conceptId }) => conceptId)),
+	);
+	const emptyResume = {
+		workExperience: [],
+		projects: [],
+		volunteering: [],
+	} as unknown as Resume['data'];
+	const summary = deriveConceptCoverage(requirements, [], emptyResume);
+
+	for (const coverage of summary.concepts) {
+		coverage.covered = allConceptIds.has(coverage.concept.id);
+	}
+	summary.coveredCount = summary.concepts.filter(({ covered }) => covered).length;
+	summary.concepts.sort(
+		(left, right) =>
+			Number(left.covered) - Number(right.covered) ||
+			relationPriority[left.relation] - relationPriority[right.relation] ||
+			left.concept.label.localeCompare(right.concept.label),
+	);
+	return summary;
 }

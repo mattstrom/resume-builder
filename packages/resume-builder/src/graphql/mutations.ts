@@ -36,6 +36,61 @@ export const DELETE_FACT_CONCEPT = gql`
 	}
 `;
 
+export const RECORD_REQUIREMENT_GRADE_FEEDBACK = gql`
+	mutation RecordRequirementGradeFeedback(
+		$applicationId: ID!
+		$jobRequirementId: ID!
+		$agentGrade: String!
+		$manualGrade: String
+		$explanation: String
+	) {
+		recordRequirementGradeFeedback(
+			applicationId: $applicationId
+			jobRequirementId: $jobRequirementId
+			agentGrade: $agentGrade
+			manualGrade: $manualGrade
+			explanation: $explanation
+		) {
+			id
+			applicationId
+			jobRequirementId
+			agentGrade
+			manualGrade
+			explanation
+			createdAt
+			proposals {
+				id
+			}
+		}
+	}
+`;
+
+export const SAVE_PROFILE_KNOWLEDGE_PROPOSALS = gql`
+	mutation SaveProfileKnowledgeProposals($feedbackId: ID!, $result: JSON!) {
+		saveProfileKnowledgeProposals(feedbackId: $feedbackId, result: $result) {
+			id
+			feedbackId
+			kind
+			title
+			rationale
+			payload
+			status
+			createdAt
+		}
+	}
+`;
+
+export const RESOLVE_PROFILE_KNOWLEDGE_PROPOSAL = gql`
+	mutation ResolveProfileKnowledgeProposal($proposalId: ID!, $accept: Boolean!) {
+		resolveProfileKnowledgeProposal(proposalId: $proposalId, accept: $accept) {
+			id
+			status
+			acceptedFactId
+			resolvedAt
+		}
+	}
+`;
+
 export const UPSERT_CONTACT_INFORMATION = gql`
 	mutation UpsertContactInformation($input: ContactInformationInput!) {
 		upsertContactInformation(input: $input) {

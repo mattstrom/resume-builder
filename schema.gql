@@ -307,14 +307,26 @@ type Analysis {
   """Fit for the target role level (0-1)"""
   roleLevelFit: Float
 
+  """Evidence-based explanation for the role-level preference score"""
+  roleLevelFitExplanation: String
+
   """Fit for the candidate location preferences (0-1)"""
   locationFit: Float
+
+  """Evidence-based explanation for the location preference score"""
+  locationFitExplanation: String
 
   """Fit for the candidate compensation target (0-1)"""
   compensationFit: Float
 
+  """Evidence-based explanation for the compensation preference score"""
+  compensationFitExplanation: String
+
   """Fit for company stage, domain, and culture (0-1)"""
   companyFit: Float
+
+  """Evidence-based explanation for the company preference score"""
+  companyFitExplanation: String
 
   """
   Weighted composite of roleLevelFit, locationFit, compensationFit, companyFit (0-1)
@@ -686,6 +698,30 @@ type JobRequirementType {
   createdAt: DateTime!
 }
 
+type ProfileKnowledgeProposalType {
+  id: ID!
+  feedbackId: ID!
+  kind: String!
+  title: String!
+  rationale: String!
+  payload: JSON!
+  status: String!
+  acceptedFactId: ID
+  createdAt: DateTime!
+  resolvedAt: DateTime
+}
+
+type RequirementGradeFeedbackType {
+  id: ID!
+  applicationId: ID!
+  jobRequirementId: ID!
+  agentGrade: String!
+  manualGrade: String
+  explanation: String
+  createdAt: DateTime!
+  proposals: [ProfileKnowledgeProposalType!]!
+}
+
 input CompanyAddressInput {
   streetAddress: String
   city: String
@@ -724,6 +760,8 @@ type Query {
   getCompany(id: String!): Company!
   conceptEvidenceAssessment(applicationId: ID!, resumeId: ID!): ConceptEvidenceAssessmentType
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
+  requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
+  profileKnowledgeGuidance: [String!]!
 }
 
 input BulletFilterInput {
@@ -812,6 +850,9 @@ type Mutation {
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
   saveConceptEvidenceAssessment(applicationId: ID!, resumeId: ID!, inputHash: String!, evaluatorVersion: Int!, result: JSON!): ConceptEvidenceAssessmentType!
+  recordRequirementGradeFeedback(applicationId: ID!, jobRequirementId: ID!, agentGrade: String!, manualGrade: String, explanation: String): RequirementGradeFeedbackType!
+  saveProfileKnowledgeProposals(feedbackId: ID!, result: JSON!): [ProfileKnowledgeProposalType!]!
+  resolveProfileKnowledgeProposal(proposalId: ID!, accept: Boolean!): ProfileKnowledgeProposalType!
 }
 
 input ProfileUpdateInput {
@@ -1145,9 +1186,13 @@ input AnalysisInput {
   skillRelevance: Float!
   experienceRelevance: Float!
   roleLevelFit: Float
+  roleLevelFitExplanation: String
   locationFit: Float
+  locationFitExplanation: String
   compensationFit: Float
+  compensationFitExplanation: String
   companyFit: Float
+  companyFitExplanation: String
   logisticalFit: Float
   overallFit: Float!
   strengths: [String!]!

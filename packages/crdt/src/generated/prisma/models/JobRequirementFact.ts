@@ -269,6 +269,7 @@ export type JobRequirementFactWhereInput = {
   embeddingProfile?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"JobRequirementFact"> | Date | string
   concepts?: Prisma.JobRequirementConceptListRelationFilter
+  gradeFeedback?: Prisma.RequirementGradeFeedbackListRelationFilter
 }
 
 export type JobRequirementFactOrderByWithRelationInput = {
@@ -285,6 +286,7 @@ export type JobRequirementFactOrderByWithRelationInput = {
   embeddingProfile?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   concepts?: Prisma.JobRequirementConceptOrderByRelationAggregateInput
+  gradeFeedback?: Prisma.RequirementGradeFeedbackOrderByRelationAggregateInput
 }
 
 export type JobRequirementFactWhereUniqueInput = Prisma.AtLeast<{
@@ -304,6 +306,7 @@ export type JobRequirementFactWhereUniqueInput = Prisma.AtLeast<{
   embeddingProfile?: Prisma.StringNullableFilter<"JobRequirementFact"> | string | null
   createdAt?: Prisma.DateTimeFilter<"JobRequirementFact"> | Date | string
   concepts?: Prisma.JobRequirementConceptListRelationFilter
+  gradeFeedback?: Prisma.RequirementGradeFeedbackListRelationFilter
 }, "id">
 
 export type JobRequirementFactOrderByWithAggregationInput = {
@@ -358,6 +361,7 @@ export type JobRequirementFactCreateInput = {
   embeddingProfile?: string | null
   createdAt?: Date | string
   concepts?: Prisma.JobRequirementConceptCreateNestedManyWithoutJobRequirementInput
+  gradeFeedback?: Prisma.RequirementGradeFeedbackCreateNestedManyWithoutJobRequirementInput
 }
 
 export type JobRequirementFactUncheckedCreateInput = {
@@ -374,6 +378,7 @@ export type JobRequirementFactUncheckedCreateInput = {
   embeddingProfile?: string | null
   createdAt?: Date | string
   concepts?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutJobRequirementInput
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedCreateNestedManyWithoutJobRequirementInput
 }
 
 export type JobRequirementFactUpdateInput = {
@@ -390,6 +395,7 @@ export type JobRequirementFactUpdateInput = {
   embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   concepts?: Prisma.JobRequirementConceptUpdateManyWithoutJobRequirementNestedInput
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUpdateManyWithoutJobRequirementNestedInput
 }
 
 export type JobRequirementFactUncheckedUpdateInput = {
@@ -406,6 +412,7 @@ export type JobRequirementFactUncheckedUpdateInput = {
   embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   concepts?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutJobRequirementNestedInput
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedUpdateManyWithoutJobRequirementNestedInput
 }
 
 export type JobRequirementFactCreateManyInput = {
@@ -549,6 +556,20 @@ export type JobRequirementFactUpdateOneRequiredWithoutConceptsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.JobRequirementFactUpdateToOneWithWhereWithoutConceptsInput, Prisma.JobRequirementFactUpdateWithoutConceptsInput>, Prisma.JobRequirementFactUncheckedUpdateWithoutConceptsInput>
 }
 
+export type JobRequirementFactCreateNestedOneWithoutGradeFeedbackInput = {
+  create?: Prisma.XOR<Prisma.JobRequirementFactCreateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedCreateWithoutGradeFeedbackInput>
+  connectOrCreate?: Prisma.JobRequirementFactCreateOrConnectWithoutGradeFeedbackInput
+  connect?: Prisma.JobRequirementFactWhereUniqueInput
+}
+
+export type JobRequirementFactUpdateOneRequiredWithoutGradeFeedbackNestedInput = {
+  create?: Prisma.XOR<Prisma.JobRequirementFactCreateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedCreateWithoutGradeFeedbackInput>
+  connectOrCreate?: Prisma.JobRequirementFactCreateOrConnectWithoutGradeFeedbackInput
+  upsert?: Prisma.JobRequirementFactUpsertWithoutGradeFeedbackInput
+  connect?: Prisma.JobRequirementFactWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.JobRequirementFactUpdateToOneWithWhereWithoutGradeFeedbackInput, Prisma.JobRequirementFactUpdateWithoutGradeFeedbackInput>, Prisma.JobRequirementFactUncheckedUpdateWithoutGradeFeedbackInput>
+}
+
 export type JobRequirementFactCreateWithoutConceptsInput = {
   id?: string
   uid: string
@@ -562,6 +583,7 @@ export type JobRequirementFactCreateWithoutConceptsInput = {
   embeddingModel?: string | null
   embeddingProfile?: string | null
   createdAt?: Date | string
+  gradeFeedback?: Prisma.RequirementGradeFeedbackCreateNestedManyWithoutJobRequirementInput
 }
 
 export type JobRequirementFactUncheckedCreateWithoutConceptsInput = {
@@ -577,6 +599,7 @@ export type JobRequirementFactUncheckedCreateWithoutConceptsInput = {
   embeddingModel?: string | null
   embeddingProfile?: string | null
   createdAt?: Date | string
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedCreateNestedManyWithoutJobRequirementInput
 }
 
 export type JobRequirementFactCreateOrConnectWithoutConceptsInput = {
@@ -608,6 +631,7 @@ export type JobRequirementFactUpdateWithoutConceptsInput = {
   embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUpdateManyWithoutJobRequirementNestedInput
 }
 
 export type JobRequirementFactUncheckedUpdateWithoutConceptsInput = {
@@ -623,6 +647,87 @@ export type JobRequirementFactUncheckedUpdateWithoutConceptsInput = {
   embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  gradeFeedback?: Prisma.RequirementGradeFeedbackUncheckedUpdateManyWithoutJobRequirementNestedInput
+}
+
+export type JobRequirementFactCreateWithoutGradeFeedbackInput = {
+  id?: string
+  uid: string
+  applicationId: string
+  kind: string
+  what: string
+  technologies?: Prisma.JobRequirementFactCreatetechnologiesInput | string[]
+  tags?: Prisma.JobRequirementFactCreatetagsInput | string[]
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  concepts?: Prisma.JobRequirementConceptCreateNestedManyWithoutJobRequirementInput
+}
+
+export type JobRequirementFactUncheckedCreateWithoutGradeFeedbackInput = {
+  id?: string
+  uid: string
+  applicationId: string
+  kind: string
+  what: string
+  technologies?: Prisma.JobRequirementFactCreatetechnologiesInput | string[]
+  tags?: Prisma.JobRequirementFactCreatetagsInput | string[]
+  embeddingRevision?: number
+  embeddedRevision?: number | null
+  embeddingModel?: string | null
+  embeddingProfile?: string | null
+  createdAt?: Date | string
+  concepts?: Prisma.JobRequirementConceptUncheckedCreateNestedManyWithoutJobRequirementInput
+}
+
+export type JobRequirementFactCreateOrConnectWithoutGradeFeedbackInput = {
+  where: Prisma.JobRequirementFactWhereUniqueInput
+  create: Prisma.XOR<Prisma.JobRequirementFactCreateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedCreateWithoutGradeFeedbackInput>
+}
+
+export type JobRequirementFactUpsertWithoutGradeFeedbackInput = {
+  update: Prisma.XOR<Prisma.JobRequirementFactUpdateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedUpdateWithoutGradeFeedbackInput>
+  create: Prisma.XOR<Prisma.JobRequirementFactCreateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedCreateWithoutGradeFeedbackInput>
+  where?: Prisma.JobRequirementFactWhereInput
+}
+
+export type JobRequirementFactUpdateToOneWithWhereWithoutGradeFeedbackInput = {
+  where?: Prisma.JobRequirementFactWhereInput
+  data: Prisma.XOR<Prisma.JobRequirementFactUpdateWithoutGradeFeedbackInput, Prisma.JobRequirementFactUncheckedUpdateWithoutGradeFeedbackInput>
+}
+
+export type JobRequirementFactUpdateWithoutGradeFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  applicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
+  tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  concepts?: Prisma.JobRequirementConceptUpdateManyWithoutJobRequirementNestedInput
+}
+
+export type JobRequirementFactUncheckedUpdateWithoutGradeFeedbackInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  uid?: Prisma.StringFieldUpdateOperationsInput | string
+  applicationId?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  what?: Prisma.StringFieldUpdateOperationsInput | string
+  technologies?: Prisma.JobRequirementFactUpdatetechnologiesInput | string[]
+  tags?: Prisma.JobRequirementFactUpdatetagsInput | string[]
+  embeddingRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  embeddedRevision?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  embeddingModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  embeddingProfile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  concepts?: Prisma.JobRequirementConceptUncheckedUpdateManyWithoutJobRequirementNestedInput
 }
 
 
@@ -632,10 +737,12 @@ export type JobRequirementFactUncheckedUpdateWithoutConceptsInput = {
 
 export type JobRequirementFactCountOutputType = {
   concepts: number
+  gradeFeedback: number
 }
 
 export type JobRequirementFactCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   concepts?: boolean | JobRequirementFactCountOutputTypeCountConceptsArgs
+  gradeFeedback?: boolean | JobRequirementFactCountOutputTypeCountGradeFeedbackArgs
 }
 
 /**
@@ -655,6 +762,13 @@ export type JobRequirementFactCountOutputTypeCountConceptsArgs<ExtArgs extends r
   where?: Prisma.JobRequirementConceptWhereInput
 }
 
+/**
+ * JobRequirementFactCountOutputType without action
+ */
+export type JobRequirementFactCountOutputTypeCountGradeFeedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RequirementGradeFeedbackWhereInput
+}
+
 
 export type JobRequirementFactSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -670,6 +784,7 @@ export type JobRequirementFactSelect<ExtArgs extends runtime.Types.Extensions.In
   embeddingProfile?: boolean
   createdAt?: boolean
   concepts?: boolean | Prisma.JobRequirementFact$conceptsArgs<ExtArgs>
+  gradeFeedback?: boolean | Prisma.JobRequirementFact$gradeFeedbackArgs<ExtArgs>
   _count?: boolean | Prisma.JobRequirementFactCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["jobRequirementFact"]>
 
@@ -721,6 +836,7 @@ export type JobRequirementFactSelectScalar = {
 export type JobRequirementFactOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "applicationId" | "kind" | "what" | "technologies" | "tags" | "embeddingRevision" | "embeddedRevision" | "embeddingModel" | "embeddingProfile" | "createdAt", ExtArgs["result"]["jobRequirementFact"]>
 export type JobRequirementFactInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   concepts?: boolean | Prisma.JobRequirementFact$conceptsArgs<ExtArgs>
+  gradeFeedback?: boolean | Prisma.JobRequirementFact$gradeFeedbackArgs<ExtArgs>
   _count?: boolean | Prisma.JobRequirementFactCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type JobRequirementFactIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -730,6 +846,7 @@ export type $JobRequirementFactPayload<ExtArgs extends runtime.Types.Extensions.
   name: "JobRequirementFact"
   objects: {
     concepts: Prisma.$JobRequirementConceptPayload<ExtArgs>[]
+    gradeFeedback: Prisma.$RequirementGradeFeedbackPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1145,6 +1262,7 @@ readonly fields: JobRequirementFactFieldRefs;
 export interface Prisma__JobRequirementFactClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   concepts<T extends Prisma.JobRequirementFact$conceptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JobRequirementFact$conceptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$JobRequirementConceptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  gradeFeedback<T extends Prisma.JobRequirementFact$gradeFeedbackArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.JobRequirementFact$gradeFeedbackArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RequirementGradeFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1600,6 +1718,30 @@ export type JobRequirementFact$conceptsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.JobRequirementConceptScalarFieldEnum | Prisma.JobRequirementConceptScalarFieldEnum[]
+}
+
+/**
+ * JobRequirementFact.gradeFeedback
+ */
+export type JobRequirementFact$gradeFeedbackArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RequirementGradeFeedback
+   */
+  select?: Prisma.RequirementGradeFeedbackSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RequirementGradeFeedback
+   */
+  omit?: Prisma.RequirementGradeFeedbackOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RequirementGradeFeedbackInclude<ExtArgs> | null
+  where?: Prisma.RequirementGradeFeedbackWhereInput
+  orderBy?: Prisma.RequirementGradeFeedbackOrderByWithRelationInput | Prisma.RequirementGradeFeedbackOrderByWithRelationInput[]
+  cursor?: Prisma.RequirementGradeFeedbackWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RequirementGradeFeedbackScalarFieldEnum | Prisma.RequirementGradeFeedbackScalarFieldEnum[]
 }
 
 /**

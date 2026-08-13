@@ -10,6 +10,8 @@ export const chatWorkingMemorySchema = z.object({
 	applicationId: z.string().nullish(),
 	resumeId: z.string().nullish(),
 	facts: z.array(z.string()).nullish(),
+	profileObservations: z.array(z.string()).nullish(),
+	scoringGuidance: z.array(z.string()).nullish(),
 });
 
 export type ChatWorkingMemory = z.infer<typeof chatWorkingMemorySchema>;

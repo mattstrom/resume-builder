@@ -14,15 +14,28 @@ export const jobSummarySchema = z.object({
 });
 
 const score = () => z.number().refine((n) => n >= 0 && n <= 1, { message: 'Must be 0–1' });
+const explanation = (dimension: string) =>
+	z
+		.string()
+		.trim()
+		.min(1)
+		.max(800)
+		.describe(
+			`Evidence-based explanation of the ${dimension} score, comparing posting evidence with the candidate preference`,
+		);
 
 export const analysisSchema = z.object({
 	skillRelevance: score(),
 	experienceRelevance: score(),
-	roleLevelFit: score().optional(),
-	locationFit: score().optional(),
-	compensationFit: score().optional(),
-	companyFit: score().optional(),
-	logisticalFit: score().optional(),
+	roleLevelFit: score(),
+	roleLevelFitExplanation: explanation('role-level fit'),
+	locationFit: score(),
+	locationFitExplanation: explanation('location fit'),
+	compensationFit: score(),
+	compensationFitExplanation: explanation('compensation fit'),
+	companyFit: score(),
+	companyFitExplanation: explanation('company fit'),
+	logisticalFit: score(),
 	overallFit: score(),
 	strengths: z.array(z.string()),
 	weaknesses: z.array(z.string()),

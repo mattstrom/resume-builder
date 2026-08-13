@@ -155,9 +155,13 @@ export const applicationFragment = gql`
 			skillRelevance
 			experienceRelevance
 			roleLevelFit
+			roleLevelFitExplanation
 			locationFit
+			locationFitExplanation
 			compensationFit
+			compensationFitExplanation
 			companyFit
+			companyFitExplanation
 			logisticalFit
 			overallFit
 			strengths
@@ -400,6 +404,33 @@ export const GET_JOB_REQUIREMENTS = gql`
 			}
 			createdAt
 		}
+	}
+`;
+
+export const GET_REQUIREMENT_GRADE_FEEDBACK = gql`
+	query GetRequirementGradeFeedback($applicationId: ID!) {
+		requirementGradeFeedback(applicationId: $applicationId) {
+			id
+			applicationId
+			jobRequirementId
+			agentGrade
+			manualGrade
+			explanation
+			createdAt
+			proposals {
+				id
+				feedbackId
+				kind
+				title
+				rationale
+				payload
+				status
+				acceptedFactId
+				createdAt
+				resolvedAt
+			}
+		}
+		profileKnowledgeGuidance
 	}
 `;
 

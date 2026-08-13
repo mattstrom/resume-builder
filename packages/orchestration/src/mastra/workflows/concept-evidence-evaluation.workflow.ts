@@ -48,6 +48,9 @@ const evaluateConceptEvidenceStep = createStep({
 
 				Resume evidence items:
 				${JSON.stringify(inputData.evidenceItems, null, 2)}
+
+				User-confirmed profile and scoring guidance:
+				${JSON.stringify(inputData.profileGuidance, null, 2)}
 			`,
 			{
 				structuredOutput: { schema: rawEvaluationSchema },

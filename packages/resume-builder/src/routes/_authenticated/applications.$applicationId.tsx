@@ -1,9 +1,14 @@
 import { useMutation, useQuery } from '@apollo/client/react';
-import type { Application, Resume } from '@resume-builder/entities';
+import {
+	type Application,
+	profileKnowledgeProposalSchema,
+	type Resume,
+} from '@resume-builder/entities';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import {
 	AlertCircle,
 	ArrowRight,
+	Brain,
 	CheckCircle2,
 	CopyPlus,
 	ExternalLink,
@@ -42,6 +47,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog.tsx';
+import { Field, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
@@ -54,6 +60,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+import { Spinner } from '@/components/ui/spinner.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import {
@@ -72,11 +79,13 @@ import type {
 	GetApplicationVariables,
 	GetJobRequirementsData,
 	GetJobRequirementsVariables,
+	ProfileKnowledgeProposalRecord,
 	UpdateApplicationData,
 	UpdateApplicationVariables,
 	UpdateResumeData,
 	UpdateResumeVariables,
 } from '@/graphql/types.ts';
+import { useProfileConceptEvaluation } from '@/hooks/use-profile-concept-evaluation.ts';
 import {
 	deriveApplicationWorkflow,
 	WORKFLOW_STAGE_IDS,
@@ -84,6 +93,7 @@ import {
 	type WorkflowStageId,
 	type WorkflowStageStatus,
 } from '@/lib/application-workflow.ts';
+import type { EvidenceGrade, RequirementEvidenceAssessment } from '@/lib/concept-coverage.ts';
 import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -119,6 +129,252 @@ const requirementKindLabels: Record<string, string> = {
 	responsibility: 'Responsibilities',
 	culture: 'Ways of working',
 };
+
+const evidenceGradePresentation: Record<
+	EvidenceGrade,
+	{ label: string; variant: 'success' | 'info' | 'warning' | 'destructive' }
+> = {
+	strong: { label: 'Strong', variant: 'success' },
+	moderate: { label: 'Moderate', variant: 'info' },
+	weak: { label: 'Weak', variant: 'warning' },
+	missing: { label: 'Missing', variant: 'destructive' },
+};
+
+const evidenceGrades: EvidenceGrade[] = ['strong', 'moderate', 'weak', 'missing'];
+
+function RequirementGradeControl({
+	assessment,
+	requirement,
+	onChange,
+}: {
+	assessment: RequirementEvidenceAssessment;
+	requirement: string;
+	onChange: (grade?: EvidenceGrade, explanation?: string) => Promise<void>;
+}) {
+	const presentation = evidenceGradePresentation[assessment.grade];
+	const [pendingGrade, setPendingGrade] = useState<EvidenceGrade>();
+	const [explanation, setExplanation] = useState('');
+	const [saving, setSaving] = useState(false);
+	const closeDialog = () => {
+		setPendingGrade(undefined);
+		setExplanation('');
+	};
+	const saveGrade = async (learn: boolean) => {
+		if (!pendingGrade) return;
+		setSaving(true);
+		try {
+			await onChange(pendingGrade, learn ? explanation : undefined);
+			closeDialog();
+			toast.success(
+				learn && explanation.trim()
+					? 'Grade saved and profile feedback reviewed.'
+					: 'Grade saved.',
+			);
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not save grade feedback.');
+		} finally {
+			setSaving(false);
+		}
+	};
+	return (
+		<>
+			<div className="flex flex-wrap items-center justify-end gap-2">
+				<Badge variant={presentation.variant}>
+					{presentation.label} · {Math.round(assessment.score * 100)}
+					{assessment.manualGrade ? ' · manual' : ''}
+				</Badge>
+				<Select
+					value={assessment.manualGrade ?? 'agent'}
+					onValueChange={(value) => {
+						if (value === 'agent') {
+							void onChange().catch((error) => {
+								toast.error(
+									error instanceof Error
+										? error.message
+										: 'Could not restore the agent grade.',
+								);
+							});
+							return;
+						}
+						setPendingGrade(value as EvidenceGrade);
+					}}
+				>
+					<SelectTrigger
+						className="h-8 w-[10.5rem]"
+						aria-label={`Adjust grade for ${requirement}`}
+					>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectGroup>
+							<SelectItem value="agent">
+								Agent: {evidenceGradePresentation[assessment.agentGrade].label}
+							</SelectItem>
+							{evidenceGrades.map((grade) => (
+								<SelectItem key={grade} value={grade}>
+									Manual: {evidenceGradePresentation[grade].label}
+								</SelectItem>
+							))}
+						</SelectGroup>
+					</SelectContent>
+				</Select>
+			</div>
+			<Dialog open={Boolean(pendingGrade)} onOpenChange={(open) => !open && closeDialog()}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>What did the grader miss?</DialogTitle>
+						<DialogDescription>
+							Your grade will be saved either way. Add context if this correction
+							should improve the broader profile the system uses about you.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="flex flex-col gap-3">
+						<p className="text-sm">{requirement}</p>
+						<Field>
+							<FieldLabel htmlFor="grade-feedback-explanation">
+								Correction context
+							</FieldLabel>
+							<Textarea
+								id="grade-feedback-explanation"
+								value={explanation}
+								onChange={(event) => setExplanation(event.target.value)}
+								placeholder="For example: I have several years of professional Java experience."
+								maxLength={2000}
+								disabled={saving}
+							/>
+						</Field>
+					</div>
+					<DialogFooter>
+						<Button
+							type="button"
+							variant="ghost"
+							onClick={closeDialog}
+							disabled={saving}
+						>
+							Cancel
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => void saveGrade(false)}
+							disabled={saving}
+						>
+							Save grade only
+						</Button>
+						<Button
+							type="button"
+							onClick={() => void saveGrade(true)}
+							disabled={saving || !explanation.trim()}
+						>
+							{saving ? (
+								<Spinner data-icon="inline-start" />
+							) : (
+								<Brain data-icon="inline-start" />
+							)}
+							Save and learn
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
+}
+
+function KnowledgeProposal({
+	proposal,
+	onResolve,
+}: {
+	proposal: ProfileKnowledgeProposalRecord;
+	onResolve: (proposalId: string, accept: boolean) => Promise<void>;
+}) {
+	const [resolving, setResolving] = useState(false);
+	const parsed = profileKnowledgeProposalSchema.safeParse(proposal.payload);
+	const proposedKnowledge = parsed.success
+		? parsed.data.kind === 'fact'
+			? parsed.data.fact?.what
+			: parsed.data.guidance
+		: undefined;
+	const resolve = async (accept: boolean) => {
+		setResolving(true);
+		try {
+			await onResolve(proposal.id, accept);
+			toast.success(accept ? 'Profile knowledge updated.' : 'Suggestion dismissed.');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Could not resolve suggestion.');
+		} finally {
+			setResolving(false);
+		}
+	};
+	return (
+		<Alert>
+			<Brain />
+			<AlertTitle>{proposal.title}</AlertTitle>
+			<AlertDescription className="flex flex-col gap-3">
+				<p>{proposal.rationale}</p>
+				{proposedKnowledge && (
+					<p className="font-medium text-foreground">“{proposedKnowledge}”</p>
+				)}
+				<div className="flex flex-wrap gap-2">
+					<Button
+						type="button"
+						size="sm"
+						onClick={() => void resolve(true)}
+						disabled={resolving}
+					>
+						{resolving && <Spinner data-icon="inline-start" />}
+						Accept
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="outline"
+						onClick={() => void resolve(false)}
+						disabled={resolving}
+					>
+						Dismiss
+					</Button>
+				</div>
+			</AlertDescription>
+		</Alert>
+	);
+}
+
+function scoreVariant(score: number) {
+	if (score >= 0.8) return 'success' as const;
+	if (score >= 0.6) return 'info' as const;
+	if (score >= 0.4) return 'warning' as const;
+	return 'destructive' as const;
+}
+
+function FitMetric({
+	label,
+	value,
+	explanation,
+}: {
+	label: string;
+	value?: number;
+	explanation?: string;
+}) {
+	return (
+		<div className="flex flex-col gap-2 rounded-md border border-border p-3">
+			<div className="flex items-center justify-between gap-3">
+				<span className="text-sm text-muted-foreground">{label}</span>
+				{value === undefined ? (
+					<Badge variant="outline">Not scored</Badge>
+				) : (
+					<Badge variant={scoreVariant(value)}>{Math.round(value * 100)}%</Badge>
+				)}
+			</div>
+			<Progress value={(value ?? 0) * 100} className="h-2" />
+			<p className="text-sm leading-relaxed text-muted-foreground">
+				{explanation ||
+					(value === undefined
+						? 'The assessment did not find enough information to score this preference.'
+						: 'Reassess fit to generate a detailed explanation for this score.')}
+			</p>
+		</div>
+	);
+}
 
 const getInitialFormState = (application: Application): ApplicationFormState => ({
 	name: application.name ?? '',
@@ -182,6 +438,7 @@ function formatQualifier(
 		lte: '≤',
 		lt: '<',
 		approximately: '≈',
+		between: '',
 	}[qualifier.operator];
 	return ` · ${operator ?? qualifier.operator} ${formatValue(qualifier.value)} ${dimension}`;
 }
@@ -518,6 +775,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	const [application, setApplication] = useState<Application>(loadedApplication);
 	const [formState, setFormState] = useState(() => getInitialFormState(loadedApplication));
 	const [identifyingRequirements, setIdentifyingRequirements] = useState(false);
+	const [assessingFit, setAssessingFit] = useState(false);
 	const [retrievingJobDescription, setRetrievingJobDescription] = useState(false);
 	const {
 		data: jobRequirementsData,
@@ -533,6 +791,7 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 	>(UPDATE_APPLICATION);
 
 	const jobRequirements = jobRequirementsData?.jobRequirements ?? [];
+	const profileEvaluation = useProfileConceptEvaluation(applicationId, jobRequirements);
 	const workflow = useMemo(
 		() => deriveApplicationWorkflow(application, jobRequirements.length > 0),
 		[application, jobRequirements.length],
@@ -648,6 +907,29 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 			);
 		} finally {
 			setIdentifyingRequirements(false);
+		}
+	};
+
+	const handleAssessFit = async () => {
+		setAssessingFit(true);
+		try {
+			await saveApplication(false);
+			await applicationStore.assessFit(applicationId);
+			await refreshApplication();
+			toast.success('Fit assessment updated.');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Fit assessment failed');
+		} finally {
+			setAssessingFit(false);
+		}
+	};
+
+	const handleEvaluateProfile = async () => {
+		try {
+			await profileEvaluation.evaluate();
+			toast.success('Profile expertise graded.');
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Expertise grading failed');
 		}
 	};
 
@@ -890,182 +1172,423 @@ const ApplicationRouteComponent = observer(function ApplicationRouteComponent() 
 						</TabsContent>
 
 						<TabsContent value="requirements" className="mt-0">
-							<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
+							<div className="flex flex-col gap-4">
 								<Card>
 									<CardHeader>
-										<CardTitle>Job requirements</CardTitle>
-										<CardDescription>
-											Distill the posting into semantic assertions that share
-											concepts with your career evidence.
-										</CardDescription>
+										<div className="flex flex-wrap items-start justify-between gap-3">
+											<div className="flex flex-col gap-1">
+												<CardTitle>Fit to your preferences</CardTitle>
+												<CardDescription>
+													Alignment with your target level, location,
+													compensation, and company preferences.
+												</CardDescription>
+											</div>
+											<Button
+												type="button"
+												variant={
+													application.analysis ? 'outline' : 'default'
+												}
+												onClick={handleAssessFit}
+												disabled={
+													!workflow.hasJobDescription || assessingFit
+												}
+											>
+												<Sparkles data-icon="inline-start" />
+												{assessingFit
+													? 'Assessing...'
+													: application.analysis
+														? 'Reassess fit'
+														: 'Assess fit'}
+											</Button>
+										</div>
 									</CardHeader>
-									<CardContent className="flex flex-col gap-5">
-										{!workflow.hasJobDescription && (
-											<Alert>
-												<AlertCircle />
-												<AlertTitle>Posting required</AlertTitle>
-												<AlertDescription>
-													Add a job description before identifying
-													requirements.
-												</AlertDescription>
-											</Alert>
-										)}
-
-										{jobRequirements.length > 0 ? (
-											Object.entries(requirementKindLabels).map(
-												([kind, label]) => {
-													const requirements = jobRequirements.filter(
-														(requirement) => requirement.kind === kind,
-													);
-													if (requirements.length === 0) return null;
-
-													return (
-														<section
-															key={kind}
-															className="flex flex-col gap-2"
-														>
-															<div className="flex items-center justify-between gap-3">
-																<h3 className="text-sm font-medium">
-																	{label}
-																</h3>
-																<Badge variant="outline">
-																	{requirements.length}
-																</Badge>
-															</div>
-															<div className="flex flex-col gap-2">
-																{requirements.map((requirement) => (
-																	<div
-																		key={requirement.id}
-																		className="flex flex-col gap-2 rounded-md border border-border px-3 py-2"
-																	>
-																		<p className="text-sm">
-																			{requirement.what}
-																		</p>
-																		{requirement.concepts
-																			.length > 0 && (
-																			<div className="flex flex-wrap gap-1">
-																				{requirement.concepts.map(
-																					(assertion) => (
-																						<Badge
-																							key={`${assertion.relation}:${assertion.conceptId}`}
-																							variant="secondary"
-																						>
-																							{
-																								assertion.relation
-																							}
-																							:{' '}
-																							{
-																								assertion
-																									.concept
-																									.label
-																							}
-																							{formatQualifier(
-																								assertion.qualifier,
-																							)}
-																						</Badge>
-																					),
-																				)}
-																			</div>
-																		)}
-																	</div>
-																))}
-															</div>
-														</section>
-													);
-												},
-											)
+									<CardContent className="flex flex-col gap-4">
+										{application.analysis ? (
+											<>
+												<div className="flex flex-wrap items-end justify-between gap-3">
+													<div className="flex flex-col gap-1">
+														<span className="text-sm text-muted-foreground">
+															Overall fit
+														</span>
+														<span className="text-3xl font-semibold">
+															{Math.round(
+																application.analysis.overallFit *
+																	100,
+															)}
+															%
+														</span>
+													</div>
+													<Badge
+														variant={scoreVariant(
+															application.analysis.overallFit,
+														)}
+													>
+														{application.analysis.overallFit >= 0.8
+															? 'High priority'
+															: application.analysis.overallFit >= 0.6
+																? 'Worth pursuing'
+																: 'Review tradeoffs'}
+													</Badge>
+												</div>
+												<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+													<FitMetric
+														label="Role level"
+														value={application.analysis.roleLevelFit}
+														explanation={
+															application.analysis
+																.roleLevelFitExplanation
+														}
+													/>
+													<FitMetric
+														label="Location"
+														value={application.analysis.locationFit}
+														explanation={
+															application.analysis
+																.locationFitExplanation
+														}
+													/>
+													<FitMetric
+														label="Compensation"
+														value={application.analysis.compensationFit}
+														explanation={
+															application.analysis
+																.compensationFitExplanation
+														}
+													/>
+													<FitMetric
+														label="Company"
+														value={application.analysis.companyFit}
+														explanation={
+															application.analysis
+																.companyFitExplanation
+														}
+													/>
+												</div>
+												{application.analysis.recommendations.length >
+													0 && (
+													<Alert>
+														<CheckCircle2 />
+														<AlertTitle>Recommendation</AlertTitle>
+														<AlertDescription>
+															<ul className="flex list-disc flex-col gap-1 pl-4">
+																{application.analysis.recommendations.map(
+																	(recommendation) => (
+																		<li key={recommendation}>
+																			{recommendation}
+																		</li>
+																	),
+																)}
+															</ul>
+														</AlertDescription>
+													</Alert>
+												)}
+											</>
 										) : (
-											<Alert>
-												<Sparkles />
-												<AlertTitle>
-													{loadingJobRequirements
-														? 'Loading identified requirements'
-														: 'No requirements identified yet'}
-												</AlertTitle>
-												<AlertDescription>
-													The AI will break the posting into explicit
-													requirements, responsibilities, and
-													working-style signals.
-												</AlertDescription>
-											</Alert>
+											<p className="text-sm text-muted-foreground">
+												Run an assessment to compare this posting with the
+												job preferences in your profile.
+											</p>
 										)}
 									</CardContent>
-									<CardFooter>
-										<Button
-											onClick={handleIdentifyRequirements}
-											disabled={
-												!workflow.hasJobDescription ||
-												identifyingRequirements
-											}
-										>
-											<Sparkles data-icon="inline-start" />
-											{identifyingRequirements
-												? 'Identifying...'
-												: requirementsStage.actionLabel}
-										</Button>
-									</CardFooter>
 								</Card>
 
-								<Card>
-									<CardHeader>
-										<CardTitle>Assertion index</CardTitle>
-										<CardDescription>
-											Normalized job-side predicates pointing into the shared
-											concept graph.
-										</CardDescription>
-									</CardHeader>
-									<CardContent className="flex flex-col gap-5">
-										<section className="flex flex-col gap-2">
-											<h3 className="text-sm font-medium">Assertions</h3>
-											<div className="flex flex-wrap gap-2">
-												{assertions.length > 0 ? (
-													assertions.map((assertion) => (
-														<Badge
-															key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}`}
-															variant="secondary"
+								<div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
+									<Card>
+										<CardHeader>
+											<div className="flex flex-wrap items-start justify-between gap-3">
+												<div className="flex flex-col gap-1">
+													<CardTitle>Job requirements</CardTitle>
+													<CardDescription>
+														Grades use all expertise in your profile,
+														not only the current resume. Use each grade
+														menu to correct the agent's assessment.
+													</CardDescription>
+												</div>
+												{profileEvaluation.summary.totalCount > 0 && (
+													<div className="flex items-center gap-2">
+														{profileEvaluation.evaluation && (
+															<Badge
+																variant={scoreVariant(
+																	profileEvaluation.score / 100,
+																)}
+															>
+																{profileEvaluation.score}% expertise
+																fit
+																{profileEvaluation.isStale
+																	? ' · stale'
+																	: ''}
+															</Badge>
+														)}
+														<Button
+															type="button"
+															variant="outline"
+															onClick={handleEvaluateProfile}
+															disabled={
+																profileEvaluation.isEvaluating
+															}
 														>
-															{assertion.relation}:{' '}
-															{assertion.concept.label}
-														</Badge>
-													))
-												) : (
-													<p className="text-sm text-muted-foreground">
-														No assertions identified.
-													</p>
+															<Sparkles data-icon="inline-start" />
+															{profileEvaluation.isEvaluating
+																? 'Grading...'
+																: profileEvaluation.evaluation
+																	? 'Regrade expertise'
+																	: 'Grade expertise'}
+														</Button>
+													</div>
 												)}
 											</div>
-										</section>
-										<Separator />
-										<section className="flex flex-col gap-2">
-											<h3 className="text-sm font-medium">
-												Quantified constraints
-											</h3>
-											<div className="flex flex-wrap gap-2">
-												{assertions.some(
-													(assertion) => assertion.qualifier,
-												) ? (
-													assertions
-														.filter((assertion) => assertion.qualifier)
-														.map((assertion) => (
-															<Badge
-																key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}:qualifier`}
-																variant="outline"
+										</CardHeader>
+										<CardContent className="flex flex-col gap-5">
+											{!workflow.hasJobDescription && (
+												<Alert>
+													<AlertCircle />
+													<AlertTitle>Posting required</AlertTitle>
+													<AlertDescription>
+														Add a job description before identifying
+														requirements.
+													</AlertDescription>
+												</Alert>
+											)}
+
+											{jobRequirements.length > 0 ? (
+												Object.entries(requirementKindLabels).map(
+													([kind, label]) => {
+														const requirements = jobRequirements.filter(
+															(requirement) =>
+																requirement.kind === kind,
+														);
+														if (requirements.length === 0) return null;
+
+														return (
+															<section
+																key={kind}
+																className="flex flex-col gap-2"
 															>
+																<div className="flex items-center justify-between gap-3">
+																	<h3 className="text-sm font-medium">
+																		{label}
+																	</h3>
+																	<Badge variant="outline">
+																		{requirements.length}
+																	</Badge>
+																</div>
+																<div className="flex flex-col gap-2">
+																	{requirements.map(
+																		(requirement) => (
+																			<div
+																				key={requirement.id}
+																				className="flex flex-col gap-2 rounded-md border border-border px-3 py-2"
+																			>
+																				<div className="flex items-start justify-between gap-3">
+																					<p className="text-sm">
+																						{
+																							requirement.what
+																						}
+																					</p>
+																					{profileEvaluation.evaluation &&
+																						profileEvaluation.requirementAssessmentById.get(
+																							requirement.id,
+																						) && (
+																							<RequirementGradeControl
+																								assessment={
+																									profileEvaluation.requirementAssessmentById.get(
+																										requirement.id,
+																									)!
+																								}
+																								requirement={
+																									requirement.what
+																								}
+																								onChange={(
+																									grade,
+																									explanation,
+																								) =>
+																									profileEvaluation.setManualRequirementGrade(
+																										requirement.id,
+																										grade,
+																										explanation,
+																									)
+																								}
+																							/>
+																						)}
+																				</div>
+																				{requirement
+																					.concepts
+																					.length > 0 && (
+																					<div className="flex flex-wrap gap-1">
+																						{requirement.concepts.map(
+																							(
+																								assertion,
+																							) => (
+																								<Badge
+																									key={`${assertion.relation}:${assertion.conceptId}`}
+																									variant={
+																										profileEvaluation.evaluationByConceptId.get(
+																											assertion.conceptId,
+																										)
+																											?.grade
+																											? evidenceGradePresentation[
+																													profileEvaluation.evaluationByConceptId.get(
+																														assertion.conceptId,
+																													)!
+																														.grade
+																												]
+																													.variant
+																											: 'secondary'
+																									}
+																								>
+																									{
+																										assertion.relation
+																									}
+																									:{' '}
+																									{
+																										assertion
+																											.concept
+																											.label
+																									}
+																									{formatQualifier(
+																										assertion.qualifier,
+																									)}
+																									{profileEvaluation.evaluationByConceptId.get(
+																										assertion.conceptId,
+																									) &&
+																										` · ${
+																											evidenceGradePresentation[
+																												profileEvaluation.evaluationByConceptId.get(
+																													assertion.conceptId,
+																												)!
+																													.grade
+																											]
+																												.label
+																										}`}
+																								</Badge>
+																							),
+																						)}
+																					</div>
+																				)}
+																				{profileEvaluation.proposalsByRequirementId
+																					.get(
+																						requirement.id,
+																					)
+																					?.map(
+																						(
+																							proposal,
+																						) => (
+																							<KnowledgeProposal
+																								key={
+																									proposal.id
+																								}
+																								proposal={
+																									proposal
+																								}
+																								onResolve={
+																									profileEvaluation.resolveProposal
+																								}
+																							/>
+																						),
+																					)}
+																			</div>
+																		),
+																	)}
+																</div>
+															</section>
+														);
+													},
+												)
+											) : (
+												<Alert>
+													<Sparkles />
+													<AlertTitle>
+														{loadingJobRequirements
+															? 'Loading identified requirements'
+															: 'No requirements identified yet'}
+													</AlertTitle>
+													<AlertDescription>
+														The AI will break the posting into explicit
+														requirements, responsibilities, and
+														working-style signals.
+													</AlertDescription>
+												</Alert>
+											)}
+										</CardContent>
+										<CardFooter>
+											<Button
+												onClick={handleIdentifyRequirements}
+												disabled={
+													!workflow.hasJobDescription ||
+													identifyingRequirements
+												}
+											>
+												<Sparkles data-icon="inline-start" />
+												{identifyingRequirements
+													? 'Identifying...'
+													: requirementsStage.actionLabel}
+											</Button>
+										</CardFooter>
+									</Card>
+
+									<Card>
+										<CardHeader>
+											<CardTitle>Assertion index</CardTitle>
+											<CardDescription>
+												Normalized job-side predicates pointing into the
+												shared concept graph.
+											</CardDescription>
+										</CardHeader>
+										<CardContent className="flex flex-col gap-5">
+											<section className="flex flex-col gap-2">
+												<h3 className="text-sm font-medium">Assertions</h3>
+												<div className="flex flex-wrap gap-2">
+													{assertions.length > 0 ? (
+														assertions.map((assertion) => (
+															<Badge
+																key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}`}
+																variant="secondary"
+															>
+																{assertion.relation}:{' '}
 																{assertion.concept.label}
-																{formatQualifier(
-																	assertion.qualifier,
-																)}
 															</Badge>
 														))
-												) : (
-													<p className="text-sm text-muted-foreground">
-														No quantified constraints identified.
-													</p>
-												)}
-											</div>
-										</section>
-									</CardContent>
-								</Card>
+													) : (
+														<p className="text-sm text-muted-foreground">
+															No assertions identified.
+														</p>
+													)}
+												</div>
+											</section>
+											<Separator />
+											<section className="flex flex-col gap-2">
+												<h3 className="text-sm font-medium">
+													Quantified constraints
+												</h3>
+												<div className="flex flex-wrap gap-2">
+													{assertions.some(
+														(assertion) => assertion.qualifier,
+													) ? (
+														assertions
+															.filter(
+																(assertion) => assertion.qualifier,
+															)
+															.map((assertion) => (
+																<Badge
+																	key={`${assertion.jobRequirementId}:${assertion.relation}:${assertion.conceptId}:qualifier`}
+																	variant="outline"
+																>
+																	{assertion.concept.label}
+																	{formatQualifier(
+																		assertion.qualifier,
+																	)}
+																</Badge>
+															))
+													) : (
+														<p className="text-sm text-muted-foreground">
+															No quantified constraints identified.
+														</p>
+													)}
+												</div>
+											</section>
+										</CardContent>
+									</Card>
+								</div>
 							</div>
 						</TabsContent>
 

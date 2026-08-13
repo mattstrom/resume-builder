@@ -75,6 +75,10 @@ export class FactsStore {
 		return this.query.loading;
 	}
 
+	async refetch(): Promise<void> {
+		await this.query.refetch();
+	}
+
 	@action
 	async extractFacts(): Promise<void> {
 		this.isExtracting = true;

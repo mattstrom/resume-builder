@@ -6,8 +6,7 @@ import config from '@/config';
 export const conceptEvidenceEvaluatorAgent = new Agent({
 	id: 'concept-evidence-evaluator-agent',
 	name: 'Concept Evidence Evaluator',
-	description:
-		'Evaluates how strongly the complete resume evidences job concepts',
+	description: 'Evaluates how strongly the complete resume evidences job concepts',
 	model: config.llms.defaultModel,
 	instructions: outdent`
 		You evaluate how well a complete resume evidences each supplied job concept.
@@ -24,7 +23,9 @@ export const conceptEvidenceEvaluatorAgent = new Agent({
 		- 0.00–0.24 Missing: no credible evidence anywhere in the resume.
 
 		Consider evidence from the title, summary, skills, role headers, projects,
-		education, volunteering, and bullets. For a named technology, an exact listing
+		education, volunteering, confirmed profile facts, and bullets. User-confirmed
+		profile guidance is authoritative for interpretation but cannot substitute for
+		factual evidence. For a named technology, an exact listing
 		in the skills section is direct evidence and must never be graded Missing; grade
 		it Moderate unless another item demonstrates applied use strongly enough for a
 		Strong grade. Consider semantic and transferable evidence, not only exact

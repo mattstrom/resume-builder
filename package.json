@@ -15,7 +15,7 @@
   "scripts": {
     "dev": "vite",
     "prestart": "docker compose up -d --wait redis db",
-    "start": "nx run-many -t dev -p @resume-builder/entities @resume-builder/backend @resume-builder/crdt @resume-builder/web --parallel=10",
+    "start": "nx run-many -t dev -p @resume-builder/entities @resume-builder/backend @resume-builder/crdt @resume-builder/web orchestration --parallel=10",
     "start:mcp": "op run --env-file=.env -- sh -c 'docker compose up -d mcp'",
     "build": "tsc && vite build",
     "preview": "vite preview",

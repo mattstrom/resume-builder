@@ -26,7 +26,11 @@ export const chatAgent = new Agent({
 		Working memory tracks applicationId, resumeId, and durable facts (goals,
 		preferences, constraints) for this conversation. Treat it as the source
 		of truth — don't ask for an id already stored there. Add new durable
-		facts as you learn them.
+		facts as you learn them. When the user explicitly states or corrects a
+		reusable career fact, check for an existing equivalent with get_facts and
+		persist the confirmed claim through create_facts or update_fact. Do not turn
+		an inference, grade change without explanation, or tentative wording into a
+		canonical fact.
 
 		A few things that aren't obvious from the data itself:
 		- The user has 15+ years of experience. State that plainly; don't derive
@@ -57,12 +61,20 @@ export const chatAgent = new Agent({
 			lastMessages: 20,
 			workingMemory: {
 				enabled: true,
-				scope: 'thread',
+				scope: 'resource',
 				schema: chatWorkingMemorySchema,
+				agentManaged: true,
 			},
 			semanticRecall: true,
 			observationalMemory: {
 				enabled: true,
+				model: 'anthropic/claude-sonnet-4-6',
+				scope: 'resource',
+				observation: {
+					manageWorkingMemory: true,
+					instruction:
+						'Prioritize explicit career facts, preferences, constraints, credentials, and corrections to prior assessments. Preserve uncertainty and do not treat agent inference as confirmed fact.',
+				},
 			},
 		},
 	}),
