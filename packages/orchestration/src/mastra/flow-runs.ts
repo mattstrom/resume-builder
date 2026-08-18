@@ -1,6 +1,6 @@
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 
-import { createResumeBuilderMcpClient } from './mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from './mcp/resume-builder.mcp';
 
 /** Structural, so callers can pass a context typed with any schema. */
 type TokenBearingContext = { get(key: string): unknown };
@@ -84,10 +84,9 @@ export async function recordFlowRun(
 			return;
 		}
 
-		const { toolsets } = await createResumeBuilderMcpClient(token).listToolsetsWithErrors();
-		const tools = toolsets['resumeBuilder'];
-
-		await tools?.['upsert_flow_run'].execute!(input, {} as any);
+		await withResumeBuilderTools(token, (tools) =>
+			tools['upsert_flow_run'].execute!(input, {} as any),
+		);
 	} catch (error) {
 		const reason = error instanceof Error ? error.message : String(error);
 		console.warn(`Could not record flow run for ${input.flow}: ${reason}`);

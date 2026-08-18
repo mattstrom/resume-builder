@@ -10,7 +10,7 @@ import {
 } from '@resume-builder/entities';
 import { z } from 'zod';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 
 const fetchProfileStep = createStep({
 	id: 'fetch-profile',
@@ -24,9 +24,9 @@ const fetchProfileStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_profile.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_profile.execute!({} as any, {} as any),
+		);
 
 		return {
 			profile: result.profile,
@@ -46,11 +46,8 @@ const fetchContactInformationStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_contact_information.execute!(
-			{} as any,
-			{} as any,
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_contact_information.execute!({} as any, {} as any),
 		);
 
 		return {
@@ -71,9 +68,9 @@ const fetchEducationStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_education.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_education.execute!({} as any, {} as any),
+		);
 
 		return {
 			education: result.education,
@@ -93,9 +90,9 @@ const fetchJobsStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_jobs.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_jobs.execute!({} as any, {} as any),
+		);
 
 		return {
 			jobs: result.jobs,
@@ -115,9 +112,9 @@ const fetchProjectsStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_projects.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_projects.execute!({} as any, {} as any),
+		);
 
 		return {
 			projects: result.projects,
@@ -137,9 +134,9 @@ const fetchSkillsStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_skills.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_skills.execute!({} as any, {} as any),
+		);
 
 		return {
 			skills: result.skills,
@@ -159,11 +156,8 @@ const fetchVolunteeringStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_volunteering.execute!(
-			{} as any,
-			{} as any,
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_volunteering.execute!({} as any, {} as any),
 		);
 
 		return {

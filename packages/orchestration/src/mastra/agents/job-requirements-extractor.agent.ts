@@ -1,4 +1,4 @@
-import { Agent } from '@mastra/core/agent';
+import { Agent, type ToolsInput } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { outdent } from 'outdent';
 import { z } from 'zod';
@@ -137,9 +137,16 @@ export const jobRequirementsExtractorAgent = new Agent({
 			You are not assessing fit. You are not generating resume bullets. You are not summarizing the role. You are decomposing a job description into its smallest true units so that a separate process can later match them against candidate facts.
 		`;
 	},
-	tools: async ({ requestContext }) => {
-		const token =
-			(requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+	tools: async ({ requestContext }): Promise<ToolsInput> => {
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+
+		// Mastra evaluates `tools` outside a real request too (e.g. Studio's own
+		// introspection), when there is no auth token to connect with. Skip the
+		// MCP connection rather than let it fail and leak.
+		if (!token) {
+			return {};
+		}
+
 		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {

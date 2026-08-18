@@ -4,7 +4,7 @@ import { conceptQualifierSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
 import { jobRequirementsExtractorAgent } from '../agents/job-requirements-extractor.agent';
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 
 const inputSchema = z.object({ applicationId: z.string() });
 const outputSchema = z.object({ applicationId: z.string() });
@@ -88,18 +88,10 @@ const persistJobConcepts = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const token =
 			(requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const { toolsets, errors } =
-			await createResumeBuilderMcpClient(token).listToolsetsWithErrors();
-		const tools = toolsets['resumeBuilder'];
 
-		if (!tools) {
-			const reason = errors['resumeBuilder'] ?? 'connection failed';
-			throw new Error(
-				`Could not reach the resume-builder MCP server: ${reason}`,
-			);
-		}
-
-		await tools['create_job_requirements'].execute!(inputData, {} as any);
+		await withResumeBuilderTools(token, (tools) =>
+			tools['create_job_requirements'].execute!(inputData, {} as any),
+		);
 
 		return { applicationId: inputData.applicationId };
 	},

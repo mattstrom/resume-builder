@@ -23,6 +23,14 @@ export const applicationReviewerAgent = new Agent({
 	},
 	tools: async ({ requestContext }) => {
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+
+		// Mastra evaluates `tools` outside a real request too (e.g. Studio's own
+		// introspection), when there is no auth token to connect with. Skip the
+		// MCP connection rather than let it fail and leak.
+		if (!token) {
+			return {};
+		}
+
 		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {

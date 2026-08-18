@@ -1,4 +1,4 @@
-import { Agent } from '@mastra/core/agent';
+import { Agent, type ToolsInput } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
@@ -22,8 +22,16 @@ export const interviewCoachAgent = new Agent({
 			Use the available tools to retrieve the candidate's narrative, resume, work experience, projects, and skills.
 		`;
 	},
-	tools: async ({ requestContext }) => {
+	tools: async ({ requestContext }): Promise<ToolsInput> => {
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+
+		// Mastra evaluates `tools` outside a real request too (e.g. Studio's own
+		// introspection), when there is no auth token to connect with. Skip the
+		// MCP connection rather than let it fail and leak.
+		if (!token) {
+			return {};
+		}
+
 		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		const {

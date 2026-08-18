@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { jobDescriptionRetrieverAgent } from '../agents/job-description-retriever.agent';
 import { jobPostingBrowserAgent } from '../agents/job-posting-browser.agent';
 import { type Flow, recordFlowRun, toFlowRunStatus } from '../flow-runs';
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { fetchJobPostingPage } from '../tools/fetch-job-posting.tool';
 import { md } from '../utils';
 
@@ -61,18 +61,6 @@ const extractedDescriptionSchema = resolvedUrlSchema.extend({
 	company: z.string().optional(),
 });
 
-async function getResumeBuilderTools(token: string) {
-	const { toolsets, errors } = await createResumeBuilderMcpClient(token).listToolsetsWithErrors();
-	const tools = toolsets['resumeBuilder'];
-
-	if (!tools) {
-		const reason = errors['resumeBuilder'] ?? 'connection failed';
-		throw new Error(`Could not reach the resume-builder MCP server: ${reason}`);
-	}
-
-	return tools;
-}
-
 const resolvePostingUrl = createStep({
 	id: 'resolve-posting-url',
 	description: "Reads the application's job posting URL",
@@ -96,8 +84,9 @@ const resolvePostingUrl = createStep({
 		}
 
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const tools = await getResumeBuilderTools(token);
-		const result = await tools['get_application'].execute!({ id: applicationId }, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools['get_application'].execute!({ id: applicationId }, {} as any),
+		);
 		const application = (result as any)?.application;
 
 		if (!application) {
@@ -312,11 +301,12 @@ const persistJobDescription = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId, url, jobDescription, title, company } = inputData;
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const tools = await getResumeBuilderTools(token);
 
-		await tools['update_job_description'].execute!(
-			{ applicationId, jobDescription },
-			{} as any,
+		await withResumeBuilderTools(token, (tools) =>
+			tools['update_job_description'].execute!(
+				{ applicationId, jobDescription },
+				{} as any,
+			),
 		);
 
 		return {

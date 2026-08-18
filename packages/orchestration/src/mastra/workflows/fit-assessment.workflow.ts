@@ -4,7 +4,7 @@ import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { fitAssessmentAgent } from '../agents/fit-assessment.agent';
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import {
 	analysisSchema,
 	jobSummarySchema,
@@ -64,18 +64,6 @@ function stripXmlTags(xml: string): string {
 		.trim();
 }
 
-async function getResumeBuilderTools(token: string) {
-	const { toolsets, errors } = await createResumeBuilderMcpClient(token).listToolsetsWithErrors();
-	const tools = toolsets['resumeBuilder'];
-
-	if (!tools) {
-		const reason = errors['resumeBuilder'] ?? 'connection failed';
-		throw new Error(`Could not reach the resume-builder MCP server: ${reason}`);
-	}
-
-	return tools;
-}
-
 // const extractJobDescription = createStep({
 // 	id: 'extract-job-description',
 // 	description: 'Extracts job description from the application',
@@ -103,12 +91,12 @@ const fetchAssessmentData = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId } = inputData;
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const tools = await getResumeBuilderTools(token);
-
-		const [appResult, profileResult] = await Promise.all([
-			tools['get_application'].execute!({ id: applicationId }, {} as any),
-			tools['get_profile'].execute!({} as any, {} as any),
-		]);
+		const [appResult, profileResult] = await withResumeBuilderTools(token, (tools) =>
+			Promise.all([
+				tools['get_application'].execute!({ id: applicationId }, {} as any),
+				tools['get_profile'].execute!({} as any, {} as any),
+			]),
+		);
 
 		const application = (appResult as any)?.application;
 		const profile = (profileResult as any)?.profile;
@@ -204,9 +192,10 @@ const saveAssessmentResults = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId, jobSummary, analysis } = inputData;
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const tools = await getResumeBuilderTools(token);
 
-		await tools['update_analysis'].execute!({ applicationId, jobSummary, analysis }, {} as any);
+		await withResumeBuilderTools(token, (tools) =>
+			tools['update_analysis'].execute!({ applicationId, jobSummary, analysis }, {} as any),
+		);
 
 		return { jobSummary, analysis };
 	},
