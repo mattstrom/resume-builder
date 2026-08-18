@@ -1,5 +1,6 @@
 import { Agent, type ToolsInput } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
+import { z } from 'zod';
 
 import config from '@/config';
 
@@ -11,7 +12,9 @@ export const factsExtractorAgent = new Agent({
 	name: 'Facts Extractor',
 	description: 'Build a semantic evidence graph from the current career narrative',
 	model: config.llms.defaultModel,
-	requestContextSchema: {},
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
+	}),
 	instructions: async () => {
 		return md`
 			You extract an evidence graph from a candidate's career narrative. A Fact is

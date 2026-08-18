@@ -1,6 +1,7 @@
 import { Agent, type ToolsInput } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { outdent } from 'outdent';
+import { z } from 'zod';
 
 import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
 
@@ -10,7 +11,9 @@ export const backgroundAutofillAgent = new Agent({
 	description:
 		'Extracts career entities (jobs, projects, skills, volunteering) from the career narrative and creates only new ones that do not already exist.',
 	model: () => 'anthropic/claude-sonnet-4-6',
-	requestContextSchema: {},
+	requestContextSchema: z.object({
+		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
+	}),
 	instructions: async () => {
 		return outdent`
 			You are a **Career Background Auto-fill Agent**. Your task is to read a candidate's career narrative and extract structured career entities, creating only those that do not already exist in the database.
