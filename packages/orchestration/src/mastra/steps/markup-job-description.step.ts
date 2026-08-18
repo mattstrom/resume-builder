@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import config from '@/config';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { dtd, md } from '../utils';
 
 const dtds = dtd`
@@ -145,11 +145,8 @@ const fetchJobDescriptionStep = createStep({
 		}
 
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_application.execute!(
-			{ id: inputData.applicationId },
-			{} as any,
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_application.execute!({ id: inputData.applicationId }, {} as any),
 		);
 
 		return { jobDescription: result.application.jobDescription as string };

@@ -4,7 +4,7 @@ import { outdent } from 'outdent';
 import { z } from 'zod';
 
 import { backgroundAutofillAgent } from '../agents/background-autofill.agent';
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 
 const entityTypeSchema = z.enum(['jobs', 'projects', 'skills', 'volunteering']);
 
@@ -22,8 +22,6 @@ const fetchExistingData = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { entityType } = inputData;
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
-		const toolsets = await createResumeBuilderMcpClient(token).listToolsets();
-		const tools = toolsets['resumeBuilder'];
 
 		const getToolName =
 			entityType === 'jobs'
@@ -34,10 +32,12 @@ const fetchExistingData = createStep({
 						? 'get_skills'
 						: 'get_volunteering';
 
-		const [narrativeResult, entitiesResult] = await Promise.all([
-			tools['read_narrative'].execute!({} as any, {} as any),
-			tools[getToolName].execute!({} as any, {} as any),
-		]);
+		const [narrativeResult, entitiesResult] = await withResumeBuilderTools(token, (tools) =>
+			Promise.all([
+				tools['read_narrative'].execute!({} as any, {} as any),
+				tools[getToolName].execute!({} as any, {} as any),
+			]),
+		);
 
 		const narrativeText = (narrativeResult as any)?.content?.[0]?.text ?? '';
 		const entitiesKey = entityType === 'jobs' ? 'jobs' : entityType;

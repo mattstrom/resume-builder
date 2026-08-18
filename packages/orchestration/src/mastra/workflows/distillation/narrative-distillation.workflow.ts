@@ -3,7 +3,7 @@ import { createStep, createWorkflow } from '@mastra/core/workflows';
 import { NarrativeNode, narrativeNodeSchema } from '@resume-builder/entities';
 import { z } from 'zod';
 
-import { createResumeBuilderMcpClient } from '../../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../../mcp/resume-builder.mcp';
 import { segmentStep } from './segment.step';
 
 const getNarrativeStep = createStep({
@@ -18,9 +18,9 @@ const getNarrativeStep = createStep({
 	}),
 	execute: async ({ requestContext }) => {
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_profile.execute!({} as any, {} as any);
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_profile.execute!({} as any, {} as any),
+		);
 
 		return {
 			narrative: result.nodes as NarrativeNode[],

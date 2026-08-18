@@ -1,4 +1,4 @@
-import { Agent } from '@mastra/core/agent';
+import { Agent, type ToolsInput } from '@mastra/core/agent';
 import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { z } from 'zod';
 
@@ -76,8 +76,16 @@ export const jobDescriptionRetrieverAgent = new Agent({
 		otherwise not a job description, say so plainly and explain what the page appeared to be.
 		A wrong job description is far worse than none.
 	`,
-	tools: async ({ requestContext }) => {
+	tools: async ({ requestContext }): Promise<ToolsInput> => {
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+
+		// Mastra evaluates `tools` outside a real request too (e.g. Studio's own
+		// introspection), when there is no auth token to connect with. Skip the
+		// MCP connection rather than let it fail and leak.
+		if (!token) {
+			return { fetch_job_posting_page: fetchJobPostingPageTool };
+		}
+
 		const tools = await createResumeBuilderMcpClient(token).listTools();
 
 		return {

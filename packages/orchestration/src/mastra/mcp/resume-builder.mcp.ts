@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { type Tool } from '@mastra/core/tools';
 import { MCPClient } from '@mastra/mcp';
 
@@ -69,7 +71,14 @@ class ResumeBuilderMCPClient extends MCPClient {
 		const url = process.env['RESUME_BUILDER_MCP_URL'] ?? 'http://localhost:3000/mcp';
 
 		super({
-			id: 'resume-builder-mcp-client',
+			// A fresh id per instance, deliberately not a shared constant: MCPClient
+			// dedupes instances that share an id *and* an identical server config
+			// (same URL, same headers), which would otherwise hand two unrelated
+			// callers with the same bearer token the same live connection — and
+			// then disconnecting when one caller is done would break the other.
+			// Every caller here creates, uses, and disposes of its own client
+			// within one function scope, so nothing depends on that reuse.
+			id: `resume-builder-mcp-client-${randomUUID()}`,
 			servers: {
 				resumeBuilder: {
 					url: new URL(url),
@@ -93,5 +102,47 @@ class ResumeBuilderMCPClient extends MCPClient {
 }
 
 export function createResumeBuilderMcpClient(token: string): ResumeBuilderMCPClient {
+	if (!token) {
+		// A connection opened without a token will fail to authenticate, and the
+		// streamable transport retries a failed connection indefinitely (~1/sec)
+		// rather than giving up — so a client created this way never dies on its
+		// own and must never be created in the first place. Every instance below
+		// gets its own id precisely so unrelated callers never share one client;
+		// that also means nothing here would ever notice or reuse a prior bad
+		// attempt, so failing fast is the only thing that bounds this.
+		throw new Error('Cannot create the resume-builder MCP client without an auth token');
+	}
+
 	return new ResumeBuilderMCPClient(token);
+}
+
+/**
+ * Runs `fn` against the resume-builder MCP toolset for `token`, disconnecting
+ * the client afterward regardless of outcome.
+ *
+ * Only safe for a single sequential caller. `MCPClient` dedupes instances by
+ * (id, server config), so concurrent callers sharing the same token — e.g.
+ * `.parallel()` branches — receive the *same* underlying connection; the first
+ * one to finish would disconnect it out from under the others. Workflows that
+ * fetch resume-builder tools in parallel must not use this helper.
+ */
+export async function withResumeBuilderTools<T>(
+	token: string,
+	fn: (tools: ResumeBuilderMCPToolsets['resumeBuilder']) => Promise<T>,
+): Promise<T> {
+	const client = createResumeBuilderMcpClient(token);
+
+	try {
+		const { toolsets, errors } = await client.listToolsetsWithErrors();
+		const tools = toolsets['resumeBuilder'];
+
+		if (!tools) {
+			const reason = errors['resumeBuilder'] ?? 'connection failed';
+			throw new Error(`Could not reach the resume-builder MCP server: ${reason}`);
+		}
+
+		return await fn(tools);
+	} finally {
+		await client.disconnect();
+	}
 }

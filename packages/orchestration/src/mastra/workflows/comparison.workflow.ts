@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 import config from '@/config';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { withResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import {
 	careerContextBundleSchema,
 	requirementMatchReportSchema,
@@ -48,11 +48,8 @@ const fetchApplicationStep = createStep({
 	execute: async ({ inputData, requestContext }) => {
 		const { applicationId } = inputData;
 		const token = requestContext.get(MASTRA_AUTH_TOKEN_KEY) ?? '';
-		const mcpClient = createResumeBuilderMcpClient(token);
-		const toolsets = await mcpClient.listToolsets();
-		const result = await toolsets['resumeBuilder'].get_application.execute!(
-			{ id: applicationId },
-			{} as any,
+		const result = await withResumeBuilderTools(token, (tools) =>
+			tools.get_application.execute!({ id: applicationId }, {} as any),
 		);
 
 		const application = (result as any)?.application;
