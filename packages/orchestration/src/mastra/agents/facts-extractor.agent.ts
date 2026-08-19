@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import config from '@/config';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { md } from '../utils';
 
 export const factsExtractorAgent = new Agent({
@@ -109,7 +109,7 @@ export const factsExtractorAgent = new Agent({
 			return {};
 		}
 
-		const tools = await createResumeBuilderMcpClient(token).listTools();
+		const tools = await getResumeBuilderTools(token);
 
 		return {
 			resumeBuilder_read_narrative: tools.resumeBuilder_read_narrative,

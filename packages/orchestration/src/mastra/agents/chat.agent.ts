@@ -5,7 +5,7 @@ import { LibSQLVector } from '@mastra/libsql';
 import { Memory } from '@mastra/memory';
 import { chatWorkingMemorySchema } from '@resume-builder/entities';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { renderFocusBlock } from '../request-context';
 import { scorers } from '../scorers/weather-scorer';
 import { md } from '../utils';
@@ -52,7 +52,7 @@ export const chatAgent = new Agent({
 			return {};
 		}
 
-		return createResumeBuilderMcpClient(token).listTools();
+		return getResumeBuilderTools(token);
 	},
 	workflows: {
 		careerContext: careerContextWorkflow,

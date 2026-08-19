@@ -56,6 +56,8 @@ spec:
               value: {{ include "resume-builder.mcpUrl" . | quote }}
             - name: MASTRA_AUTO_DETECT_URL
               value: 'true'
+            - name: NODE_OPTIONS
+              value: {{ .Values.orchestration.nodeOptions | quote }}
           livenessProbe:
             httpGet:
               path: /health
