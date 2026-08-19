@@ -7,9 +7,7 @@ import { ConceptEvidenceAssessmentsService } from './concept-evidence-assessment
 
 @Resolver(() => ConceptEvidenceAssessmentType)
 export class ConceptEvidenceAssessmentsResolver {
-	constructor(
-		private readonly assessmentsService: ConceptEvidenceAssessmentsService,
-	) {}
+	constructor(private readonly assessmentsService: ConceptEvidenceAssessmentsService) {}
 
 	@Query(() => ConceptEvidenceAssessmentType, { nullable: true })
 	async conceptEvidenceAssessment(

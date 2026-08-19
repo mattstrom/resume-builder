@@ -1,27 +1,27 @@
 {
-	"name": "crdt-restore-cli",
-	"version": "0.1.0",
-	"description": "Standalone CLI for inspecting and restoring Yjs documents stored in Postgres",
-	"private": true,
-	"bin": {
-		"crdt-restore": "./dist/cli.js"
-	},
-	"scripts": {
-		"build": "tsc",
-		"cli": "tsx src/cli.ts"
-	},
-	"dependencies": {
-		"@inquirer/prompts": "^7.8.0",
-		"commander": "^14.0.0",
-		"pg": "^8.13.0",
-		"uuid": "^11.0.0",
-		"yjs": "13.6.24"
-	},
-	"devDependencies": {
-		"@types/node": "^22.0.0",
-		"@types/pg": "^8.11.0",
-		"@types/uuid": "^10.0.0",
-		"tsx": "^4.19.0",
-		"typescript": "^5.6.0"
-	}
+  "name": "crdt-restore-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone CLI for inspecting and restoring Yjs documents stored in Postgres",
+  "bin": {
+    "crdt-restore": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cli": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.0",
+    "commander": "^14.0.0",
+    "pg": "^8.13.0",
+    "uuid": "^11.0.0",
+    "yjs": "13.6.24"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
 }

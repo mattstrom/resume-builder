@@ -91,7 +91,11 @@ function crossesPage(end: number, start: number, pageHeight: number): boolean {
  * Plans page breaks in logical content coordinates. The caller is responsible
  * for adding the screen-only paper margins and gap to each returned offset.
  */
-export function planPagination({ pageHeight, contentHeight, blocks }: PlanPaginationOptions): PaginationPlan {
+export function planPagination({
+	pageHeight,
+	contentHeight,
+	blocks,
+}: PlanPaginationOptions): PaginationPlan {
 	if (pageHeight <= 0) {
 		return { breaks: [], oversizedUnitIds: [], pageCount: 1 };
 	}

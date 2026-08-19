@@ -3,12 +3,7 @@ import Collaboration from '@tiptap/extension-collaboration';
 import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
-import {
-	Table,
-	TableCell,
-	TableHeader,
-	TableRow,
-} from '@tiptap/extension-table';
+import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import TextAlign from '@tiptap/extension-text-align';
@@ -50,11 +45,7 @@ import './tiptap.css';
 // packages/crdt/src/modules/api/api.service.ts), which exposes each text
 // run's marks as a name-keyed record. No server-side change is needed to
 // add a new mark or node here.
-const buildExtensions = (
-	doc: Y.Doc,
-	provider: HocuspocusProvider,
-	userName: string,
-) => [
+const buildExtensions = (doc: Y.Doc, provider: HocuspocusProvider, userName: string) => [
 	// Collaboration provides undo/redo via the Yjs undo manager, so disable
 	// StarterKit's history extension.
 	StarterKit.configure({ undoRedo: false }),
@@ -158,25 +149,16 @@ export const NarrativeEditor: FC = observer(() => {
 		<div className="flex h-full w-full flex-col gap-3 p-6">
 			<div className="flex items-baseline justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold text-foreground">
-						Narrative
-					</h1>
+					<h1 className="text-2xl font-semibold text-foreground">Narrative</h1>
 					<p className="text-sm text-muted-foreground">
-						Describe your work history in your own words. This will
-						be used to extract structured data later.
+						Describe your work history in your own words. This will be used to extract
+						structured data later.
 					</p>
 				</div>
-				<span className="text-xs text-muted-foreground">
-					{profileStore.status}
-				</span>
+				<span className="text-xs text-muted-foreground">{profileStore.status}</span>
 			</div>
 			{doc && provider ? (
-				<EditorShell
-					key={doc.guid}
-					doc={doc}
-					provider={provider}
-					userName={userName}
-				/>
+				<EditorShell key={doc.guid} doc={doc} provider={provider} userName={userName} />
 			) : (
 				<div className="flex flex-1 items-center justify-center rounded-md border border-input bg-background text-sm text-muted-foreground shadow-sm">
 					Connecting…

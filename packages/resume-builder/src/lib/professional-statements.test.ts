@@ -31,13 +31,9 @@ describe('parseProfessionalStatementEvaluation', () => {
 
 	it('rejects legacy or malformed evaluation data', () => {
 		expect(parseProfessionalStatementEvaluation('')).toBeUndefined();
+		expect(parseProfessionalStatementEvaluation('{not json')).toBeUndefined();
 		expect(
-			parseProfessionalStatementEvaluation('{not json'),
-		).toBeUndefined();
-		expect(
-			parseProfessionalStatementEvaluation(
-				JSON.stringify({ checkpoints: [] }),
-			),
+			parseProfessionalStatementEvaluation(JSON.stringify({ checkpoints: [] })),
 		).toBeUndefined();
 	});
 });

@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 
-import { ProjectsSection } from "@/components/profile/BackgroundEditor.tsx";
-import { ProfileSectionPage } from "@/components/profile/ProfileSectionPage.tsx";
-import { bulletDeepLinkSearchSchema } from "@/lib/bullet-deep-link.ts";
+import { ProjectsSection } from '@/components/profile/BackgroundEditor.tsx';
+import { ProfileSectionPage } from '@/components/profile/ProfileSectionPage.tsx';
+import { bulletDeepLinkSearchSchema } from '@/lib/bullet-deep-link.ts';
 
-export const Route = createFileRoute("/_authenticated/profile/projects")({
+export const Route = createFileRoute('/_authenticated/profile/projects')({
 	validateSearch: bulletDeepLinkSearchSchema,
 	component: ProjectsComponent,
 });

@@ -1,8 +1,8 @@
-import type { Queue } from 'bullmq';
 import { Logger } from '@nestjs/common';
+import type { Queue } from 'bullmq';
 
-import { EMBEDDING_PROFILES } from './embedding.constants.js';
 import { EmbeddingQueueService } from './embedding-queue.service.js';
+import { EMBEDDING_PROFILES } from './embedding.constants.js';
 
 describe('EmbeddingQueueService', () => {
 	const queue = {
@@ -39,12 +39,8 @@ describe('EmbeddingQueueService', () => {
 		await service.enqueue(target);
 		await service.enqueue({ ...target, revision: 5 });
 
-		expect(queue.add.mock.calls[0][2].jobId).toBe(
-			'bullet--bullet-1--bullet-job-match-v1--4',
-		);
-		expect(queue.add.mock.calls[1][2].jobId).toBe(
-			'bullet--bullet-1--bullet-job-match-v1--5',
-		);
+		expect(queue.add.mock.calls[0][2].jobId).toBe('bullet--bullet-1--bullet-job-match-v1--4');
+		expect(queue.add.mock.calls[1][2].jobId).toBe('bullet--bullet-1--bullet-job-match-v1--5');
 	});
 
 	it('lets writes succeed when Redis is temporarily unavailable', async () => {

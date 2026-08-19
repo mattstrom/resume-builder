@@ -57,10 +57,7 @@ function FieldDescription({ className, ...props }: ComponentProps<'p'>) {
 	return (
 		<p
 			data-slot="field-description"
-			className={cn(
-				'text-sm font-normal leading-normal text-muted-foreground',
-				className,
-			)}
+			className={cn('text-sm font-normal leading-normal text-muted-foreground', className)}
 			{...props}
 		/>
 	);

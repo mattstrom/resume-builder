@@ -1,8 +1,8 @@
 import type { Job } from 'bullmq';
 
-import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from './embedding.constants.js';
 import type { EmbeddingDocumentsService } from './embedding-documents.service.js';
 import type { EmbeddingQueueService } from './embedding-queue.service.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from './embedding.constants.js';
 import { EmbeddingProcessor } from './embedding.processor.js';
 import type { EmbeddingService } from './embedding.service.js';
 import type { GenerateEmbeddingJobData } from './embedding.types.js';

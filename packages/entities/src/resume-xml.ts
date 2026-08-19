@@ -131,10 +131,15 @@ export function parseResumeXmlElement(xml: string): ResumeXmlElementNode {
 		throw new Error('DTDs and entity declarations are not allowed');
 	}
 	const wellFormed = XMLValidator.validate(xml);
-	if (wellFormed !== true) throw new Error(`Invalid XML element: ${wellFormed.err.msg}`);
+	if (wellFormed !== true) {
+		throw new Error(`Invalid XML element: ${wellFormed.err.msg}`);
+	}
 	const parsed = orderedParser.parse(xml) as OrderedXmlNode[];
 	const elements = parsed.map(orderedElement).filter((node) => node !== null);
-	if (elements.length !== 1) throw new Error('Expected exactly one XML element');
+	if (elements.length !== 1) {
+		throw new Error('Expected exactly one XML element');
+	}
+
 	return elements[0]!;
 }
 

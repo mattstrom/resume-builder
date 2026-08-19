@@ -23,11 +23,9 @@ export const Workspace: FC = observer(() => {
 	const { applicationId } = useParams({ strict: false });
 	const conceptPanelRef = useRef<PanelImperativeHandle>(null);
 	const [conceptPanelCollapsed, setConceptPanelCollapsed] = useState(
-		() =>
-			localStorage.getItem('concept-coverage-panel-collapsed') === 'true',
+		() => localStorage.getItem('concept-coverage-panel-collapsed') === 'true',
 	);
-	const savedConceptPanelSize =
-		Number(localStorage.getItem('concept-coverage-panel-size')) || 22;
+	const savedConceptPanelSize = Number(localStorage.getItem('concept-coverage-panel-size')) || 22;
 
 	useEffect(() => {
 		if (conceptPanelCollapsed) {
@@ -65,18 +63,11 @@ export const Workspace: FC = observer(() => {
 				minSize="16rem"
 				maxSize="36%"
 				onResize={({ asPercentage, inPixels }) => {
-					const collapsed =
-						conceptPanelRef.current?.isCollapsed() ?? inPixels <= 50;
+					const collapsed = conceptPanelRef.current?.isCollapsed() ?? inPixels <= 50;
 					setConceptPanelCollapsed(collapsed);
-					localStorage.setItem(
-						'concept-coverage-panel-collapsed',
-						String(collapsed),
-					);
+					localStorage.setItem('concept-coverage-panel-collapsed', String(collapsed));
 					if (!collapsed) {
-						localStorage.setItem(
-							'concept-coverage-panel-size',
-							String(asPercentage),
-						);
+						localStorage.setItem('concept-coverage-panel-size', String(asPercentage));
 					}
 				}}
 			>

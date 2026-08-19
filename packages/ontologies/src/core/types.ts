@@ -6,13 +6,7 @@
  * concept in free text.
  */
 
-export type Authority =
-	| 'onet'
-	| 'unspsc'
-	| 'soc'
-	| 'esco'
-	| 'naics'
-	| 'wikidata';
+export type Authority = 'onet' | 'unspsc' | 'soc' | 'esco' | 'naics' | 'wikidata';
 export type ExternalRef = `${Authority}:${string}`;
 
 /**
@@ -50,9 +44,7 @@ export interface ConceptDefinition<K extends string = string> {
 }
 
 /** A concept after the vocabulary has worked out its place in the tree. */
-export interface Concept<
-	K extends string = string,
-> extends ConceptDefinition<K> {
+export interface Concept<K extends string = string> extends ConceptDefinition<K> {
 	/** The stable slug — this is what gets persisted. */
 	readonly id: K;
 	/** Name of the vocabulary this concept belongs to. */

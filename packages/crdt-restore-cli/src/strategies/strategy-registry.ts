@@ -1,7 +1,7 @@
-import { BaseRestorationStrategy } from './base-strategy';
-import { ViewStrategy } from './view-strategy';
-import { NewDocumentStrategy } from './new-document-strategy';
 import { StorageService } from '../storage/storage-service';
+import { BaseRestorationStrategy } from './base-strategy';
+import { NewDocumentStrategy } from './new-document-strategy';
+import { ViewStrategy } from './view-strategy';
 
 export type StrategyType = 'view' | 'new-document';
 
@@ -27,6 +27,9 @@ export class StrategyRegistry {
 	}
 
 	getAllStrategies(): Array<{ type: StrategyType; strategy: BaseRestorationStrategy }> {
-		return Array.from(this.strategies.entries()).map(([type, strategy]) => ({ type, strategy }));
+		return Array.from(this.strategies.entries()).map(([type, strategy]) => ({
+			type,
+			strategy,
+		}));
 	}
 }

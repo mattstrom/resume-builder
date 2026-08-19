@@ -1,18 +1,9 @@
 import { Node, mergeAttributes, type Editor } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
-import {
-	NodeViewContent,
-	NodeViewWrapper,
-	ReactNodeViewRenderer,
-} from '@tiptap/react';
-import { X } from 'lucide-react';
+import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
-import {
-	useState,
-	type ClipboardEvent,
-	type FC,
-	type KeyboardEvent,
-} from 'react';
+import { X } from 'lucide-react';
+import { useState, type ClipboardEvent, type FC, type KeyboardEvent } from 'react';
 
 import { Badge } from '@/components/ui/badge.tsx';
 import { Input } from '@/components/ui/input.tsx';
@@ -77,10 +68,7 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 			return false;
 		}
 
-		if (
-			node.type.name === 'jobTechnologies' ||
-			node.type.name === 'jobNarrative'
-		) {
+		if (node.type.name === 'jobTechnologies' || node.type.name === 'jobNarrative') {
 			// The technologies section contains inline skill tokens, while the
 			// narrative section starts with a paragraph.
 			targets.push({
@@ -105,9 +93,7 @@ function moveToAdjacentJobField(editor: Editor, direction: 1 | -1): boolean {
 	}
 
 	editor.view.dispatch(
-		editor.state.tr.setSelection(
-			TextSelection.create(editor.state.doc, nextTarget.pos),
-		),
+		editor.state.tr.setSelection(TextSelection.create(editor.state.doc, nextTarget.pos)),
 	);
 
 	return true;
@@ -166,8 +152,7 @@ export const JobField = Node.create({
 		return {
 			field: {
 				default: 'narrative',
-				parseHTML: (element) =>
-					element.getAttribute('data-job-field') ?? 'narrative',
+				parseHTML: (element) => element.getAttribute('data-job-field') ?? 'narrative',
 				renderHTML: (attributes) => {
 					const field = attributes.field as JobFieldName;
 
@@ -185,11 +170,7 @@ export const JobField = Node.create({
 	},
 
 	renderHTML({ HTMLAttributes }) {
-		return [
-			'div',
-			mergeAttributes({ class: 'job-block-field' }, HTMLAttributes),
-			0,
-		];
+		return ['div', mergeAttributes({ class: 'job-block-field' }, HTMLAttributes), 0];
 	},
 
 	addNodeView() {
@@ -262,11 +243,7 @@ const JobTechnologiesView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 		);
 
 		editor.view.dispatch(
-			editor.state.tr.replaceWith(
-				position + 1,
-				position + node.nodeSize - 1,
-				content,
-			),
+			editor.state.tr.replaceWith(position + 1, position + node.nodeSize - 1, content),
 		);
 	};
 
@@ -302,10 +279,7 @@ const JobTechnologiesView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 	};
 
 	return (
-		<NodeViewWrapper
-			className="job-block-technologies"
-			data-job-technologies=""
-		>
+		<NodeViewWrapper className="job-block-technologies" data-job-technologies="">
 			<div className="job-block-technology-pills" contentEditable={false}>
 				{technologies.map((technology, index) => (
 					<Badge
@@ -319,9 +293,7 @@ const JobTechnologiesView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 							className="rounded-sm opacity-60 hover:opacity-100"
 							onClick={() =>
 								updateTechnologies(
-									technologies.filter(
-										(_, itemIndex) => itemIndex !== index,
-									),
+									technologies.filter((_, itemIndex) => itemIndex !== index),
 								)
 							}
 							type="button"
@@ -336,11 +308,7 @@ const JobTechnologiesView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 					onChange={(event) => setDraft(event.target.value)}
 					onKeyDown={handleKeyDown}
 					onPaste={handlePaste}
-					placeholder={
-						technologies.length
-							? 'Add technology…'
-							: 'Type a technology…'
-					}
+					placeholder={technologies.length ? 'Add technology…' : 'Type a technology…'}
 					value={draft}
 				/>
 			</div>
@@ -381,8 +349,7 @@ export const JobTechnologies = Node.create({
 export const JobBlock = Node.create({
 	name: 'jobBlock',
 	group: 'block',
-	content:
-		'(jobField{3} jobDateRange jobTechnologies? (jobNarrative | jobField)?)?',
+	content: '(jobField{3} jobDateRange jobTechnologies? (jobNarrative | jobField)?)?',
 	defining: true,
 
 	parseHTML() {
@@ -396,11 +363,7 @@ export const JobBlock = Node.create({
 				class: 'job-block',
 				'data-type': 'job-block',
 			}),
-			[
-				'div',
-				{ class: 'job-block-tab', contenteditable: 'false' },
-				'Job',
-			],
+			['div', { class: 'job-block-tab', contenteditable: 'false' }, 'Job'],
 			['div', { class: 'job-block-fields' }, 0],
 		];
 	},
@@ -418,10 +381,7 @@ export const JobBlock = Node.create({
 							createJobField('location'),
 							{
 								type: 'jobDateRange',
-								content: [
-									createJobField('startDate'),
-									createJobField('endDate'),
-								],
+								content: [createJobField('startDate'), createJobField('endDate')],
 							},
 							{
 								type: 'jobTechnologies',

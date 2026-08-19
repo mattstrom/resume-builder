@@ -12,8 +12,7 @@ export const professionalStatementCheckpointDefinitions = [
 	{
 		key: 'yourFoundation',
 		label: 'Your foundation',
-		description:
-			'Establishes relevant experience, background, or domain depth.',
+		description: 'Establishes relevant experience, background, or domain depth.',
 	},
 	{
 		key: 'whatYouDo',
@@ -28,14 +27,12 @@ export const professionalStatementCheckpointDefinitions = [
 	{
 		key: 'yourWhy',
 		label: 'Your why',
-		description:
-			'States what drives you or the direction you are pursuing.',
+		description: 'States what drives you or the direction you are pursuing.',
 	},
 	{
 		key: 'authenticity',
 		label: 'Authenticity',
-		description:
-			'Aligns with evidence in your Professional Compass and profile.',
+		description: 'Aligns with evidence in your Professional Compass and profile.',
 	},
 ] as const;
 
@@ -47,9 +44,7 @@ export function parseProfessionalStatementEvaluation(
 	}
 
 	try {
-		const result = professionalStatementEvaluationSchema.safeParse(
-			JSON.parse(value),
-		);
+		const result = professionalStatementEvaluationSchema.safeParse(JSON.parse(value));
 		return result.success ? result.data : undefined;
 	} catch {
 		return undefined;

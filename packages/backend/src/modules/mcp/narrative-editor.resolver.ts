@@ -2,10 +2,7 @@ import { type CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { Resolver, Tool, UseGuards } from '@nestjs-mcp/server';
 import { z } from 'zod';
 
-import {
-	type DeltaOp,
-	CrdtApiService,
-} from '../crdt-client/crdt-api.service.js';
+import { type DeltaOp, CrdtApiService } from '../crdt-client/crdt-api.service.js';
 import { McpGuard } from './mcp.guard.js';
 import { type McpExtra, type McpToolParams } from './types.js';
 
@@ -63,9 +60,7 @@ const deltaOpSchema = z.union([
 	z.object({ retain: z.number().int().describe('Skip N nodes') }),
 	z.object({ delete: z.number().int().describe('Delete N nodes') }),
 	z.object({
-		insert: z
-			.array(insertItemSchema)
-			.describe('Nodes to insert at current position'),
+		insert: z.array(insertItemSchema).describe('Nodes to insert at current position'),
 	}),
 ]);
 
@@ -91,9 +86,7 @@ type NestedNarrativeNode = {
 function formatNarrativeNode(node: NestedNarrativeNode, indent = ''): string[] {
 	return [
 		`${indent}[${node.index}] ${node.nodeType}${Object.keys(node.attrs).length ? ' ' + JSON.stringify(node.attrs) : ''}: ${JSON.stringify(node.content)}`,
-		...(node.children?.flatMap((child) =>
-			formatNarrativeNode(child, `${indent}  `),
-		) ?? []),
+		...(node.children?.flatMap((child) => formatNarrativeNode(child, `${indent}  `)) ?? []),
 	];
 }
 
@@ -145,10 +138,7 @@ export class NarrativeEditorResolver {
 		{ user }: McpExtra,
 	): Promise<CallToolResult> {
 		const documentName = `profile:${user.sub}`;
-		const result = await this.crdtApiService.applyDelta(
-			documentName,
-			delta as DeltaOp[],
-		);
+		const result = await this.crdtApiService.applyDelta(documentName, delta as DeltaOp[]);
 
 		return {
 			content: [

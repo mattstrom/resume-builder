@@ -18,11 +18,7 @@ import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import { LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
 import { ListEditor } from '@/components/ListEditor.tsx';
 import { LookupFieldEditor } from '@/components/LookupFieldEditor.tsx';
-import {
-	ResumeProvider,
-	useResume,
-	useResumeId,
-} from '@/components/Resume.provider.tsx';
+import { ResumeProvider, useResume, useResumeId } from '@/components/Resume.provider.tsx';
 import { ResumeBulletList } from '@/components/ResumeBulletList.tsx';
 import {
 	getProjectAnchorId,
@@ -32,10 +28,7 @@ import {
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
-import {
-	getResumeCollectionPath,
-	ResumeCollections,
-} from '@/graphql/resume-collections.ts';
+import { getResumeCollectionPath, ResumeCollections } from '@/graphql/resume-collections.ts';
 import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
@@ -84,13 +77,7 @@ interface SimpleSectionProps extends PropsWithChildren {
 	path?: string;
 }
 
-const SimpleSection: FC<SimpleSectionProps> = ({
-	title,
-	actions,
-	children,
-	id,
-	path,
-}) => {
+const SimpleSection: FC<SimpleSectionProps> = ({ title, actions, children, id, path }) => {
 	const section = (
 		<section id={id} className="simple-resume-section">
 			<header className="simple-resume-section-header">
@@ -121,12 +108,7 @@ interface ContactFieldProps {
 	placeholder: string;
 }
 
-const ContactField: FC<ContactFieldProps> = ({
-	label,
-	path,
-	value,
-	placeholder,
-}) => {
+const ContactField: FC<ContactFieldProps> = ({ label, path, value, placeholder }) => {
 	const resumeId = useResumeId();
 
 	return (
@@ -153,10 +135,7 @@ function useCollectionMutations(collection: keyof typeof ResumeCollections) {
 			controller?.addCollectionItem(ResumeCollections[collection]);
 		},
 		removeItem: async (index: number) => {
-			controller?.removeCollectionItem(
-				ResumeCollections[collection],
-				index,
-			);
+			controller?.removeCollectionItem(ResumeCollections[collection], index);
 		},
 		moveItem: async (fromIndex: number, toIndex: number) => {
 			controller?.moveArrayItem(
@@ -176,10 +155,7 @@ const SimpleResumeContent: FC = observer(() => {
 
 	return (
 		<div className="simple-resume-shell">
-			<header
-				id={RESUME_SECTION_IDS.contactInformation}
-				className="simple-resume-hero"
-			>
+			<header id={RESUME_SECTION_IDS.contactInformation} className="simple-resume-hero">
 				<div className="simple-resume-identity">
 					<TextFieldEditor
 						path="data.name"
@@ -188,10 +164,7 @@ const SimpleResumeContent: FC = observer(() => {
 						className="simple-resume-name"
 						placeholder="Add candidate name"
 					/>
-					<HighlightRegion
-						path="data.title"
-						label="Professional title"
-					>
+					<HighlightRegion path="data.title" label="Professional title">
 						<span>
 							<TextFieldEditor
 								path="data.title"
@@ -255,11 +228,7 @@ const SimpleResumeContent: FC = observer(() => {
 					<VolunteeringSection />
 				</div>
 			</div>
-			{!isEditable && (
-				<div className="simple-resume-readonly-note">
-					Read-only preview
-				</div>
-			)}
+			{!isEditable && <div className="simple-resume-readonly-note">Read-only preview</div>}
 		</div>
 	);
 });
@@ -296,12 +265,7 @@ interface EntryHeaderProps {
 	actions?: ReactNode;
 }
 
-const EntryHeader: FC<EntryHeaderProps> = ({
-	title,
-	subtitle,
-	meta,
-	actions,
-}) => {
+const EntryHeader: FC<EntryHeaderProps> = ({ title, subtitle, meta, actions }) => {
 	return (
 		<header className="simple-resume-entry-header">
 			<div className="simple-resume-entry-heading">
@@ -309,11 +273,7 @@ const EntryHeader: FC<EntryHeaderProps> = ({
 					<div className="simple-resume-entry-title">{title}</div>
 					{actions}
 				</div>
-				{subtitle && (
-					<div className="simple-resume-entry-subtitle">
-						{subtitle}
-					</div>
-				)}
+				{subtitle && <div className="simple-resume-entry-subtitle">{subtitle}</div>}
 			</div>
 			{meta && <div className="simple-resume-entry-meta">{meta}</div>}
 		</header>
@@ -366,18 +326,14 @@ const WorkExperienceSection: FC = observer(() => {
 								label="job"
 								path={`data.workExperience.${index}`}
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove
@@ -445,20 +401,13 @@ const JobEntry: FC<{ job: ResumeJob; index: number }> = ({ job, index }) => {
 const EducationSection: FC = () => {
 	const { education } = useResume();
 	const resumeId = useResumeId();
-	const { data } = useQuery<{ listEducations: Education[] }>(
-		LIST_EDUCATIONS,
-		{
-			fetchPolicy: 'network-only',
-		},
-	);
+	const { data } = useQuery<{ listEducations: Education[] }>(LIST_EDUCATIONS, {
+		fetchPolicy: 'network-only',
+	});
 	const options = data?.listEducations ?? [];
 
 	return (
-		<SimpleSection
-			title="Education"
-			id={RESUME_SECTION_IDS.education}
-			path="data.education"
-		>
+		<SimpleSection title="Education" id={RESUME_SECTION_IDS.education} path="data.education">
 			{education.length === 0 ? (
 				<EmptyState copy="No education entries linked." />
 			) : (
@@ -490,30 +439,18 @@ const EducationSection: FC = () => {
 										{educationItem.degree || 'Degree'}
 									</div>
 									<div className="simple-resume-entry-subtitle">
-										{educationItem.field ||
-											'Field of study'}
+										{educationItem.field || 'Field of study'}
 									</div>
 									<div className="simple-resume-entry-meta-row">
-										<span>
-											{educationItem.institution ||
-												'Institution'}
-										</span>
-										<span className="simple-resume-divider">
-											•
-										</span>
-										<span>
-											Graduated{' '}
-											{formatYear(
-												educationItem.graduated,
-											)}
-										</span>
+										<span>{educationItem.institution || 'Institution'}</span>
+										<span className="simple-resume-divider">•</span>
+										<span>Graduated {formatYear(educationItem.graduated)}</span>
 									</div>
 								</>
 							)}
 							renderOption={(option) => (
 								<>
-									{option.degree} in {option.field} -{' '}
-									{option.institution}
+									{option.degree} in {option.field} - {option.institution}
 								</>
 							)}
 						/>
@@ -530,11 +467,7 @@ const SkillsSection: FC = () => {
 
 	if (skillGroups && skillGroups.length > 0) {
 		return (
-			<SimpleSection
-				title="Skills"
-				id={RESUME_SECTION_IDS.skills}
-				path="data.skillGroups"
-			>
+			<SimpleSection title="Skills" id={RESUME_SECTION_IDS.skills} path="data.skillGroups">
 				{skillGroups.map((group: SkillGroup, index) => (
 					<HighlightRegion
 						key={index}
@@ -545,9 +478,7 @@ const SkillsSection: FC = () => {
 							<div className="simple-resume-skill-group">
 								<HighlightRegion
 									path={`data.skillGroups.${index}.name`}
-									label={
-										group.name || `Skill group ${index + 1}`
-									}
+									label={group.name || `Skill group ${index + 1}`}
 								>
 									<span>
 										<TextFieldEditor
@@ -576,11 +507,7 @@ const SkillsSection: FC = () => {
 
 	if (skills && skills.length > 0) {
 		return (
-			<SimpleSection
-				title="Skills"
-				id={RESUME_SECTION_IDS.skills}
-				path="data.skills"
-			>
+			<SimpleSection title="Skills" id={RESUME_SECTION_IDS.skills} path="data.skills">
 				{skills.map((skill: Skill, index) => (
 					<HighlightRegion
 						key={index}
@@ -663,18 +590,14 @@ const ProjectsSection: FC = observer(() => {
 								label="project"
 								path={`data.projects.${index}`}
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove
@@ -700,11 +623,7 @@ const ProjectEntry: FC<{
 	const anchorId = getProjectAnchorId(project._id, index);
 
 	return (
-		<article
-			id={anchorId}
-			data-link-target={`#${anchorId}`}
-			className="simple-resume-entry"
-		>
+		<article id={anchorId} data-link-target={`#${anchorId}`} className="simple-resume-entry">
 			<EntryHeader
 				title={
 					<TextFieldEditor
@@ -761,13 +680,7 @@ const VolunteeringSection: FC = observer(() => {
 			onRemove={collection.removeItem}
 			onMove={collection.moveItem}
 		>
-			{({
-				items: collectionItems,
-				addItem,
-				removeItem,
-				moveItem,
-				isSaving,
-			}) => (
+			{({ items: collectionItems, addItem, removeItem, moveItem, isSaving }) => (
 				<SimpleSection
 					title="Volunteering"
 					id={RESUME_SECTION_IDS.volunteering}
@@ -796,18 +709,14 @@ const VolunteeringSection: FC = observer(() => {
 								label="role"
 								path={`data.volunteering.${index}`}
 								isEditable={isEditable}
-								onMove={(fromIndex, toIndex) =>
-									void moveItem(fromIndex, toIndex)
-								}
+								onMove={(fromIndex, toIndex) => void moveItem(fromIndex, toIndex)}
 								actions={
 									isEditable ? (
 										<Button
 											type="button"
 											variant="ghost"
 											size="sm"
-											onClick={() =>
-												void removeItem(index)
-											}
+											onClick={() => void removeItem(index)}
 											disabled={isSaving}
 										>
 											Remove

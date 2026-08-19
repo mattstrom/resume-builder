@@ -1,8 +1,4 @@
-import {
-	BadRequestException,
-	Injectable,
-	NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { z } from 'zod';
 
 import { PrismaService } from '../prisma/index.js';
@@ -39,21 +35,15 @@ export class ConceptEvidenceAssessmentsService {
 		result: unknown,
 	) {
 		if (!/^[a-f0-9]{64}$/.test(inputHash)) {
-			throw new BadRequestException(
-				'inputHash must be a SHA-256 hex digest',
-			);
+			throw new BadRequestException('inputHash must be a SHA-256 hex digest');
 		}
 		if (!Number.isInteger(evaluatorVersion) || evaluatorVersion < 1) {
-			throw new BadRequestException(
-				'evaluatorVersion must be a positive integer',
-			);
+			throw new BadRequestException('evaluatorVersion must be a positive integer');
 		}
 
 		const parsedResult = evaluationSchema.safeParse(result);
 		if (!parsedResult.success) {
-			throw new BadRequestException(
-				'Invalid concept evidence assessment result',
-			);
+			throw new BadRequestException('Invalid concept evidence assessment result');
 		}
 
 		const [application, resume] = await Promise.all([

@@ -11,7 +11,11 @@ import {
 
 import { useSettings } from '@/components/Settings.provider.tsx';
 
-import { getPrintableOverflowTarget, type PaginationBlock, planPagination } from './pagination-planner.ts';
+import {
+	getPrintableOverflowTarget,
+	type PaginationBlock,
+	planPagination,
+} from './pagination-planner.ts';
 
 import './PaginatedDocument.css';
 
@@ -62,7 +66,9 @@ function collectBlocks(root: HTMLElement, origin: number): PaginationBlock[] {
 			id: unit.dataset.paginationUnit!,
 			kind: 'unit',
 			...box,
-			subunits: Array.from(unit.querySelectorAll<HTMLElement>('[data-pagination-subunit]')).map((subunit) => ({
+			subunits: Array.from(
+				unit.querySelectorAll<HTMLElement>('[data-pagination-subunit]'),
+			).map((subunit) => ({
 				id: subunit.dataset.paginationSubunit!,
 				...elementBox(subunit, origin),
 			})),
@@ -85,12 +91,12 @@ function collectBlocks(root: HTMLElement, origin: number): PaginationBlock[] {
 				id,
 				kind: 'unit',
 				...elementBox(section, origin),
-				subunits: Array.from(section.querySelectorAll<HTMLElement>('[data-pagination-subunit]')).map(
-					(subunit) => ({
-						id: subunit.dataset.paginationSubunit!,
-						...elementBox(subunit, origin),
-					}),
-				),
+				subunits: Array.from(
+					section.querySelectorAll<HTMLElement>('[data-pagination-subunit]'),
+				).map((subunit) => ({
+					id: subunit.dataset.paginationSubunit!,
+					...elementBox(subunit, origin),
+				})),
 			});
 			return;
 		}
@@ -114,9 +120,12 @@ function collectBlocks(root: HTMLElement, origin: number): PaginationBlock[] {
 function applyRenderedBreak(root: HTMLElement, element: HTMLElement, target: number): void {
 	const rootTop = root.getBoundingClientRect().top;
 	const renderedTop = element.getBoundingClientRect().top - rootTop;
-	const existingOffset = Number.parseFloat(element.style.getPropertyValue('--pagination-break-offset'));
+	const existingOffset = Number.parseFloat(
+		element.style.getPropertyValue('--pagination-break-offset'),
+	);
 	const naturalMargin =
-		element.style.getPropertyValue('--pagination-natural-margin') || getComputedStyle(element).marginBlockStart;
+		element.style.getPropertyValue('--pagination-natural-margin') ||
+		getComputedStyle(element).marginBlockStart;
 
 	element.style.setProperty('--pagination-natural-margin', naturalMargin);
 	element.style.setProperty(
@@ -159,7 +168,9 @@ function findRenderedOverflow(
 		if (target !== null) return { element: heading, target };
 	}
 
-	for (const unit of root.querySelectorAll<HTMLElement>('[data-pagination-unit]:not([data-pagination-oversized])')) {
+	for (const unit of root.querySelectorAll<HTMLElement>(
+		'[data-pagination-unit]:not([data-pagination-oversized])',
+	)) {
 		const target = targetFor(unit);
 		if (target !== null) return { element: unit, target };
 	}
@@ -201,10 +212,9 @@ export const PaginatedDocument: FC<PropsWithChildren> = ({ children }) => {
 		});
 
 		for (const id of plan.oversizedUnitIds) {
-			root.querySelector<HTMLElement>(`[data-pagination-unit="${CSS.escape(id)}"]`)?.setAttribute(
-				'data-pagination-oversized',
-				'true',
-			);
+			root.querySelector<HTMLElement>(
+				`[data-pagination-unit="${CSS.escape(id)}"]`,
+			)?.setAttribute('data-pagination-oversized', 'true');
 		}
 
 		for (const pageBreak of plan.breaks) {
@@ -217,13 +227,17 @@ export const PaginatedDocument: FC<PropsWithChildren> = ({ children }) => {
 
 			const naturalMargin = getComputedStyle(element).marginBlockStart;
 			element.style.setProperty('--pagination-natural-margin', naturalMargin);
-			element.style.setProperty('--pagination-break-offset', `${pageBreak.offset + pageGap + margin * 2}px`);
+			element.style.setProperty(
+				'--pagination-break-offset',
+				`${pageBreak.offset + pageGap + margin * 2}px`,
+			);
 			element.setAttribute('data-pagination-break-before', 'true');
 
 			// CSS margin collapsing can leave a break a few pixels inside the page
 			// margin. Snap the rendered unit to the next printable-area origin so
 			// the screen sheets use the same boundary as @page when printed.
-			const renderedTop = element.getBoundingClientRect().top - root.getBoundingClientRect().top;
+			const renderedTop =
+				element.getBoundingClientRect().top - root.getBoundingClientRect().top;
 			const sheetStride = pageHeight + margin * 2 + pageGap;
 			const pageIndex = Math.max(1, Math.round(renderedTop / sheetStride));
 			const expectedTop = pageIndex * sheetStride + margin;

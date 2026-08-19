@@ -12,9 +12,7 @@ describe('stripXmlTags()', () => {
 		expect(narrative).toContain('Start Date: Jan 2023');
 		expect(narrative).toContain('End Date: Present');
 		expect(narrative).toContain('Narrative:');
-		expect(narrative).toContain(
-			'Led the platform migration and mentored engineers.',
-		);
+		expect(narrative).toContain('Led the platform migration and mentored engineers.');
 	});
 
 	it('supports lowercased job tags from existing narrative mirrors', () => {

@@ -15,15 +15,7 @@ import {
 } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { nanoid } from 'nanoid';
-import {
-	type FC,
-	useCallback,
-	useEffect,
-	useMemo,
-	useReducer,
-	useRef,
-	useState,
-} from 'react';
+import { type FC, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import * as Y from 'yjs';
 
@@ -37,12 +29,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import {
-	Field,
-	FieldDescription,
-	FieldGroup,
-	FieldLabel,
-} from '@/components/ui/field.tsx';
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
@@ -54,12 +41,12 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from '@/components/ui/tooltip.tsx';
-import { cn } from '@/lib/utils.ts';
+import { getMastraClient } from '@/lib/mastra-client.ts';
 import {
 	parseProfessionalStatementEvaluation,
 	professionalStatementCheckpointDefinitions,
 } from '@/lib/professional-statements.ts';
-import { getMastraClient } from '@/lib/mastra-client.ts';
+import { cn } from '@/lib/utils.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
 const LABEL_FIELD = 'label';
@@ -184,9 +171,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 	const selectedStatement = statements.find(
 		(statement) => valueOf(statement, ID_FIELD) === selectedId,
 	);
-	const statementText = selectedStatement
-		? valueOf(selectedStatement, TEXT_FIELD)
-		: '';
+	const statementText = selectedStatement ? valueOf(selectedStatement, TEXT_FIELD) : '';
 	const serializedEvaluation = selectedStatement
 		? valueOf(selectedStatement, EVALUATION_FIELD)
 		: '';
@@ -194,16 +179,10 @@ export const ProfessionalStatementsView: FC = observer(() => {
 		() => parseProfessionalStatementEvaluation(serializedEvaluation),
 		[serializedEvaluation],
 	);
-	const evaluatedText = selectedStatement
-		? valueOf(selectedStatement, EVALUATED_TEXT_FIELD)
-		: '';
-	const isEvaluationStale = Boolean(
-		evaluation && evaluatedText !== statementText,
-	);
+	const evaluatedText = selectedStatement ? valueOf(selectedStatement, EVALUATED_TEXT_FIELD) : '';
+	const isEvaluationStale = Boolean(evaluation && evaluatedText !== statementText);
 	const metCount = evaluation
-		? Object.values(evaluation.checkpoints).filter(
-				({ status }) => status === 'met',
-			).length
+		? Object.values(evaluation.checkpoints).filter(({ status }) => status === 'met').length
 		: 0;
 
 	const evaluateStatement = async () => {
@@ -218,9 +197,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 		setIsEvaluating(true);
 		try {
 			const client = await getMastraClient();
-			const workflow = client.getWorkflow(
-				'professionalStatementEvaluationWorkflow',
-			);
+			const workflow = client.getWorkflow('professionalStatementEvaluationWorkflow');
 			const run = await workflow.createRun();
 			const result = await run.startAsync({
 				inputData: { statement: text },
@@ -230,9 +207,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 				throw new Error('Statement evaluation did not complete.');
 			}
 
-			const nextEvaluation = professionalStatementEvaluationSchema.parse(
-				result.result,
-			);
+			const nextEvaluation = professionalStatementEvaluationSchema.parse(result.result);
 			const saveEvaluation = () => {
 				statement.set(EVALUATION_FIELD, JSON.stringify(nextEvaluation));
 				statement.set(EVALUATED_TEXT_FIELD, sourceText);
@@ -245,9 +220,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 			toast.success('Statement checkpoints updated.');
 		} catch (error) {
 			toast.error(
-				error instanceof Error
-					? error.message
-					: 'Could not evaluate this statement.',
+				error instanceof Error ? error.message : 'Could not evaluate this statement.',
 			);
 		} finally {
 			setIsEvaluating(false);
@@ -259,9 +232,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 			return;
 		}
 		statementsArray.delete(index, 1);
-		const next = statementsArray.get(
-			Math.min(index, statementsArray.length - 1),
-		);
+		const next = statementsArray.get(Math.min(index, statementsArray.length - 1));
 		setSelectedId(next ? valueOf(next, ID_FIELD) : undefined);
 	};
 
@@ -284,8 +255,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 								Professional Statements
 							</h1>
 							<p className="text-sm text-primary-foreground/80">
-								Create reusable summaries for different roles
-								and applications.
+								Create reusable summaries for different roles and applications.
 							</p>
 						</div>
 					</div>
@@ -304,17 +274,11 @@ export const ProfessionalStatementsView: FC = observer(() => {
 									<Info />
 									<AlertTitle>Quick guide</AlertTitle>
 									<AlertDescription className="flex flex-col gap-1 text-xs">
-										<span>
-											Labels are only for your reference.
-										</span>
+										<span>Labels are only for your reference.</span>
 										<span>{connectionLabel}</span>
 									</AlertDescription>
 								</Alert>
-								<Button
-									variant="outline"
-									className="w-full"
-									onClick={addStatement}
-								>
+								<Button variant="outline" className="w-full" onClick={addStatement}>
 									<Plus data-icon="inline-start" />
 									New statement
 								</Button>
@@ -325,20 +289,11 @@ export const ProfessionalStatementsView: FC = observer(() => {
 										<StatementListItem
 											key={valueOf(statement, ID_FIELD)}
 											statement={statement}
-											selected={
-												statement === selectedStatement
-											}
+											selected={statement === selectedStatement}
 											onSelect={() =>
-												setSelectedId(
-													valueOf(
-														statement,
-														ID_FIELD,
-													),
-												)
+												setSelectedId(valueOf(statement, ID_FIELD))
 											}
-											onDelete={() =>
-												deleteStatement(index)
-											}
+											onDelete={() => deleteStatement(index)}
 										/>
 									))}
 								</div>
@@ -354,14 +309,11 @@ export const ProfessionalStatementsView: FC = observer(() => {
 										</div>
 										<div className="min-w-0">
 											<h2 className="truncate font-semibold">
-												{valueOf(
-													selectedStatement,
-													LABEL_FIELD,
-												) || 'Untitled statement'}
+												{valueOf(selectedStatement, LABEL_FIELD) ||
+													'Untitled statement'}
 											</h2>
 											<p className="text-xs text-muted-foreground">
-												Edit your reusable professional
-												summary.
+												Edit your reusable professional summary.
 											</p>
 										</div>
 									</div>
@@ -383,9 +335,8 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													Statement details
 												</CardTitle>
 												<CardDescription>
-													Keep the summary broad
-													enough to reuse, then tailor
-													copies for specific roles.
+													Keep the summary broad enough to reuse, then
+													tailor copies for specific roles.
 												</CardDescription>
 											</CardHeader>
 											<CardContent>
@@ -403,50 +354,39 @@ export const ProfessionalStatementsView: FC = observer(() => {
 															onChange={(event) =>
 																selectedStatement.set(
 																	LABEL_FIELD,
-																	event.target
-																		.value,
+																	event.target.value,
 																)
 															}
 														/>
 														<FieldDescription>
-															A private nickname;
-															it will not appear
+															A private nickname; it will not appear
 															on your resume.
 														</FieldDescription>
 													</Field>
 													<Field>
 														<div className="flex items-center justify-between gap-3">
 															<FieldLabel htmlFor="statement-text">
-																Professional
-																statement
+																Professional statement
 															</FieldLabel>
 															<span className="text-xs text-muted-foreground">
-																{
-																	statementText.length
-																}{' '}
-																characters
+																{statementText.length} characters
 															</span>
 														</div>
 														<Textarea
 															id="statement-text"
-															value={
-																statementText
-															}
+															value={statementText}
 															onChange={(event) =>
 																selectedStatement.set(
 																	TEXT_FIELD,
-																	event.target
-																		.value,
+																	event.target.value,
 																)
 															}
 															placeholder="Summarize who you are, what you do, and the impact you create…"
 															className="min-h-48 resize-y leading-6"
 														/>
 														<FieldDescription>
-															This can appear at
-															the top of a resume
-															as a professional
-															summary.
+															This can appear at the top of a resume
+															as a professional summary.
 														</FieldDescription>
 													</Field>
 												</FieldGroup>
@@ -461,9 +401,8 @@ export const ProfessionalStatementsView: FC = observer(() => {
 														Statement checkpoints
 													</CardTitle>
 													<CardDescription>
-														Evidence-based feedback
-														from your profile and
-														current draft.
+														Evidence-based feedback from your profile
+														and current draft.
 													</CardDescription>
 												</div>
 												<div className="flex items-center gap-2">
@@ -474,12 +413,9 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													</Badge>
 													<Button
 														size="sm"
-														onClick={
-															evaluateStatement
-														}
+														onClick={evaluateStatement}
 														disabled={
-															isEvaluating ||
-															!statementText.trim()
+															isEvaluating || !statementText.trim()
 														}
 													>
 														{isEvaluating ? (
@@ -487,9 +423,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 														) : (
 															<Sparkles data-icon="inline-start" />
 														)}
-														{evaluation
-															? 'Re-evaluate'
-															: 'Evaluate'}
+														{evaluation ? 'Re-evaluate' : 'Evaluate'}
 													</Button>
 												</div>
 											</CardHeader>
@@ -498,14 +432,11 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													<Alert>
 														<Info />
 														<AlertTitle>
-															Evaluation is out of
-															date
+															Evaluation is out of date
 														</AlertTitle>
 														<AlertDescription>
-															The statement
-															changed after these
-															checkpoints were
-															graded.
+															The statement changed after these
+															checkpoints were graded.
 														</AlertDescription>
 													</Alert>
 												)}
@@ -518,23 +449,13 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													{professionalStatementCheckpointDefinitions.map(
 														(checkpoint) => {
 															const result =
-																evaluation
-																	?.checkpoints[
-																	checkpoint
-																		.key
+																evaluation?.checkpoints[
+																	checkpoint.key
 																];
-															const isMet =
-																result?.status ===
-																'met';
+															const isMet = result?.status === 'met';
 															return (
-																<Tooltip
-																	key={
-																		checkpoint.key
-																	}
-																>
-																	<TooltipTrigger
-																		asChild
-																	>
+																<Tooltip key={checkpoint.key}>
+																	<TooltipTrigger asChild>
 																		<span>
 																			<Badge
 																				variant={
@@ -553,9 +474,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 																				) : (
 																					<CircleHelp className="size-3" />
 																				)}
-																				{
-																					checkpoint.label
-																				}
+																				{checkpoint.label}
 																			</Badge>
 																		</span>
 																	</TooltipTrigger>
@@ -566,21 +485,16 @@ export const ProfessionalStatementsView: FC = observer(() => {
 																					'-',
 																					' ',
 																				)}{' '}
-																				·
-																				score{' '}
+																				· score{' '}
 																				{Math.round(
 																					result.score *
 																						100,
 																				)}
-
-																				%
-																				·
-																				confidence{' '}
+																				% · confidence{' '}
 																				{Math.round(
 																					result.confidence *
 																						100,
 																				)}
-
 																				%
 																			</p>
 																		)}
@@ -588,9 +502,7 @@ export const ProfessionalStatementsView: FC = observer(() => {
 																			{result?.feedback ??
 																				checkpoint.description}
 																		</p>
-																		{result
-																			?.evidence
-																			.length ? (
+																		{result?.evidence.length ? (
 																			<p>
 																				Evidence:{' '}
 																				{result.evidence.join(
@@ -616,19 +528,14 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													Need help?
 												</CardTitle>
 												<CardDescription>
-													Ask the assistant to
-													strengthen or tailor this
+													Ask the assistant to strengthen or tailor this
 													draft.
 												</CardDescription>
 											</CardHeader>
 											<CardContent className="flex flex-col gap-2">
 												<Button
 													variant="secondary"
-													onClick={() =>
-														uiStateStore.setChatOpen(
-															true,
-														)
-													}
+													onClick={() => uiStateStore.setChatOpen(true)}
 												>
 													<Sparkles data-icon="inline-start" />
 													Ask AI
@@ -638,16 +545,14 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													onClick={() =>
 														checkpointsGuideRef.current?.scrollIntoView(
 															{
-																behavior:
-																	'smooth',
+																behavior: 'smooth',
 																block: 'nearest',
 															},
 														)
 													}
 												>
 													<CircleHelp data-icon="inline-start" />
-													What makes a strong
-													statement?
+													What makes a strong statement?
 												</Button>
 											</CardContent>
 										</Card>
@@ -664,45 +569,40 @@ export const ProfessionalStatementsView: FC = observer(() => {
 													<span className="font-medium text-foreground">
 														Who You Are:
 													</span>{' '}
-													State your role or title
-													clearly (e.g., &quot;Senior
-													Software Engineer&quot;)
+													State your role or title clearly (e.g.,
+													&quot;Senior Software Engineer&quot;)
 												</p>
 												<p>
 													<span className="font-medium text-foreground">
 														Your Foundation:
 													</span>{' '}
-													Mention experience level or
-													background (e.g., &quot;8+
-													years in fintech&quot;)
+													Mention experience level or background (e.g.,
+													&quot;8+ years in fintech&quot;)
 												</p>
 												<p>
 													<span className="font-medium text-foreground">
 														What You Do:
 													</span>{' '}
-													Name specific skills or
-													capabilities
+													Name specific skills or capabilities
 												</p>
 												<p>
 													<span className="font-medium text-foreground">
 														Your Impact:
 													</span>{' '}
-													Include a result or
-													achievement
+													Include a result or achievement
 												</p>
 												<p>
 													<span className="font-medium text-foreground">
 														Your Why:
 													</span>{' '}
-													Share what drives you or
-													where you&apos;re heading
+													Share what drives you or where you&apos;re
+													heading
 												</p>
 												<p>
 													<span className="font-medium text-foreground">
 														Authenticity:
 													</span>{' '}
-													Align with your Professional
-													Compass identity
+													Align with your Professional Compass identity
 												</p>
 											</CardContent>
 										</Card>
@@ -716,17 +616,10 @@ export const ProfessionalStatementsView: FC = observer(() => {
 											</CardHeader>
 											<CardContent>
 												<ul className="flex list-disc flex-col gap-2 pl-4 text-sm text-muted-foreground">
+													<li>Aim for two to four concise sentences.</li>
+													<li>Lead with the strongest differentiator.</li>
 													<li>
-														Aim for two to four
-														concise sentences.
-													</li>
-													<li>
-														Lead with the strongest
-														differentiator.
-													</li>
-													<li>
-														Create a copy for each
-														role or direction.
+														Create a copy for each role or direction.
 													</li>
 												</ul>
 											</CardContent>

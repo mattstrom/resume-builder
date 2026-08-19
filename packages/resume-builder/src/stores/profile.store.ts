@@ -4,11 +4,7 @@ import * as Y from 'yjs';
 
 import type { RootStore } from './root.store.ts';
 
-export type ProfileConnectionStatus =
-	| 'idle'
-	| 'connecting'
-	| 'connected'
-	| 'disconnected';
+export type ProfileConnectionStatus = 'idle' | 'connecting' | 'connected' | 'disconnected';
 
 const NARRATIVE_FIELD = 'narrative';
 const JOB_PREFERENCES_FIELD = 'jobPreferences';
@@ -62,10 +58,7 @@ export class ProfileStore {
 
 		const token = await this.rootStore.authStore.ensureToken();
 		const uid = this.rootStore.authStore.user?.sub;
-		if (
-			connectionGeneration !== this.connectionGeneration ||
-			this.provider
-		) {
+		if (connectionGeneration !== this.connectionGeneration || this.provider) {
 			return;
 		}
 
@@ -81,10 +74,7 @@ export class ProfileStore {
 			document: doc,
 			token,
 			onStatus: ({ status }) => {
-				if (
-					connectionGeneration !== this.connectionGeneration ||
-					this.doc !== doc
-				) {
+				if (connectionGeneration !== this.connectionGeneration || this.doc !== doc) {
 					return;
 				}
 				runInAction(() => {
@@ -97,10 +87,7 @@ export class ProfileStore {
 				});
 			},
 			onSynced: () => {
-				if (
-					connectionGeneration !== this.connectionGeneration ||
-					this.doc !== doc
-				) {
+				if (connectionGeneration !== this.connectionGeneration || this.doc !== doc) {
 					return;
 				}
 				runInAction(() => {

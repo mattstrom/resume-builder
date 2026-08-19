@@ -1,6 +1,6 @@
 import type { PrismaService } from '../../prisma/index.js';
-import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from './embedding.constants.js';
 import { EmbeddingDocumentsService } from './embedding-documents.service.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from './embedding.constants.js';
 
 jest.mock('../../prisma/index.js', () => ({ PrismaService: class {} }));
 
@@ -25,9 +25,7 @@ describe('EmbeddingDocumentsService', () => {
 			id: 'bullet-1',
 			text: 'Improved reliability',
 			embeddingRevision: 3,
-			concepts: [
-				{ relation: 'uses', concept: { label: 'Kubernetes' } },
-			],
+			concepts: [{ relation: 'uses', concept: { label: 'Kubernetes' } }],
 		});
 
 		await expect(service.loadDocument('bullet-1', 'bullet')).resolves.toEqual({
@@ -66,9 +64,7 @@ describe('EmbeddingDocumentsService', () => {
 	});
 
 	it('finds null, outdated, wrong-model, and wrong-profile vectors for repair', async () => {
-		prisma.$queryRawUnsafe.mockResolvedValue([
-			{ id: 'concept-1', embeddingRevision: 4 },
-		]);
+		prisma.$queryRawUnsafe.mockResolvedValue([{ id: 'concept-1', embeddingRevision: 4 }]);
 
 		await expect(service.findStaleTargets('concept', 25)).resolves.toEqual([
 			{

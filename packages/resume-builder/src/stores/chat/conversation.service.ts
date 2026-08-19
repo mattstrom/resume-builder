@@ -56,10 +56,11 @@ export class Conversation {
 				return;
 			}
 
-			const content = message.content.parts
-				?.filter((part) => part.type === 'text')
-				.map((part) => part.text ?? '')
-				.join('') ?? '';
+			const content =
+				message.content.parts
+					?.filter((part) => part.type === 'text')
+					.map((part) => part.text ?? '')
+					.join('') ?? '';
 
 			conversation.messages.push({
 				id: message.id,

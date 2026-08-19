@@ -4,9 +4,6 @@ import { ConceptEvidenceAssessmentsResolver } from './concept-evidence-assessmen
 import { ConceptEvidenceAssessmentsService } from './concept-evidence-assessments.service.js';
 
 @Module({
-	providers: [
-		ConceptEvidenceAssessmentsResolver,
-		ConceptEvidenceAssessmentsService,
-	],
+	providers: [ConceptEvidenceAssessmentsResolver, ConceptEvidenceAssessmentsService],
 })
 export class ConceptEvidenceAssessmentsModule {}

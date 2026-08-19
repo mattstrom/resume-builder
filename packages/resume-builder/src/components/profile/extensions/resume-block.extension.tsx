@@ -1,10 +1,6 @@
 import { Mark, Node, mergeAttributes, type Editor } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
-import {
-	NodeViewContent,
-	NodeViewWrapper,
-	ReactNodeViewRenderer,
-} from '@tiptap/react';
+import { NodeViewContent, NodeViewWrapper, ReactNodeViewRenderer } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
 import type { FC } from 'react';
 
@@ -61,17 +57,13 @@ const BLOCK_DEFINITIONS = [
 
 const BLOCK_NODE_NAMES = new Set(BLOCK_DEFINITIONS.map(({ name }) => name));
 const NARRATIVE_NODE_NAMES = new Set(
-	BLOCK_DEFINITIONS.flatMap(({ narrative }) =>
-		narrative ? [narrative.name] : [],
-	),
+	BLOCK_DEFINITIONS.flatMap(({ narrative }) => (narrative ? [narrative.name] : [])),
 );
 const FIELD_NODE_NAMES = new Set(
 	BLOCK_DEFINITIONS.flatMap(({ fields }) => fields.map(({ name }) => name)),
 );
 const FIELD_LABELS = new Map(
-	BLOCK_DEFINITIONS.flatMap(({ fields }) =>
-		fields.map(({ name, label }) => [name, label]),
-	),
+	BLOCK_DEFINITIONS.flatMap(({ fields }) => fields.map(({ name, label }) => [name, label])),
 );
 
 function moveToAdjacentBlockField(editor: Editor, direction: 1 | -1): boolean {
@@ -81,10 +73,7 @@ function moveToAdjacentBlockField(editor: Editor, direction: 1 | -1): boolean {
 
 	for (let depth = $from.depth; depth > 0; depth--) {
 		const node = $from.node(depth);
-		if (
-			FIELD_NODE_NAMES.has(node.type.name) ||
-			NARRATIVE_NODE_NAMES.has(node.type.name)
-		) {
+		if (FIELD_NODE_NAMES.has(node.type.name) || NARRATIVE_NODE_NAMES.has(node.type.name)) {
 			currentNode = node;
 		}
 		if (BLOCK_NODE_NAMES.has(node.type.name)) {
@@ -111,16 +100,11 @@ function moveToAdjacentBlockField(editor: Editor, direction: 1 | -1): boolean {
 		return true;
 	});
 
-	const nextTarget =
-		targets[
-			targets.findIndex(({ node }) => node === currentNode) + direction
-		];
+	const nextTarget = targets[targets.findIndex(({ node }) => node === currentNode) + direction];
 	if (!nextTarget) return false;
 
 	editor.view.dispatch(
-		editor.state.tr.setSelection(
-			TextSelection.create(editor.state.doc, nextTarget.pos),
-		),
+		editor.state.tr.setSelection(TextSelection.create(editor.state.doc, nextTarget.pos)),
 	);
 	return true;
 }
@@ -130,11 +114,7 @@ const StructuredFieldView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 	const setValue = (value: string) => {
 		const position = typeof getPos === 'function' ? getPos() : getPos;
 		editor.view.dispatch(
-			editor.state.tr.insertText(
-				value,
-				position + 1,
-				position + node.nodeSize - 1,
-			),
+			editor.state.tr.insertText(value, position + 1, position + node.nodeSize - 1),
 		);
 		editor.commands.focus(position + 1);
 	};
@@ -145,10 +125,7 @@ const StructuredFieldView: FC<NodeViewProps> = ({ editor, getPos, node }) => {
 			data-block-field={node.type.name}
 			data-label={FIELD_LABELS.get(node.type.name)}
 		>
-			<NodeViewContent
-				as="div"
-				className="structured-block-field-content"
-			/>
+			<NodeViewContent as="div" className="structured-block-field-content" />
 			{isProjectType && (
 				<select
 					aria-label="Project type"
@@ -241,10 +218,7 @@ const createBlockNode = ({ name, label, fields, narrative }: BlockDefinition) =>
 	Node.create({
 		name,
 		group: 'block',
-		content: [
-			...fields.map(({ name: fieldName }) => fieldName),
-			narrative?.name,
-		]
+		content: [...fields.map(({ name: fieldName }) => fieldName), narrative?.name]
 			.filter(Boolean)
 			.join(' '),
 		defining: true,
@@ -260,11 +234,7 @@ const createBlockNode = ({ name, label, fields, narrative }: BlockDefinition) =>
 					{ class: 'structured-block', 'data-block-name': name },
 					HTMLAttributes,
 				),
-				[
-					'div',
-					{ class: 'structured-block-tab', contenteditable: 'false' },
-					label,
-				],
+				['div', { class: 'structured-block-tab', contenteditable: 'false' }, label],
 				['div', { class: 'structured-block-fields' }, 0],
 			];
 		},
@@ -274,9 +244,7 @@ const blockExtensions = BLOCK_DEFINITIONS.flatMap((definition) => {
 	const group = `${definition.name}Content`;
 	return [
 		...definition.fields.map((field) => createFieldNode(field, group)),
-		...(definition.narrative
-			? [createNarrativeNode(definition.narrative, group)]
-			: []),
+		...(definition.narrative ? [createNarrativeNode(definition.narrative, group)] : []),
 		createBlockNode(definition),
 	];
 });
@@ -302,12 +270,9 @@ export const ProjectBlockExtensions = blockExtensions.slice(9, 15);
 export const LegacySkillBlockExtensions = blockExtensions.slice(15, 18);
 export const StoryBlockExtensions = blockExtensions.slice(18, 21);
 
-export const createEducationBlock = () =>
-	createBlockContent(BLOCK_DEFINITIONS[0]);
-export const createCertificateBlock = () =>
-	createBlockContent(BLOCK_DEFINITIONS[1]);
-export const createProjectBlock = () =>
-	createBlockContent(BLOCK_DEFINITIONS[2]);
+export const createEducationBlock = () => createBlockContent(BLOCK_DEFINITIONS[0]);
+export const createCertificateBlock = () => createBlockContent(BLOCK_DEFINITIONS[1]);
+export const createProjectBlock = () => createBlockContent(BLOCK_DEFINITIONS[2]);
 export const createStoryBlock = () => createBlockContent(BLOCK_DEFINITIONS[3]);
 
 const SkillGroupNameView: FC<NodeViewProps> = () => (
@@ -316,10 +281,7 @@ const SkillGroupNameView: FC<NodeViewProps> = () => (
 		className="structured-inline-token structured-inline-token-skillGroupName"
 		data-label="Group"
 	>
-		<NodeViewContent
-			as="span"
-			className="structured-inline-token-content"
-		/>
+		<NodeViewContent as="span" className="structured-inline-token-content" />
 	</NodeViewWrapper>
 );
 
@@ -343,9 +305,7 @@ const Skill = Mark.create({
 				default: null,
 				parseHTML: (element) => element.getAttribute('data-skill-item'),
 				renderHTML: (attributes) =>
-					attributes.itemId
-						? { 'data-skill-item': attributes.itemId as string }
-						: {},
+					attributes.itemId ? { 'data-skill-item': attributes.itemId as string } : {},
 			},
 		};
 	},
@@ -355,11 +315,7 @@ const Skill = Mark.create({
 	},
 
 	renderHTML({ HTMLAttributes }) {
-		return [
-			'span',
-			mergeAttributes({ 'data-skill': '' }, HTMLAttributes),
-			0,
-		];
+		return ['span', mergeAttributes({ 'data-skill': '' }, HTMLAttributes), 0];
 	},
 
 	addCommands() {
@@ -431,11 +387,7 @@ const SkillGroupBlock = Node.create({
 				},
 				HTMLAttributes,
 			),
-			[
-				'div',
-				{ class: 'structured-block-tab', contenteditable: 'false' },
-				'Skill group',
-			],
+			['div', { class: 'structured-block-tab', contenteditable: 'false' }, 'Skill group'],
 			['div', { class: 'structured-block-fields' }, 0],
 		];
 	},
@@ -480,10 +432,7 @@ const LegacyResumeFieldView: FC<NodeViewProps> = ({ node }) => {
 			data-block-field={field}
 			data-label={LEGACY_FIELD_LABELS[field] ?? field}
 		>
-			<NodeViewContent
-				as="div"
-				className="structured-block-field-content"
-			/>
+			<NodeViewContent as="div" className="structured-block-field-content" />
 		</NodeViewWrapper>
 	);
 };
@@ -503,14 +452,7 @@ const LegacyResumeField = Node.create({
 	},
 
 	renderHTML({ HTMLAttributes }) {
-		return [
-			'div',
-			mergeAttributes(
-				{ class: 'structured-block-field' },
-				HTMLAttributes,
-			),
-			0,
-		];
+		return ['div', mergeAttributes({ class: 'structured-block-field' }, HTMLAttributes), 0];
 	},
 
 	addNodeView() {
@@ -561,15 +503,8 @@ const LegacyResumeBlock = Node.create({
 	renderHTML({ HTMLAttributes }) {
 		return [
 			'section',
-			mergeAttributes(
-				{ class: 'structured-block', 'data-resume-block': '' },
-				HTMLAttributes,
-			),
-			[
-				'div',
-				{ class: 'structured-block-tab', contenteditable: 'false' },
-				'Legacy block',
-			],
+			mergeAttributes({ class: 'structured-block', 'data-resume-block': '' }, HTMLAttributes),
+			['div', { class: 'structured-block-tab', contenteditable: 'false' }, 'Legacy block'],
 			['div', { class: 'structured-block-fields' }, 0],
 		];
 	},

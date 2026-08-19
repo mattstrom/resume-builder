@@ -2,8 +2,8 @@ import { ArrowDown, ArrowUp, Search } from 'lucide-react';
 import { observer } from 'mobx-react';
 import type { ReactElement } from 'react';
 
-import { Button } from '@/components/ui/button.tsx';
 import { ButtonGroup } from '@/components/ui/button-group.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import {
 	Select,
@@ -77,14 +77,18 @@ function DataSourceControlsInner<T, G = string>(
 				<ButtonGroup>
 					<Select
 						value={controller.sortKey ?? UNSORTED}
-						onValueChange={(value) => controller.setSort(value === UNSORTED ? null : value)}
+						onValueChange={(value) =>
+							controller.setSort(value === UNSORTED ? null : value)
+						}
 					>
 						<SelectTrigger aria-label={sortAriaLabel} className="w-40">
 							<SelectValue placeholder="Sort by" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>
-								{allowUnsorted && <SelectItem value={UNSORTED}>Unsorted</SelectItem>}
+								{allowUnsorted && (
+									<SelectItem value={UNSORTED}>Unsorted</SelectItem>
+								)}
 								{controller.sorts.map((sort) => (
 									<SelectItem key={sort.key} value={sort.key}>
 										{sort.label}
@@ -100,9 +104,15 @@ function DataSourceControlsInner<T, G = string>(
 						disabled={!controller.sortKey}
 						onClick={() => controller.toggleSortDirection()}
 						aria-label={
-							controller.sortDirection === 'asc' ? 'Sort ascending' : 'Sort descending'
+							controller.sortDirection === 'asc'
+								? 'Sort ascending'
+								: 'Sort descending'
 						}
-						title={controller.sortDirection === 'asc' ? 'Sort ascending' : 'Sort descending'}
+						title={
+							controller.sortDirection === 'asc'
+								? 'Sort ascending'
+								: 'Sort descending'
+						}
 					>
 						{controller.sortDirection === 'asc' ? <ArrowUp /> : <ArrowDown />}
 					</Button>
@@ -112,7 +122,9 @@ function DataSourceControlsInner<T, G = string>(
 			{showGrouping && (
 				<Select
 					value={controller.groupingKey ?? UNGROUPED}
-					onValueChange={(value) => controller.setGrouping(value === UNGROUPED ? null : value)}
+					onValueChange={(value) =>
+						controller.setGrouping(value === UNGROUPED ? null : value)
+					}
 				>
 					<SelectTrigger aria-label={groupingAriaLabel} className="w-40">
 						<SelectValue placeholder="Group by" />
@@ -160,4 +172,6 @@ function DataSourceControlsInner<T, G = string>(
  * hide themselves automatically when the controller has nothing to offer
  * for them. Same generic-preserving `observer` cast as `DataSourceView`.
  */
-export const DataSourceControls = observer(DataSourceControlsInner) as typeof DataSourceControlsInner;
+export const DataSourceControls = observer(
+	DataSourceControlsInner,
+) as typeof DataSourceControlsInner;

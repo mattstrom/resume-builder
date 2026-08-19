@@ -29,44 +29,34 @@ describe('ConceptEvidenceAssessmentsService', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		service = new ConceptEvidenceAssessmentsService(
-			prisma as unknown as PrismaService,
-		);
+		service = new ConceptEvidenceAssessmentsService(prisma as unknown as PrismaService);
 		prisma.application.findFirst.mockResolvedValue({ id: 'application-1' });
 		prisma.resume.findFirst.mockResolvedValue({
 			id: 'resume-1',
 			applicationId: 'application-1',
 		});
-		prisma.conceptEvidenceAssessment.upsert.mockImplementation(
-			async ({ create }) => ({ id: 'assessment-1', ...create }),
-		);
+		prisma.conceptEvidenceAssessment.upsert.mockImplementation(async ({ create }) => ({
+			id: 'assessment-1',
+			...create,
+		}));
 	});
 
 	it('loads only the current user application resume assessment', async () => {
 		await service.find('user-1', 'application-1', 'resume-1');
 
-		expect(prisma.conceptEvidenceAssessment.findFirst).toHaveBeenCalledWith(
-			{
-				where: {
-					uid: 'user-1',
-					applicationId: 'application-1',
-					resumeId: 'resume-1',
-				},
+		expect(prisma.conceptEvidenceAssessment.findFirst).toHaveBeenCalledWith({
+			where: {
+				uid: 'user-1',
+				applicationId: 'application-1',
+				resumeId: 'resume-1',
 			},
-		);
+		});
 	});
 
 	it('upserts a validated assessment for an owned application resume', async () => {
 		const inputHash = 'a'.repeat(64);
 
-		await service.upsert(
-			'user-1',
-			'application-1',
-			'resume-1',
-			inputHash,
-			1,
-			result,
-		);
+		await service.upsert('user-1', 'application-1', 'resume-1', inputHash, 1, result);
 
 		expect(prisma.conceptEvidenceAssessment.upsert).toHaveBeenCalledWith({
 			where: {
@@ -95,14 +85,7 @@ describe('ConceptEvidenceAssessmentsService', () => {
 		});
 
 		await expect(
-			service.upsert(
-				'user-1',
-				'application-1',
-				'resume-1',
-				'a'.repeat(64),
-				1,
-				result,
-			),
+			service.upsert('user-1', 'application-1', 'resume-1', 'a'.repeat(64), 1, result),
 		).rejects.toThrow('Application resume not found');
 		expect(prisma.conceptEvidenceAssessment.upsert).not.toHaveBeenCalled();
 	});

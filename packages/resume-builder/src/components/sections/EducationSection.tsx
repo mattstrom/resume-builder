@@ -16,12 +16,9 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 	const { education } = useResume();
 	const items = education ?? [];
 	const resumeId = useResumeId();
-	const { data } = useQuery<{ listEducations: Education[] }>(
-		LIST_EDUCATIONS,
-		{
-			fetchPolicy: 'network-only',
-		},
-	);
+	const { data } = useQuery<{ listEducations: Education[] }>(LIST_EDUCATIONS, {
+		fetchPolicy: 'network-only',
+	});
 	const options = data?.listEducations ?? [];
 
 	return (
@@ -38,9 +35,7 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 					path={`data.education.${index}`}
 					label={`Education ${index + 1}`}
 				>
-					<div
-						data-pagination-unit={`education-${item._id ?? index}`}
-					>
+					<div data-pagination-unit={`education-${item._id ?? index}`}>
 						<LookupFieldEditor<Education, Education>
 							as="section"
 							path={`data.education.${index}`}
@@ -58,12 +53,8 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 							})}
 							renderDisplay={(educationItem) => (
 								<>
-									<header className="degree">
-										{educationItem.degree}
-									</header>
-									<div className="field">
-										{educationItem.field}
-									</div>
+									<header className="degree">{educationItem.degree}</header>
+									<div className="field">{educationItem.field}</div>
 									<div>
 										<span className="institution">
 											{educationItem.institution}
@@ -73,8 +64,7 @@ export const EducationSection: FC<EducationSectionProps> = () => {
 							)}
 							renderOption={(option) => (
 								<>
-									{option.degree} in {option.field} -{' '}
-									{option.institution}
+									{option.degree} in {option.field} - {option.institution}
 								</>
 							)}
 						/>

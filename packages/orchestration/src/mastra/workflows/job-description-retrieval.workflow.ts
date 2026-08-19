@@ -303,10 +303,7 @@ const persistJobDescription = createStep({
 		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
 
 		await withResumeBuilderTools(token, (tools) =>
-			tools['update_job_description'].execute!(
-				{ applicationId, jobDescription },
-				{} as any,
-			),
+			tools['update_job_description'].execute!({ applicationId, jobDescription }, {} as any),
 		);
 
 		return {

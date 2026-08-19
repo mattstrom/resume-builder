@@ -50,7 +50,9 @@
 }
 
 .paginated-content [data-pagination-break-before] {
-	margin-block-start: calc(var(--pagination-natural-margin, 0px) + var(--pagination-break-offset, 0px));
+	margin-block-start: calc(
+		var(--pagination-natural-margin, 0px) + var(--pagination-break-offset, 0px)
+	);
 }
 
 @media print {

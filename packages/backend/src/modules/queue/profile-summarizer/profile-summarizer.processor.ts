@@ -10,8 +10,8 @@ import type { LlmToolDefinition } from '../../llm/interfaces/llm-types.js';
 import { LlmProviderRegistry } from '../../llm/llm-provider-registry.service.js';
 import { QUEUES } from '../queues.js';
 import { NARRATIVE_SUMMARIZER_SYSTEM_PROMPT } from './narrative-summarizer.rubric.js';
-import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event.js';
 import { stripXmlTags } from './narrative-xml.js';
+import { ProfileNarrativeSummaryCompletedEvent } from './profile-summarizer-completed.event.js';
 
 interface ProfileNarrativeSummaryJobData {
 	uid: string;

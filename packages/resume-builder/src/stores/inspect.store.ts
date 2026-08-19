@@ -60,12 +60,10 @@ export class InspectStore implements Disposable {
 
 	@computed
 	get selectedRegions() {
-		return Array.from(this.selectedPaths.entries()).map(
-			([path, label]) => ({
-				path,
-				label,
-			}),
-		);
+		return Array.from(this.selectedPaths.entries()).map(([path, label]) => ({
+			path,
+			label,
+		}));
 	}
 
 	isHighlighted = computedFn((path: string) => {

@@ -65,7 +65,9 @@ function EditableBlock({
 	children?: ReactNode;
 }) {
 	const definition = blockTypesByName.get(block.type);
-	if (!definition) return null;
+	if (!definition) {
+		return null;
+	}
 
 	const Renderer = definition.component;
 	const structuralOptions = (getInsertOptions?.(index) ?? []).filter(

@@ -2,10 +2,10 @@
 import { program } from 'commander';
 import { Pool } from 'pg';
 
+import { RestoreCommand } from './commands/restore-command';
+import { UpdatesCommand } from './commands/updates-command';
 import { StorageService } from './storage/storage-service';
 import { StrategyRegistry } from './strategies/strategy-registry';
-import { UpdatesCommand } from './commands/updates-command';
-import { RestoreCommand } from './commands/restore-command';
 
 async function main() {
 	const connectionString = process.env.DATABASE_URL;

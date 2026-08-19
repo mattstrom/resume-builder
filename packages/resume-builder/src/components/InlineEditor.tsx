@@ -2,10 +2,7 @@ import clsx from 'clsx';
 import { observer } from 'mobx-react';
 import { type FC, type MouseEvent, type ReactNode, createElement } from 'react';
 
-import {
-	InlineMarkdown,
-	LinkMarkupHint,
-} from '@/components/InlineMarkdown.tsx';
+import { InlineMarkdown, LinkMarkupHint } from '@/components/InlineMarkdown.tsx';
 import { ResumeLink } from '@/components/ResumeLink.tsx';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { useInspectRegion } from '@/hooks/useInspectRegion.ts';
@@ -15,9 +12,7 @@ import { useStore } from '@/stores/store.provider.tsx';
 function pathToLabel(path: string): string {
 	const segment = path.split('.').findLast((s) => !/^\d+$/.test(s)) ?? path;
 
-	return segment
-		.replace(/([A-Z])/g, ' $1')
-		.replace(/^./, (s) => s.toUpperCase());
+	return segment.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
 }
 
 interface InlineEditorProps {
@@ -56,17 +51,14 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		linkMarkup = false,
 		href,
 	}) => {
-		const {
-			inlineEditStore: store,
-			inspectStore,
-			uiStateStore,
-		} = useStore();
+		const { inlineEditStore: store, inspectStore, uiStateStore } = useStore();
 		const isEditing = store.isEditing(path);
 		const isEditable = uiStateStore.isResumeEditable;
-		const { isInspectMode, isHovered, isSelected, handlers } =
-			useInspectRegion(path, pathToLabel(path));
-		const isConceptEvidence =
-			inspectStore.isConceptEvidenceHighlighted(path);
+		const { isInspectMode, isHovered, isSelected, handlers } = useInspectRegion(
+			path,
+			pathToLabel(path),
+		);
+		const isConceptEvidence = inspectStore.isConceptEvidenceHighlighted(path);
 
 		const handleClick = (e: MouseEvent) => {
 			if (isInspectMode) {
@@ -81,20 +73,12 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 		const beginEdit = () => store.beginEdit(resumeId, path, value);
 		const fallbackContent = value || placeholder;
 		const renderedContent = linkMarkup ? (
-			<InlineMarkdown
-				value={value}
-				isEditable={isEditable}
-				onEditRequest={beginEdit}
-			/>
+			<InlineMarkdown value={value} isEditable={isEditable} onEditRequest={beginEdit} />
 		) : (
 			(children ?? fallbackContent)
 		);
 		const readContent = href ? (
-			<ResumeLink
-				href={href}
-				isEditable={isEditable}
-				onEditRequest={beginEdit}
-			>
+			<ResumeLink href={href} isEditable={isEditable} onEditRequest={beginEdit}>
 				{renderedContent}
 			</ResumeLink>
 		) : (
@@ -103,10 +87,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 
 		return (
 			<span
-				className={cn(
-					'relative',
-					multiline ? 'block w-full' : 'inline',
-				)}
+				className={cn('relative', multiline ? 'block w-full' : 'inline')}
 				data-path={path}
 			>
 				{createElement(
@@ -125,10 +106,7 @@ export const InlineEditor: FC<InlineEditorProps> = observer(
 						),
 						onClick: handleClick,
 						style: {
-							cursor:
-								isInspectMode || isEditable
-									? 'pointer'
-									: undefined,
+							cursor: isInspectMode || isEditable ? 'pointer' : undefined,
 							...(isEditing ? { opacity: 0.5 } : {}),
 						},
 						...(isInspectMode && {

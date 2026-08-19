@@ -548,7 +548,9 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 						<Switch
 							id={`archived-${sourceType}-${sourceId}`}
 							checked={!controller.isFilterActive('archived')}
-							onCheckedChange={(checked) => controller.setFilterActive('archived', !checked)}
+							onCheckedChange={(checked) =>
+								controller.setFilterActive('archived', !checked)
+							}
 						/>
 					</div>
 					<Button type="button" variant="outline" size="sm" onClick={startCreating}>
@@ -566,7 +568,9 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 					itemsClassName="flex flex-col gap-1 p-2"
 					itemsProps={{ role: 'listbox', 'aria-label': 'Bullets' }}
 					emptyState={
-						<p className="p-3 text-sm text-muted-foreground">No bullets for this item yet.</p>
+						<p className="p-3 text-sm text-muted-foreground">
+							No bullets for this item yet.
+						</p>
 					}
 					renderItemMaster={({ item: bullet, isSelected }) => {
 						const items = controller.visibleItems;
@@ -594,7 +598,9 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 											<Badge
 												className="py-0"
 												variant={
-													bullet.status === BulletStatus.DRAFT ? 'secondary' : 'outline'
+													bullet.status === BulletStatus.DRAFT
+														? 'secondary'
+														: 'outline'
 												}
 											>
 												{statusLabel(bullet.status)}
@@ -602,7 +608,8 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 											{bullet.concepts
 												.slice(0, 3)
 												.map(({ conceptId, concept, relation }) => {
-													const presentation = conceptRelationPresentation(relation);
+													const presentation =
+														conceptRelationPresentation(relation);
 													return (
 														<Badge
 															key={`${relation}:${conceptId}`}
@@ -633,7 +640,12 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 										size="icon"
 										className="size-7"
 										disabled={index <= 0}
-										onClick={() => void bulletsStore.reorder(bullet.id, items[index - 1]!.id)}
+										onClick={() =>
+											void bulletsStore.reorder(
+												bullet.id,
+												items[index - 1]!.id,
+											)
+										}
 										aria-label="Move bullet up"
 										title="Move bullet up"
 									>
@@ -645,7 +657,12 @@ export const BulletManager: FC<BulletManagerProps> = observer((props) => {
 										size="icon"
 										className="size-7"
 										disabled={index === -1 || index === items.length - 1}
-										onClick={() => void bulletsStore.reorder(bullet.id, items[index + 1]!.id)}
+										onClick={() =>
+											void bulletsStore.reorder(
+												bullet.id,
+												items[index + 1]!.id,
+											)
+										}
 										aria-label="Move bullet down"
 										title="Move bullet down"
 									>

@@ -70,9 +70,7 @@ export interface ConceptScheme<K extends string = string> {
  * The runtime checks below catch the same class of error in generated schemes,
  * which are cast rather than inferred.
  */
-export function scheme<
-	const D extends Record<string, ConceptDefinition<Extract<keyof D, string>>>,
->(
+export function scheme<const D extends Record<string, ConceptDefinition<Extract<keyof D, string>>>>(
 	id: string,
 	definitions: D,
 	options: SchemeOptions = {},
@@ -93,18 +91,13 @@ export function scheme<
 
 		if (parent !== undefined) {
 			if (!(parent in definitions)) {
-				throw new Error(
-					`Concept "${id}:${key}" has unknown broader concept "${parent}"`,
-				);
+				throw new Error(`Concept "${id}:${key}" has unknown broader concept "${parent}"`);
 			}
 
 			narrower.get(parent)!.push(key);
 		}
 
-		if (
-			definition.replacedBy !== undefined &&
-			!(definition.replacedBy in definitions)
-		) {
+		if (definition.replacedBy !== undefined && !(definition.replacedBy in definitions)) {
 			throw new Error(
 				`Concept "${id}:${key}" is replaced by unknown concept "${definition.replacedBy}"`,
 			);
@@ -112,9 +105,7 @@ export function scheme<
 
 		for (const relation of definition.related ?? []) {
 			if (!(relation in definitions)) {
-				throw new Error(
-					`Concept "${id}:${key}" relates to unknown concept "${relation}"`,
-				);
+				throw new Error(`Concept "${id}:${key}" relates to unknown concept "${relation}"`);
 			}
 		}
 	}
@@ -129,9 +120,7 @@ export function scheme<
 			depth += 1;
 
 			if (depth > keys.length) {
-				throw new Error(
-					`Concept scheme "${id}" has a cycle in broader chain at "${key}"`,
-				);
+				throw new Error(`Concept scheme "${id}" has a cycle in broader chain at "${key}"`);
 			}
 
 			cursor = definitions[cursor]?.broader as K | undefined;
@@ -195,9 +184,7 @@ export function scheme<
 		let cursor = key;
 
 		for (let hops = 0; hops <= keys.length; hops += 1) {
-			const replacement = definitions[cursor]?.replacedBy as
-				| K
-				| undefined;
+			const replacement = definitions[cursor]?.replacedBy as K | undefined;
 
 			if (replacement === undefined) {
 				return cursor;
@@ -206,14 +193,11 @@ export function scheme<
 			cursor = replacement;
 		}
 
-		throw new Error(
-			`Concept scheme "${id}" has a cycle in replacedBy chain at "${key}"`,
-		);
+		throw new Error(`Concept scheme "${id}" has a cycle in replacedBy chain at "${key}"`);
 	}
 
 	function normalize(label: string): K | undefined {
-		const direct =
-			looseIndex.get(looseKey(label)) ?? tightIndex.get(tightKey(label));
+		const direct = looseIndex.get(looseKey(label)) ?? tightIndex.get(tightKey(label));
 
 		return direct === undefined ? undefined : resolveDeprecation(direct);
 	}
@@ -247,12 +231,7 @@ export function scheme<
 	const activeKeys = keys.filter((key) => !definitions[key]?.deprecated);
 
 	function render(options: PromptOptions): string {
-		const {
-			definitions: showDefinitions,
-			altLabels: showAltLabels,
-			only,
-			maxDepth,
-		} = options;
+		const { definitions: showDefinitions, altLabels: showAltLabels, only, maxDepth } = options;
 
 		let visible: Set<K> | undefined;
 
@@ -281,9 +260,7 @@ export function scheme<
 			const definition = definitions[key] as ConceptDefinition<K>;
 
 			if (!definition.deprecated) {
-				const parts = [
-					`${'  '.repeat(depth)}- \`${key}\` — ${definition.label}`,
-				];
+				const parts = [`${'  '.repeat(depth)}- \`${key}\` — ${definition.label}`];
 
 				if (showAltLabels && definition.altLabels?.length) {
 					parts.push(` (aka ${definition.altLabels.join(', ')})`);
@@ -326,9 +303,7 @@ export function scheme<
 			const concept = concepts.get(key);
 
 			if (concept === undefined) {
-				throw new Error(
-					`Concept scheme "${id}" has no concept "${key}"`,
-				);
+				throw new Error(`Concept scheme "${id}" has no concept "${key}"`);
 			}
 
 			return concept;
@@ -384,9 +359,7 @@ export function scheme<
 		},
 
 		alignments(key) {
-			const definition = definitions[key] as
-				| ConceptDefinition<K>
-				| undefined;
+			const definition = definitions[key] as ConceptDefinition<K> | undefined;
 
 			if (definition === undefined) return [];
 

@@ -48,9 +48,7 @@ const identifyJobConcepts = createStep({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
 	}),
 	execute: async ({ inputData, mastra, requestContext }) => {
-		const agent =
-			mastra?.getAgent('jobRequirementsExtractor') ??
-			jobRequirementsExtractorAgent;
+		const agent = mastra?.getAgent('jobRequirementsExtractor') ?? jobRequirementsExtractorAgent;
 
 		const result = await agent.generate(
 			[
@@ -86,8 +84,7 @@ const persistJobConcepts = createStep({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
 	}),
 	execute: async ({ inputData, requestContext }) => {
-		const token =
-			(requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
+		const token = (requestContext.get(MASTRA_AUTH_TOKEN_KEY) as string) ?? '';
 
 		await withResumeBuilderTools(token, (tools) =>
 			tools['create_job_requirements'].execute!(inputData, {} as any),
@@ -99,8 +96,7 @@ const persistJobConcepts = createStep({
 
 export const jobConceptIdentificationWorkflow = createWorkflow({
 	id: 'job-concept-identification-workflow',
-	description:
-		'Identifies concept assertions in an application job description',
+	description: 'Identifies concept assertions in an application job description',
 	requestContextSchema: z.object({
 		[MASTRA_AUTH_TOKEN_KEY]: z.string().min(1),
 	}),

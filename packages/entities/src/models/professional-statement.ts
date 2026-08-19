@@ -34,6 +34,4 @@ export type ProfessionalStatementCheckpointStatus = z.infer<
 export type ProfessionalStatementCheckpointEvaluation = z.infer<
 	typeof professionalStatementCheckpointEvaluationSchema
 >;
-export type ProfessionalStatementEvaluation = z.infer<
-	typeof professionalStatementEvaluationSchema
->;
+export type ProfessionalStatementEvaluation = z.infer<typeof professionalStatementEvaluationSchema>;

@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router';
 
-import { SkillsSection } from "@/components/profile/BackgroundEditor.tsx";
-import { ProfileSectionPage } from "@/components/profile/ProfileSectionPage.tsx";
+import { SkillsSection } from '@/components/profile/BackgroundEditor.tsx';
+import { ProfileSectionPage } from '@/components/profile/ProfileSectionPage.tsx';
 
-export const Route = createFileRoute("/_authenticated/profile/skills")({
+export const Route = createFileRoute('/_authenticated/profile/skills')({
 	component: SkillsComponent,
 });
 

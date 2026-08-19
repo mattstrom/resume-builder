@@ -28,19 +28,13 @@ function addJobTechnologies(document: Y.Doc) {
 			if (child.nodeName === 'jobBlock') {
 				const children = child.toArray();
 				const hasTechnologies = children.some(
-					(entry) =>
-						isXmlElement(entry) &&
-						entry.nodeName === 'jobTechnologies',
+					(entry) => isXmlElement(entry) && entry.nodeName === 'jobTechnologies',
 				);
 				const narrativeIndex = children.findIndex(
-					(entry) =>
-						isXmlElement(entry) &&
-						entry.nodeName === 'jobNarrative',
+					(entry) => isXmlElement(entry) && entry.nodeName === 'jobNarrative',
 				);
 				const dateRangeIndex = children.findIndex(
-					(entry) =>
-						isXmlElement(entry) &&
-						entry.nodeName === 'jobDateRange',
+					(entry) => isXmlElement(entry) && entry.nodeName === 'jobDateRange',
 				);
 
 				if (!hasTechnologies) {
@@ -79,8 +73,7 @@ function convertJobTechnologyParagraphsToSkills(document: Y.Doc) {
 					.toArray()
 					.filter(
 						(entry): entry is Y.XmlElement =>
-							isXmlElement(entry) &&
-							entry.nodeName === 'paragraph',
+							isXmlElement(entry) && entry.nodeName === 'paragraph',
 					);
 
 				if (paragraphs.length > 0) {
@@ -88,10 +81,7 @@ function convertJobTechnologyParagraphsToSkills(document: Y.Doc) {
 						.map((paragraph) =>
 							paragraph
 								.toArray()
-								.filter(
-									(entry): entry is Y.XmlText =>
-										entry instanceof Y.XmlText,
-								)
+								.filter((entry): entry is Y.XmlText => entry instanceof Y.XmlText)
 								.map((text) => text.toString())
 								.join('')
 								.trim(),
@@ -147,10 +137,7 @@ function removeLegacyLabelAttributes(document: Y.Doc) {
 		for (const child of container.toArray()) {
 			if (!isXmlElement(child)) continue;
 
-			if (
-				LEGACY_LABEL_NODE_NAMES.has(child.nodeName) &&
-				child.hasAttribute('label')
-			) {
+			if (LEGACY_LABEL_NODE_NAMES.has(child.nodeName) && child.hasAttribute('label')) {
 				child.removeAttribute('label');
 			}
 
@@ -190,9 +177,7 @@ export function migrateProfileDocument(document: Y.Doc): boolean {
 	if (narrative.length === 0) return false;
 
 	const migrations = document.getMap<boolean>('schemaMigrations');
-	const pending = PROFILE_DOCUMENT_MIGRATIONS.filter(
-		({ id }) => !migrations.get(id),
-	);
+	const pending = PROFILE_DOCUMENT_MIGRATIONS.filter(({ id }) => !migrations.get(id));
 
 	if (pending.length === 0) return false;
 
