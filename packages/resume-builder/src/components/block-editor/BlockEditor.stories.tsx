@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { expect, userEvent, within } from 'storybook/test';
 
 import { BlockEditor, type EditorBlock } from './BlockEditor.tsx';
 import type { BlockInsertOption } from './types.ts';
@@ -176,6 +177,22 @@ export const SchemaAwareSectionInsertion: Story = {
 			}
 		/>
 	),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement);
+		const page = within(canvasElement.ownerDocument.body);
+		const [contactActions] = canvas.getAllByRole('button', {
+			name: 'Open details and actions for block',
+		});
+
+		await userEvent.click(contactActions);
+
+		const insertAbove = await page.findByText('Insert above');
+		const insertBelow = await page.findByText('Insert below');
+
+		expect(insertAbove).toHaveAttribute('data-disabled');
+		expect(insertBelow).not.toHaveAttribute('data-disabled');
+		expect(insertBelow).toHaveAttribute('data-state', 'closed');
+	},
 };
 
 export const HeadingOne: Story = storyFor([
