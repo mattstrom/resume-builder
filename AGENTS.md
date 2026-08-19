@@ -95,6 +95,9 @@ TypeScript is set to strict mode with no unused locals/parameters.
 - Use semantic theme tokens for block editor backgrounds, borders, text, hover,
   and disabled states. Do not hard-code light colors such as `bg-white` or
   `text-zinc-*` in block editor UI.
+- Keep the Add button and grip/details menu mounted in every block control rail
+  so controls stay aligned. Disable unavailable insertion actions and omit
+  unavailable menu commands instead of removing either control.
 
 ### Block Editor Architecture
 
