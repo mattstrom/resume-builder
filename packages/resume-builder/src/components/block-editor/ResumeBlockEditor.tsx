@@ -91,14 +91,14 @@ export const ResumeBlockEditor = observer(function ResumeBlockEditor() {
 	};
 
 	return (
-		<div className="h-full overflow-y-auto bg-zinc-100 p-5 text-zinc-950 md:p-8">
-			<main className="light mx-auto flex min-h-full w-full max-w-3xl flex-col rounded-xl border border-border bg-background px-8 py-10 text-foreground shadow-sm md:px-14">
+		<main className="h-full overflow-y-auto bg-background px-5 py-6 text-foreground md:px-8 md:py-8">
+			<div className="flex w-full flex-col">
 				<header className="mb-4 flex items-center justify-between gap-3 px-2">
 					<div>
-						<p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+						<p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 							XML block editor
 						</p>
-						<p className="text-xs text-zinc-500">
+						<p className="text-xs text-muted-foreground">
 							Each block edits its corresponding CRDT element.
 						</p>
 					</div>
@@ -112,7 +112,7 @@ export const ResumeBlockEditor = observer(function ResumeBlockEditor() {
 					onInsert={insertBlock}
 					ariaLabel="Resume XML block editor"
 				/>
-			</main>
-		</div>
+			</div>
+		</main>
 	);
 });
