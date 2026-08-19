@@ -2,8 +2,10 @@ import { HocuspocusProvider } from '@hocuspocus/provider';
 import {
 	RESUME_XML_FRAGMENT,
 	RESUME_XML_NAMESPACE,
+	parseResumeXmlElement,
 	type Resume,
 	type ResumeBullet,
+	type ResumeXmlElementNode,
 	type ResumeXmlOp,
 	resumeContentFromXml,
 	resumeToXml,
@@ -149,6 +151,22 @@ function domElementToY(element: Element): Y.XmlElement {
 	return result;
 }
 
+function parsedElementToY(element: ResumeXmlElementNode): Y.XmlElement {
+	const result = new Y.XmlElement(element.name);
+	for (const [name, value] of Object.entries(element.attributes)) {
+		result.setAttribute(name, value);
+	}
+	const children: Array<Y.XmlElement | Y.XmlText> = [];
+	if (element.text) {
+		const text = new Y.XmlText();
+		text.insert(0, element.text);
+		children.push(text);
+	}
+	children.push(...element.children.map(parsedElementToY));
+	if (children.length > 0) result.insert(0, children);
+	return result;
+}
+
 function replaceFragmentXml(fragment: Y.XmlFragment, xml: string) {
 	const validation = validateResumeXml(xml);
 	if (!validation.valid) {
@@ -247,7 +265,22 @@ export function applyXmlOpsToFragment(fragment: Y.XmlFragment, ops: readonly Res
 				parent.insert(rawIndex, [clone]);
 				break;
 			}
-			case 'insertElement':
+			case 'insertElement': {
+				const inserted = parsedElementToY(parseResumeXmlElement(op.xml));
+				if (op.position === 'append') {
+					target.insert(target.length, [inserted]);
+				} else if (op.position === 'prepend') {
+					target.insert(0, [inserted]);
+				} else {
+					const parent = target.parent;
+					if (!(parent instanceof Y.XmlElement || parent instanceof Y.XmlFragment)) {
+						throw new Error('Target has no XML parent');
+					}
+					const index = parent.toArray().indexOf(target);
+					parent.insert(op.position === 'before' ? index : index + 1, [inserted]);
+				}
+				break;
+			}
 			case 'removeNode':
 				throw new Error(`XML operation "${op.op}" is not supported by the resume editor`);
 		}

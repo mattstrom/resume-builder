@@ -1,6 +1,43 @@
-import type { ResumeXmlElementNode } from '@resume-builder/entities';
+import type { ResumeXmlElementNode, ResumeXmlOp } from '@resume-builder/entities';
+import { nanoid } from 'nanoid';
 
-import type { BlockType, EditorBlock, EditorBlockBinding } from './types.ts';
+import type { BlockInsertOption, BlockType, EditorBlock, EditorBlockBinding } from './types.ts';
+
+const insertOptionsByParent: Record<string, BlockInsertOption[]> = {
+	resume: [
+		{ id: 'contact-info', label: 'Contact', type: 'section' },
+		{ id: 'education', label: 'Education', type: 'section' },
+		{ id: 'work-experience', label: 'Work experience', type: 'section' },
+		{ id: 'skills', label: 'Skills', type: 'section' },
+		{ id: 'projects', label: 'Projects', type: 'section' },
+		{ id: 'volunteer-experiences', label: 'Volunteering', type: 'section' },
+	],
+	education: [{ id: 'degree', label: 'Education entry', type: 'record' }],
+	'work-experience': [{ id: 'job', label: 'Work experience', type: 'record' }],
+	skills: [
+		{ id: 'skill', label: 'Skill', type: 'bullet' },
+		{ id: 'skill-group', label: 'Skill group', type: 'record' },
+	],
+	projects: [{ id: 'project', label: 'Project', type: 'record' }],
+	'volunteer-experiences': [
+		{ id: 'volunteering', label: 'Volunteer experience', type: 'record' },
+	],
+	responsibilities: [{ id: 'responsibility', label: 'Responsibility', type: 'bullet' }],
+	items: [{ id: 'item', label: 'Highlight', type: 'bullet' }],
+	technologies: [{ id: 'technology', label: 'Technology', type: 'bullet' }],
+	'skill-group': [{ id: 'item', label: 'Skill', type: 'bullet' }],
+};
+
+const rootElementOrder = [
+	'contact-info',
+	'headline',
+	'summary',
+	'education',
+	'work-experience',
+	'skills',
+	'projects',
+	'volunteer-experiences',
+];
 
 interface AttributeDefinition {
 	name: string;
@@ -23,10 +60,16 @@ const sectionDefinitions: Record<string, { title: string; reorderable: boolean }
 
 const recordDefinitions: Record<
 	string,
-	{ label: string; text?: AttributeDefinition; attributes: AttributeDefinition[] }
+	{
+		label: string;
+		schemaLabel: string;
+		text?: AttributeDefinition;
+		attributes: AttributeDefinition[];
+	}
 > = {
 	job: {
 		label: 'role',
+		schemaLabel: 'Work experience',
 		attributes: [
 			{ name: 'title', label: 'Position', placeholder: 'Position', type: 'heading-3' },
 			{ name: 'company', label: 'Company', placeholder: 'Company', type: 'heading-3' },
@@ -47,6 +90,7 @@ const recordDefinitions: Record<
 	},
 	project: {
 		label: 'project',
+		schemaLabel: 'Project',
 		attributes: [
 			{ name: 'name', label: 'Project name', placeholder: 'Project name', type: 'heading-3' },
 			{ name: 'type', label: 'Project type', placeholder: 'Project type', type: 'paragraph' },
@@ -54,6 +98,7 @@ const recordDefinitions: Record<
 	},
 	degree: {
 		label: 'education',
+		schemaLabel: 'Education',
 		attributes: [
 			{ name: 'title', label: 'Degree', placeholder: 'Degree', type: 'heading-3' },
 			{
@@ -78,6 +123,7 @@ const recordDefinitions: Record<
 	},
 	volunteering: {
 		label: 'volunteer role',
+		schemaLabel: 'Volunteer experience',
 		attributes: [
 			{
 				name: 'title',
@@ -108,12 +154,14 @@ const recordDefinitions: Record<
 	},
 	'skill-group': {
 		label: 'skill group',
+		schemaLabel: 'Skill group',
 		attributes: [
 			{ name: 'name', label: 'Skill group', placeholder: 'Skill group', type: 'heading-3' },
 		],
 	},
 	skill: {
 		label: 'skill',
+		schemaLabel: 'Skill',
 		text: { name: '', label: 'Skill', placeholder: 'Skill', type: 'bullet' },
 		attributes: [
 			{
@@ -184,6 +232,8 @@ function elementBlock(node: ResumeXmlElementNode): EditorBlock {
 			type: 'section',
 			text: section.title,
 			ariaLabel: section.title,
+			schemaType: node.name,
+			schemaLabel: section.title,
 			readOnly: true,
 			allowChildReorder: section.reorderable,
 			children: childBlocks(node),
@@ -197,6 +247,8 @@ function elementBlock(node: ResumeXmlElementNode): EditorBlock {
 			type: 'record',
 			text: '',
 			ariaLabel: record.label,
+			schemaType: node.name,
+			schemaLabel: record.schemaLabel,
 			readOnly: true,
 			children: [
 				...(record.text ? [textBlock(node, record.text)] : []),
@@ -249,6 +301,140 @@ export function findEditorBlock(
 		if (nested) return nested;
 	}
 	return undefined;
+}
+
+function findXmlNode(node: ResumeXmlElementNode, xmlId: string): ResumeXmlElementNode | undefined {
+	if (node.xmlId === xmlId) return node;
+	for (const child of node.children) {
+		const nested = findXmlNode(child, xmlId);
+		if (nested) return nested;
+	}
+	return undefined;
+}
+
+function isXmlElementBlock(block: EditorBlock) {
+	if (!block.binding) return true;
+	return block.binding.kind === 'text' && block.id === block.binding.xmlId;
+}
+
+export function getXmlChildInsertIndex(
+	blocks: readonly EditorBlock[],
+	parentBlockId: string | undefined,
+	visualIndex: number,
+) {
+	const siblings = parentBlockId ? findEditorBlock(blocks, parentBlockId)?.children : blocks;
+	return (siblings ?? []).slice(0, visualIndex).filter(isXmlElementBlock).length;
+}
+
+export function getResumeXmlInsertOptions(
+	root: ResumeXmlElementNode,
+	parentXmlId: string,
+	childIndex: number,
+): readonly BlockInsertOption[] {
+	const parent = findXmlNode(root, parentXmlId);
+	if (!parent) return [];
+	const options = insertOptionsByParent[parent.name] ?? [];
+	if (parent.name === 'resume') {
+		const previousRank = rootElementOrder.indexOf(parent.children[childIndex - 1]?.name ?? '');
+		const nextName = parent.children[childIndex]?.name;
+		const nextRank = nextName ? rootElementOrder.indexOf(nextName) : rootElementOrder.length;
+		const existing = new Set(parent.children.map((child) => child.name));
+		return options.filter((option) => {
+			const rank = rootElementOrder.indexOf(option.id);
+			return !existing.has(option.id) && rank > previousRank && rank < nextRank;
+		});
+	}
+
+	// The skills grammar is skill* followed by skill-group*. Filter the menu so
+	// the requested slot can never create an out-of-order sequence.
+	if (parent.name === 'skills') {
+		const before = parent.children.slice(0, childIndex);
+		const after = parent.children.slice(childIndex);
+		return options.filter((option) => {
+			if (option.id === 'skill') {
+				return before.every((child) => child.name !== 'skill-group');
+			}
+			return after.every((child) => child.name !== 'skill');
+		});
+	}
+
+	return options;
+}
+
+function xmlElement(name: string, id: string, content = '', attributes = '') {
+	return `<${name} xml:id="${id}"${attributes}>${content}</${name}>`;
+}
+
+export function createResumeXmlElement(
+	elementName: string,
+	createId: () => string = () => `n_${nanoid()}`,
+) {
+	const leaf = (name: string) => xmlElement(name, createId());
+	const container = (name: string) => xmlElement(name, createId());
+
+	switch (elementName) {
+		case 'contact-info':
+			return xmlElement(
+				'contact-info',
+				createId(),
+				['name', 'email', 'phone', 'location', 'github', 'linkedin', 'personal-website']
+					.map(leaf)
+					.join(''),
+			);
+		case 'education':
+		case 'work-experience':
+		case 'skills':
+		case 'projects':
+		case 'volunteer-experiences':
+			return xmlElement(elementName, createId());
+		case 'degree':
+			return xmlElement('degree', createId(), leaf('description'));
+		case 'job':
+			return xmlElement(
+				'job',
+				createId(),
+				leaf('description') + container('responsibilities'),
+			);
+		case 'project':
+			return xmlElement(
+				'project',
+				createId(),
+				leaf('description') + container('items') + container('technologies'),
+			);
+		case 'volunteering':
+			return xmlElement(
+				'volunteering',
+				createId(),
+				leaf('description') + container('responsibilities'),
+			);
+		case 'skill-group':
+			return xmlElement('skill-group', createId());
+		case 'skill':
+		case 'responsibility':
+		case 'item':
+		case 'technology':
+			return xmlElement(elementName, createId());
+		default:
+			throw new Error(`Unsupported resume XML element "${elementName}"`);
+	}
+}
+
+export function createResumeXmlInsertOp(
+	root: ResumeXmlElementNode,
+	parentXmlId: string,
+	childIndex: number,
+	elementName: string,
+): ResumeXmlOp | undefined {
+	const parent = findXmlNode(root, parentXmlId);
+	if (!parent) return undefined;
+	const nextSibling = parent.children[childIndex];
+
+	return {
+		op: 'insertElement',
+		target: { xmlId: nextSibling?.xmlId ?? parent.xmlId },
+		position: nextSibling ? 'before' : 'append',
+		xml: createResumeXmlElement(elementName),
+	};
 }
 
 export function getMovableXmlChild(

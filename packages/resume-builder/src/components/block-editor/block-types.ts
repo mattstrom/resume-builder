@@ -45,8 +45,18 @@ export const blockTypes: BlockTypeDefinition[] = [
 	},
 	{ type: 'callout', label: 'Callout', icon: Lightbulb, component: CalloutBlock },
 	{ type: 'divider', label: 'Divider', icon: Minus, component: DividerBlock },
-	{ type: 'section', label: 'Section', icon: Rows3, component: SectionBlock },
-	{ type: 'record', label: 'Entry', icon: SquareStack, component: RecordBlock },
+	{
+		type: 'section',
+		label: 'Section',
+		icon: Rows3,
+		component: SectionBlock,
+	},
+	{
+		type: 'record',
+		label: 'Entry',
+		icon: SquareStack,
+		component: RecordBlock,
+	},
 ];
 
 export const blockTypesByName = new Map(

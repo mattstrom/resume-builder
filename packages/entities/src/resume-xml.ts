@@ -116,14 +116,26 @@ export function parseResumeXmlElements(xml: string): ResumeXmlElementNode {
 		throw new Error(`Invalid resume XML: ${validation.errors.join('; ')}`);
 	}
 
-	const parsed = orderedParser.parse(xml) as OrderedXmlNode[];
-	const root = parsed.map(orderedElement).find((node) => node?.name === 'resume');
+	const root = parseResumeXmlElement(xml);
 
-	if (!root) {
+	if (root.name !== 'resume') {
 		throw new Error('Resume XML has no resume root element');
 	}
 
 	return root;
+}
+
+/** Parses one well-formed XML element without applying the resume root schema. */
+export function parseResumeXmlElement(xml: string): ResumeXmlElementNode {
+	if (/<!DOCTYPE|<!ENTITY/i.test(xml)) {
+		throw new Error('DTDs and entity declarations are not allowed');
+	}
+	const wellFormed = XMLValidator.validate(xml);
+	if (wellFormed !== true) throw new Error(`Invalid XML element: ${wellFormed.err.msg}`);
+	const parsed = orderedParser.parse(xml) as OrderedXmlNode[];
+	const elements = parsed.map(orderedElement).filter((node) => node !== null);
+	if (elements.length !== 1) throw new Error('Expected exactly one XML element');
+	return elements[0]!;
 }
 
 function escapeText(value: unknown): string {

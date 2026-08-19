@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { blockTypes } from './block-types.ts';
 import { getNumberedListOrdinal } from './blocks/NumberedListBlock.tsx';
 import type { EditorBlock } from './types.ts';
 
@@ -24,5 +25,12 @@ describe('numbered list blocks', () => {
 		];
 
 		expect(getNumberedListOrdinal(blocks, 2)).toBe(1);
+	});
+});
+
+describe('block transformations', () => {
+	it('registers entries and sections as schema-backed container types', () => {
+		expect(blockTypes.find(({ type }) => type === 'section')?.label).toBe('Section');
+		expect(blockTypes.find(({ type }) => type === 'record')?.label).toBe('Entry');
 	});
 });

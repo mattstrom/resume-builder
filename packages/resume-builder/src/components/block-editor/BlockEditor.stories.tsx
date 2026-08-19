@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
 import { BlockEditor, type EditorBlock } from './BlockEditor.tsx';
+import type { BlockInsertOption } from './types.ts';
 
 const initialBlocks: EditorBlock[] = [
 	{ id: 'name', type: 'heading-1', text: 'Jordan Taylor', placeholder: 'Your name' },
@@ -24,7 +25,13 @@ const initialBlocks: EditorBlock[] = [
 	{ id: 'divider', type: 'divider', text: '', ariaLabel: 'End of resume' },
 ];
 
-function BlockEditorStory({ initialValue }: { initialValue: EditorBlock[] }) {
+function BlockEditorStory({
+	initialValue,
+	getInsertOptions,
+}: {
+	initialValue: EditorBlock[];
+	getInsertOptions?: (blocks: readonly EditorBlock[], index: number) => BlockInsertOption[];
+}) {
 	const [blocks, setBlocks] = useState(initialValue);
 	return (
 		<div className="mx-auto max-w-2xl rounded-xl border bg-background p-8 shadow-sm">
@@ -43,10 +50,55 @@ function BlockEditorStory({ initialValue }: { initialValue: EditorBlock[] }) {
 						return next;
 					})
 				}
-				onTypeChange={(blockId, type) =>
+				onTypeChange={(blockId, type, schemaType) =>
 					setBlocks((current) =>
-						current.map((block) => (block.id === blockId ? { ...block, type } : block)),
+						current.map((block) =>
+							block.id === blockId
+								? {
+										...block,
+										type,
+										ariaLabel: schemaType ?? block.ariaLabel,
+										schemaType,
+										schemaLabel: schemaType,
+										children:
+											type === 'record' || type === 'section'
+												? (block.children ?? [])
+												: undefined,
+									}
+								: block,
+						),
 					)
+				}
+				getInsertOptions={
+					getInsertOptions
+						? (parentBlockId, index) =>
+								parentBlockId ? [] : getInsertOptions(blocks, index)
+						: undefined
+				}
+				onInsert={(_, index, option) =>
+					setBlocks((current) => {
+						const next = [...current];
+						next.splice(index, 0, {
+							id: `${option.id}-${crypto.randomUUID()}`,
+							type: option.type,
+							text: '',
+							ariaLabel: option.label,
+							schemaType:
+								option.type === 'record' || option.type === 'section'
+									? option.id
+									: undefined,
+							schemaLabel:
+								option.type === 'record' || option.type === 'section'
+									? option.label
+									: undefined,
+							placeholder: `Add ${option.label.toLowerCase()}…`,
+							children:
+								option.type === 'record' || option.type === 'section'
+									? []
+									: undefined,
+						});
+						return next;
+					})
 				}
 			/>
 		</div>
@@ -73,6 +125,58 @@ function storyFor(blocks: EditorBlock[]): Story {
 }
 
 export const ResumeContent: Story = storyFor(initialBlocks);
+
+export const SchemaAwareInsertion: Story = {
+	args: { blocks: initialBlocks, onChange: () => undefined },
+	render: () => (
+		<BlockEditorStory
+			initialValue={[
+				{ id: 'skill-1', type: 'bullet', text: 'TypeScript' },
+				{ id: 'skill-2', type: 'bullet', text: 'Design systems' },
+				{ id: 'group-1', type: 'record', text: 'Frontend', children: [] },
+			]}
+			getInsertOptions={(blocks, index) => {
+				const before = blocks.slice(0, index);
+				const after = blocks.slice(index);
+				return [
+					...(before.every((block) => block.type !== 'record')
+						? [{ id: 'skill', label: 'Skill', type: 'bullet' as const }]
+						: []),
+					...(after.every((block) => block.type !== 'bullet')
+						? [{ id: 'skill-group', label: 'Skill group', type: 'record' as const }]
+						: []),
+				];
+			}}
+		/>
+	),
+};
+
+export const SchemaAwareSectionInsertion: Story = {
+	args: { blocks: initialBlocks, onChange: () => undefined },
+	render: () => (
+		<BlockEditorStory
+			initialValue={[
+				{
+					id: 'contact',
+					type: 'section',
+					text: 'Contact',
+					readOnly: true,
+					children: [],
+				},
+				{
+					id: 'work',
+					type: 'section',
+					text: 'Work experience',
+					readOnly: true,
+					children: [],
+				},
+			]}
+			getInsertOptions={(_, index) =>
+				index === 1 ? [{ id: 'education', label: 'Education', type: 'section' }] : []
+			}
+		/>
+	),
+};
 
 export const HeadingOne: Story = storyFor([
 	{ id: 'heading-1', type: 'heading-1', text: 'Jordan Taylor', placeholder: 'Heading 1' },

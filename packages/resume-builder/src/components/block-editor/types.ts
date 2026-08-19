@@ -22,10 +22,18 @@ export interface EditorBlock {
 	text: string;
 	placeholder?: string;
 	ariaLabel?: string;
+	schemaType?: string;
+	schemaLabel?: string;
 	readOnly?: boolean;
 	children?: EditorBlock[];
 	allowChildReorder?: boolean;
 	binding?: EditorBlockBinding;
+}
+
+export interface BlockInsertOption {
+	id: string;
+	label: string;
+	type: BlockType;
 }
 
 export interface BlockRendererProps {

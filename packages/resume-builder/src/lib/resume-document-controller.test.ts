@@ -131,6 +131,39 @@ describe('applyXmlOpsToFragment', () => {
 		expect(jobs[1]?.getAttribute('title')).toBe('Engineer');
 		expect(jobs[1]?.toString()).toContain('Updated');
 	});
+
+	it('inserts XML elements before a sibling or at the end of a container', () => {
+		const document = new Y.Doc();
+		const fragment = document.getXmlFragment('resume');
+		const root = new Y.XmlElement('resume');
+		root.setAttribute('xml:id', 'resume-1');
+		const section = new Y.XmlElement('skills');
+		section.setAttribute('xml:id', 'skills');
+		const existing = new Y.XmlElement('skill');
+		existing.setAttribute('xml:id', 'skill-2');
+		section.insert(0, [existing]);
+		root.insert(0, [section]);
+		fragment.insert(0, [root]);
+
+		applyXmlOpsToFragment(fragment, [
+			{
+				op: 'insertElement',
+				target: { xmlId: 'skill-2' },
+				position: 'before',
+				xml: '<skill xml:id="skill-1"></skill>',
+			},
+			{
+				op: 'insertElement',
+				target: { xmlId: 'skills' },
+				position: 'append',
+				xml: '<skill-group xml:id="group-1"></skill-group>',
+			},
+		]);
+
+		expect(
+			(section.toArray() as Y.XmlElement[]).map((element) => element.getAttribute('xml:id')),
+		).toEqual(['skill-1', 'skill-2', 'group-1']);
+	});
 });
 
 describe('LocalResumeController.moveArrayItem', () => {

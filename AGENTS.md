@@ -87,10 +87,14 @@ TypeScript is set to strict mode with no unused locals/parameters.
 
 ### Resume Editor Controls
 
-- Treat the resume canvas as paper, regardless of the application theme.
-- Do not use dark mode styling for controls rendered on or immediately over the
-  resume. Resume inputs, inline editors, and floating controls must retain a
-  light paper appearance with a white background and dark, readable text.
+- Blocks and their controls must respect the light/dark mode set by their
+  nearest ancestor theme boundary (`.light` or `.dark`), which may differ from
+  the application-level theme. A container that deliberately establishes a
+  different theme, such as the print-preview paper surface, must set an explicit
+  theme boundary.
+- Use semantic theme tokens for block editor backgrounds, borders, text, hover,
+  and disabled states. Do not hard-code light colors such as `bg-white` or
+  `text-zinc-*` in block editor UI.
 
 ### Block Editor Architecture
 

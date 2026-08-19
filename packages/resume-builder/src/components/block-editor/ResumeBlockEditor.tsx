@@ -9,7 +9,10 @@ import { getActiveResumeController } from '@/lib/active-resume-controller.ts';
 import { BlockEditor } from './BlockEditor.tsx';
 import {
 	findEditorBlock,
+	createResumeXmlInsertOp,
+	getResumeXmlInsertOptions,
 	getMovableXmlChild,
+	getXmlChildInsertIndex,
 	indexBlockBindings,
 	resumeXmlToBlocks,
 } from './resume-xml-blocks.ts';
@@ -20,10 +23,8 @@ export const ResumeBlockEditor = observer(function ResumeBlockEditor() {
 	const resumeId = useResumeId();
 	const controller = getActiveResumeController(resumeId);
 	const xml = controller?.getXml();
-	const blocks = useMemo(
-		() => (xml ? resumeXmlToBlocks(parseResumeXmlElements(xml)) : []),
-		[xml],
-	);
+	const xmlTree = useMemo(() => (xml ? parseResumeXmlElements(xml) : undefined), [xml]);
+	const blocks = useMemo(() => (xmlTree ? resumeXmlToBlocks(xmlTree) : []), [xmlTree]);
 	const bindings = useMemo(() => indexBlockBindings(blocks), [blocks]);
 
 	const updateBlock = (blockId: string, value: string) => {
@@ -70,9 +71,28 @@ export const ResumeBlockEditor = observer(function ResumeBlockEditor() {
 		]);
 	};
 
+	const getInsertOptions = (parentBlockId: string | undefined, visualIndex: number) => {
+		if (!xmlTree) return [];
+		const parentXmlId = parentBlockId ?? xmlTree.xmlId;
+		const childIndex = getXmlChildInsertIndex(blocks, parentBlockId, visualIndex);
+		return getResumeXmlInsertOptions(xmlTree, parentXmlId, childIndex);
+	};
+
+	const insertBlock = (
+		parentBlockId: string | undefined,
+		visualIndex: number,
+		option: { id: string },
+	) => {
+		if (!controller || !xmlTree) return;
+		const parentXmlId = parentBlockId ?? xmlTree.xmlId;
+		const childIndex = getXmlChildInsertIndex(blocks, parentBlockId, visualIndex);
+		const op = createResumeXmlInsertOp(xmlTree, parentXmlId, childIndex, option.id);
+		if (op) controller.applyXmlOps([op]);
+	};
+
 	return (
 		<div className="h-full overflow-y-auto bg-zinc-100 p-5 text-zinc-950 md:p-8">
-			<main className="mx-auto flex min-h-full w-full max-w-3xl flex-col rounded-xl border border-zinc-200 bg-white px-8 py-10 shadow-sm md:px-14">
+			<main className="light mx-auto flex min-h-full w-full max-w-3xl flex-col rounded-xl border border-border bg-background px-8 py-10 text-foreground shadow-sm md:px-14">
 				<header className="mb-4 flex items-center justify-between gap-3 px-2">
 					<div>
 						<p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
@@ -88,6 +108,8 @@ export const ResumeBlockEditor = observer(function ResumeBlockEditor() {
 					blocks={blocks}
 					onChange={updateBlock}
 					onNestedMove={moveBlock}
+					getInsertOptions={getInsertOptions}
+					onInsert={insertBlock}
 					ariaLabel="Resume XML block editor"
 				/>
 			</main>
