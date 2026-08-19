@@ -1,4 +1,5 @@
 import { GripVertical, MoveDown, MoveUp } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -22,6 +23,7 @@ interface BlockEditorProps {
 	blocks: readonly EditorBlock[];
 	onChange: (blockId: string, text: string) => void;
 	onMove?: (fromIndex: number, toIndex: number) => void;
+	onNestedMove?: (parentBlockId: string, fromIndex: number, toIndex: number) => void;
 	onTypeChange?: (blockId: string, type: BlockType) => void;
 	className?: string;
 	ariaLabel?: string;
@@ -34,6 +36,7 @@ function EditableBlock({
 	sortable,
 	canDrag,
 	numberedListOrdinal,
+	children,
 }: {
 	block: EditorBlock;
 	onCommit: (value: string) => void;
@@ -41,6 +44,7 @@ function EditableBlock({
 	sortable: SortableBlockRenderProps;
 	canDrag: boolean;
 	numberedListOrdinal: number;
+	children?: ReactNode;
 }) {
 	const definition = blockTypesByName.get(block.type);
 	if (!definition) return null;
@@ -117,7 +121,9 @@ function EditableBlock({
 					block={block}
 					onCommit={onCommit}
 					numberedListOrdinal={numberedListOrdinal}
-				/>
+				>
+					{children}
+				</Renderer>
 			</div>
 		</div>
 	);
@@ -127,6 +133,7 @@ export function BlockEditor({
 	blocks,
 	onChange,
 	onMove,
+	onNestedMove,
 	onTypeChange,
 	className,
 	ariaLabel = 'Block editor',
@@ -146,7 +153,23 @@ export function BlockEditor({
 					sortable={sortable}
 					canDrag={Boolean(onMove)}
 					numberedListOrdinal={getNumberedListOrdinal(blocks, index)}
-				/>
+				>
+					{block.children?.length ? (
+						<BlockEditor
+							blocks={block.children}
+							onChange={onChange}
+							onMove={
+								block.allowChildReorder && onNestedMove
+									? (fromIndex, toIndex) =>
+											onNestedMove(block.id, fromIndex, toIndex)
+									: undefined
+							}
+							onNestedMove={onNestedMove}
+							onTypeChange={onTypeChange}
+							ariaLabel={`${block.ariaLabel ?? block.text} blocks`}
+						/>
+					) : null}
+				</EditableBlock>
 			)}
 		</SortableBlockList>
 	);

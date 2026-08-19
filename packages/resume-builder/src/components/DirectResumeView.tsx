@@ -33,7 +33,11 @@ export const DirectResumeView: FC = observer(() => {
 	}
 
 	if (uiStateStore.viewMode === ViewMode.Blocks) {
-		return <ResumeBlockEditor />;
+		return (
+			<ResumeProvider data={resumeData}>
+				<ResumeBlockEditor />
+			</ResumeProvider>
+		);
 	}
 
 	const templateComponent = (() => {

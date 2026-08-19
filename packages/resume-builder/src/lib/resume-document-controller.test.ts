@@ -1,10 +1,11 @@
 import type { Resume } from '@resume-builder/entities';
 import { describe, expect, it } from 'vitest';
+import * as Y from 'yjs';
 
 import { getProjectAnchorId } from '../components/sections/section-anchors.ts';
 import { ResumeCollections } from '../graphql/resume-collections.ts';
 import { reorderItems } from './reorder.ts';
-import { LocalResumeController } from './resume-document-controller.ts';
+import { applyXmlOpsToFragment, LocalResumeController } from './resume-document-controller.ts';
 
 function createResume(): Resume {
 	const createdAt = new Date('2024-01-01T00:00:00.000Z');
@@ -90,6 +91,45 @@ describe('reorderItems', () => {
 
 		expect(nextItems).toEqual(items);
 		expect(nextItems).not.toBe(items);
+	});
+});
+
+describe('applyXmlOpsToFragment', () => {
+	it('edits and moves stable XML elements without replacing the fragment', () => {
+		const document = new Y.Doc();
+		const fragment = document.getXmlFragment('resume');
+		const root = new Y.XmlElement('resume');
+		root.setAttribute('xml:id', 'resume-1');
+		const section = new Y.XmlElement('work-experience');
+		section.setAttribute('xml:id', 'work');
+		const first = new Y.XmlElement('job');
+		first.setAttribute('xml:id', 'job-1');
+		const second = new Y.XmlElement('job');
+		second.setAttribute('xml:id', 'job-2');
+		section.insert(0, [first, second]);
+		root.insert(0, [section]);
+		fragment.insert(0, [root]);
+
+		applyXmlOpsToFragment(fragment, [
+			{ op: 'setText', target: { xmlId: 'job-1' }, value: 'Updated' },
+			{
+				op: 'setAttribute',
+				target: { xmlId: 'job-1' },
+				name: 'title',
+				value: 'Engineer',
+			},
+			{
+				op: 'moveNode',
+				target: { xmlId: 'job-1' },
+				parent: { xmlId: 'work' },
+				index: 1,
+			},
+		]);
+
+		const jobs = section.toArray() as Y.XmlElement[];
+		expect(jobs.map((job) => job.getAttribute('xml:id'))).toEqual(['job-2', 'job-1']);
+		expect(jobs[1]?.getAttribute('title')).toBe('Engineer');
+		expect(jobs[1]?.toString()).toContain('Updated');
 	});
 });
 

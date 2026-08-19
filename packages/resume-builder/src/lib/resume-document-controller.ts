@@ -4,6 +4,7 @@ import {
 	RESUME_XML_NAMESPACE,
 	type Resume,
 	type ResumeBullet,
+	type ResumeXmlOp,
 	resumeContentFromXml,
 	resumeToXml,
 	validateResumeXml,
@@ -24,6 +25,7 @@ export interface ResumeDocumentController {
 	replaceXml(xml: string): void;
 	setField(path: string, value: unknown): void | Promise<void>;
 	moveArrayItem(path: string, fromIndex: number, toIndex: number): void | Promise<void>;
+	applyXmlOps(ops: readonly ResumeXmlOp[]): void | Promise<void>;
 	addCollectionItem(collection: ResumeCollectionValue): void | Promise<void>;
 	insertCollectionItem(collection: ResumeCollectionValue, index: number): void | Promise<void>;
 	removeCollectionItem(collection: ResumeCollectionValue, index: number): void | Promise<void>;
@@ -158,6 +160,98 @@ function replaceFragmentXml(fragment: Y.XmlFragment, xml: string) {
 	const root = dom.documentElement;
 	if (fragment.length > 0) fragment.delete(0, fragment.length);
 	fragment.insert(0, [domElementToY(root)]);
+}
+
+function findXmlElement(
+	container: Y.XmlFragment | Y.XmlElement,
+	xmlId: string,
+): Y.XmlElement | null {
+	for (const child of container.toArray()) {
+		if (!(child instanceof Y.XmlElement)) continue;
+		if (child.getAttribute('xml:id') === xmlId) return child;
+		const nested = findXmlElement(child, xmlId);
+		if (nested) return nested;
+	}
+	return null;
+}
+
+function cloneXmlElement(source: Y.XmlElement): Y.XmlElement {
+	const clone = new Y.XmlElement(source.nodeName);
+	for (const [name, value] of Object.entries(source.getAttributes())) {
+		clone.setAttribute(name, String(value));
+	}
+	const children = source.toArray().map((child) => {
+		if (child instanceof Y.XmlElement) return cloneXmlElement(child);
+		const text = new Y.XmlText();
+		if (child instanceof Y.XmlText && child.length > 0) text.insert(0, child.toString());
+		return text;
+	});
+	if (children.length > 0) clone.insert(0, children);
+	return clone;
+}
+
+function replaceElementText(element: Y.XmlElement, value: string) {
+	const children = element.toArray();
+	for (let index = children.length - 1; index >= 0; index -= 1) {
+		if (children[index] instanceof Y.XmlText) element.delete(index, 1);
+	}
+	const text = new Y.XmlText();
+	if (value.length > 0) text.insert(0, value);
+	element.insert(0, [text]);
+}
+
+export function applyXmlOpsToFragment(fragment: Y.XmlFragment, ops: readonly ResumeXmlOp[]) {
+	const resolve = (target: ResumeXmlOp['target']) => {
+		if ('path' in target) {
+			throw new Error('Path targets are not implemented; use a stable xml:id target');
+		}
+		const element = findXmlElement(fragment, target.xmlId);
+		if (!element) throw new Error(`XML node "${target.xmlId}" was not found`);
+		return element;
+	};
+
+	for (const op of ops) {
+		const target = resolve(op.target);
+		switch (op.op) {
+			case 'setText':
+				replaceElementText(target, op.value);
+				break;
+			case 'setAttribute':
+				if (op.name === 'xml:id' || op.name === 'schema-version') {
+					throw new Error(`Attribute "${op.name}" is immutable`);
+				}
+				target.setAttribute(op.name, op.value);
+				break;
+			case 'removeAttribute':
+				if (op.name === 'xml:id' || op.name === 'schema-version') {
+					throw new Error(`Attribute "${op.name}" is immutable`);
+				}
+				target.removeAttribute(op.name);
+				break;
+			case 'moveNode': {
+				const parent = resolve(op.parent);
+				const oldParent = target.parent;
+				if (!(oldParent instanceof Y.XmlElement)) {
+					throw new Error('The resume root cannot be moved');
+				}
+				const clone = cloneXmlElement(target);
+				oldParent.delete(oldParent.toArray().indexOf(target), 1);
+				const elementChildren = parent
+					.toArray()
+					.filter((child): child is Y.XmlElement => child instanceof Y.XmlElement);
+				const elementIndex = Math.max(0, Math.min(op.index, elementChildren.length));
+				const rawIndex =
+					elementIndex === elementChildren.length
+						? parent.length
+						: parent.toArray().indexOf(elementChildren[elementIndex]!);
+				parent.insert(rawIndex, [clone]);
+				break;
+			}
+			case 'insertElement':
+			case 'removeNode':
+				throw new Error(`XML operation "${op.op}" is not supported by the resume editor`);
+		}
+	}
 }
 
 function preserveExtensionMarkup(currentXml: string, replacementXml: string) {
@@ -442,6 +536,26 @@ export class LocalResumeController implements ResumeDocumentController {
 		this.emitSnapshot();
 	}
 
+	applyXmlOps(ops: readonly ResumeXmlOp[]) {
+		if (!this.snapshot || ops.length === 0) return;
+		const currentXml = this.getXml();
+		if (!currentXml) return;
+
+		this.pushUndoSnapshot();
+		const document = new Y.Doc();
+		const fragment = document.getXmlFragment(RESUME_XML_FRAGMENT);
+		replaceFragmentXml(fragment, currentXml);
+		document.transact(() => applyXmlOpsToFragment(fragment, ops), LOCAL_ORIGIN);
+		const xml = serializeFragment(fragment);
+		this.snapshot = {
+			...this.snapshot,
+			xml,
+			data: resumeContentFromXml(xml, this.snapshot.uid),
+		};
+		document.destroy();
+		this.options.onSnapshotChange?.(this.snapshot);
+	}
+
 	undo() {
 		if (!this.snapshot) {
 			return;
@@ -634,6 +748,11 @@ export class CrdtResumeController implements ResumeDocumentController {
 		if (JSON.stringify(items) !== JSON.stringify(reordered)) {
 			this.setField(path, reordered);
 		}
+	}
+
+	applyXmlOps(ops: readonly ResumeXmlOp[]) {
+		if (ops.length === 0) return;
+		this.doc.transact(() => applyXmlOpsToFragment(this.root, ops), LOCAL_ORIGIN);
 	}
 
 	undo() {

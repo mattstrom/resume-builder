@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Resume } from './models/resume.js';
 import {
 	RESUME_XML_NAMESPACE,
+	parseResumeXmlElements,
 	resumeContentFromXml,
 	resumeToXml,
 	validateResumeXml,
@@ -119,6 +120,26 @@ describe('resume XML', () => {
 			_id: 'volunteering-responsibility-1',
 			text: 'Mentored 12 students',
 			bulletId: 'bullet-3',
+		});
+	});
+
+	it('parses an ordered element tree for structural editors', () => {
+		const root = parseResumeXmlElements(resumeToXml(resume));
+		const work = root.children.find((element) => element.name === 'work-experience');
+		const job = work?.children[0];
+		const responsibility = job?.children.find((element) => element.name === 'responsibilities')
+			?.children[0];
+
+		expect(root.name).toBe('resume');
+		expect(job).toMatchObject({
+			name: 'job',
+			xmlId: 'job-1',
+			attributes: { company: 'Acme', title: 'Engineer' },
+		});
+		expect(responsibility).toMatchObject({
+			name: 'responsibility',
+			xmlId: 'responsibility-1',
+			text: 'Improved latency by 30%',
 		});
 	});
 

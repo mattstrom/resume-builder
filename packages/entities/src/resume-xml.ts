@@ -37,6 +37,14 @@ export interface ResumeXmlValidationResult {
 	errors: string[];
 }
 
+export interface ResumeXmlElementNode {
+	name: string;
+	xmlId: string;
+	attributes: Record<string, string>;
+	text: string;
+	children: ResumeXmlElementNode[];
+}
+
 type XmlNode = Record<string, unknown>;
 
 const parser = new XMLParser({
@@ -47,6 +55,76 @@ const parser = new XMLParser({
 	trimValues: false,
 	processEntities: true,
 });
+
+const orderedParser = new XMLParser({
+	preserveOrder: true,
+	ignoreAttributes: false,
+	attributeNamePrefix: '',
+	removeNSPrefix: false,
+	parseTagValue: false,
+	trimValues: false,
+	processEntities: true,
+});
+
+type OrderedXmlNode = Record<string, unknown> & {
+	':@'?: Record<string, unknown>;
+};
+
+function orderedElement(node: OrderedXmlNode): ResumeXmlElementNode | null {
+	const name = Object.keys(node).find(
+		(key) => key !== ':@' && key !== '#text' && key !== '#cdata' && !key.startsWith('?'),
+	);
+	if (!name) {
+		return null;
+	}
+
+	const attributes = Object.fromEntries(
+		Object.entries(node[':@'] ?? {}).map(([key, value]) => [key, String(value)]),
+	);
+	const entries = Array.isArray(node[name]) ? (node[name] as OrderedXmlNode[]) : [];
+	const children: ResumeXmlElementNode[] = [];
+	let directText = '';
+
+	for (const entry of entries) {
+		if ('#text' in entry || '#cdata' in entry) {
+			directText += String(entry['#text'] ?? entry['#cdata'] ?? '');
+			continue;
+		}
+		const child = orderedElement(entry);
+		if (child) {
+			children.push(child);
+		}
+	}
+
+	return {
+		name,
+		xmlId: attributes['xml:id'] ?? attributes.id ?? '',
+		attributes,
+		text: directText,
+		children,
+	};
+}
+
+/**
+ * Parses canonical resume XML into an ordered, presentation-neutral element
+ * tree. Consumers such as the block editor can use this without first
+ * projecting the CRDT document through the legacy ResumeContent model.
+ */
+export function parseResumeXmlElements(xml: string): ResumeXmlElementNode {
+	const validation = validateResumeXml(xml);
+	if (!validation.valid) {
+		throw new Error(`Invalid resume XML: ${validation.errors.join('; ')}`);
+	}
+
+	const parsed = orderedParser.parse(xml) as OrderedXmlNode[];
+	const root = parsed.map(orderedElement).find((node) => node?.name === 'resume');
+
+	if (!root) {
+		throw new Error('Resume XML has no resume root element');
+	}
+
+	return root;
+}
 
 function escapeText(value: unknown): string {
 	return String(value ?? '')
@@ -76,8 +154,11 @@ function element(
 }
 
 function normalizeId(value: unknown): string | null {
-	if (typeof value !== 'string' || value.length === 0) return null;
+	if (typeof value !== 'string' || value.length === 0) {
+		return null;
+	}
 	const normalized = value.replace(/[^A-Za-z0-9_.-]/g, '_');
+
 	return `n_${normalized}`;
 }
 
@@ -87,6 +168,7 @@ function hash(value: string): string {
 		result ^= value.charCodeAt(index);
 		result = Math.imul(result, 16777619);
 	}
+
 	return (result >>> 0).toString(36);
 }
 
@@ -110,6 +192,7 @@ function resumeBulletElement(
 		bullet._id && /^[A-Za-z_][A-Za-z0-9_.-]*$/.test(bullet._id)
 			? bullet._id
 			: createResumeXmlId(resumeId, path, bullet._id);
+
 	return element(name, xmlId, escapeText(bullet.text), {
 		'bullet-id': bullet.bulletId,
 	});
@@ -126,6 +209,7 @@ export function resumeToXml(resume: Resume): string {
 		.map((degree, index) => {
 			const path = `education.${index}`;
 			const degreeId = createResumeXmlId(id, path, degree._id);
+
 			return element(
 				'degree',
 				degreeId,
@@ -154,6 +238,7 @@ export function resumeToXml(resume: Resume): string {
 					),
 				)
 				.join('');
+
 			return element(
 				'job',
 				jobId,
@@ -179,6 +264,7 @@ export function resumeToXml(resume: Resume): string {
 	const skills = (content.skills ?? [])
 		.map((skill, index) => {
 			const path = `skills.${index}`;
+
 			return element(
 				'skill',
 				createResumeXmlId(id, path, skill._id),
@@ -191,6 +277,7 @@ export function resumeToXml(resume: Resume): string {
 	const skillGroups = (content.skillGroups ?? [])
 		.map((group, index) => {
 			const path = `skill-groups.${index}`;
+
 			return element(
 				'skill-group',
 				createResumeXmlId(id, path, group._id),
@@ -207,6 +294,7 @@ export function resumeToXml(resume: Resume): string {
 	const projects = (content.projects ?? [])
 		.map((project, index) => {
 			const path = `projects.${index}`;
+
 			return element(
 				'project',
 				createResumeXmlId(id, path, project._id),
@@ -247,6 +335,7 @@ export function resumeToXml(resume: Resume): string {
 	const volunteering = (content.volunteering ?? [])
 		.map((entry, index) => {
 			const path = `volunteer-experiences.${index}`;
+
 			return element(
 				'volunteering',
 				createResumeXmlId(id, path, entry._id),
@@ -314,14 +403,24 @@ function asNode(value: unknown): XmlNode {
 }
 
 function asArray(value: unknown): unknown[] {
-	if (value === undefined || value === null) return [];
+	if (value === undefined || value === null) {
+		return [];
+	}
+
 	return Array.isArray(value) ? value : [value];
 }
 
 function text(value: unknown): string {
-	if (typeof value === 'string' || typeof value === 'number') return String(value);
-	if (Array.isArray(value)) return value.map(text).join('');
-	if (!value || typeof value !== 'object') return '';
+	if (typeof value === 'string' || typeof value === 'number') {
+		return String(value);
+	}
+	if (Array.isArray(value)) {
+		return value.map(text).join('');
+	}
+	if (!value || typeof value !== 'object') {
+		return '';
+	}
+
 	return Object.entries(value as XmlNode)
 		.filter(([key]) => !key.startsWith('@_'))
 		.map(([, entry]) => text(entry))
@@ -330,13 +429,17 @@ function text(value: unknown): string {
 
 function attribute(node: XmlNode, name: string): string {
 	const value = node[`@_${name}`];
+
 	return value === undefined || value === null ? '' : String(value);
 }
 
 function optionalNumber(node: XmlNode, name: string): number | undefined {
 	const value = attribute(node, name);
-	if (value === '') return undefined;
+	if (value === '') {
+		return undefined;
+	}
 	const parsed = Number(value);
+
 	return Number.isFinite(parsed) ? parsed : undefined;
 }
 
@@ -346,6 +449,7 @@ function nodeId(node: XmlNode): string {
 
 function resumeBullet(value: unknown): ResumeBullet {
 	const node = asNode(value);
+
 	return {
 		_id: nodeId(node),
 		text: text(node),
@@ -357,16 +461,20 @@ export function validateResumeXml(xml: string): ResumeXmlValidationResult {
 	const errors: string[] = [];
 	if (/<!DOCTYPE|<!ENTITY/i.test(xml)) {
 		errors.push('DTDs and entity declarations are not allowed');
+
 		return { valid: false, errors };
 	}
 	const wellFormed = XMLValidator.validate(xml);
 	if (wellFormed !== true) {
 		errors.push(wellFormed.err.msg);
+
 		return { valid: false, errors };
 	}
 	const root = asNode(parser.parse(xml)).resume;
 	const resume = asNode(root);
-	if (!root) errors.push('Expected a resume root element');
+	if (!root) {
+		errors.push('Expected a resume root element');
+	}
 	if (attribute(resume, 'schema-version') !== String(RESUME_XML_SCHEMA_VERSION)) {
 		errors.push(`Expected schema-version="${RESUME_XML_SCHEMA_VERSION}"`);
 	}
@@ -380,8 +488,11 @@ export function validateResumeXml(xml: string): ResumeXmlValidationResult {
 		'projects',
 		'volunteer-experiences',
 	]) {
-		if (resume[section] === undefined) errors.push(`Missing ${section} element`);
+		if (resume[section] === undefined) {
+			errors.push(`Missing ${section} element`);
+		}
 	}
+
 	return { valid: errors.length === 0, errors };
 }
 
@@ -414,6 +525,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		},
 		education: asArray(education.degree).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,
@@ -425,6 +537,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		}),
 		workExperience: asArray(work.job).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,
@@ -442,6 +555,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		}),
 		skills: asArray(skills.skill).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,
@@ -452,6 +566,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		}),
 		skillGroups: asArray(skills['skill-group']).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,
@@ -461,6 +576,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		}),
 		projects: asArray(projects.project).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,
@@ -475,6 +591,7 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 		}),
 		volunteering: asArray(volunteering.volunteering).map((value) => {
 			const node = asNode(value);
+
 			return {
 				_id: nodeId(node),
 				uid,

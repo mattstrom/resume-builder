@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export type BlockType =
 	| 'heading-1'
 	| 'heading-2'
@@ -6,7 +8,13 @@ export type BlockType =
 	| 'bullet'
 	| 'numbered-list'
 	| 'callout'
-	| 'divider';
+	| 'divider'
+	| 'section'
+	| 'record';
+
+export type EditorBlockBinding =
+	| { kind: 'text'; xmlId: string }
+	| { kind: 'attribute'; xmlId: string; name: string };
 
 export interface EditorBlock {
 	id: string;
@@ -15,10 +23,14 @@ export interface EditorBlock {
 	placeholder?: string;
 	ariaLabel?: string;
 	readOnly?: boolean;
+	children?: EditorBlock[];
+	allowChildReorder?: boolean;
+	binding?: EditorBlockBinding;
 }
 
 export interface BlockRendererProps {
 	block: EditorBlock;
 	onCommit: (value: string) => void;
 	numberedListOrdinal: number;
+	children?: ReactNode;
 }

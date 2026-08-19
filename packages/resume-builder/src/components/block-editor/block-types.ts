@@ -7,6 +7,8 @@ import {
 	ListOrdered,
 	Minus,
 	Pilcrow,
+	Rows3,
+	SquareStack,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -18,6 +20,8 @@ import { HeadingThreeBlock } from './blocks/HeadingThreeBlock.tsx';
 import { HeadingTwoBlock } from './blocks/HeadingTwoBlock.tsx';
 import { NumberedListBlock } from './blocks/NumberedListBlock.tsx';
 import { ParagraphBlock } from './blocks/ParagraphBlock.tsx';
+import { RecordBlock } from './blocks/RecordBlock.tsx';
+import { SectionBlock } from './blocks/SectionBlock.tsx';
 import type { BlockRendererProps, BlockType } from './types.ts';
 
 export interface BlockTypeDefinition {
@@ -41,6 +45,8 @@ export const blockTypes: BlockTypeDefinition[] = [
 	},
 	{ type: 'callout', label: 'Callout', icon: Lightbulb, component: CalloutBlock },
 	{ type: 'divider', label: 'Divider', icon: Minus, component: DividerBlock },
+	{ type: 'section', label: 'Section', icon: Rows3, component: SectionBlock },
+	{ type: 'record', label: 'Entry', icon: SquareStack, component: RecordBlock },
 ];
 
 export const blockTypesByName = new Map(

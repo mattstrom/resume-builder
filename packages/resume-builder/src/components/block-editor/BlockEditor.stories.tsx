@@ -119,3 +119,30 @@ export const Callout: Story = storyFor([
 export const Divider: Story = storyFor([
 	{ id: 'divider', type: 'divider', text: '', ariaLabel: 'Section divider' },
 ]);
+
+export const Section: Story = storyFor([
+	{
+		id: 'experience',
+		type: 'section',
+		text: 'Work Experience',
+		readOnly: true,
+		children: [
+			{ id: 'role', type: 'heading-3', text: 'Staff Engineer' },
+			{ id: 'impact', type: 'bullet', text: 'Reduced build time by 40%.' },
+		],
+	},
+]);
+
+export const Record: Story = storyFor([
+	{
+		id: 'job',
+		type: 'record',
+		text: '',
+		readOnly: true,
+		children: [
+			{ id: 'title', type: 'heading-3', text: 'Staff Engineer' },
+			{ id: 'company', type: 'heading-3', text: 'Acme' },
+			{ id: 'dates', type: 'paragraph', text: '2022–Present' },
+		],
+	},
+]);
