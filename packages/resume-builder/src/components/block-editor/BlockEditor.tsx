@@ -86,94 +86,92 @@ function EditableBlock({
 			data-block-id={block.id}
 		>
 			<div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/block:opacity-100 group-focus-within/block:opacity-100">
-				{getInsertOptions && onInsert ? (
-					<AddBlockButton
-						blockLabel={(block.ariaLabel ?? block.text) || 'block'}
-						getOptions={(position) =>
-							getInsertOptions(position === 'before' ? index : index + 1)
-						}
-						onInsert={(position, option) =>
-							onInsert(position === 'before' ? index : index + 1, option)
-						}
-					/>
-				) : null}
-				{canDrag || (onTypeChange && !block.readOnly) || block.schemaType ? (
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className="size-7 text-muted-foreground"
-								aria-label={`Open actions for ${block.ariaLabel ?? 'block'}`}
-								title="Click for actions · Drag to reorder · Option/Alt + arrow keys"
-								{...(canDrag ? sortable.dragHandleProps : {})}
-							>
-								<GripVertical />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start" className="min-w-56">
-							<DropdownMenuGroup>
+				<AddBlockButton
+					blockLabel={(block.ariaLabel ?? block.text) || 'block'}
+					getOptions={(position) =>
+						getInsertOptions?.(position === 'before' ? index : index + 1) ?? []
+					}
+					onInsert={(position, option) =>
+						onInsert?.(position === 'before' ? index : index + 1, option)
+					}
+				/>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="size-7 text-muted-foreground"
+							aria-label={`Open details and actions for ${block.ariaLabel ?? 'block'}`}
+							title={
+								canDrag
+									? 'Click for actions · Drag to reorder · Option/Alt + arrow keys'
+									: 'Click for block details and actions'
+							}
+							{...(canDrag ? sortable.dragHandleProps : {})}
+						>
+							<GripVertical />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="start" className="min-w-56">
+						<DropdownMenuGroup>
+							<DropdownMenuLabel className="flex items-center gap-4">
+								Block type
+								<DropdownMenuShortcut>{definition.label}</DropdownMenuShortcut>
+							</DropdownMenuLabel>
+							{(block.type === 'record' || block.type === 'section') &&
+							block.schemaType ? (
 								<DropdownMenuLabel className="flex items-center gap-4">
-									Block type
-									<DropdownMenuShortcut>{definition.label}</DropdownMenuShortcut>
+									Schema type
+									<DropdownMenuShortcut>
+										{block.schemaLabel ?? block.schemaType}
+									</DropdownMenuShortcut>
 								</DropdownMenuLabel>
-								{(block.type === 'record' || block.type === 'section') &&
-								block.schemaType ? (
-									<DropdownMenuLabel className="flex items-center gap-4">
-										Schema type
-										<DropdownMenuShortcut>
-											{block.schemaLabel ?? block.schemaType}
-										</DropdownMenuShortcut>
-									</DropdownMenuLabel>
-								) : null}
-							</DropdownMenuGroup>
-							{(onTypeChange && !block.readOnly) || canDrag ? (
-								<DropdownMenuSeparator />
 							) : null}
-							{onTypeChange && !block.readOnly ? (
-								<>
-									<DropdownMenuLabel>Turn into</DropdownMenuLabel>
-									<DropdownMenuGroup>
-										<BlockOptionMenuItems
-											options={turnIntoOptions}
-											onSelect={(option) =>
-												onTypeChange(
-													option.type,
-													option.type === 'record' ||
-														option.type === 'section'
-														? option.id
-														: undefined,
-												)
-											}
-										/>
-									</DropdownMenuGroup>
-								</>
-							) : null}
-							{canDrag ? (
-								<>
-									{onTypeChange && !block.readOnly ? (
-										<DropdownMenuSeparator />
-									) : null}
-									<DropdownMenuGroup>
-										<DropdownMenuItem
-											disabled={!sortable.canMoveBackward}
-											onSelect={sortable.moveBackward}
-										>
-											<MoveUp /> Move up
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											disabled={!sortable.canMoveForward}
-											onSelect={sortable.moveForward}
-										>
-											<MoveDown /> Move down
-										</DropdownMenuItem>
-									</DropdownMenuGroup>
-								</>
-							) : null}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				) : null}
+						</DropdownMenuGroup>
+						{(onTypeChange && !block.readOnly) || canDrag ? (
+							<DropdownMenuSeparator />
+						) : null}
+						{onTypeChange && !block.readOnly ? (
+							<>
+								<DropdownMenuLabel>Turn into</DropdownMenuLabel>
+								<DropdownMenuGroup>
+									<BlockOptionMenuItems
+										options={turnIntoOptions}
+										onSelect={(option) =>
+											onTypeChange(
+												option.type,
+												option.type === 'record' ||
+													option.type === 'section'
+													? option.id
+													: undefined,
+											)
+										}
+									/>
+								</DropdownMenuGroup>
+							</>
+						) : null}
+						{canDrag ? (
+							<>
+								{onTypeChange && !block.readOnly ? <DropdownMenuSeparator /> : null}
+								<DropdownMenuGroup>
+									<DropdownMenuItem
+										disabled={!sortable.canMoveBackward}
+										onSelect={sortable.moveBackward}
+									>
+										<MoveUp /> Move up
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										disabled={!sortable.canMoveForward}
+										onSelect={sortable.moveForward}
+									>
+										<MoveDown /> Move down
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+							</>
+						) : null}
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 			<div className="flex min-w-0 flex-1 items-start">
 				<Renderer
