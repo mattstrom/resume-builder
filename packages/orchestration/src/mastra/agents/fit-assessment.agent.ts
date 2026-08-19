@@ -3,7 +3,7 @@ import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { extractAnalysisTool } from '../tools/extract-analysis.tool';
 import { extractJobSummaryTool } from '../tools/extract-job-summary.tool';
 
@@ -157,7 +157,7 @@ export const fitAssessmentAgent = new Agent({
 			};
 		}
 
-		const mcpTools = await createResumeBuilderMcpClient(token).listTools();
+		const mcpTools = await getResumeBuilderTools(token);
 
 		return {
 			...mcpTools,

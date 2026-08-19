@@ -4,7 +4,7 @@ import { Memory } from '@mastra/memory';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { scorers } from '../scorers/weather-scorer';
 
 export const interviewCoachAgent = new Agent({
@@ -32,7 +32,7 @@ export const interviewCoachAgent = new Agent({
 			return {};
 		}
 
-		const tools = await createResumeBuilderMcpClient(token).listTools();
+		const tools = await getResumeBuilderTools(token);
 
 		const {
 			resumeBuilder_read_narrative,

@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import config from '@/config';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 import { fetchJobPostingPageTool } from '../tools/fetch-job-posting.tool';
 import { md } from '../utils';
 
@@ -86,7 +86,7 @@ export const jobDescriptionRetrieverAgent = new Agent({
 			return { fetch_job_posting_page: fetchJobPostingPageTool };
 		}
 
-		const tools = await createResumeBuilderMcpClient(token).listTools();
+		const tools = await getResumeBuilderTools(token);
 
 		return {
 			fetch_job_posting_page: fetchJobPostingPageTool,

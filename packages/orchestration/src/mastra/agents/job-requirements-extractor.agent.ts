@@ -3,7 +3,7 @@ import { MASTRA_AUTH_TOKEN_KEY } from '@mastra/core/request-context';
 import { outdent } from 'outdent';
 import { z } from 'zod';
 
-import { createResumeBuilderMcpClient } from '../mcp/resume-builder.mcp';
+import { getResumeBuilderTools } from '../mcp/resume-builder.mcp';
 
 export const jobRequirementsExtractorAgent = new Agent({
 	id: 'job-requirements-extractor',
@@ -147,7 +147,7 @@ export const jobRequirementsExtractorAgent = new Agent({
 			return {};
 		}
 
-		const tools = await createResumeBuilderMcpClient(token).listTools();
+		const tools = await getResumeBuilderTools(token);
 
 		return {
 			resumeBuilder_get_application: tools.resumeBuilder_get_application,
