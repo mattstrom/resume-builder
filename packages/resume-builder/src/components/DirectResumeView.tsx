@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react';
 import { type FC } from 'react';
 
+import { ResumeBlockEditor } from '@/components/block-editor/ResumeBlockEditor.tsx';
 import { Stack } from '@/components/common/Stack.tsx';
 import { useStore } from '@/stores/store.provider.tsx';
 import { ViewMode } from '@/stores/ui-state.store.ts';
@@ -29,6 +30,10 @@ export const DirectResumeView: FC = observer(() => {
 
 	if (uiStateStore.viewMode === ViewMode.Simple) {
 		return <SimpleResumeView />;
+	}
+
+	if (uiStateStore.viewMode === ViewMode.Blocks) {
+		return <ResumeBlockEditor />;
 	}
 
 	const templateComponent = (() => {

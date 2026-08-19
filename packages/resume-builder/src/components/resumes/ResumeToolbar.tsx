@@ -84,6 +84,7 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 					{ value: ViewMode.Data, label: 'Data' },
 					{ value: ViewMode.Layout, label: 'Layout' },
 					{ value: ViewMode.Simple, label: 'Simple' },
+					{ value: ViewMode.Blocks, label: 'Blocks' },
 				]}
 			/>
 

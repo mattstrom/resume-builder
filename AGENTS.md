@@ -92,6 +92,18 @@ TypeScript is set to strict mode with no unused locals/parameters.
   resume. Resume inputs, inline editors, and floating controls must retain a
   light paper appearance with a white background and dark, readable text.
 
+### Block Editor Architecture
+
+- Keep every concrete block type in its own component file under
+  `packages/resume-builder/src/components/block-editor/blocks/`.
+- Put behavior shared by multiple block types, such as inline editing,
+  clipboard handling, and focus management, in neutral reusable primitives
+  rather than duplicating it in block renderers.
+- Register block types through the block type registry; do not add conditional
+  rendering branches for individual types to `BlockEditor`.
+- Add or update a focused Storybook story whenever a block type is introduced
+  or materially changed, while preserving the collective block editor story.
+
 ## Commit Conventions
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/).
