@@ -37,10 +37,12 @@ import { jobRequirementsExtractorAgent } from './agents/job-requirements-extract
 import { professionalStatementEvaluatorAgent } from './agents/professional-statement-evaluator.agent';
 import { profileCuratorFormatterAgent } from './agents/profile-curator-formatter.agent';
 import { profileCuratorAgent } from './agents/profile-curator.agent';
+import { resumeSummarizerAgent } from './agents/resume-summarizer.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
 import { FOCUSED_PATHS_HEADER, FOCUSED_PATHS_KEY, parseFocusedPaths } from './request-context';
+import { resumeSummaryRoute } from './routes/resume-summary.route';
 import { bulletConceptAnnotationQualityScorer } from './scorers/bullet-concept-annotation-quality.scorer';
 import { bulletScoringQualityScorer } from './scorers/bullet-scoring-quality.scorer';
 import {
@@ -85,6 +87,7 @@ export const mastra = new Mastra({
 			chatRoute({
 				path: '/chat/:agentId',
 			}),
+			resumeSummaryRoute,
 		],
 		cors: {
 			allowHeaders: [
@@ -180,6 +183,7 @@ export const mastra = new Mastra({
 		professionalStatementEvaluatorAgent,
 		profileCurator: profileCuratorAgent,
 		profileCuratorFormatter: profileCuratorFormatterAgent,
+		resumeSummarizer: resumeSummarizerAgent,
 		weatherAgent,
 		webAgent,
 	},

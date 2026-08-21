@@ -7,6 +7,7 @@ import { EmbeddingQueueService } from './embedding-queue.service.js';
 describe('EmbeddingQueueService', () => {
 	const queue = {
 		add: jest.fn(),
+		setGlobalConcurrency: jest.fn(),
 		upsertJobScheduler: jest.fn(),
 	};
 	let service: EmbeddingQueueService;
@@ -16,6 +17,7 @@ describe('EmbeddingQueueService', () => {
 		jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
 		queue.add.mockResolvedValue({ id: 'job-1' });
 		queue.upsertJobScheduler.mockResolvedValue(undefined);
+		queue.setGlobalConcurrency.mockResolvedValue(undefined);
 		service = new EmbeddingQueueService(queue as unknown as Queue);
 	});
 
@@ -25,8 +27,9 @@ describe('EmbeddingQueueService', () => {
 		expect(queue.upsertJobScheduler).toHaveBeenCalledWith(
 			'embedding-reconciliation',
 			{ every: 300_000 },
-			expect.objectContaining({ name: 'reconcile', data: {} }),
+			expect.objectContaining({ name: 'reconcile', data: { limit: 100 } }),
 		);
+		expect(queue.setGlobalConcurrency).toHaveBeenCalledWith(1);
 	});
 
 	it('deduplicates one entity profile revision without suppressing newer revisions', async () => {

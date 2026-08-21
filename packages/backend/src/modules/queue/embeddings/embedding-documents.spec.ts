@@ -3,6 +3,7 @@ import {
 	conceptEmbeddingText,
 	factEmbeddingText,
 	jobRequirementEmbeddingText,
+	resumeEmbeddingText,
 } from './embedding-documents.js';
 
 describe('embedding documents', () => {
@@ -52,6 +53,23 @@ describe('embedding documents', () => {
 				'technologies: Kubernetes',
 		);
 		expect(text).not.toContain('Private Employer');
+	});
+
+	it('builds deterministic resume retrieval documents without metadata', () => {
+		const text = resumeEmbeddingText({
+			dominantTheme: 'backend/platform engineering',
+			summaryTheme: 'Reliable distributed services',
+			projects: [{ name: 'Queue', description: 'Processes background work' }],
+			technologies: ['TypeScript', 'Redis', 'TypeScript'],
+			contentThemes: ['developer tooling', 'distributed systems'],
+		});
+		expect(text).toBe(
+			'role: backend/platform engineering\nsummary: Reliable distributed services\n' +
+				'projects: Queue: Processes background work\n' +
+				'technologies: Redis, TypeScript\n' +
+				'themes: developer tooling, distributed systems',
+		);
+		expect(text).not.toContain('company');
 	});
 
 	it('builds concept documents only from global semantic metadata', () => {

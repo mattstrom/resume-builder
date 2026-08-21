@@ -19,12 +19,15 @@ import {
 	Tags,
 	UserRound,
 	Wrench,
-	X,
 } from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FC, type PropsWithChildren, useEffect, useRef } from 'react';
+import { type FC, type PropsWithChildren } from 'react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
+import {
+	Avatar,
+	AvatarFallback,
+	AvatarImage,
+} from '@/components/ui/avatar.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -38,7 +41,7 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import {
 	Sidebar as ShadcnSidebar,
 	SidebarContent,
@@ -57,53 +60,22 @@ import type { Theme } from '@/stores/theme.store.ts';
 import { SidebarResumeTree } from '../SidebarResumeTree';
 
 export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
-	const { authStore, themeStore, explorerSidebarStore } = useStore();
+	const { authStore, themeStore, uiStateStore } = useStore();
 	const user = authStore.user;
-	const searchRef = useRef<HTMLInputElement>(null);
-
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.metaKey && e.key === 'k') {
-				e.preventDefault();
-				searchRef.current?.focus();
-				searchRef.current?.select();
-			}
-		};
-		document.addEventListener('keydown', handleKeyDown);
-		return () => document.removeEventListener('keydown', handleKeyDown);
-	}, []);
 
 	return (
 		<ShadcnSidebar collapsible="icon" className="print:hidden h-full">
 			<SidebarHeader className="border-b border-sidebar-border px-2 py-2 group-data-[collapsible=icon]:px-2">
-				<div className="relative group-data-[collapsible=icon]:hidden">
-					<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-					<Input
-						ref={searchRef}
-						placeholder="Search…"
-						className="h-7 pl-8 pr-8 text-xs bg-muted/40 border-sidebar-border focus-visible:ring-1"
-						value={explorerSidebarStore.searchQuery}
-						onChange={(e) => explorerSidebarStore.setSearchQuery(e.target.value)}
-						onKeyDown={(e) => {
-							if (e.key === 'Escape') {
-								explorerSidebarStore.setSearchQuery('');
-								e.currentTarget.blur();
-							}
-						}}
-					/>
-					{explorerSidebarStore.searchQuery ? (
-						<button
-							className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground"
-							onClick={() => explorerSidebarStore.setSearchQuery('')}
-						>
-							<X className="h-3 w-3" />
-						</button>
-					) : (
-						<span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground/60 font-mono border border-sidebar-border rounded px-1 bg-background">
-							⌘K
-						</span>
-					)}
-				</div>
+				<Button
+					variant="outline"
+					size="sm"
+					className="w-full justify-start group-data-[collapsible=icon]:hidden"
+					onClick={() => uiStateStore.setCommandPaletteOpen(true)}
+				>
+					<Search data-icon="inline-start" />
+					<span>Search resumes…</span>
+					<kbd className="ml-auto text-xs text-muted-foreground">⌘K</kbd>
+				</Button>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>

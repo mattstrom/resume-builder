@@ -50,6 +50,9 @@ orchestration:
     type: ClusterIP
     port: 4111
   anthropicApiKey: ''
+  # Shared secret for backend -> Mastra internal API calls (auto-generated and
+  # preserved across upgrades when left blank)
+  internalKey: ''
   auth0:
     clientId: ''
   # Override which Postgres database Mastra uses (defaults to postgres.database)

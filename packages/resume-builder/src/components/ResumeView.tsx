@@ -16,10 +16,6 @@ export const ResumeView: FC<ResumeViewProps> = observer(() => {
 	const { uiStateStore, editorStore } = useStore();
 	const { viewMode } = uiStateStore;
 
-	if (!applicationId) {
-		return null;
-	}
-
 	if (viewMode === ViewMode.Simple) {
 		return <SimpleResumeView />;
 	}

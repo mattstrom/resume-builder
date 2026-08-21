@@ -23,8 +23,7 @@ export const Workspace: FC = observer(() => {
 	const { applicationId } = useParams({ strict: false });
 	const conceptPanelRef = useRef<PanelImperativeHandle>(null);
 	const [conceptPanelCollapsed, setConceptPanelCollapsed] = useState(
-		() =>
-			localStorage.getItem('concept-coverage-panel-collapsed') === 'true',
+		() => localStorage.getItem('concept-coverage-panel-collapsed') === 'true',
 	);
 	const savedConceptPanelSize =
 		Number(localStorage.getItem('concept-coverage-panel-size')) || 22;
@@ -50,9 +49,15 @@ export const Workspace: FC = observer(() => {
 		}
 	};
 
-	if (!applicationId) {
-		return null;
-	}
+	const resumeEditor = (
+		<div className="h-full min-w-0">
+			{mode === Mode.Edit && <DirectResumeView />}
+			{mode === Mode.Review && <ResumeView />}
+			{mode === Mode.Xml && <ResumeXmlInspector />}
+		</div>
+	);
+
+	if (!applicationId) return resumeEditor;
 
 	return (
 		<PanelGroup orientation="horizontal" className="workspace">
@@ -88,11 +93,7 @@ export const Workspace: FC = observer(() => {
 			</Panel>
 			<PanelResizeHandle className="editor-resize-handle" />
 			<Panel id="resume-editor" minSize="30%">
-				<div className="h-full min-w-0">
-					{mode === Mode.Edit && <DirectResumeView />}
-					{mode === Mode.Review && <ResumeView />}
-					{mode === Mode.Xml && <ResumeXmlInspector />}
-				</div>
+				{resumeEditor}
 			</Panel>
 		</PanelGroup>
 	);

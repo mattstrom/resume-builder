@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { resumeSummarySchema } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
 import {
@@ -6,6 +7,7 @@ import {
 	conceptEmbeddingText,
 	factEmbeddingText,
 	jobRequirementEmbeddingText,
+	resumeEmbeddingText,
 } from './embedding-documents.js';
 import {
 	EMBEDDING_MODEL,
@@ -26,6 +28,7 @@ const ENTITY_TABLES: Record<EmbeddingEntityType, string> = {
 	'job-requirement': 'JobRequirementFact',
 	bullet: 'Bullet',
 	concept: 'Concept',
+	resume: 'Resume',
 };
 
 @Injectable()
@@ -125,6 +128,26 @@ export class EmbeddingDocumentsService implements EmbeddingDocumentProvider {
 						}
 					: null;
 			}
+			case 'resume': {
+				const resume = await this.prisma.resume.findUnique({
+					where: { id },
+					include: { resumeXml: { select: { updatedAt: true } } },
+				});
+				const summary = resumeSummarySchema.safeParse(resume?.summary);
+				const summaryIsFresh =
+					resume?.lastSummarizedAt != null &&
+					resume.resumeXml != null &&
+					resume.lastSummarizedAt >= resume.resumeXml.updatedAt;
+				return resume && summary.success && summaryIsFresh
+					? {
+							entityType,
+							entityId: id,
+							revision: resume.embeddingRevision,
+							profile: EMBEDDING_PROFILES.resume,
+							text: resumeEmbeddingText(summary.data),
+						}
+					: null;
+			}
 		}
 	}
 
@@ -168,15 +191,26 @@ export class EmbeddingDocumentsService implements EmbeddingDocumentProvider {
 			if (targets.length >= limit) break;
 			const table = ENTITY_TABLES[type];
 			const profile = EMBEDDING_PROFILES[type];
+			const eligibility =
+				type === 'resume'
+					? `AND summary IS NOT NULL
+				       AND "lastSummarizedAt" IS NOT NULL
+				       AND EXISTS (
+				         SELECT 1 FROM "${SCHEMA}"."ResumeXml" rx
+				         WHERE rx."resumeId" = "Resume".id
+				           AND "Resume"."lastSummarizedAt" >= rx."updatedAt"
+				       )`
+					: '';
 			const rows = await this.prisma.$queryRawUnsafe<
 				Array<{ id: string; embeddingRevision: number }>
 			>(
 				`SELECT id, "embeddingRevision"
          FROM "${SCHEMA}"."${table}"
-         WHERE embedding IS NULL
+         WHERE (embedding IS NULL
             OR "embeddedRevision" IS DISTINCT FROM "embeddingRevision"
             OR "embeddingModel" IS DISTINCT FROM $1
-            OR "embeddingProfile" IS DISTINCT FROM $2
+            OR "embeddingProfile" IS DISTINCT FROM $2)
+         ${eligibility}
          ORDER BY id
          LIMIT $3`,
 				EMBEDDING_MODEL,

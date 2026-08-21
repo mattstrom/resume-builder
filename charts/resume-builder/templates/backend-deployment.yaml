@@ -56,6 +56,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "resume-builder.fullname" . }}-crdt
                   key: internalKey
+            - name: MASTRA_URL
+              value: {{ include "resume-builder.orchestrationUrl" . | quote }}
+            - name: MASTRA_INTERNAL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-orchestration
+                  key: internalKey
           livenessProbe:
             httpGet:
               path: /health

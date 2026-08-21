@@ -27,6 +27,9 @@ export interface Config {
 		headless: boolean;
 		cdpUrl: string;
 	};
+	internalApi: {
+		key: string;
+	};
 }
 
 const schema = convict<Config>({
@@ -123,6 +126,15 @@ const schema = convict<Config>({
 			format: String,
 			default: '',
 			env: 'BROWSER_CDP_URL',
+		},
+	},
+	internalApi: {
+		key: {
+			doc: 'Shared secret for internal service-to-service routes',
+			format: String,
+			default: '',
+			env: 'MASTRA_INTERNAL_KEY',
+			sensitive: true,
 		},
 	},
 });

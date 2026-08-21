@@ -25,6 +25,50 @@ import { SkillGroup } from './skill-group.js';
 
 export type ResumeDocument = HydratedDocument<Resume>;
 
+@ObjectType({ description: 'A high-level project represented in a resume' })
+export class ResumeSummaryProject {
+	@Field()
+	name: string;
+
+	@Field()
+	description: string;
+}
+
+@ObjectType({
+	description: 'Search-oriented summary of the themes and content in a resume',
+})
+export class ResumeSummary {
+	@Field({ description: 'Dominant role theme, such as frontend, backend, or generalist' })
+	dominantTheme: string;
+
+	@Field({ description: 'The emphasis and positioning of the professional summary' })
+	summaryTheme: string;
+
+	@Field(() => [ResumeSummaryProject])
+	projects: ResumeSummaryProject[];
+
+	@Field(() => [String])
+	technologies: string[];
+
+	@Field(() => [String])
+	contentThemes: string[];
+}
+
+export const resumeSummarySchema = z.object({
+	dominantTheme: z.string().trim().min(1),
+	summaryTheme: z.string().trim().min(1),
+	projects: z.array(
+		z.object({
+			name: z.string().trim().min(1),
+			description: z.string().trim().min(1),
+		}),
+	),
+	technologies: z.array(z.string().trim().min(1)),
+	contentThemes: z.array(z.string().trim().min(1)),
+});
+
+export type ResumeSummaryValue = z.infer<typeof resumeSummarySchema>;
+
 @Schema({ versionKey: false, timestamps: true })
 @ObjectType({ description: 'Resume' })
 export class Resume {
@@ -82,6 +126,18 @@ export class Resume {
 	})
 	@Prop({ type: ResumeContentSchema, default: () => ({}) })
 	data: ResumeContent;
+
+	@Field(() => ResumeSummary, {
+		nullable: true,
+		description: 'Search-oriented summary generated from the canonical resume content',
+	})
+	summary?: ResumeSummary;
+
+	@Field({
+		nullable: true,
+		description: 'Date when the canonical resume content was last summarized',
+	})
+	lastSummarizedAt?: Date;
 
 	@Field({
 		nullable: true,
@@ -254,6 +310,8 @@ export const resumeSchema = z.object({
 	base: z.boolean().describe('Whether this is a base resume for targeted versions'),
 	applicationId: z.string().optional().describe('Application this resume belongs to'),
 	data: resumeContentSchema.describe('Resume content data'),
+	summary: resumeSummarySchema.optional().describe('Search-oriented resume summary'),
+	lastSummarizedAt: z.iso.datetime().optional().describe('Last resume summarization date'),
 	createdAt: z.iso.datetime().describe('Date when the resume was created'),
 	updatedAt: z.iso.datetime().describe('Date when the resume was last updated'),
 });

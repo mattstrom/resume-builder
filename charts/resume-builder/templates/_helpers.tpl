@@ -155,6 +155,11 @@ Orchestration fully qualified name
 {{- printf "%s-orchestration" (include "resume-builder.fullname" .) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/* Internal Mastra service URL */}}
+{{- define "resume-builder.orchestrationUrl" -}}
+{{- printf "http://%s:%d" (include "resume-builder.orchestration.fullname" .) (int .Values.orchestration.service.port) }}
+{{- end }}
+
 {{/*
 Orchestration selector labels
 */}}

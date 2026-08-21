@@ -94,12 +94,12 @@ export type Application = Prisma.ApplicationModel
 export type ConceptEvidenceAssessment = Prisma.ConceptEvidenceAssessmentModel
 /**
  * Model RequirementGradeFeedback
- *
+ * 
  */
 export type RequirementGradeFeedback = Prisma.RequirementGradeFeedbackModel
 /**
  * Model ProfileKnowledgeProposal
- *
+ * 
  */
 export type ProfileKnowledgeProposal = Prisma.ProfileKnowledgeProposalModel
 /**

@@ -5,6 +5,7 @@ export const EMBEDDING_PROFILES = {
 	'job-requirement': 'job-requirement:v1',
 	bullet: 'bullet-job-match:v1',
 	concept: 'concept-search:v1',
+	resume: 'resume-search:v1',
 } as const;
 
 export type EmbeddingEntityType = keyof typeof EMBEDDING_PROFILES;
@@ -18,3 +19,5 @@ export const EMBEDDING_JOB_NAMES = {
 export const EMBEDDING_RECONCILIATION_SCHEDULER = 'embedding-reconciliation';
 
 export const EMBEDDING_RECONCILIATION_INTERVAL_MS = 5 * 60 * 1000;
+
+export const EMBEDDING_RECONCILIATION_BATCH_SIZE = 100;

@@ -25,7 +25,8 @@ import { generatePDF, waitForPaginationReady } from '@/utils/pdfExport.ts';
 interface ResumeToolbarProps {}
 
 export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
-	const { template, setTemplate, showMarginPattern, setShowMarginPattern } = useSettings();
+	const { template, setTemplate, showMarginPattern, setShowMarginPattern } =
+		useSettings();
 	const { uiStateStore, editorStore } = useStore();
 	const { applicationId } = useParams({ strict: false });
 	const { resumeData } = editorStore;
@@ -33,7 +34,9 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 	const [isExporting, setIsExporting] = useState(false);
 
 	const onPrint = async () => {
-		const iframe = document.getElementById('resume-preview-iframe') as HTMLIFrameElement;
+		const iframe = document.getElementById(
+			'resume-preview-iframe',
+		) as HTMLIFrameElement;
 		if (!iframe?.contentWindow || !iframe.contentDocument) {
 			console.error('Preview iframe not found or not ready');
 			return;
@@ -57,7 +60,9 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 			showSnackbar('PDF exported successfully!', 'success');
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : 'Failed to export PDF. Please try again.';
+				error instanceof Error
+					? error.message
+					: 'Failed to export PDF. Please try again.';
 			showSnackbar(message, 'error');
 		} finally {
 			setIsExporting(false);
@@ -68,9 +73,15 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 		const params = new URLSearchParams({
 			template,
 			showMarginPattern: String(showMarginPattern),
+			...(applicationId && resumeData?._id ? { resumeId: resumeData._id } : {}),
 		});
 
-		window.open(`/preview/${applicationId}?${params.toString()}`);
+		const path = applicationId
+			? `/preview/${applicationId}`
+			: resumeData?._id
+				? `/preview/resume/${resumeData._id}`
+				: null;
+		if (path) window.open(`${path}?${params.toString()}`);
 	};
 
 	return (
@@ -122,7 +133,12 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 
 			<div className="flex-1" />
 
-			<Button onClick={onPrint} variant="ghost" size="sm" className="h-7 text-xs">
+			<Button
+				onClick={onPrint}
+				variant="ghost"
+				size="sm"
+				className="h-7 text-xs"
+			>
 				Print
 			</Button>
 
@@ -143,7 +159,12 @@ export const ResumeToolbar: FC<ResumeToolbarProps> = observer(() => {
 				)}
 			</Button>
 
-			<Button onClick={onPreview} variant="ghost" size="sm" className="h-7 text-xs">
+			<Button
+				onClick={onPreview}
+				variant="ghost"
+				size="sm"
+				className="h-7 text-xs"
+			>
 				Preview
 			</Button>
 

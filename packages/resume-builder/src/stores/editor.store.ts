@@ -2,16 +2,26 @@ import type { Application, Resume } from '@resume-builder/entities';
 import { action, makeObservable, observable, runInAction, toJS } from 'mobx';
 
 import { setActiveResumeController } from '@/lib/active-resume-controller.ts';
-import { CrdtResumeController, LocalResumeController } from '@/lib/resume-document-controller.ts';
+import {
+	CrdtResumeController,
+	LocalResumeController,
+} from '@/lib/resume-document-controller.ts';
 
 import { CREATE_BLANK_RESUME } from '../graphql/mutations.ts';
-import { GET_APPLICATION, LIST_BASE_RESUMES, LIST_RESUMES } from '../graphql/queries.ts';
+import {
+	GET_APPLICATION,
+	GET_RESUME,
+	LIST_BASE_RESUMES,
+	LIST_RESUMES,
+} from '../graphql/queries.ts';
 import type {
 	BaseResumeSummary,
 	CreateBlankResumeData,
 	CreateBlankResumeVariables,
 	GetApplicationData,
 	GetApplicationVariables,
+	GetResumeData,
+	GetResumeVariables,
 	ListBaseResumesData,
 	ListResumesData,
 	ListResumesVariables,
@@ -31,7 +41,8 @@ export class EditorStore {
 	@observable selectedFile: string | null = null;
 	readonly isSupported = 'showDirectoryPicker' in window;
 
-	private controller: CrdtResumeController | LocalResumeController | null = null;
+	private controller: CrdtResumeController | LocalResumeController | null =
+		null;
 
 	constructor(readonly rootStore: RootStore) {
 		makeObservable(this);
@@ -80,7 +91,9 @@ export class EditorStore {
 			});
 
 			const targetResume =
-				(resumeId ? resumes.find((r) => r._id === resumeId) : null) ?? resumes[0] ?? null;
+				(resumeId ? resumes.find((r) => r._id === resumeId) : null) ??
+				resumes[0] ??
+				null;
 			if (targetResume) {
 				await this.setupCrdtController(targetResume);
 			} else {
@@ -94,11 +107,52 @@ export class EditorStore {
 				(err.name === 'AbortError' || err.message.includes('aborted'));
 			if (!isAbortError) {
 				runInAction(() => {
-					this.error = err instanceof Error ? err.message : 'Failed to load application';
+					this.error =
+						err instanceof Error ? err.message : 'Failed to load application';
 					this.selectedApiApplicationId = null;
 					this.selectedApplication = null;
 				});
 			}
+		} finally {
+			runInAction(() => {
+				this.isLoading = false;
+			});
+		}
+	}
+
+	@action
+	async selectStandaloneResume(resumeId: string) {
+		if (!this.selectedApiApplicationId && this.resumeData?._id === resumeId)
+			return;
+		await this.controller?.destroy();
+		this.controller = null;
+		setActiveResumeController(null);
+		runInAction(() => {
+			this.isLoading = true;
+			this.error = null;
+			this.selectedApiApplicationId = null;
+			this.selectedApplication = null;
+			this.applicationResumes = [];
+			this.resumeData = null;
+		});
+
+		try {
+			const result = await this.rootStore.client.query<
+				GetResumeData,
+				GetResumeVariables
+			>({
+				query: GET_RESUME,
+				variables: { id: resumeId },
+				fetchPolicy: 'network-only',
+			});
+			const resume = result.data?.getResume;
+			if (!resume) throw new Error('Resume not found');
+			await this.setupCrdtController(resume);
+		} catch (err) {
+			runInAction(() => {
+				this.error =
+					err instanceof Error ? err.message : 'Failed to load resume';
+			});
 		} finally {
 			runInAction(() => {
 				this.isLoading = false;
@@ -133,7 +187,8 @@ export class EditorStore {
 		} catch (err) {
 			runInAction(() => {
 				this.baseResumes = [];
-				this.error = err instanceof Error ? err.message : 'Failed to load base resumes';
+				this.error =
+					err instanceof Error ? err.message : 'Failed to load base resumes';
 			});
 		}
 	}
@@ -173,7 +228,8 @@ export class EditorStore {
 			await this.selectResume(newResume._id);
 		} catch (err) {
 			runInAction(() => {
-				this.error = err instanceof Error ? err.message : 'Failed to create resume';
+				this.error =
+					err instanceof Error ? err.message : 'Failed to create resume';
 			});
 		}
 	}
