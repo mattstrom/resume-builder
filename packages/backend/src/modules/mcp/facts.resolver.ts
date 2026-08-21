@@ -11,7 +11,6 @@ import {
 	FactsService,
 	type UpdateFactDto,
 } from '../facts/facts.service.js';
-import { EmbeddingService } from '../queue/embeddings/embedding.service.js';
 import { McpGuard } from './mcp.guard.js';
 import * as types from './types.js';
 import { type McpToolParams } from './types.js';
@@ -47,10 +46,7 @@ const factUpdateSchema = factEvidenceSchema
 @Resolver()
 @UseGuards(McpGuard)
 export class FactsResolver {
-	constructor(
-		private readonly factsService: FactsService,
-		private readonly embeddingService: EmbeddingService,
-	) {}
+	constructor(private readonly factsService: FactsService) {}
 
 	@Tool({
 		name: 'get_facts',
@@ -94,28 +90,6 @@ export class FactsResolver {
 		return {
 			content: [{ type: 'text', text: `Found fact ${id}.` }],
 			structuredContent: { fact },
-		};
-	}
-
-	@Tool({
-		name: 'find_similar_facts',
-		description: "Semantic search over the current user's facts using a natural-language query",
-		paramsSchema: {
-			query: z.string().describe('Natural-language query to find semantically similar facts'),
-			limit: z.number().int().min(1).max(50).optional().describe('Max results (default 10)'),
-		},
-		annotations: { destructiveHint: false, idempotentHint: true },
-	})
-	async findSimilarFacts(
-		{ query, limit }: McpToolParams<{ query: string; limit?: number }>,
-		{ user }: types.McpExtra,
-	): Promise<CallToolResult> {
-		const vector = await this.embeddingService.embed(query);
-		const facts = await this.factsService.findSimilar(user.sub, vector, limit);
-
-		return {
-			content: [{ type: 'text', text: `Found ${facts.length} similar facts.` }],
-			structuredContent: { facts },
 		};
 	}
 
