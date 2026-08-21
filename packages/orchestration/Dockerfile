@@ -51,8 +51,6 @@ FROM node:24.8.0-bookworm-slim
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
 # Production node_modules (native .node files already compiled, devDeps stripped)
 COPY --from=prod-deps /app/node_modules ./node_modules
 
