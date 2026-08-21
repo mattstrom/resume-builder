@@ -1,8 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 
 import type { PrismaService } from '../../prisma';
-import type { ResumeXmlRepository } from './resume-xml.repository';
 import type { EmbeddingService } from '../../queue/embeddings/embedding.service';
+import type { ResumeXmlRepository } from './resume-xml.repository';
 import { ResumesService } from './resumes.service';
 
 jest.mock('../../prisma/index.js', () => ({ PrismaService: class {} }));
@@ -47,9 +47,7 @@ describe('ResumesService', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		prisma.$transaction.mockResolvedValue([]);
-		prisma.documentUpdate.deleteMany.mockReturnValue(
-			Promise.resolve({ count: 1 }),
-		);
+		prisma.documentUpdate.deleteMany.mockReturnValue(Promise.resolve({ count: 1 }));
 		prisma.resume.delete.mockReturnValue(Promise.resolve({ id: 'resume-1' }));
 		prisma.resume.updateMany.mockReturnValue(Promise.resolve({ count: 1 }));
 		prisma.resumeFact.deleteMany.mockReturnValue(Promise.resolve({ count: 1 }));
@@ -115,11 +113,11 @@ describe('ResumesService', () => {
 
 		const results = await service.search(uid, 'platform', 10);
 
-		expect(results.map(({ resumeId }) => resumeId)).toEqual([
-			'resume-name',
-			'resume-semantic',
-		]);
-		expect(results[0]?.matches).toContainEqual({ kind: 'NAME', label: 'Name' });
+		expect(results.map(({ resumeId }) => resumeId)).toEqual(['resume-name', 'resume-semantic']);
+		expect(results[0]?.matches).toContainEqual({
+			kind: 'NAME',
+			label: 'Name',
+		});
 		expect(results[1]?.matches).toContainEqual({
 			kind: 'SEMANTIC',
 			label: 'Similar content',
@@ -127,8 +125,38 @@ describe('ResumesService', () => {
 		expect(prisma.$queryRawUnsafe.mock.calls[0][1]).toBe(uid);
 		expect(prisma.$queryRawUnsafe.mock.calls[1][2]).toBe(uid);
 		expect(prisma.resume.findMany).toHaveBeenCalledWith(
-			expect.objectContaining({ where: expect.objectContaining({ uid }) }),
+			expect.objectContaining({
+				where: expect.objectContaining({ uid }),
+			}),
 		);
+	});
+
+	it('can return semantic resume matches without running lexical search', async () => {
+		prisma.$queryRawUnsafe.mockResolvedValueOnce([{ id: 'resume-semantic', distance: 0.1 }]);
+		embedding.embed.mockResolvedValue([0.1, 0.2]);
+		prisma.resume.findMany.mockResolvedValue([
+			{
+				id: 'resume-semantic',
+				uid,
+				name: 'Platform resume',
+				company: '',
+				level: null,
+				base: true,
+				applicationId: null,
+				summary: null,
+				updatedAt: new Date(),
+			},
+		]);
+
+		const results = await service.search(uid, 'devops', 10, true);
+
+		expect(results).toHaveLength(1);
+		expect(results[0]?.matches).toContainEqual({
+			kind: 'SEMANTIC',
+			label: 'Similar content',
+		});
+		expect(prisma.$queryRawUnsafe).toHaveBeenCalledTimes(1);
+		expect(prisma.$queryRawUnsafe.mock.calls[0][2]).toBe(uid);
 	});
 
 	it('renames an owned resume', async () => {
@@ -152,7 +180,10 @@ describe('ResumesService', () => {
 			where: { id: 'resume-1' },
 			data: { name: 'Renamed resume' },
 		});
-		expect(result).toMatchObject({ _id: 'resume-1', name: 'Renamed resume' });
+		expect(result).toMatchObject({
+			_id: 'resume-1',
+			name: 'Renamed resume',
+		});
 	});
 
 	it('does not update a resume that is not owned by the user', async () => {
@@ -193,9 +224,7 @@ describe('ResumesService', () => {
 	it('does not delete a resume that is not owned by the user', async () => {
 		prisma.resume.findFirst.mockResolvedValue(null);
 
-		await expect(service.delete(uid, 'resume-1')).rejects.toBeInstanceOf(
-			NotFoundException,
-		);
+		await expect(service.delete(uid, 'resume-1')).rejects.toBeInstanceOf(NotFoundException);
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 	});

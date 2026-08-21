@@ -8,6 +8,7 @@ import { FactsModule } from '../facts/facts.module.js';
 import { JobRequirementsModule } from '../job-requirements/job-requirements.module.js';
 import { LlmModule } from '../llm/llm.module.js';
 import { EmbeddingsModule } from '../queue/embeddings/embeddings.module.js';
+import { SearchModule } from '../search/search.module.js';
 import { ApplicationsResolver } from './applications.resolver.js';
 import { BulletsResolver } from './bullets.resolver.js';
 import { ConceptsResolver } from './concepts.resolver.js';
@@ -20,6 +21,7 @@ import { ProfileResolver } from './profile.resolver.js';
 import { FitAssessorPromptResolver } from './prompts/fit-assessor.resolver.js';
 import { ResumesResolver } from './resumes.resolver.js';
 import { SchemasResolver } from './schemas.resolver.js';
+import { SearchResolver } from './search.resolver.js';
 
 @Module({
 	imports: [
@@ -40,6 +42,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 		JobRequirementsModule,
 		EmbeddingsModule,
 		LlmModule,
+		SearchModule,
 	],
 	exports: [NestMcpModule],
 	providers: [
@@ -55,6 +58,7 @@ import { SchemasResolver } from './schemas.resolver.js';
 		ProfileResolver,
 		ResumesResolver,
 		SchemasResolver,
+		SearchResolver,
 	],
 })
 export class McpModule {}

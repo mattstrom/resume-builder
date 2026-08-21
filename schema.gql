@@ -753,6 +753,23 @@ type JobRequirementType {
   createdAt: DateTime!
 }
 
+type AdvancedSearchPayload {
+  resumes: [ResumeSearchResult!]!
+  bullets: [BulletSearchResult!]!
+  concepts: [ConceptSearchResultType!]!
+}
+
+type SearchResultFeedbackType {
+  id: ID!
+  searchRunId: String!
+  resultId: String!
+  resultType: String!
+  rank: Int!
+  agentScore: Float!
+  relevant: Boolean!
+  updatedAt: DateTime!
+}
+
 type ProfileKnowledgeProposalType {
   id: ID!
   feedbackId: ID!
@@ -805,7 +822,7 @@ type Query {
   getProfile: Profile
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
-  searchResumes(query: String!, limit: Int = 10): [ResumeSearchResult!]!
+  searchResumes(query: String!, limit: Int = 10, semanticOnly: Boolean = false): [ResumeSearchResult!]!
   facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
@@ -833,6 +850,7 @@ type Query {
   getCompany(id: String!): Company!
   conceptEvidenceAssessment(applicationId: ID!, resumeId: ID!): ConceptEvidenceAssessmentType
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
+  advancedSearch(query: String!, resultTypes: [AdvancedSearchResultType!]!, limit: Int = 50, minimumScore: Float = 0.45): AdvancedSearchPayload!
   requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
   profileKnowledgeGuidance: [String!]!
   profileKnowledgeInbox: [ProfileKnowledgeInboxItemType!]!
@@ -872,6 +890,19 @@ input BulletFilterInput {
   search: String
   conceptKey: String
   includeArchived: Boolean = false
+}
+
+"""Profile result tables that an advanced search should populate."""
+enum AdvancedSearchResultType {
+  SUMMARY
+  SKILL
+  PROJECT
+  WORK_HISTORY
+  VOLUNTEERING
+  FACT
+  BULLET
+  CONCEPT
+  PROFESSIONAL_STATEMENT
 }
 
 type Mutation {
@@ -925,6 +956,7 @@ type Mutation {
   updateCompany(id: String!, company: CompanyUpdateInput!): Company!
   deleteCompany(id: String!): Boolean!
   saveConceptEvidenceAssessment(applicationId: ID!, resumeId: ID!, inputHash: String!, evaluatorVersion: Int!, result: JSON!): ConceptEvidenceAssessmentType!
+  saveSearchResultFeedback(searchRunId: String!, query: String!, resultId: String!, resultType: String!, rank: Int!, agentScore: Float!, relevant: Boolean!): SearchResultFeedbackType!
   recordRequirementGradeFeedback(applicationId: ID!, jobRequirementId: ID!, agentGrade: String!, manualGrade: String, explanation: String): RequirementGradeFeedbackType!
   saveProfileKnowledgeProposals(feedbackId: ID!, result: JSON!): [ProfileKnowledgeProposalType!]!
   resolveProfileKnowledgeProposal(proposalId: ID!, accept: Boolean!): ProfileKnowledgeProposalType!

@@ -83,7 +83,8 @@ export const ModelName = {
   BulletConcept: 'BulletConcept',
   ResumeFact: 'ResumeFact',
   DocumentUpdate: 'DocumentUpdate',
-  FlowRun: 'FlowRun'
+  FlowRun: 'FlowRun',
+  SearchResultFeedback: 'SearchResultFeedback'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -607,6 +608,23 @@ export const FlowRunScalarFieldEnum = {
 } as const
 
 export type FlowRunScalarFieldEnum = (typeof FlowRunScalarFieldEnum)[keyof typeof FlowRunScalarFieldEnum]
+
+
+export const SearchResultFeedbackScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  searchRunId: 'searchRunId',
+  query: 'query',
+  resultId: 'resultId',
+  resultType: 'resultType',
+  rank: 'rank',
+  agentScore: 'agentScore',
+  relevant: 'relevant',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchResultFeedbackScalarFieldEnum = (typeof SearchResultFeedbackScalarFieldEnum)[keyof typeof SearchResultFeedbackScalarFieldEnum]
 
 
 export const SortOrder = {

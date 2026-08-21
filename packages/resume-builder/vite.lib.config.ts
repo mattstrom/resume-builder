@@ -40,4 +40,11 @@ export default defineConfig({
 		outDir: 'dist',
 		cssCodeSplit: false,
 	},
+	resolve: {
+		alias: {
+			'@nestjs/graphql': resolve(__dirname, '../entities/src/shims/nestjs-graphql.ts'),
+			'@nestjs/mongoose': resolve(__dirname, '../entities/src/shims/nestjs-mongoose.ts'),
+			mongoose: resolve(__dirname, '../entities/src/shims/mongoose.ts'),
+		},
+	},
 });

@@ -17,6 +17,7 @@ import { PrismaModule } from './modules/prisma/index.js';
 import { ProfileKnowledgeModule } from './modules/profile-knowledge/profile-knowledge.module.js';
 import { QueueModule } from './modules/queue/queue.module.js';
 import { RequestSigningModule } from './modules/request-signing/index.js';
+import { SearchModule } from './modules/search/search.module.js';
 
 @Module({
 	imports: [
@@ -37,6 +38,7 @@ import { RequestSigningModule } from './modules/request-signing/index.js';
 		PrismaModule,
 		PdfModule,
 		ProfileKnowledgeModule,
+		SearchModule,
 		LoggingModule,
 		LlmModule,
 	],

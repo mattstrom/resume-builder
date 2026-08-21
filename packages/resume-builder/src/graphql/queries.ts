@@ -225,8 +225,12 @@ export const LIST_BASE_RESUMES = gql`
 `;
 
 export const SEARCH_RESUMES = gql`
-	query SearchResumes($query: String!, $limit: Int) {
-		searchResumes(query: $query, limit: $limit) {
+	query SearchResumes($query: String!, $limit: Int, $semanticOnly: Boolean) {
+		searchResumes(
+			query: $query
+			limit: $limit
+			semanticOnly: $semanticOnly
+		) {
 			resumeId
 			name
 			company
@@ -704,4 +708,92 @@ export const SEARCH_BULLETS = gql`
 	}
 
 	${bulletFields}
+`;
+
+export const ADVANCED_SEARCH = gql`
+	query AdvancedSearch(
+		$query: String!
+		$resultTypes: [AdvancedSearchResultType!]!
+		$limit: Int
+		$minimumScore: Float
+	) {
+		advancedSearch(
+			query: $query
+			resultTypes: $resultTypes
+			limit: $limit
+			minimumScore: $minimumScore
+		) {
+			resumes {
+				resumeId
+				name
+				company
+				level
+				base
+				applicationId
+				updatedAt
+				score
+				summary {
+					dominantTheme
+					summaryTheme
+					technologies
+					contentThemes
+					projects {
+						name
+						description
+					}
+				}
+				matches {
+					kind
+					label
+				}
+			}
+			bullets {
+				score
+				bullet {
+					...BulletFields
+				}
+			}
+			concepts {
+				score
+				concept {
+					id
+					vocabulary
+					key
+					label
+					definition
+					externalUri
+				}
+			}
+		}
+	}
+
+	${bulletFields}
+`;
+
+export const SAVE_SEARCH_RESULT_FEEDBACK = gql`
+	mutation SaveSearchResultFeedback(
+		$searchRunId: String!
+		$query: String!
+		$resultId: String!
+		$resultType: String!
+		$rank: Int!
+		$agentScore: Float!
+		$relevant: Boolean!
+	) {
+		saveSearchResultFeedback(
+			searchRunId: $searchRunId
+			query: $query
+			resultId: $resultId
+			resultType: $resultType
+			rank: $rank
+			agentScore: $agentScore
+			relevant: $relevant
+		) {
+			id
+			searchRunId
+			resultId
+			relevant
+			updatedAt
+		}
+	}
 `;

@@ -38,10 +38,16 @@ import { professionalStatementEvaluatorAgent } from './agents/professional-state
 import { profileCuratorFormatterAgent } from './agents/profile-curator-formatter.agent';
 import { profileCuratorAgent } from './agents/profile-curator.agent';
 import { resumeSummarizerAgent } from './agents/resume-summarizer.agent';
+import { searchPlannerAgent } from './agents/search-planner.agent';
+import { searchRankerAgent } from './agents/search-ranker.agent';
 import { weatherAgent } from './agents/weather-agent';
 import { webAgent } from './agents/web-agent';
 import { Auth0JwtProvider, type Auth0JwtUser } from './auth';
-import { FOCUSED_PATHS_HEADER, FOCUSED_PATHS_KEY, parseFocusedPaths } from './request-context';
+import {
+	FOCUSED_PATHS_HEADER,
+	FOCUSED_PATHS_KEY,
+	parseFocusedPaths,
+} from './request-context';
 import { resumeSummaryRoute } from './routes/resume-summary.route';
 import { bulletConceptAnnotationQualityScorer } from './scorers/bullet-concept-annotation-quality.scorer';
 import { bulletScoringQualityScorer } from './scorers/bullet-scoring-quality.scorer';
@@ -64,6 +70,7 @@ import { jobConceptIdentificationWorkflow } from './workflows/job-concept-identi
 import { jobDescriptionRetrievalWorkflow } from './workflows/job-description-retrieval.workflow';
 import { professionalStatementEvaluationWorkflow } from './workflows/professional-statement-evaluation.workflow';
 import { profileCurationWorkflow } from './workflows/profile-curation.workflow';
+import { agentSearchWorkflow } from './workflows/agent-search.workflow';
 import { weatherWorkflow } from './workflows/weather-workflow';
 
 console.log(`Configuration:\n${configuration}`);
@@ -76,7 +83,8 @@ const auth0Provider = new Auth0JwtProvider({
 
 const rbacProvider = new StaticRBACProvider<Auth0JwtUser>({
 	roles: DEFAULT_ROLES,
-	getUserRoles: (user) => (user.permissions?.includes('studio:admin') ? ['admin'] : ['member']),
+	getUserRoles: (user) =>
+		user.permissions?.includes('studio:admin') ? ['admin'] : ['member'],
 });
 
 export const mastra = new Mastra({
@@ -130,7 +138,9 @@ export const mastra = new Mastra({
 					requestContext.set(MASTRA_THREAD_ID_KEY, threadId);
 				}
 
-				const focusedRegions = parseFocusedPaths(context.req.header(FOCUSED_PATHS_HEADER));
+				const focusedRegions = parseFocusedPaths(
+					context.req.header(FOCUSED_PATHS_HEADER),
+				);
 				if (focusedRegions.length > 0) {
 					requestContext.set(FOCUSED_PATHS_KEY, focusedRegions);
 				}
@@ -151,6 +161,7 @@ export const mastra = new Mastra({
 		],
 	},
 	workflows: {
+		agentSearchWorkflow,
 		weatherWorkflow,
 		fitAssessmentWorkflow,
 		jobConceptIdentificationWorkflow,
@@ -184,6 +195,8 @@ export const mastra = new Mastra({
 		profileCurator: profileCuratorAgent,
 		profileCuratorFormatter: profileCuratorFormatterAgent,
 		resumeSummarizer: resumeSummarizerAgent,
+		searchPlannerAgent,
+		searchRankerAgent,
 		weatherAgent,
 		webAgent,
 	},

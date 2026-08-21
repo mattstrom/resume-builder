@@ -1,8 +1,4 @@
-import type {
-	Application,
-	ConceptQualifierValue,
-	Resume,
-} from '@resume-builder/entities';
+import type { Application, ConceptQualifierValue, Resume } from '@resume-builder/entities';
 
 export interface ResumeSearchMatch {
 	kind:
@@ -37,6 +33,7 @@ export interface SearchResumesData {
 export interface SearchResumesVariables {
 	query: string;
 	limit?: number;
+	semanticOnly?: boolean;
 }
 
 export interface ListApplicationsData {
