@@ -785,3 +785,22 @@ model FlowRun {
   @@index([uid, status])
   @@index([subjectType, subjectId])
 }
+
+// One effective human relevance judgment for an agent-search result.
+model SearchResultFeedback {
+  id          String   @id @default(cuid())
+  uid         String
+  searchRunId String
+  query       String
+  resultId    String
+  resultType  String
+  rank        Int
+  agentScore  Float
+  relevant    Boolean
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([uid, searchRunId, resultId])
+  @@index([uid, createdAt])
+  @@index([searchRunId])
+}

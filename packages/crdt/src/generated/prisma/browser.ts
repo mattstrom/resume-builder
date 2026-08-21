@@ -6,7 +6,7 @@
 /*
  * This file should be your main import to use Prisma-related types and utilities in a browser. 
  * Use it to get access to models, enums, and input types.
- * 
+ *
  * This file does not contain a `PrismaClient` class, nor several other helpers that are intended as server-side only.
  * See `client.ts` for the standard, server-side entry point.
  *
@@ -182,3 +182,8 @@ export type DocumentUpdate = Prisma.DocumentUpdateModel
  * 
  */
 export type FlowRun = Prisma.FlowRunModel
+/**
+ * Model SearchResultFeedback
+ *
+ */
+export type SearchResultFeedback = Prisma.SearchResultFeedbackModel

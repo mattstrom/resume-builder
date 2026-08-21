@@ -1,10 +1,31 @@
-import { useQuery } from '@apollo/client/react';
-import { BulletSourceType, type Resume } from '@resume-builder/entities';
+import { useMutation, useQuery } from '@apollo/client/react';
+import {
+	agentSearchOutputSchema,
+	type AgentSearchOutput,
+	BulletSourceType,
+	type Resume,
+} from '@resume-builder/entities';
 import { Link } from '@tanstack/react-router';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ArrowUpDown, ExternalLink, Filter, Search, Sparkles } from 'lucide-react';
+import {
+	ArrowUpDown,
+	ExternalLink,
+	Filter,
+	Search,
+	Sparkles,
+	ThumbsDown,
+	ThumbsUp,
+} from 'lucide-react';
 import { observer } from 'mobx-react';
-import { type FormEvent, useEffect, useMemo, useReducer, useState } from 'react';
+import {
+	type FormEvent,
+	useEffect,
+	useMemo,
+	useReducer,
+	useRef,
+	useState,
+} from 'react';
+import { toast } from 'sonner';
 import * as Y from 'yjs';
 
 import { Alert, AlertDescription } from '@/components/ui/alert.tsx';
@@ -17,7 +38,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card.tsx';
-import { DataTable, type DataTableFeatures } from '@/components/ui/data-table.tsx';
+import {
+	DataTable,
+	type DataTableFeatures,
+} from '@/components/ui/data-table.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -36,25 +60,25 @@ import {
 } from '@/components/ui/input-group.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
-import { ADVANCED_SEARCH } from '@/graphql/queries.ts';
+import {
+	ADVANCED_SEARCH,
+	SAVE_SEARCH_RESULT_FEEDBACK,
+} from '@/graphql/queries.ts';
 import type { ResumeSearchRecord } from '@/graphql/types.ts';
 import { bulletSourceRoute } from '@/lib/bullet-deep-link.ts';
 import { bulletFromGraphql, type GraphqlBullet } from '@/lib/bullet-graphql.ts';
 import { buildConceptIndex, type ConceptUsage } from '@/lib/concept-index.ts';
+import {
+	agentResult,
+	type SearchResultType,
+	type SearchTableResult,
+} from '@/lib/agent-search-result.ts';
+import { getMastraClient } from '@/lib/mastra-client.ts';
 import { useStore } from '@/stores/store.provider.tsx';
 
-export type AdvancedSearchMode = 'keyword' | 'vector';
+export type AdvancedSearchMode = 'keyword' | 'vector' | 'agent';
 
-type ResultType =
-	| 'Summary'
-	| 'Skill'
-	| 'Project'
-	| 'Work history'
-	| 'Volunteering'
-	| 'Fact'
-	| 'Bullet'
-	| 'Concept'
-	| 'Professional statement';
+type ResultType = SearchResultType;
 
 interface ProfessionalStatementSearchRecord {
 	id: string;
@@ -62,27 +86,7 @@ interface ProfessionalStatementSearchRecord {
 	text: string;
 }
 
-interface AdvancedSearchResult {
-	id: string;
-	type: ResultType;
-	title: string;
-	excerpt: string;
-	source: string;
-	score?: number;
-	relevanceLabel?: string;
-	to:
-		| '/editor/$applicationId'
-		| '/editor/resume/$resumeId'
-		| '/profile/skills'
-		| '/profile/projects'
-		| '/profile/work-history'
-		| '/profile/volunteering'
-		| '/profile/facts'
-		| '/profile/concepts'
-		| '/profile/statements';
-	params?: Record<string, string>;
-	search?: Record<string, string>;
-}
+type AdvancedSearchResult = SearchTableResult;
 
 interface AdvancedSearchData {
 	advancedSearch: {
@@ -130,7 +134,10 @@ type ConceptSearchResult = {
 	};
 };
 
-const columnHelper = createColumnHelper<DataTableFeatures, AdvancedSearchResult>();
+const columnHelper = createColumnHelper<
+	DataTableFeatures,
+	AdvancedSearchResult
+>();
 
 function sortableHeader(label: string) {
 	return ({
@@ -156,7 +163,9 @@ const columns = columnHelper.columns([
 		header: sortableHeader('Result'),
 		cell: ({ row }) => (
 			<div className="flex min-w-64 max-w-2xl flex-col gap-1">
-				<span className="font-medium leading-5">{row.original.title}</span>
+				<span className="font-medium leading-5">
+					{row.original.title}
+				</span>
 				<span className="line-clamp-2 text-sm leading-5 text-muted-foreground">
 					{row.original.excerpt}
 				</span>
@@ -166,37 +175,86 @@ const columns = columnHelper.columns([
 	columnHelper.accessor('source', {
 		header: sortableHeader('Source'),
 		cell: ({ getValue }) => (
-			<span className="whitespace-nowrap text-sm text-muted-foreground">{getValue()}</span>
+			<span className="whitespace-nowrap text-sm text-muted-foreground">
+				{getValue()}
+			</span>
 		),
 	}),
 	columnHelper.accessor((row) => row.score ?? -1, {
 		id: 'score',
 		header: sortableHeader('Relevance'),
 		cell: ({ row }) =>
-			row.original.relevanceLabel ? (
+			row.original.agentReason ? (
+				<div className="flex max-w-sm flex-col gap-1">
+					<span className="font-mono text-sm">
+						{Math.round((row.original.score ?? 0) * 100)}%
+					</span>
+					<span className="text-sm leading-5 text-muted-foreground">
+						{row.original.agentReason}
+					</span>
+				</div>
+			) : row.original.relevanceLabel ? (
 				<span className="whitespace-nowrap text-sm text-muted-foreground">
 					{row.original.relevanceLabel}
 				</span>
 			) : row.original.score === undefined ? (
 				<span className="text-sm text-muted-foreground">Keyword</span>
 			) : (
-				<span className="font-mono text-sm">{Math.round(row.original.score * 100)}%</span>
+				<span className="font-mono text-sm">
+					{Math.round(row.original.score * 100)}%
+				</span>
 			),
 	}),
 	columnHelper.display({
 		id: 'actions',
 		header: () => <span className="sr-only">Open result</span>,
 		cell: ({ row }) => (
-			<Button variant="ghost" size="sm" asChild>
-				<Link
-					to={row.original.to as never}
-					params={row.original.params as never}
-					search={row.original.search as never}
-				>
-					Open
-					<ExternalLink data-icon="inline-end" />
-				</Link>
-			</Button>
+			<div className="flex items-center justify-end gap-1">
+				{row.original.onFeedback ? (
+					<>
+						<Button
+							type="button"
+							variant={
+								row.original.feedback === true
+									? 'secondary'
+									: 'ghost'
+							}
+							size="icon"
+							aria-label="Mark result relevant"
+							aria-pressed={row.original.feedback === true}
+							disabled={row.original.feedbackPending}
+							onClick={() => row.original.onFeedback?.(true)}
+						>
+							<ThumbsUp />
+						</Button>
+						<Button
+							type="button"
+							variant={
+								row.original.feedback === false
+									? 'secondary'
+									: 'ghost'
+							}
+							size="icon"
+							aria-label="Mark result not relevant"
+							aria-pressed={row.original.feedback === false}
+							disabled={row.original.feedbackPending}
+							onClick={() => row.original.onFeedback?.(false)}
+						>
+							<ThumbsDown />
+						</Button>
+					</>
+				) : null}
+				<Button variant="ghost" size="sm" asChild>
+					<Link
+						to={row.original.to as never}
+						params={row.original.params as never}
+						search={row.original.search as never}
+					>
+						Open
+						<ExternalLink data-icon="inline-end" />
+					</Link>
+				</Button>
+			</div>
 		),
 	}),
 ]);
@@ -215,12 +273,27 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 	const [query, setQuery] = useState('');
 	const [submittedQuery, setSubmittedQuery] = useState('');
 	const [mode, setMode] = useState<AdvancedSearchMode>('keyword');
-	const [submittedMode, setSubmittedMode] = useState<AdvancedSearchMode>('keyword');
+	const [submittedMode, setSubmittedMode] =
+		useState<AdvancedSearchMode>('keyword');
 	const [selectedTypes, setSelectedTypes] = useState<Set<ResultType>>(
 		() => new Set(RESULT_TYPES),
 	);
-	const vectorSearchEnabled = submittedMode === 'vector' && submittedQuery.length >= 2;
-	const selectedApiResultTypes = [...selectedTypes].map((type) => RESULT_TYPE_API_VALUES[type]);
+	const [agentSearchData, setAgentSearchData] = useState<AgentSearchOutput>();
+	const [agentLoading, setAgentLoading] = useState(false);
+	const [agentSearchError, setAgentSearchError] = useState('');
+	const [feedback, setFeedback] = useState<
+		Record<string, boolean | undefined>
+	>({});
+	const [feedbackPending, setFeedbackPending] = useState<Set<string>>(
+		() => new Set(),
+	);
+	const requestGeneration = useRef(0);
+	const [saveSearchResultFeedback] = useMutation(SAVE_SEARCH_RESULT_FEEDBACK);
+	const vectorSearchEnabled =
+		submittedMode === 'vector' && submittedQuery.length >= 2;
+	const selectedApiResultTypes = [...selectedTypes].map(
+		(type) => RESULT_TYPE_API_VALUES[type],
+	);
 
 	useEffect(() => {
 		void profileStore.connect();
@@ -283,13 +356,16 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 		() =>
 			vectorSearchEnabled
 				? buildVectorResults({
-						bullets: advancedSearchData?.advancedSearch.bullets ?? [],
-						concepts: advancedSearchData?.advancedSearch.concepts ?? [],
+						bullets:
+							advancedSearchData?.advancedSearch.bullets ?? [],
+						concepts:
+							advancedSearchData?.advancedSearch.concepts ?? [],
 						facts: factsStore.facts,
 						projects: projectsStore.projects,
 						professionalStatements,
 						query: submittedQuery,
-						resumes: advancedSearchData?.advancedSearch.resumes ?? [],
+						resumes:
+							advancedSearchData?.advancedSearch.resumes ?? [],
 						skills: skillsStore.skills,
 						sources: {
 							jobs: jobsStore.jobs,
@@ -309,19 +385,121 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 			volunteeringStore.volunteering,
 		],
 	);
-	const allResults = submittedMode === 'vector' ? vectorResults : keywordResults;
-	const resultGroups = RESULT_TYPES.filter((type) => selectedTypes.has(type)).map((type) => ({
+	const saveFeedback = async (
+		result: AgentSearchResult,
+		rank: number,
+		relevant: boolean,
+	) => {
+		if (!agentSearchData) return;
+		setFeedbackPending((current) => new Set(current).add(result.id));
+		try {
+			await saveSearchResultFeedback({
+				variables: {
+					searchRunId: agentSearchData.searchRunId,
+					query: submittedQuery,
+					resultId: result.id,
+					resultType: result.type,
+					rank,
+					agentScore: result.score,
+					relevant,
+				},
+			});
+			setFeedback((current) => ({ ...current, [result.id]: relevant }));
+		} catch (error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					: 'Could not save search feedback.',
+			);
+		} finally {
+			setFeedbackPending((current) => {
+				const next = new Set(current);
+				next.delete(result.id);
+				return next;
+			});
+		}
+	};
+	const agentResults =
+		agentSearchData?.results.map((result, rank) =>
+			agentResult(
+				result,
+				feedback[result.id],
+				feedbackPending.has(result.id),
+				(relevant) => void saveFeedback(result, rank, relevant),
+			),
+		) ?? [];
+	const allResults =
+		submittedMode === 'vector'
+			? vectorResults
+			: submittedMode === 'agent'
+				? agentResults
+				: keywordResults;
+	const resultGroups = RESULT_TYPES.filter((type) =>
+		selectedTypes.has(type),
+	).map((type) => ({
 		type,
 		results: allResults.filter((result) => result.type === type),
 	}));
-	const resultCount = resultGroups.reduce((count, group) => count + group.results.length, 0);
+	const resultCount = resultGroups.reduce(
+		(count, group) => count + group.results.length,
+		0,
+	);
 	const searched = submittedQuery.length >= 2;
+	const searchLoading = loading || agentLoading;
+
+	const runAgentSearch = async (searchQuery: string) => {
+		const generation = ++requestGeneration.current;
+		setAgentLoading(true);
+		setAgentSearchError('');
+		setAgentSearchData(undefined);
+		setFeedback({});
+		try {
+			const client = await getMastraClient();
+			const workflow = client.getWorkflow('agentSearchWorkflow');
+			const run = await workflow.createRun();
+			const execution = await run.startAsync({
+				inputData: {
+					query: searchQuery,
+					resultTypes: selectedApiResultTypes,
+					limit: 50,
+				},
+				tracingOptions: {
+					metadata: {
+						feature: 'agent-search',
+						resultTypeCount: selectedApiResultTypes.length,
+					},
+				},
+			});
+			if (generation !== requestGeneration.current) return;
+			if (execution.status !== 'success') {
+				throw new Error('Agent search did not complete.');
+			}
+			setAgentSearchData(agentSearchOutputSchema.parse(execution.result));
+		} catch (error) {
+			if (generation !== requestGeneration.current) return;
+			setAgentSearchData(undefined);
+			setAgentSearchError(
+				error instanceof Error
+					? error.message
+					: 'Agent search could not complete.',
+			);
+		} finally {
+			if (generation === requestGeneration.current)
+				setAgentLoading(false);
+		}
+	};
 
 	const submit = (event: FormEvent) => {
 		event.preventDefault();
 		const nextQuery = query.trim();
 		setSubmittedQuery(nextQuery);
 		setSubmittedMode(mode);
+		if (mode === 'agent' && selectedTypes.size > 0) {
+			void runAgentSearch(nextQuery);
+		} else {
+			requestGeneration.current += 1;
+			setAgentLoading(false);
+		}
 	};
 	const toggleResultType = (type: ResultType) => {
 		setSelectedTypes((current) => {
@@ -341,12 +519,15 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 				<header className="flex max-w-3xl flex-col gap-2">
 					<div className="flex items-center gap-2">
 						<Sparkles aria-hidden="true" />
-						<h1 className="text-2xl font-semibold tracking-tight">Advanced search</h1>
+						<h1 className="text-2xl font-semibold tracking-tight">
+							Advanced search
+						</h1>
 					</div>
 					<p className="text-sm leading-6 text-muted-foreground">
-						Find evidence across summaries, skills, projects, work history,
-						volunteering, facts, bullets, concepts, and professional statements. Try
-						“DevOps,” “incident response,” or “platform reliability.”
+						Find evidence across summaries, skills, projects, work
+						history, volunteering, facts, bullets, concepts, and
+						professional statements. Try “DevOps,” “incident
+						response,” or “platform reliability.”
 					</p>
 				</header>
 
@@ -355,17 +536,23 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 						<div>
 							<CardTitle>Search your experience</CardTitle>
 							<CardDescription>
-								Keyword finds exact words. Vector finds related meaning even when
-								the wording differs.
+								Keyword finds exact words. Vector finds related
+								meaning. Agent expands and reranks ambiguous
+								searches.
 							</CardDescription>
 						</div>
 						<Tabs
 							value={mode}
-							onValueChange={(value) => setMode(value as AdvancedSearchMode)}
+							onValueChange={(value) =>
+								setMode(value as AdvancedSearchMode)
+							}
 						>
 							<TabsList>
-								<TabsTrigger value="keyword">Keyword</TabsTrigger>
+								<TabsTrigger value="keyword">
+									Keyword
+								</TabsTrigger>
 								<TabsTrigger value="vector">Vector</TabsTrigger>
+								<TabsTrigger value="agent">Agent</TabsTrigger>
 							</TabsList>
 						</Tabs>
 					</CardHeader>
@@ -377,11 +564,15 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 								</InputGroupAddon>
 								<InputGroupInput
 									value={query}
-									onChange={(event) => setQuery(event.target.value)}
+									onChange={(event) =>
+										setQuery(event.target.value)
+									}
 									placeholder={
 										mode === 'vector'
 											? 'Describe the kind of experience you need…'
-											: 'Search for a skill, technology, or phrase…'
+											: mode === 'agent'
+												? 'Ask for evidence with multiple skills or constraints…'
+												: 'Search for a skill, technology, or phrase…'
 									}
 									aria-label="Search profile evidence"
 								/>
@@ -390,9 +581,14 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 										type="submit"
 										variant="default"
 										size="sm"
-										disabled={query.trim().length < 2 || loading}
+										disabled={
+											query.trim().length < 2 ||
+											searchLoading
+										}
 									>
-										{loading ? <Spinner data-icon="inline-start" /> : null}
+										{searchLoading ? (
+											<Spinner data-icon="inline-start" />
+										) : null}
 										Search
 									</InputGroupButton>
 								</InputGroupAddon>
@@ -401,18 +597,41 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 					</CardContent>
 				</Card>
 
-				<section className="flex flex-col gap-4" aria-labelledby="search-results">
-					{searchError ? (
+				<section
+					className="flex flex-col gap-4"
+					aria-labelledby="search-results"
+				>
+					{searchError && submittedMode === 'vector' ? (
 						<Alert variant="destructive">
 							<AlertDescription>
-								Vector search could not complete. Check the embedding service and
-								try again, or switch to keyword search.
+								Vector search could not complete. Check the
+								embedding service and try again, or switch to
+								keyword search.
+							</AlertDescription>
+						</Alert>
+					) : null}
+					{agentSearchError && submittedMode === 'agent' ? (
+						<Alert variant="destructive">
+							<AlertDescription>
+								{agentSearchError}
+							</AlertDescription>
+						</Alert>
+					) : null}
+					{agentSearchData?.degraded && submittedMode === 'agent' ? (
+						<Alert>
+							<AlertDescription>
+								Agent assistance was partially unavailable, so
+								these results use hybrid keyword and vector
+								ranking.
 							</AlertDescription>
 						</Alert>
 					) : null}
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div className="flex items-center gap-2">
-							<h2 id="search-results" className="text-lg font-semibold">
+							<h2
+								id="search-results"
+								className="text-lg font-semibold"
+							>
 								Results
 							</h2>
 							<Badge variant="secondary">{resultCount}</Badge>
@@ -423,20 +642,27 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 									<Filter data-icon="inline-start" />
 									Result types
 									<Badge variant="secondary">
-										{selectedTypes.size}/{RESULT_TYPES.length}
+										{selectedTypes.size}/
+										{RESULT_TYPES.length}
 									</Badge>
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-56">
-								<DropdownMenuLabel>Return results for</DropdownMenuLabel>
+								<DropdownMenuLabel>
+									Return results for
+								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
 									{RESULT_TYPES.map((type) => (
 										<DropdownMenuCheckboxItem
 											key={type}
 											checked={selectedTypes.has(type)}
-											onCheckedChange={() => toggleResultType(type)}
-											onSelect={(event) => event.preventDefault()}
+											onCheckedChange={() =>
+												toggleResultType(type)
+											}
+											onSelect={(event) =>
+												event.preventDefault()
+											}
 										>
 											{RESULT_TYPE_LABELS[type]}
 										</DropdownMenuCheckboxItem>
@@ -445,11 +671,19 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 								<DropdownMenuSeparator />
 								<DropdownMenuGroup>
 									<DropdownMenuItem
-										onSelect={() => setSelectedTypes(new Set(RESULT_TYPES))}
+										onSelect={() =>
+											setSelectedTypes(
+												new Set(RESULT_TYPES),
+											)
+										}
 									>
 										Select all
 									</DropdownMenuItem>
-									<DropdownMenuItem onSelect={() => setSelectedTypes(new Set())}>
+									<DropdownMenuItem
+										onSelect={() =>
+											setSelectedTypes(new Set())
+										}
+									>
 										Clear all
 									</DropdownMenuItem>
 								</DropdownMenuGroup>
@@ -460,24 +694,31 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 					{selectedTypes.size === 0 ? (
 						<Alert>
 							<AlertDescription>
-								Select at least one result type to return search results.
+								Select at least one result type to return search
+								results.
 							</AlertDescription>
 						</Alert>
 					) : !searched ? (
 						<Alert>
 							<AlertDescription>
-								Enter at least two characters to search your selected result types.
+								Enter at least two characters to search your
+								selected result types.
 							</AlertDescription>
 						</Alert>
 					) : (
 						<div className="flex flex-col gap-8">
 							{resultGroups.map((group) => (
-								<section key={group.type} className="flex flex-col gap-3">
+								<section
+									key={group.type}
+									className="flex flex-col gap-3"
+								>
 									<div className="flex items-center gap-2">
 										<h3 className="text-base font-semibold">
 											{RESULT_TYPE_LABELS[group.type]}
 										</h3>
-										<Badge variant="outline">{group.results.length}</Badge>
+										<Badge variant="outline">
+											{group.results.length}
+										</Badge>
 									</div>
 									<DataTable
 										columns={columns}
@@ -485,7 +726,7 @@ export const AdvancedSearchPage = observer(function AdvancedSearchPage() {
 										getRowId={(row) => row.id}
 										initialPageSize={10}
 										emptyMessage={
-											loading
+											searchLoading
 												? `Searching ${RESULT_TYPE_LABELS[group.type].toLocaleLowerCase()}…`
 												: `No matching ${RESULT_TYPE_LABELS[group.type].toLocaleLowerCase()}.`
 										}
@@ -524,17 +765,18 @@ const RESULT_TYPE_LABELS: Record<ResultType, string> = {
 	'Professional statement': 'Professional statements',
 };
 
-const RESULT_TYPE_API_VALUES: Record<ResultType, AdvancedSearchApiResultType> = {
-	Summary: 'SUMMARY',
-	Skill: 'SKILL',
-	Project: 'PROJECT',
-	'Work history': 'WORK_HISTORY',
-	Volunteering: 'VOLUNTEERING',
-	Fact: 'FACT',
-	Bullet: 'BULLET',
-	Concept: 'CONCEPT',
-	'Professional statement': 'PROFESSIONAL_STATEMENT',
-};
+const RESULT_TYPE_API_VALUES: Record<ResultType, AdvancedSearchApiResultType> =
+	{
+		Summary: 'SUMMARY',
+		Skill: 'SKILL',
+		Project: 'PROJECT',
+		'Work history': 'WORK_HISTORY',
+		Volunteering: 'VOLUNTEERING',
+		Fact: 'FACT',
+		Bullet: 'BULLET',
+		Concept: 'CONCEPT',
+		'Professional statement': 'PROFESSIONAL_STATEMENT',
+	};
 
 function useProfessionalStatements(
 	array: Y.Array<Y.Map<unknown>> | null,
@@ -559,10 +801,14 @@ function yString(value: Y.Map<unknown>, field: string): string {
 	return typeof stored === 'string' ? stored : '';
 }
 
-function containsQuery(query: string, values: Array<string | undefined>): boolean {
+function containsQuery(
+	query: string,
+	values: Array<string | undefined>,
+): boolean {
 	const normalized = query.trim().toLocaleLowerCase();
 	return Boolean(
-		normalized && values.some((value) => value?.toLocaleLowerCase().includes(normalized)),
+		normalized &&
+		values.some((value) => value?.toLocaleLowerCase().includes(normalized)),
 	);
 }
 
@@ -578,7 +824,8 @@ function professionalStatementResults(
 						id: `professional-statement:${statement.id}`,
 						type: 'Professional statement' as const,
 						title: statement.label,
-						excerpt: statement.text || 'Empty professional statement',
+						excerpt:
+							statement.text || 'Empty professional statement',
 						source: 'Profile statements',
 						relevanceLabel: vectorMode ? 'Text match' : undefined,
 						to: '/profile/statements' as const,
@@ -638,8 +885,11 @@ function buildKeywordResults(
 	return [
 		...data.resumes.flatMap((resume) => {
 			const summary = resume.data?.summary;
-			if (!containsQuery(query, [resume.name, resume.company, summary])) return [];
-			return [resumeResult(resume, summary || 'No resume summary available.')];
+			if (!containsQuery(query, [resume.name, resume.company, summary]))
+				return [];
+			return [
+				resumeResult(resume, summary || 'No resume summary available.'),
+			];
 		}),
 		...data.skills.flatMap((skill) =>
 			containsQuery(query, [skill.name, skill.category])
@@ -657,7 +907,11 @@ function buildKeywordResults(
 		),
 		...data.bullets.flatMap((bullet) => {
 			if (!containsQuery(query, [bullet.text])) return [];
-			const source = sourcePresentation(bullet.sourceType, bullet.sourceId, sources);
+			const source = sourcePresentation(
+				bullet.sourceType,
+				bullet.sourceId,
+				sources,
+			);
 			return [
 				{
 					id: `source-bullet:${bullet.id}`,
@@ -716,7 +970,11 @@ function buildKeywordResults(
 				: [],
 		),
 		...data.jobs.flatMap((job) =>
-			containsQuery(query, [job.position, job.company, ...job.responsibilities])
+			containsQuery(query, [
+				job.position,
+				job.company,
+				...job.responsibilities,
+			])
 				? [
 						{
 							id: `job:${job._id}`,
@@ -730,12 +988,18 @@ function buildKeywordResults(
 				: [],
 		),
 		...data.volunteering.flatMap((item) =>
-			containsQuery(query, [item.position, item.organization, ...item.responsibilities])
+			containsQuery(query, [
+				item.position,
+				item.organization,
+				...item.responsibilities,
+			])
 				? [
 						{
 							id: `volunteering:${item._id}`,
 							type: 'Volunteering' as const,
-							title: [item.position, item.organization].filter(Boolean).join(' at '),
+							title: [item.position, item.organization]
+								.filter(Boolean)
+								.join(' at '),
 							excerpt: item.responsibilities.join(' '),
 							source: 'Profile volunteering',
 							to: '/profile/volunteering' as const,
@@ -750,7 +1014,9 @@ function buildKeywordResults(
 							id: `fact:${fact.id}`,
 							type: 'Fact' as const,
 							title: fact.what,
-							excerpt: [fact.impact, fact.scale].filter(Boolean).join(' · '),
+							excerpt: [fact.impact, fact.scale]
+								.filter(Boolean)
+								.join(' · '),
 							source: 'Profile facts',
 							to: '/profile/facts' as const,
 						},
@@ -788,7 +1054,11 @@ function buildVectorResults(data: {
 		...data.resumes.map((resume) => semanticResumeResult(resume)),
 		...data.bullets.flatMap(({ bullet: rawBullet, score }) => {
 			const bullet = bulletFromGraphql(rawBullet);
-			const source = sourcePresentation(bullet.sourceType, bullet.sourceId, data.sources);
+			const source = sourcePresentation(
+				bullet.sourceType,
+				bullet.sourceId,
+				data.sources,
+			);
 			return [
 				{
 					id: `source-bullet:${bullet.id}`,
@@ -807,12 +1077,17 @@ function buildVectorResults(data: {
 			id: `concept:${concept.id}`,
 			type: 'Concept' as const,
 			title: concept.label,
-			excerpt: concept.definition || `${concept.vocabulary} · ${concept.key}`,
+			excerpt:
+				concept.definition || `${concept.vocabulary} · ${concept.key}`,
 			source: 'Profile concepts',
 			score,
 			to: '/profile/concepts' as const,
 		})),
-		...professionalStatementResults(data.query, data.professionalStatements, true),
+		...professionalStatementResults(
+			data.query,
+			data.professionalStatements,
+			true,
+		),
 	];
 
 	const conceptScores = new Map(
@@ -870,9 +1145,9 @@ function buildVectorResults(data: {
 		});
 	}
 
-	return [...new Map(results.map((result) => [result.id, result])).values()].sort(
-		(left, right) => (right.score ?? 0) - (left.score ?? 0),
-	);
+	return [
+		...new Map(results.map((result) => [result.id, result])).values(),
+	].sort((left, right) => (right.score ?? 0) - (left.score ?? 0));
 }
 
 function resumeResult(resume: Resume, excerpt: string): AdvancedSearchResult {
@@ -882,7 +1157,9 @@ function resumeResult(resume: Resume, excerpt: string): AdvancedSearchResult {
 		title: resume.name || 'Untitled resume',
 		excerpt,
 		source: resume.company || (resume.base ? 'Base resume' : 'Resume'),
-		to: resume.applicationId ? '/editor/$applicationId' : '/editor/resume/$resumeId',
+		to: resume.applicationId
+			? '/editor/$applicationId'
+			: '/editor/resume/$resumeId',
 		params: resume.applicationId
 			? { applicationId: resume.applicationId }
 			: { resumeId: resume._id },
@@ -890,7 +1167,9 @@ function resumeResult(resume: Resume, excerpt: string): AdvancedSearchResult {
 	};
 }
 
-function semanticResumeResult(resume: ResumeSearchRecord): AdvancedSearchResult {
+function semanticResumeResult(
+	resume: ResumeSearchRecord,
+): AdvancedSearchResult {
 	return {
 		id: `resume:${resume.resumeId}`,
 		type: 'Summary',
@@ -902,11 +1181,15 @@ function semanticResumeResult(resume: ResumeSearchRecord): AdvancedSearchResult 
 		source: resume.company || (resume.base ? 'Base resume' : 'Resume'),
 		score: Math.min(1, Math.max(0, resume.score * 60)),
 		relevanceLabel: 'Vector match',
-		to: resume.applicationId ? '/editor/$applicationId' : '/editor/resume/$resumeId',
+		to: resume.applicationId
+			? '/editor/$applicationId'
+			: '/editor/resume/$resumeId',
 		params: resume.applicationId
 			? { applicationId: resume.applicationId }
 			: { resumeId: resume.resumeId },
-		search: resume.applicationId ? { resumeId: resume.resumeId } : undefined,
+		search: resume.applicationId
+			? { resumeId: resume.resumeId }
+			: undefined,
 	};
 }
 
@@ -948,7 +1231,9 @@ function sourcePresentation(
 		const job = sources.jobs.find((item) => item._id === id);
 		return {
 			type: 'Work history',
-			label: job ? `${job.position} at ${job.company}` : 'Work responsibility',
+			label: job
+				? `${job.position} at ${job.company}`
+				: 'Work responsibility',
 			source: 'Profile work history',
 		};
 	}
@@ -964,8 +1249,9 @@ function sourcePresentation(
 	return {
 		type: 'Volunteering',
 		label:
-			[volunteering?.position, volunteering?.organization].filter(Boolean).join(' at ') ||
-			'Volunteer responsibility',
+			[volunteering?.position, volunteering?.organization]
+				.filter(Boolean)
+				.join(' at ') || 'Volunteer responsibility',
 		source: 'Profile volunteering',
 	};
 }

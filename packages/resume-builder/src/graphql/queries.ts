@@ -226,7 +226,11 @@ export const LIST_BASE_RESUMES = gql`
 
 export const SEARCH_RESUMES = gql`
 	query SearchResumes($query: String!, $limit: Int, $semanticOnly: Boolean) {
-		searchResumes(query: $query, limit: $limit, semanticOnly: $semanticOnly) {
+		searchResumes(
+			query: $query
+			limit: $limit
+			semanticOnly: $semanticOnly
+		) {
 			resumeId
 			name
 			company
@@ -528,7 +532,10 @@ export const GET_PROFILE_KNOWLEDGE_LEDGER = gql`
 
 export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
-		conceptEvidenceAssessment(applicationId: $applicationId, resumeId: $resumeId) {
+		conceptEvidenceAssessment(
+			applicationId: $applicationId
+			resumeId: $resumeId
+		) {
 			id
 			applicationId
 			resumeId
@@ -569,8 +576,16 @@ export const SAVE_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 `;
 
 export const LIST_CONCEPT_SUGGESTIONS = gql`
-	query ListConceptSuggestions($vocabulary: String!, $search: String, $limit: Int) {
-		conceptSuggestions(vocabulary: $vocabulary, search: $search, limit: $limit) {
+	query ListConceptSuggestions(
+		$vocabulary: String!
+		$search: String
+		$limit: Int
+	) {
+		conceptSuggestions(
+			vocabulary: $vocabulary
+			search: $search
+			limit: $limit
+		) {
 			vocabulary
 			key
 			label
@@ -580,7 +595,12 @@ export const LIST_CONCEPT_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_CONCEPTS = gql`
-	query SearchConcepts($query: String!, $vocabulary: String, $limit: Int, $minimumScore: Float) {
+	query SearchConcepts(
+		$query: String!
+		$vocabulary: String
+		$limit: Int
+		$minimumScore: Float
+	) {
 		searchConcepts(
 			query: $query
 			vocabulary: $vocabulary
@@ -674,7 +694,12 @@ export const SEARCH_BULLETS = gql`
 		$limit: Int
 		$minimumScore: Float
 	) {
-		searchBullets(query: $query, filter: $filter, limit: $limit, minimumScore: $minimumScore) {
+		searchBullets(
+			query: $query
+			filter: $filter
+			limit: $limit
+			minimumScore: $minimumScore
+		) {
 			score
 			bullet {
 				...BulletFields
@@ -743,4 +768,32 @@ export const ADVANCED_SEARCH = gql`
 	}
 
 	${bulletFields}
+`;
+
+export const SAVE_SEARCH_RESULT_FEEDBACK = gql`
+	mutation SaveSearchResultFeedback(
+		$searchRunId: String!
+		$query: String!
+		$resultId: String!
+		$resultType: String!
+		$rank: Int!
+		$agentScore: Float!
+		$relevant: Boolean!
+	) {
+		saveSearchResultFeedback(
+			searchRunId: $searchRunId
+			query: $query
+			resultId: $resultId
+			resultType: $resultType
+			rank: $rank
+			agentScore: $agentScore
+			relevant: $relevant
+		) {
+			id
+			searchRunId
+			resultId
+			relevant
+			updatedAt
+		}
+	}
 `;

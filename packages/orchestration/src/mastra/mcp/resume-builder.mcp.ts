@@ -41,6 +41,7 @@ type Tools =
 	| 'upsert_fact_concept'
 	| 'get_bullets'
 	| 'get_bullet'
+	| 'search_profile_evidence'
 	| 'upsert_bullet_concept'
 	| 'get_expressions'
 	| 'create_expression'
@@ -68,7 +69,9 @@ interface ResumeBuilderMCPToolsets extends Record<
 
 class ResumeBuilderMCPClient extends MCPClient {
 	constructor(token: string, id: string) {
-		const url = process.env['RESUME_BUILDER_MCP_URL'] ?? 'http://localhost:3000/mcp';
+		const url =
+			process.env['RESUME_BUILDER_MCP_URL'] ??
+			'http://localhost:3000/mcp';
 
 		super({
 			id,
@@ -153,7 +156,9 @@ function getCachedClient(token: string): CachedClient {
 		// streamable transport retries a failed connection indefinitely (~1/sec)
 		// rather than giving up — so a client created this way never dies on its
 		// own and must never be created in the first place.
-		throw new Error('Cannot create the resume-builder MCP client without an auth token');
+		throw new Error(
+			'Cannot create the resume-builder MCP client without an auth token',
+		);
 	}
 
 	scheduleIdleSweep();
@@ -167,18 +172,26 @@ function getCachedClient(token: string): CachedClient {
 	}
 
 	const client = new ResumeBuilderMCPClient(token, id);
-	const toolsetPromise = client.listToolsetsWithErrors().then(({ toolsets, errors }) => {
-		const tools = toolsets['resumeBuilder'];
+	const toolsetPromise = client
+		.listToolsetsWithErrors()
+		.then(({ toolsets, errors }) => {
+			const tools = toolsets['resumeBuilder'];
 
-		if (!tools) {
-			const reason = errors['resumeBuilder'] ?? 'connection failed';
-			throw new Error(`Could not reach the resume-builder MCP server: ${reason}`);
-		}
+			if (!tools) {
+				const reason = errors['resumeBuilder'] ?? 'connection failed';
+				throw new Error(
+					`Could not reach the resume-builder MCP server: ${reason}`,
+				);
+			}
 
-		return tools;
-	});
+			return tools;
+		});
 
-	const entry: CachedClient = { client, toolsetPromise, lastUsedAt: Date.now() };
+	const entry: CachedClient = {
+		client,
+		toolsetPromise,
+		lastUsedAt: Date.now(),
+	};
 	clientsByToken.set(id, entry);
 
 	// Don't cache a failed connection attempt — let the next call retry fresh.
@@ -194,12 +207,16 @@ function getCachedClient(token: string): CachedClient {
  * Fetches the resume-builder MCP toolset for `token`, reusing a cached,
  * already-connected client when one exists for this token.
  */
-export async function getResumeBuilderTools(token: string): Promise<ResumeBuilderMCPTools> {
+export async function getResumeBuilderTools(
+	token: string,
+): Promise<ResumeBuilderMCPTools> {
 	const tools = await getCachedClient(token).toolsetPromise;
 	const prefixed = {} as ResumeBuilderMCPTools;
 
 	for (const [name, tool] of Object.entries(tools)) {
-		(prefixed as Record<string, Tool<any, any, any, any>>)[`resumeBuilder_${name}`] = tool;
+		(prefixed as Record<string, Tool<any, any, any, any>>)[
+			`resumeBuilder_${name}`
+		] = tool;
 	}
 
 	return prefixed;

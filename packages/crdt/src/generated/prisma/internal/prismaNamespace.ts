@@ -416,7 +416,8 @@ export const ModelName = {
   BulletConcept: 'BulletConcept',
   ResumeFact: 'ResumeFact',
   DocumentUpdate: 'DocumentUpdate',
-  FlowRun: 'FlowRun'
+  FlowRun: 'FlowRun',
+  SearchResultFeedback: 'SearchResultFeedback'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -432,7 +433,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "requirementGradeFeedback" | "profileKnowledgeProposal" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "projectConcept" | "skill" | "skillConcept" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun"
+    modelProps: "profile" | "conversation" | "conversationMessage" | "fact" | "concept" | "conceptAlias" | "factConcept" | "conceptRelation" | "expression" | "jobRequirementFact" | "jobRequirementConcept" | "resume" | "resumeXml" | "application" | "conceptEvidenceAssessment" | "requirementGradeFeedback" | "profileKnowledgeProposal" | "company" | "coverLetter" | "contactInformation" | "job" | "education" | "project" | "projectConcept" | "skill" | "skillConcept" | "skillGroup" | "volunteering" | "bullet" | "bulletConcept" | "resumeFact" | "documentUpdate" | "flowRun" | "searchResultFeedback"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2862,6 +2863,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SearchResultFeedback: {
+      payload: Prisma.$SearchResultFeedbackPayload<ExtArgs>
+      fields: Prisma.SearchResultFeedbackFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SearchResultFeedbackFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SearchResultFeedbackFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        findFirst: {
+          args: Prisma.SearchResultFeedbackFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SearchResultFeedbackFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        findMany: {
+          args: Prisma.SearchResultFeedbackFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>[]
+        }
+        create: {
+          args: Prisma.SearchResultFeedbackCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        createMany: {
+          args: Prisma.SearchResultFeedbackCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SearchResultFeedbackCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>[]
+        }
+        delete: {
+          args: Prisma.SearchResultFeedbackDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        update: {
+          args: Prisma.SearchResultFeedbackUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        deleteMany: {
+          args: Prisma.SearchResultFeedbackDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SearchResultFeedbackUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SearchResultFeedbackUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>[]
+        }
+        upsert: {
+          args: Prisma.SearchResultFeedbackUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SearchResultFeedbackPayload>
+        }
+        aggregate: {
+          args: Prisma.SearchResultFeedbackAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSearchResultFeedback>
+        }
+        groupBy: {
+          args: Prisma.SearchResultFeedbackGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchResultFeedbackGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SearchResultFeedbackCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SearchResultFeedbackCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3408,6 +3483,23 @@ export const FlowRunScalarFieldEnum = {
 export type FlowRunScalarFieldEnum = (typeof FlowRunScalarFieldEnum)[keyof typeof FlowRunScalarFieldEnum]
 
 
+export const SearchResultFeedbackScalarFieldEnum = {
+  id: 'id',
+  uid: 'uid',
+  searchRunId: 'searchRunId',
+  query: 'query',
+  resultId: 'resultId',
+  resultType: 'resultType',
+  rank: 'rank',
+  agentScore: 'agentScore',
+  relevant: 'relevant',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SearchResultFeedbackScalarFieldEnum = (typeof SearchResultFeedbackScalarFieldEnum)[keyof typeof SearchResultFeedbackScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3807,6 +3899,7 @@ export type GlobalOmitConfig = {
   resumeFact?: Prisma.ResumeFactOmit
   documentUpdate?: Prisma.DocumentUpdateOmit
   flowRun?: Prisma.FlowRunOmit
+  searchResultFeedback?: Prisma.SearchResultFeedbackOmit
 }
 
 /* Types for Logging */
