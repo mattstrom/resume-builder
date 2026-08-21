@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
 	BlankResumeCreateInput,
 	Resume,
@@ -11,6 +11,7 @@ import {
 import { CurrentUser } from '../../auth/index.js';
 import { CrdtApiService } from '../../crdt-client/crdt-api.service.js';
 import { ResumesService } from './resumes.service.js';
+import { ResumeSearchResult } from './resume-search.graphql.js';
 
 @Resolver(() => Resume)
 export class ResumeResolver {
@@ -33,6 +34,16 @@ export class ResumeResolver {
 	@Query(() => Resume)
 	async getResume(@CurrentUser('sub') uid: string, @Args('id') id: string) {
 		return this.resumesService.find(uid, id);
+	}
+
+	@Query(() => [ResumeSearchResult])
+	async searchResumes(
+		@CurrentUser('sub') uid: string,
+		@Args('query') query: string,
+		@Args('limit', { type: () => Int, nullable: true, defaultValue: 10 })
+		limit: number,
+	): Promise<ResumeSearchResult[]> {
+		return this.resumesService.search(uid, query, limit);
 	}
 
 	@Mutation(() => Resume)
@@ -61,7 +72,10 @@ export class ResumeResolver {
 	}
 
 	@Mutation(() => Boolean)
-	async deleteResume(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
+	async deleteResume(
+		@CurrentUser('sub') uid: string,
+		@Args('id') id: string,
+	): Promise<boolean> {
 		await this.resumesService.delete(uid, id);
 		return true;
 	}

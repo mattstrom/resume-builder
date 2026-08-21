@@ -26,5 +26,5 @@ export interface ResumeSummaryDocumentProvider {
 		resumeId: string,
 		sourceUpdatedAt: string,
 		summary: ResumeSummaryValue,
-	): Promise<boolean>;
+	): Promise<number | null>;
 }

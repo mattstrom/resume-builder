@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 
 import { SettingsProvider } from './components/Settings.provider.tsx';
 import { SnackbarProvider } from './components/SnackbarProvider';
+import { GlobalSearchPalette } from './components/search/GlobalSearchPalette.tsx';
 import { useStore } from './stores/store.provider.tsx';
 
 import './App.css';
@@ -17,6 +18,7 @@ export const App: FC = () => {
 			<SettingsProvider>
 				<ApolloProvider client={client}>
 					<Outlet />
+					<GlobalSearchPalette />
 					<Toaster />
 				</ApolloProvider>
 			</SettingsProvider>

@@ -2,6 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 
 import type { PrismaService } from '../../prisma';
 import type { ResumeXmlRepository } from './resume-xml.repository';
+import type { EmbeddingService } from '../../queue/embeddings/embedding.service';
 import { ResumesService } from './resumes.service';
 
 jest.mock('../../prisma/index.js', () => ({ PrismaService: class {} }));
@@ -11,11 +12,16 @@ jest.mock('@resume-builder/entities', () => ({
 		DATE: 'DATE',
 		LEVEL: 'LEVEL',
 	},
+	resumeSummarySchema: {
+		safeParse: (value: unknown) =>
+			value ? { success: true, data: value } : { success: false },
+	},
 }));
 
 describe('ResumesService', () => {
 	const uid = 'auth0|test';
 	const prisma = {
+		$queryRawUnsafe: jest.fn(),
 		$transaction: jest.fn(),
 		documentUpdate: {
 			deleteMany: jest.fn(),
@@ -23,6 +29,7 @@ describe('ResumesService', () => {
 		resume: {
 			delete: jest.fn(),
 			findFirst: jest.fn(),
+			findMany: jest.fn(),
 			update: jest.fn(),
 			updateMany: jest.fn(),
 		},
@@ -33,13 +40,16 @@ describe('ResumesService', () => {
 	const resumeXml = {
 		find: jest.fn(),
 	};
+	const embedding = { embed: jest.fn() };
 
 	let service: ResumesService;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
 		prisma.$transaction.mockResolvedValue([]);
-		prisma.documentUpdate.deleteMany.mockReturnValue(Promise.resolve({ count: 1 }));
+		prisma.documentUpdate.deleteMany.mockReturnValue(
+			Promise.resolve({ count: 1 }),
+		);
 		prisma.resume.delete.mockReturnValue(Promise.resolve({ id: 'resume-1' }));
 		prisma.resume.updateMany.mockReturnValue(Promise.resolve({ count: 1 }));
 		prisma.resumeFact.deleteMany.mockReturnValue(Promise.resolve({ count: 1 }));
@@ -47,6 +57,77 @@ describe('ResumesService', () => {
 		service = new ResumesService(
 			prisma as unknown as PrismaService,
 			resumeXml as unknown as ResumeXmlRepository,
+			embedding as unknown as EmbeddingService,
+		);
+	});
+
+	it('fuses tenant-scoped lexical and semantic resume matches', async () => {
+		prisma.$queryRawUnsafe
+			.mockResolvedValueOnce([
+				{
+					id: 'resume-name',
+					nameMatch: true,
+					companyMatch: false,
+					lexicalScore: 0.8,
+				},
+				{
+					id: 'resume-semantic',
+					nameMatch: false,
+					companyMatch: false,
+					lexicalScore: 0.3,
+				},
+			])
+			.mockResolvedValueOnce([
+				{ id: 'resume-semantic', distance: 0.1 },
+				{ id: 'resume-name', distance: 0.2 },
+			]);
+		embedding.embed.mockResolvedValue([0.1, 0.2]);
+		prisma.resume.findMany.mockResolvedValue([
+			{
+				id: 'resume-name',
+				uid,
+				name: 'Platform resume',
+				company: '',
+				level: null,
+				base: true,
+				applicationId: null,
+				summary: null,
+				updatedAt: new Date(),
+			},
+			{
+				id: 'resume-semantic',
+				uid,
+				name: 'Other',
+				company: '',
+				level: null,
+				base: false,
+				applicationId: 'app-1',
+				updatedAt: new Date(),
+				summary: {
+					dominantTheme: 'distributed platform engineering',
+					summaryTheme: 'Reliable services',
+					projects: [],
+					technologies: [],
+					contentThemes: ['distributed systems'],
+				},
+			},
+		]);
+
+		const results = await service.search(uid, 'platform', 10);
+
+		expect(results.map(({ resumeId }) => resumeId)).toEqual([
+			'resume-name',
+			'resume-semantic',
+		]);
+		expect(results[0]?.matches).toContainEqual({ kind: 'NAME', label: 'Name' });
+		expect(results[1]?.matches).toContainEqual({
+			kind: 'SEMANTIC',
+			label: 'Similar content',
+		});
+		expect(prisma.$queryRawUnsafe.mock.calls[0][1]).toBe(uid);
+		expect(prisma.$queryRawUnsafe.mock.calls[1][2]).toBe(uid);
+		expect(prisma.resume.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({ where: expect.objectContaining({ uid }) }),
 		);
 	});
 
@@ -59,7 +140,9 @@ describe('ResumesService', () => {
 			data: {},
 		});
 
-		const result = await service.update(uid, 'resume-1', { name: 'Renamed resume' });
+		const result = await service.update(uid, 'resume-1', {
+			name: 'Renamed resume',
+		});
 
 		expect(prisma.resume.findFirst).toHaveBeenCalledWith({
 			where: { id: 'resume-1', uid },
@@ -110,7 +193,9 @@ describe('ResumesService', () => {
 	it('does not delete a resume that is not owned by the user', async () => {
 		prisma.resume.findFirst.mockResolvedValue(null);
 
-		await expect(service.delete(uid, 'resume-1')).rejects.toBeInstanceOf(NotFoundException);
+		await expect(service.delete(uid, 'resume-1')).rejects.toBeInstanceOf(
+			NotFoundException,
+		);
 
 		expect(prisma.$transaction).not.toHaveBeenCalled();
 	});

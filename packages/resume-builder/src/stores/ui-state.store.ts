@@ -28,6 +28,9 @@ export class UiStateStore {
 	@observable
 	chatOpen: boolean = false;
 
+	@observable
+	commandPaletteOpen: boolean = false;
+
 	@computed
 	get isResumeEditable() {
 		return this.mode === Mode.Edit && !this.isPreviewRoute;
@@ -76,6 +79,11 @@ export class UiStateStore {
 	}
 
 	@action
+	setCommandPaletteOpen(open: boolean) {
+		this.commandPaletteOpen = open;
+	}
+
+	@action
 	setViewMode(viewMode: ViewMode) {
 		this.viewMode = viewMode;
 	}
@@ -85,7 +93,11 @@ export class UiStateStore {
 		this.sidebarOpen = open === undefined ? !this.sidebarOpen : open;
 	}
 
-	watch<P extends keyof this>(property: P, storageKey: StorageKey, defaultValue: this[P]) {
+	watch<P extends keyof this>(
+		property: P,
+		storageKey: StorageKey,
+		defaultValue: this[P],
+	) {
 		const { persistence } = this.rootStore;
 
 		this[property] = persistence.retrieveSession(storageKey, defaultValue)!;

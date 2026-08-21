@@ -5,6 +5,7 @@ import { Queue } from 'bullmq';
 import { QUEUES } from '../queues.js';
 import {
 	EMBEDDING_JOB_NAMES,
+	EMBEDDING_RECONCILIATION_BATCH_SIZE,
 	EMBEDDING_RECONCILIATION_INTERVAL_MS,
 	EMBEDDING_RECONCILIATION_SCHEDULER,
 } from './embedding.constants.js';
@@ -17,12 +18,13 @@ export class EmbeddingQueueService implements OnModuleInit {
 	constructor(@InjectQueue(QUEUES.EMBEDDINGS) private readonly queue: Queue) {}
 
 	async onModuleInit(): Promise<void> {
+		await this.queue.setGlobalConcurrency(1);
 		await this.queue.upsertJobScheduler(
 			EMBEDDING_RECONCILIATION_SCHEDULER,
 			{ every: EMBEDDING_RECONCILIATION_INTERVAL_MS },
 			{
 				name: EMBEDDING_JOB_NAMES.RECONCILE,
-				data: {},
+				data: { limit: EMBEDDING_RECONCILIATION_BATCH_SIZE },
 				opts: this.retentionOptions(),
 			},
 		);

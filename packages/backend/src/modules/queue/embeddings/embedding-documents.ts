@@ -4,8 +4,8 @@ interface ConceptLink {
 }
 
 function sortedUnique(values: string[]): string[] {
-	return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((a, b) =>
-		a.localeCompare(b),
+	return [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort(
+		(a, b) => a.localeCompare(b),
 	);
 }
 
@@ -35,7 +35,8 @@ export function jobRequirementEmbeddingText(requirement: {
 	const tags = sortedUnique(requirement.tags);
 	const technologies = sortedUnique(requirement.technologies);
 	if (tags.length) parts.push(`tags: ${tags.join(', ')}`);
-	if (technologies.length) parts.push(`technologies: ${technologies.join(', ')}`);
+	if (technologies.length)
+		parts.push(`technologies: ${technologies.join(', ')}`);
 	return parts.join('\n');
 }
 
@@ -47,7 +48,10 @@ const BULLET_RELATION_LABELS: Record<string, string> = {
 	produced: 'artifacts',
 };
 
-export function bulletEmbeddingText(bullet: { text: string; concepts: ConceptLink[] }): string {
+export function bulletEmbeddingText(bullet: {
+	text: string;
+	concepts: ConceptLink[];
+}): string {
 	const parts = [bullet.text.trim()];
 	for (const relation of Object.keys(BULLET_RELATION_LABELS)) {
 		const labels = sortedUnique(
@@ -59,6 +63,24 @@ export function bulletEmbeddingText(bullet: { text: string; concepts: ConceptLin
 			parts.push(`${BULLET_RELATION_LABELS[relation]}: ${labels.join(', ')}`);
 		}
 	}
+	return parts.join('\n');
+}
+
+export function resumeEmbeddingText(summary: ResumeSummaryValue): string {
+	const parts = [
+		`role: ${summary.dominantTheme.trim()}`,
+		`summary: ${summary.summaryTheme.trim()}`,
+	];
+	const projects = summary.projects
+		.map(({ name, description }) => `${name.trim()}: ${description.trim()}`)
+		.filter(Boolean);
+	const technologies = sortedUnique(summary.technologies);
+	const themes = sortedUnique(summary.contentThemes);
+
+	if (projects.length) parts.push(`projects: ${projects.join('; ')}`);
+	if (technologies.length)
+		parts.push(`technologies: ${technologies.join(', ')}`);
+	if (themes.length) parts.push(`themes: ${themes.join(', ')}`);
 	return parts.join('\n');
 }
 
@@ -103,3 +125,4 @@ export function conceptEmbeddingText(concept: {
 	if (related.length) parts.push(`related concepts: ${related.join(', ')}`);
 	return parts.join('\n');
 }
+import type { ResumeSummaryValue } from '@resume-builder/entities';

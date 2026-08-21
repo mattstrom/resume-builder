@@ -4,59 +4,65 @@ import { type FC } from 'react';
 import { useSettings } from './Settings.provider.tsx';
 
 interface PreviewFrameProps {
-	applicationId: string;
+	applicationId?: string;
 	resumeId?: string;
 }
 
-export const PreviewFrame: FC<PreviewFrameProps> = observer(({ applicationId, resumeId }) => {
-	const { template, showMarginPattern } = useSettings();
+export const PreviewFrame: FC<PreviewFrameProps> = observer(
+	({ applicationId, resumeId }) => {
+		const { template, showMarginPattern } = useSettings();
 
-	const params = new URLSearchParams({
-		template,
-		showMarginPattern: String(showMarginPattern),
-		...(resumeId ? { resumeId } : {}),
-	});
+		const params = new URLSearchParams({
+			template,
+			showMarginPattern: String(showMarginPattern),
+			...(resumeId ? { resumeId } : {}),
+		});
 
-	const iframeSrc = `/preview/${applicationId}?${params}`;
+		const iframeSrc = applicationId
+			? `/preview/${applicationId}?${params}`
+			: resumeId
+				? `/preview/resume/${resumeId}?${params}`
+				: '';
 
-	if (!iframeSrc) {
-		return (
-			<div
-				style={{
-					width: '100%',
-					height: '100%',
-					position: 'relative',
-				}}
-			>
+		if (!iframeSrc) {
+			return (
 				<div
 					style={{
-						position: 'absolute',
-						top: '50%',
-						left: '50%',
-						transform: 'translate(-50%, -50%)',
-						fontSize: '1rem',
-						color: '#666',
+						width: '100%',
+						height: '100%',
+						position: 'relative',
 					}}
 				>
-					No resume loaded
+					<div
+						style={{
+							position: 'absolute',
+							top: '50%',
+							left: '50%',
+							transform: 'translate(-50%, -50%)',
+							fontSize: '1rem',
+							color: '#666',
+						}}
+					>
+						No resume loaded
+					</div>
 				</div>
+			);
+		}
+
+		return (
+			<div style={{ width: '100%', height: '100%', position: 'relative' }}>
+				<iframe
+					id="resume-preview-iframe"
+					src={iframeSrc}
+					title="Resume Preview"
+					sandbox="allow-same-origin allow-scripts allow-modals"
+					style={{
+						width: '100%',
+						height: '100%',
+						border: 'none',
+					}}
+				/>
 			</div>
 		);
-	}
-
-	return (
-		<div style={{ width: '100%', height: '100%', position: 'relative' }}>
-			<iframe
-				id="resume-preview-iframe"
-				src={iframeSrc}
-				title="Resume Preview"
-				sandbox="allow-same-origin allow-scripts allow-modals"
-				style={{
-					width: '100%',
-					height: '100%',
-					border: 'none',
-				}}
-			/>
-		</div>
-	);
-});
+	},
+);

@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { resumeContentFromXml, type ResumeSummaryValue } from '@resume-builder/entities';
+import {
+	resumeContentFromXml,
+	type ResumeSummaryValue,
+} from '@resume-builder/entities';
 
 import { ResumeXmlRepository } from '../../entities/resumes/resume-xml.repository.js';
 import { PrismaService } from '../../prisma/index.js';
@@ -68,20 +71,24 @@ export class ResumeSummaryDocumentsService implements ResumeSummaryDocumentProvi
 		resumeId: string,
 		sourceUpdatedAt: string,
 		summary: ResumeSummaryValue,
-	): Promise<boolean> {
-		const updated = await this.prisma.$executeRawUnsafe(
+	): Promise<number | null> {
+		const rows = await this.prisma.$queryRawUnsafe<
+			Array<{ embeddingRevision: number }>
+		>(
 			`UPDATE "${SCHEMA}"."Resume" r
 			 SET summary = $1::jsonb,
-			     "lastSummarizedAt" = CURRENT_TIMESTAMP
+			     "lastSummarizedAt" = CURRENT_TIMESTAMP,
+			     "embeddingRevision" = r."embeddingRevision" + 1
 			 FROM "${SCHEMA}"."ResumeXml" rx
 			 WHERE r.id = $2
 			   AND rx."resumeId" = r.id
-			   AND rx."updatedAt" = $3::timestamptz`,
+			   AND rx."updatedAt" = $3::timestamptz
+			 RETURNING r."embeddingRevision"`,
 			JSON.stringify(summary),
 			resumeId,
 			sourceUpdatedAt,
 		);
 
-		return updated === 1;
+		return rows[0]?.embeddingRevision ?? null;
 	}
 }

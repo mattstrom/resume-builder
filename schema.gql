@@ -2,12 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ResolvedConceptLabelType {
-  label: String!
-  conceptId: ID!
-  broaderConceptIds: [ID!]!
-}
-
 """Contact Information"""
 type ContactInformation {
   _id: ID!
@@ -611,6 +605,12 @@ type ConversationMessage {
   createdAt: DateTime!
 }
 
+type ResolvedConceptLabelType {
+  label: String!
+  conceptId: ID!
+  broaderConceptIds: [ID!]!
+}
+
 type FactType {
   id: ID!
   uid: String!
@@ -671,6 +671,37 @@ type ResumeFactType {
   position: Int
   fact: FactType
   expression: ExpressionType
+}
+
+type ResumeSearchMatch {
+  kind: ResumeSearchMatchKind!
+  label: String!
+}
+
+enum ResumeSearchMatchKind {
+  NAME
+  COMPANY
+  DOMINANT_THEME
+  SUMMARY_THEME
+  TECHNOLOGY
+  PROJECT
+  CONTENT_THEME
+  SEMANTIC
+}
+
+type ResumeSearchResult {
+  resumeId: ID!
+  name: String!
+  company: String!
+  level: String
+  base: Boolean!
+  applicationId: String
+  summary: ResumeSummary
+  updatedAt: DateTime!
+
+  """Opaque rank used only to order this result set"""
+  score: Float!
+  matches: [ResumeSearchMatch!]!
 }
 
 type BulletSearchResult {
@@ -774,6 +805,7 @@ type Query {
   getProfile: Profile
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
+  searchResumes(query: String!, limit: Int = 10): [ResumeSearchResult!]!
   facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!

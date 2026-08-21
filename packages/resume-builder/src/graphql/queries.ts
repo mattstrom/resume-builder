@@ -224,6 +224,35 @@ export const LIST_BASE_RESUMES = gql`
 	}
 `;
 
+export const SEARCH_RESUMES = gql`
+	query SearchResumes($query: String!, $limit: Int) {
+		searchResumes(query: $query, limit: $limit) {
+			resumeId
+			name
+			company
+			level
+			base
+			applicationId
+			updatedAt
+			score
+			summary {
+				dominantTheme
+				summaryTheme
+				technologies
+				contentThemes
+				projects {
+					name
+					description
+				}
+			}
+			matches {
+				kind
+				label
+			}
+		}
+	}
+`;
+
 export const GET_RESUME = gql`
 	query GetResume($id: String!) {
 		getResume(id: $id) {
@@ -231,7 +260,13 @@ export const GET_RESUME = gql`
 			id
 			name
 			company
+			level
+			base
+			applicationId
+			readOnly
 			jobPostingUrl
+			createdAt
+			updatedAt
 			xml
 			data {
 				...ResumeContent
@@ -493,7 +528,10 @@ export const GET_PROFILE_KNOWLEDGE_LEDGER = gql`
 
 export const GET_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 	query GetConceptEvidenceAssessment($applicationId: ID!, $resumeId: ID!) {
-		conceptEvidenceAssessment(applicationId: $applicationId, resumeId: $resumeId) {
+		conceptEvidenceAssessment(
+			applicationId: $applicationId
+			resumeId: $resumeId
+		) {
 			id
 			applicationId
 			resumeId
@@ -534,8 +572,16 @@ export const SAVE_CONCEPT_EVIDENCE_ASSESSMENT = gql`
 `;
 
 export const LIST_CONCEPT_SUGGESTIONS = gql`
-	query ListConceptSuggestions($vocabulary: String!, $search: String, $limit: Int) {
-		conceptSuggestions(vocabulary: $vocabulary, search: $search, limit: $limit) {
+	query ListConceptSuggestions(
+		$vocabulary: String!
+		$search: String
+		$limit: Int
+	) {
+		conceptSuggestions(
+			vocabulary: $vocabulary
+			search: $search
+			limit: $limit
+		) {
 			vocabulary
 			key
 			label
@@ -545,7 +591,12 @@ export const LIST_CONCEPT_SUGGESTIONS = gql`
 `;
 
 export const SEARCH_CONCEPTS = gql`
-	query SearchConcepts($query: String!, $vocabulary: String, $limit: Int, $minimumScore: Float) {
+	query SearchConcepts(
+		$query: String!
+		$vocabulary: String
+		$limit: Int
+		$minimumScore: Float
+	) {
 		searchConcepts(
 			query: $query
 			vocabulary: $vocabulary
@@ -639,7 +690,12 @@ export const SEARCH_BULLETS = gql`
 		$limit: Int
 		$minimumScore: Float
 	) {
-		searchBullets(query: $query, filter: $filter, limit: $limit, minimumScore: $minimumScore) {
+		searchBullets(
+			query: $query
+			filter: $filter
+			limit: $limit
+			minimumScore: $minimumScore
+		) {
 			score
 			bullet {
 				...BulletFields

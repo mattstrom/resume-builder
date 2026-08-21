@@ -267,6 +267,10 @@ export const ResumeScalarFieldEnum = {
   data: 'data',
   summary: 'summary',
   lastSummarizedAt: 'lastSummarizedAt',
+  embeddingRevision: 'embeddingRevision',
+  embeddedRevision: 'embeddedRevision',
+  embeddingModel: 'embeddingModel',
+  embeddingProfile: 'embeddingProfile',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

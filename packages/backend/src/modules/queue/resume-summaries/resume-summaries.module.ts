@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 
 import { ResumesModule } from '../../entities/resumes/resumes.module.js';
 import { QUEUES } from '../queues.js';
+import { EmbeddingsModule } from '../embeddings/embeddings.module.js';
 import { MastraResumeSummarizerService } from './mastra-resume-summarizer.service.js';
 import { ResumeSummaryDocumentsService } from './resume-summary-documents.service.js';
 import { ResumeSummaryQueueService } from './resume-summary-queue.service.js';
@@ -15,6 +16,7 @@ const isProd = process.env.NODE_ENV === 'production';
 @Module({
 	imports: [
 		ResumesModule,
+		EmbeddingsModule,
 		BullModule.registerQueue({ name: QUEUES.RESUME_SUMMARIES }),
 		...(isProd
 			? []

@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 
 import { QUEUES } from '../queues.js';
+import { EMBEDDING_PROFILES } from '../embeddings/embedding.constants.js';
+import { EmbeddingQueueService } from '../embeddings/embedding-queue.service.js';
 import { MastraResumeSummarizerService } from './mastra-resume-summarizer.service.js';
 import { ResumeSummaryDocumentsService } from './resume-summary-documents.service.js';
 import { ResumeSummaryQueueService } from './resume-summary-queue.service.js';
@@ -23,6 +25,7 @@ export class ResumeSummaryProcessor extends WorkerHost {
 		private readonly documents: ResumeSummaryDocumentsService,
 		private readonly queue: ResumeSummaryQueueService,
 		private readonly summarizer: MastraResumeSummarizerService,
+		private readonly embeddings: EmbeddingQueueService,
 	) {
 		super();
 	}
@@ -49,18 +52,29 @@ export class ResumeSummaryProcessor extends WorkerHost {
 		if (!document) return;
 
 		if (document.sourceUpdatedAt !== target.sourceUpdatedAt) {
-			this.logger.debug(`Skipping superseded resume summary for ${target.resumeId}`);
+			this.logger.debug(
+				`Skipping superseded resume summary for ${target.resumeId}`,
+			);
 			return;
 		}
 
 		const summary = await this.summarizer.summarize(document);
-		const saved = await this.documents.saveIfCurrent(
+		const embeddingRevision = await this.documents.saveIfCurrent(
 			target.resumeId,
 			target.sourceUpdatedAt,
 			summary,
 		);
-		if (!saved) {
-			this.logger.debug(`Discarded superseded resume summary for ${target.resumeId}`);
+		if (embeddingRevision === null) {
+			this.logger.debug(
+				`Discarded superseded resume summary for ${target.resumeId}`,
+			);
+			return;
 		}
+		await this.embeddings.enqueue({
+			entityType: 'resume',
+			entityId: target.resumeId,
+			revision: embeddingRevision,
+			profile: EMBEDDING_PROFILES.resume,
+		});
 	}
 }

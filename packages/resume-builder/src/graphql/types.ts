@@ -1,4 +1,43 @@
-import type { Application, ConceptQualifierValue, Resume } from '@resume-builder/entities';
+import type {
+	Application,
+	ConceptQualifierValue,
+	Resume,
+} from '@resume-builder/entities';
+
+export interface ResumeSearchMatch {
+	kind:
+		| 'NAME'
+		| 'COMPANY'
+		| 'DOMINANT_THEME'
+		| 'SUMMARY_THEME'
+		| 'TECHNOLOGY'
+		| 'PROJECT'
+		| 'CONTENT_THEME'
+		| 'SEMANTIC';
+	label: string;
+}
+
+export interface ResumeSearchRecord {
+	resumeId: string;
+	name: string;
+	company: string;
+	level?: string | null;
+	base: boolean;
+	applicationId?: string | null;
+	updatedAt: string;
+	score: number;
+	summary?: Resume['summary'] | null;
+	matches: ResumeSearchMatch[];
+}
+
+export interface SearchResumesData {
+	searchResumes: ResumeSearchRecord[];
+}
+
+export interface SearchResumesVariables {
+	query: string;
+	limit?: number;
+}
 
 export interface ListApplicationsData {
 	listApplications: Application[];

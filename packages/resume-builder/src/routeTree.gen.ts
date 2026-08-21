@@ -35,6 +35,8 @@ import { Route as AuthenticatedExportApplicationIdRouteImport } from './routes/_
 import { Route as AuthenticatedEditorApplicationIdRouteImport } from './routes/_authenticated/editor/$applicationId'
 import { Route as AuthenticatedApplicationsApplicationIdRouteImport } from './routes/_authenticated/applications.$applicationId'
 import { Route as AuthenticatedProfileKnowledgeKnowledgeIdRouteImport } from './routes/_authenticated/profile/knowledge.$knowledgeId'
+import { Route as AuthenticatedPreviewResumeResumeIdRouteImport } from './routes/_authenticated/preview.resume.$resumeId'
+import { Route as AuthenticatedEditorResumeResumeIdRouteImport } from './routes/_authenticated/editor/resume/$resumeId'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -181,6 +183,18 @@ const AuthenticatedProfileKnowledgeKnowledgeIdRoute =
     path: '/$knowledgeId',
     getParentRoute: () => AuthenticatedProfileKnowledgeRoute,
   } as any)
+const AuthenticatedPreviewResumeResumeIdRoute =
+  AuthenticatedPreviewResumeResumeIdRouteImport.update({
+    id: '/preview/resume/$resumeId',
+    path: '/preview/resume/$resumeId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEditorResumeResumeIdRoute =
+  AuthenticatedEditorResumeResumeIdRouteImport.update({
+    id: '/resume/$resumeId',
+    path: '/resume/$resumeId',
+    getParentRoute: () => AuthenticatedEditorRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof publicLoginRoute
@@ -206,6 +220,8 @@ export interface FileRoutesByFullPath {
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor/': typeof AuthenticatedEditorIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
+  '/editor/resume/$resumeId': typeof AuthenticatedEditorResumeResumeIdRoute
+  '/preview/resume/$resumeId': typeof AuthenticatedPreviewResumeResumeIdRoute
   '/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRoutesByTo {
@@ -230,6 +246,8 @@ export interface FileRoutesByTo {
   '/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/editor': typeof AuthenticatedEditorIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
+  '/editor/resume/$resumeId': typeof AuthenticatedEditorResumeResumeIdRoute
+  '/preview/resume/$resumeId': typeof AuthenticatedPreviewResumeResumeIdRoute
   '/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRoutesById {
@@ -259,6 +277,8 @@ export interface FileRoutesById {
   '/_authenticated/profile/work-history': typeof AuthenticatedProfileWorkHistoryRoute
   '/_authenticated/editor/': typeof AuthenticatedEditorIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
+  '/_authenticated/editor/resume/$resumeId': typeof AuthenticatedEditorResumeResumeIdRoute
+  '/_authenticated/preview/resume/$resumeId': typeof AuthenticatedPreviewResumeResumeIdRoute
   '/_authenticated/profile/knowledge/$knowledgeId': typeof AuthenticatedProfileKnowledgeKnowledgeIdRoute
 }
 export interface FileRouteTypes {
@@ -287,6 +307,8 @@ export interface FileRouteTypes {
     | '/profile/work-history'
     | '/editor/'
     | '/profile/'
+    | '/editor/resume/$resumeId'
+    | '/preview/resume/$resumeId'
     | '/profile/knowledge/$knowledgeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -311,6 +333,8 @@ export interface FileRouteTypes {
     | '/profile/work-history'
     | '/editor'
     | '/profile'
+    | '/editor/resume/$resumeId'
+    | '/preview/resume/$resumeId'
     | '/profile/knowledge/$knowledgeId'
   id:
     | '__root__'
@@ -339,6 +363,8 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/work-history'
     | '/_authenticated/editor/'
     | '/_authenticated/profile/'
+    | '/_authenticated/editor/resume/$resumeId'
+    | '/_authenticated/preview/resume/$resumeId'
     | '/_authenticated/profile/knowledge/$knowledgeId'
   fileRoutesById: FileRoutesById
 }
@@ -533,17 +559,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileKnowledgeKnowledgeIdRouteImport
       parentRoute: typeof AuthenticatedProfileKnowledgeRoute
     }
+    '/_authenticated/preview/resume/$resumeId': {
+      id: '/_authenticated/preview/resume/$resumeId'
+      path: '/preview/resume/$resumeId'
+      fullPath: '/preview/resume/$resumeId'
+      preLoaderRoute: typeof AuthenticatedPreviewResumeResumeIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/editor/resume/$resumeId': {
+      id: '/_authenticated/editor/resume/$resumeId'
+      path: '/resume/$resumeId'
+      fullPath: '/editor/resume/$resumeId'
+      preLoaderRoute: typeof AuthenticatedEditorResumeResumeIdRouteImport
+      parentRoute: typeof AuthenticatedEditorRoute
+    }
   }
 }
 
 interface AuthenticatedEditorRouteChildren {
   AuthenticatedEditorApplicationIdRoute: typeof AuthenticatedEditorApplicationIdRoute
   AuthenticatedEditorIndexRoute: typeof AuthenticatedEditorIndexRoute
+  AuthenticatedEditorResumeResumeIdRoute: typeof AuthenticatedEditorResumeResumeIdRoute
 }
 
 const AuthenticatedEditorRouteChildren: AuthenticatedEditorRouteChildren = {
   AuthenticatedEditorApplicationIdRoute: AuthenticatedEditorApplicationIdRoute,
   AuthenticatedEditorIndexRoute: AuthenticatedEditorIndexRoute,
+  AuthenticatedEditorResumeResumeIdRoute:
+    AuthenticatedEditorResumeResumeIdRoute,
 }
 
 const AuthenticatedEditorRouteWithChildren =
@@ -605,6 +648,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApplicationsApplicationIdRoute: typeof AuthenticatedApplicationsApplicationIdRoute
   AuthenticatedExportApplicationIdRoute: typeof AuthenticatedExportApplicationIdRoute
   AuthenticatedPreviewApplicationIdRoute: typeof AuthenticatedPreviewApplicationIdRoute
+  AuthenticatedPreviewResumeResumeIdRoute: typeof AuthenticatedPreviewResumeResumeIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -618,6 +662,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedExportApplicationIdRoute: AuthenticatedExportApplicationIdRoute,
   AuthenticatedPreviewApplicationIdRoute:
     AuthenticatedPreviewApplicationIdRoute,
+  AuthenticatedPreviewResumeResumeIdRoute:
+    AuthenticatedPreviewResumeResumeIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
