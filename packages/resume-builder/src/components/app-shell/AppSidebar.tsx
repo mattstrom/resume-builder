@@ -14,6 +14,7 @@ import {
 	Palette,
 	Quote,
 	Search,
+	Sparkles,
 	SlidersHorizontal,
 	Sun,
 	Tags,
@@ -23,11 +24,8 @@ import {
 import { observer } from 'mobx-react';
 import { type FC, type PropsWithChildren } from 'react';
 
-import {
-	Avatar,
-	AvatarFallback,
-	AvatarImage,
-} from '@/components/ui/avatar.tsx';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -41,7 +39,6 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button.tsx';
 import {
 	Sidebar as ShadcnSidebar,
 	SidebarContent,
@@ -92,6 +89,12 @@ export const AppSidebar: FC<PropsWithChildren> = observer(({ children }) => {
 								<SidebarMenuButton to="/feedback" tooltip="Feedback inbox">
 									<Inbox />
 									<span>Feedback inbox</span>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							<SidebarMenuItem>
+								<SidebarMenuButton to="/search" tooltip="Advanced search">
+									<Sparkles />
+									<span>Advanced search</span>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						</SidebarMenu>

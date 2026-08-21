@@ -794,6 +794,12 @@ type ProfileKnowledgeLedgerType {
   pendingSuggestionCount: Int!
 }
 
+type AdvancedSearchPayload {
+  resumes: [ResumeSearchResult!]!
+  bullets: [BulletSearchResult!]!
+  concepts: [ConceptSearchResultType!]!
+}
+
 input CompanyAddressInput {
   streetAddress: String
   city: String
@@ -805,7 +811,7 @@ type Query {
   getProfile: Profile
   listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
   getResume(id: String!): Resume!
-  searchResumes(query: String!, limit: Int = 10): [ResumeSearchResult!]!
+  searchResumes(query: String!, limit: Int = 10, semanticOnly: Boolean = false): [ResumeSearchResult!]!
   facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
@@ -837,6 +843,7 @@ type Query {
   profileKnowledgeGuidance: [String!]!
   profileKnowledgeInbox: [ProfileKnowledgeInboxItemType!]!
   profileKnowledgeLedger: ProfileKnowledgeLedgerType!
+  advancedSearch(query: String!, resultTypes: [AdvancedSearchResultType!]!, limit: Int = 50, minimumScore: Float = 0.45): AdvancedSearchPayload!
 }
 
 input ResumeSortInput {
@@ -872,6 +879,19 @@ input BulletFilterInput {
   search: String
   conceptKey: String
   includeArchived: Boolean = false
+}
+
+"""Profile result tables that an advanced search should populate."""
+enum AdvancedSearchResultType {
+  SUMMARY
+  SKILL
+  PROJECT
+  WORK_HISTORY
+  VOLUNTEERING
+  FACT
+  BULLET
+  CONCEPT
+  PROFESSIONAL_STATEMENT
 }
 
 type Mutation {

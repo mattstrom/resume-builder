@@ -15,10 +15,7 @@ import {
 } from '@resume-builder/entities';
 
 import { PrismaService } from '../../prisma/index.js';
-import {
-	EMBEDDING_MODEL,
-	EMBEDDING_PROFILES,
-} from '../../queue/embeddings/embedding.constants.js';
+import { EMBEDDING_MODEL, EMBEDDING_PROFILES } from '../../queue/embeddings/embedding.constants.js';
 import { EmbeddingService } from '../../queue/embeddings/embedding.service.js';
 import {
 	ResumeSearchMatchKind,
@@ -63,14 +60,17 @@ export class ResumesService {
 		uid: string,
 		query: string,
 		requestedLimit = 10,
+		semanticOnly = false,
 	): Promise<ResumeSearchResult[]> {
 		const text = query.trim();
 		if (text.length < 2) return [];
 		const limit = Math.max(1, Math.min(requestedLimit, 50));
 		const candidateLimit = Math.max(50, limit * 5);
 		const pattern = `%${escapeLike(text)}%`;
-		const lexical = await this.prisma.$queryRawUnsafe<LexicalSearchRow[]>(
-			`WITH searchable AS (
+		const lexical = semanticOnly
+			? []
+			: await this.prisma.$queryRawUnsafe<LexicalSearchRow[]>(
+					`WITH searchable AS (
 				SELECT r.id,
 				       lower(r.name) LIKE lower($3) ESCAPE '\\' AS "nameMatch",
 				       lower(r.company) LIKE lower($3) ESCAPE '\\' AS "companyMatch",
@@ -93,11 +93,11 @@ export class ResumesService {
 			WHERE "nameMatch" OR "companyMatch" OR "lexicalScore" > 0
 			ORDER BY "nameMatch" DESC, "companyMatch" DESC, "lexicalScore" DESC, id
 			LIMIT $4`,
-			uid,
-			text,
-			pattern,
-			candidateLimit,
-		);
+					uid,
+					text,
+					pattern,
+					candidateLimit,
+				);
 
 		let semantic: SemanticSearchRow[] = [];
 		try {
@@ -132,10 +132,7 @@ export class ResumesService {
 		const ranks = new Map<string, SearchRank>();
 		lexical.forEach((row, index) => {
 			ranks.set(row.id, {
-				score:
-					1 / (60 + index + 1) +
-					(row.nameMatch ? 2 : 0) +
-					(row.companyMatch ? 1 : 0),
+				score: 1 / (60 + index + 1) + (row.nameMatch ? 2 : 0) + (row.companyMatch ? 1 : 0),
 				nameMatch: row.nameMatch,
 				companyMatch: row.companyMatch,
 				semanticMatch: false,
@@ -170,8 +167,7 @@ export class ResumesService {
 			if (!resume) return [];
 			const summaryIsFresh =
 				resume.lastSummarizedAt !== null &&
-				(!resume.resumeXml ||
-					resume.lastSummarizedAt >= resume.resumeXml.updatedAt);
+				(!resume.resumeXml || resume.lastSummarizedAt >= resume.resumeXml.updatedAt);
 			const parsedSummary = resumeSummarySchema.safeParse(
 				summaryIsFresh ? resume.summary : null,
 			);
@@ -193,9 +189,7 @@ export class ResumesService {
 		});
 	}
 
-	private async hydrate(
-		result: Record<string, unknown>,
-	): Promise<ResumeWithId> {
+	private async hydrate(result: Record<string, unknown>): Promise<ResumeWithId> {
 		const id = String(result.id);
 		const uid = String(result.uid);
 		const xml = await this.resumeXml.find(uid, id);
@@ -203,9 +197,7 @@ export class ResumesService {
 			...result,
 			_id: id,
 			xml: xml ?? undefined,
-			data: xml
-				? resumeContentFromXml(xml, uid)
-				: (result.data as ResumeContent),
+			data: xml ? resumeContentFromXml(xml, uid) : (result.data as ResumeContent),
 		} as ResumeWithId;
 	}
 
@@ -220,7 +212,10 @@ export class ResumesService {
 			where['base'] = filter.base;
 		}
 		if (filter?.company) {
-			where['company'] = { contains: filter.company, mode: 'insensitive' };
+			where['company'] = {
+				contains: filter.company,
+				mode: 'insensitive',
+			};
 		}
 		if (filter?.applicationId) {
 			where['applicationId'] = filter.applicationId;
@@ -234,7 +229,9 @@ export class ResumesService {
 				[ResumeSortBy.LEVEL]: 'level',
 				[ResumeSortBy.DATE]: 'createdAt',
 			};
-			orderBy.push({ [fieldMap[sort.field]]: sort.ascending ? 'asc' : 'desc' });
+			orderBy.push({
+				[fieldMap[sort.field]]: sort.ascending ? 'asc' : 'desc',
+			});
 		}
 
 		orderBy.push({ name: 'asc' });
@@ -245,17 +242,16 @@ export class ResumesService {
 	}
 
 	async find(uid: string, id: string): Promise<ResumeWithId> {
-		const result = await this.prisma.resume.findFirst({ where: { id, uid } });
+		const result = await this.prisma.resume.findFirst({
+			where: { id, uid },
+		});
 		if (!result) {
 			throw new NotFoundException();
 		}
 		return this.hydrate(result);
 	}
 
-	async create(
-		uid: string,
-		resumeData: ResumeCreateInput,
-	): Promise<ResumeWithId> {
+	async create(uid: string, resumeData: ResumeCreateInput): Promise<ResumeWithId> {
 		const result = await this.prisma.resume.create({
 			data: {
 				...resumeData,
@@ -274,10 +270,7 @@ export class ResumesService {
 		return { ...hydrated, xml };
 	}
 
-	async createBlank(
-		uid: string,
-		resumeData: BlankResumeCreateInput,
-	): Promise<ResumeWithId> {
+	async createBlank(uid: string, resumeData: BlankResumeCreateInput): Promise<ResumeWithId> {
 		let data: object;
 		let sourceXml: string | null = null;
 
@@ -293,9 +286,7 @@ export class ResumesService {
 			}
 
 			sourceXml = await this.resumeXml.find(uid, sourceResume.id);
-			data = sourceXml
-				? resumeContentFromXml(sourceXml, uid)
-				: (sourceResume.data as object);
+			data = sourceXml ? resumeContentFromXml(sourceXml, uid) : (sourceResume.data as object);
 		} else {
 			const contactInfo = await this.prisma.contactInformation.findFirst({
 				where: { uid },
@@ -326,11 +317,7 @@ export class ResumesService {
 		return { ...hydrated, xml };
 	}
 
-	async update(
-		uid: string,
-		id: string,
-		resumeData: ResumeUpdateInput,
-	): Promise<ResumeWithId> {
+	async update(uid: string, id: string, resumeData: ResumeUpdateInput): Promise<ResumeWithId> {
 		const existing = await this.prisma.resume.findFirst({
 			where: { id, uid },
 			select: { id: true },
@@ -372,10 +359,7 @@ export class ResumesService {
 }
 
 function escapeLike(value: string): string {
-	return value
-		.replaceAll('\\', '\\\\')
-		.replaceAll('%', '\\%')
-		.replaceAll('_', '\\_');
+	return value.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_');
 }
 
 function buildMatches(
@@ -384,10 +368,8 @@ function buildMatches(
 	rank: SearchRank,
 ): ResumeSearchMatch[] {
 	const matches: ResumeSearchMatch[] = [];
-	if (rank.nameMatch)
-		matches.push({ kind: ResumeSearchMatchKind.NAME, label: 'Name' });
-	if (rank.companyMatch)
-		matches.push({ kind: ResumeSearchMatchKind.COMPANY, label: 'Company' });
+	if (rank.nameMatch) matches.push({ kind: ResumeSearchMatchKind.NAME, label: 'Name' });
+	if (rank.companyMatch) matches.push({ kind: ResumeSearchMatchKind.COMPANY, label: 'Company' });
 	if (summary) {
 		const tokens = query
 			.toLocaleLowerCase()

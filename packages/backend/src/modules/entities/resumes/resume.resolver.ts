@@ -10,8 +10,8 @@ import {
 
 import { CurrentUser } from '../../auth/index.js';
 import { CrdtApiService } from '../../crdt-client/crdt-api.service.js';
-import { ResumesService } from './resumes.service.js';
 import { ResumeSearchResult } from './resume-search.graphql.js';
+import { ResumesService } from './resumes.service.js';
 
 @Resolver(() => Resume)
 export class ResumeResolver {
@@ -42,8 +42,10 @@ export class ResumeResolver {
 		@Args('query') query: string,
 		@Args('limit', { type: () => Int, nullable: true, defaultValue: 10 })
 		limit: number,
+		@Args('semanticOnly', { nullable: true, defaultValue: false })
+		semanticOnly: boolean,
 	): Promise<ResumeSearchResult[]> {
-		return this.resumesService.search(uid, query, limit);
+		return this.resumesService.search(uid, query, limit, semanticOnly);
 	}
 
 	@Mutation(() => Resume)
@@ -72,10 +74,7 @@ export class ResumeResolver {
 	}
 
 	@Mutation(() => Boolean)
-	async deleteResume(
-		@CurrentUser('sub') uid: string,
-		@Args('id') id: string,
-	): Promise<boolean> {
+	async deleteResume(@CurrentUser('sub') uid: string, @Args('id') id: string): Promise<boolean> {
 		await this.resumesService.delete(uid, id);
 		return true;
 	}

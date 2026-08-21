@@ -54,6 +54,11 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 			'@nestjs/graphql': path.resolve(__dirname, '../entities/src/shims/nestjs-graphql.ts'),
+			'@nestjs/mongoose': path.resolve(
+				__dirname,
+				'../entities/src/shims/nestjs-mongoose.ts',
+			),
+			mongoose: path.resolve(__dirname, '../entities/src/shims/mongoose.ts'),
 		},
 	},
 	test: {

@@ -1,11 +1,7 @@
 import { useQuery } from '@apollo/client/react';
-import {
-	normalizeCompanyName,
-	type Application,
-	type Resume,
-} from '@resume-builder/entities';
+import { normalizeCompanyName, type Application, type Resume } from '@resume-builder/entities';
 import { useNavigate } from '@tanstack/react-router';
-import { BriefcaseBusiness, Building2, FileText } from 'lucide-react';
+import { BriefcaseBusiness, Building2, FileText, Sparkles } from 'lucide-react';
 import { observer } from 'mobx-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -30,18 +26,14 @@ import { useStore } from '@/stores/store.provider.tsx';
 
 export const GlobalSearchPalette = observer(function GlobalSearchPalette() {
 	const navigate = useNavigate();
-	const { applicationStore, explorerSidebarStore, resumeStore, uiStateStore } =
-		useStore();
+	const { applicationStore, explorerSidebarStore, resumeStore, uiStateStore } = useStore();
 	const [query, setQuery] = useState('');
 	const [debouncedQuery, setDebouncedQuery] = useState('');
 	const normalizedQuery = query.trim().toLocaleLowerCase();
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (
-				(event.metaKey || event.ctrlKey) &&
-				event.key.toLocaleLowerCase() === 'k'
-			) {
+			if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === 'k') {
 				event.preventDefault();
 				uiStateStore.setCommandPaletteOpen(!uiStateStore.commandPaletteOpen);
 			}
@@ -51,24 +43,17 @@ export const GlobalSearchPalette = observer(function GlobalSearchPalette() {
 	}, [uiStateStore]);
 
 	useEffect(() => {
-		const timeout = window.setTimeout(
-			() => setDebouncedQuery(query.trim()),
-			250,
-		);
+		const timeout = window.setTimeout(() => setDebouncedQuery(query.trim()), 250);
 		return () => window.clearTimeout(timeout);
 	}, [query]);
 
 	const semanticSearchEnabled = debouncedQuery.length >= 2;
-	const { data, loading } = useQuery<SearchResumesData, SearchResumesVariables>(
-		SEARCH_RESUMES,
-		{
-			variables: { query: debouncedQuery, limit: 10 },
-			skip: !uiStateStore.commandPaletteOpen || !semanticSearchEnabled,
-		},
-	);
+	const { data, loading } = useQuery<SearchResumesData, SearchResumesVariables>(SEARCH_RESUMES, {
+		variables: { query: debouncedQuery, limit: 10 },
+		skip: !uiStateStore.commandPaletteOpen || !semanticSearchEnabled,
+	});
 	const searchCurrent = query.trim() === debouncedQuery;
-	const resumeResults =
-		searchCurrent && !loading ? (data?.searchResumes ?? []) : [];
+	const resumeResults = searchCurrent && !loading ? (data?.searchResumes ?? []) : [];
 	const applicationResults = useMemo(
 		() =>
 			normalizedQuery
@@ -95,20 +80,14 @@ export const GlobalSearchPalette = observer(function GlobalSearchPalette() {
 	const recentResumes = useMemo(
 		() =>
 			[...resumeStore.data]
-				.sort(
-					(left, right) =>
-						dateValue(right.updatedAt) - dateValue(left.updatedAt),
-				)
+				.sort((left, right) => dateValue(right.updatedAt) - dateValue(left.updatedAt))
 				.slice(0, 5),
 		[resumeStore.data],
 	);
 	const recentApplications = useMemo(
 		() =>
 			[...applicationStore.data]
-				.sort(
-					(left, right) =>
-						dateValue(right.updatedAt) - dateValue(left.updatedAt),
-				)
+				.sort((left, right) => dateValue(right.updatedAt) - dateValue(left.updatedAt))
 				.slice(0, 5),
 		[applicationStore.data],
 	);
@@ -138,19 +117,19 @@ export const GlobalSearchPalette = observer(function GlobalSearchPalette() {
 			params: { applicationId: application._id },
 		});
 	};
+	const openAdvancedSearch = () => {
+		close();
+		void navigate({ to: '/search' });
+	};
 
 	const searching = normalizedQuery.length >= 2;
 	const hasResults =
-		resumeResults.length > 0 ||
-		applicationResults.length > 0 ||
-		companyResults.length > 0;
+		resumeResults.length > 0 || applicationResults.length > 0 || companyResults.length > 0;
 
 	return (
 		<CommandDialog
 			open={uiStateStore.commandPaletteOpen}
-			onOpenChange={(open) =>
-				open ? uiStateStore.setCommandPaletteOpen(true) : close()
-			}
+			onOpenChange={(open) => (open ? uiStateStore.setCommandPaletteOpen(true) : close())}
 			title="Search resumes and applications"
 			shouldFilter={false}
 		>
@@ -259,6 +238,18 @@ export const GlobalSearchPalette = observer(function GlobalSearchPalette() {
 						)}
 					</>
 				)}
+				<CommandSeparator />
+				<CommandGroup heading="Search tools">
+					<CommandItem value="advanced-search" onSelect={openAdvancedSearch}>
+						<Sparkles />
+						<div className="flex min-w-0 flex-col">
+							<span>Open advanced search</span>
+							<span className="truncate text-xs text-muted-foreground">
+								Keyword and vector search across profile evidence
+							</span>
+						</div>
+					</CommandItem>
+				</CommandGroup>
 			</CommandList>
 		</CommandDialog>
 	);
@@ -276,17 +267,11 @@ function ResumeResultItem({
 			<FileText />
 			<div className="flex min-w-0 flex-1 flex-col gap-1">
 				<div className="flex items-center gap-2">
-					<span className="truncate font-medium">
-						{resume.name || 'Untitled resume'}
-					</span>
-					<Badge variant="secondary">
-						{resume.base ? 'Base' : 'Application'}
-					</Badge>
+					<span className="truncate font-medium">{resume.name || 'Untitled resume'}</span>
+					<Badge variant="secondary">{resume.base ? 'Base' : 'Application'}</Badge>
 				</div>
 				<div className="truncate text-xs text-muted-foreground">
-					{[resume.company, resume.summary?.dominantTheme]
-						.filter(Boolean)
-						.join(' · ')}
+					{[resume.company, resume.summary?.dominantTheme].filter(Boolean).join(' · ')}
 				</div>
 				{resume.matches.length > 0 && (
 					<div className="flex flex-wrap gap-1">
@@ -313,9 +298,7 @@ function ApplicationItem({
 		<CommandItem value={`application:${application._id}`} onSelect={onSelect}>
 			<BriefcaseBusiness />
 			<div className="flex min-w-0 flex-col">
-				<span className="truncate">
-					{application.name || 'Untitled application'}
-				</span>
+				<span className="truncate">{application.name || 'Untitled application'}</span>
 				<span className="truncate text-xs text-muted-foreground">
 					{application.company}
 				</span>
