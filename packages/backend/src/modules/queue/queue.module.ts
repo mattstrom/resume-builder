@@ -9,6 +9,7 @@ import { EmbeddingsModule } from './embeddings/embeddings.module.js';
 import { ExamplesModule } from './examples/examples.module.js';
 import { ProfileSummarizerModule } from './profile-summarizer/profile-summarizer.module.js';
 import { QUEUES } from './queues.js';
+import { ResumeSummariesModule } from './resume-summaries/resume-summaries.module.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -32,6 +33,7 @@ const isProd = process.env.NODE_ENV === 'production';
 		ExamplesModule,
 		EmbeddingsModule,
 		ProfileSummarizerModule,
+		ResumeSummariesModule,
 	],
 	exports: [CqrsModule, BullConnectionModule],
 })

@@ -38,6 +38,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "resume-builder.fullname" . }}-orchestration
                   key: auth0ClientId
+            - name: MASTRA_INTERNAL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "resume-builder.fullname" . }}-orchestration
+                  key: internalKey
             - name: POSTGRES_HOST
               value: {{ include "resume-builder.postgresHost" . | quote }}
             - name: POSTGRES_USER

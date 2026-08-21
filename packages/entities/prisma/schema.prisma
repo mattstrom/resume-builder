@@ -259,19 +259,21 @@ model JobRequirementConcept {
 // applicationId and sourceResumeId are plain strings during dual-DB transition.
 
 model Resume {
-  id             String   @id @default(cuid())
-  uid            String
-  name           String   @default("")
-  company        String   @default("")
-  level          String?
-  jobPostingUrl  String   @default("")
-  readOnly       Boolean  @default(false)
-  base           Boolean  @default(false)
-  applicationId  String?
-  sourceResumeId String?
-  data           Json     @default("{}")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String    @id @default(cuid())
+  uid              String
+  name             String    @default("")
+  company          String    @default("")
+  level            String?
+  jobPostingUrl    String    @default("")
+  readOnly         Boolean   @default(false)
+  base             Boolean   @default(false)
+  applicationId    String?
+  sourceResumeId   String?
+  data             Json      @default("{}")
+  summary          Json?
+  lastSummarizedAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   sourceResume               Resume?                     @relation("ResumeVersions", fields: [sourceResumeId], references: [id])
   derivedResumes             Resume[]                    @relation("ResumeVersions")

@@ -35,6 +35,7 @@ export type ResumeMinAggregateOutputType = {
   base: boolean | null
   applicationId: string | null
   sourceResumeId: string | null
+  lastSummarizedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +51,7 @@ export type ResumeMaxAggregateOutputType = {
   base: boolean | null
   applicationId: string | null
   sourceResumeId: string | null
+  lastSummarizedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +68,8 @@ export type ResumeCountAggregateOutputType = {
   applicationId: number
   sourceResumeId: number
   data: number
+  summary: number
+  lastSummarizedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -83,6 +87,7 @@ export type ResumeMinAggregateInputType = {
   base?: true
   applicationId?: true
   sourceResumeId?: true
+  lastSummarizedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -98,6 +103,7 @@ export type ResumeMaxAggregateInputType = {
   base?: true
   applicationId?: true
   sourceResumeId?: true
+  lastSummarizedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -114,6 +120,8 @@ export type ResumeCountAggregateInputType = {
   applicationId?: true
   sourceResumeId?: true
   data?: true
+  summary?: true
+  lastSummarizedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -203,6 +211,8 @@ export type ResumeGroupByOutputType = {
   applicationId: string | null
   sourceResumeId: string | null
   data: runtime.JsonValue
+  summary: runtime.JsonValue | null
+  lastSummarizedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ResumeCountAggregateOutputType | null
@@ -240,6 +250,8 @@ export type ResumeWhereInput = {
   applicationId?: Prisma.StringNullableFilter<"Resume"> | string | null
   sourceResumeId?: Prisma.StringNullableFilter<"Resume"> | string | null
   data?: Prisma.JsonFilter<"Resume">
+  summary?: Prisma.JsonNullableFilter<"Resume">
+  lastSummarizedAt?: Prisma.DateTimeNullableFilter<"Resume"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   sourceResume?: Prisma.XOR<Prisma.ResumeNullableScalarRelationFilter, Prisma.ResumeWhereInput> | null
@@ -260,6 +272,8 @@ export type ResumeOrderByWithRelationInput = {
   applicationId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceResumeId?: Prisma.SortOrderInput | Prisma.SortOrder
   data?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSummarizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sourceResume?: Prisma.ResumeOrderByWithRelationInput
@@ -283,6 +297,8 @@ export type ResumeWhereUniqueInput = Prisma.AtLeast<{
   applicationId?: Prisma.StringNullableFilter<"Resume"> | string | null
   sourceResumeId?: Prisma.StringNullableFilter<"Resume"> | string | null
   data?: Prisma.JsonFilter<"Resume">
+  summary?: Prisma.JsonNullableFilter<"Resume">
+  lastSummarizedAt?: Prisma.DateTimeNullableFilter<"Resume"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   sourceResume?: Prisma.XOR<Prisma.ResumeNullableScalarRelationFilter, Prisma.ResumeWhereInput> | null
@@ -303,6 +319,8 @@ export type ResumeOrderByWithAggregationInput = {
   applicationId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceResumeId?: Prisma.SortOrderInput | Prisma.SortOrder
   data?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastSummarizedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ResumeCountOrderByAggregateInput
@@ -325,6 +343,8 @@ export type ResumeScalarWhereWithAggregatesInput = {
   applicationId?: Prisma.StringNullableWithAggregatesFilter<"Resume"> | string | null
   sourceResumeId?: Prisma.StringNullableWithAggregatesFilter<"Resume"> | string | null
   data?: Prisma.JsonWithAggregatesFilter<"Resume">
+  summary?: Prisma.JsonNullableWithAggregatesFilter<"Resume">
+  lastSummarizedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Resume"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Resume"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Resume"> | Date | string
 }
@@ -340,6 +360,8 @@ export type ResumeCreateInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceResume?: Prisma.ResumeCreateNestedOneWithoutDerivedResumesInput
@@ -360,6 +382,8 @@ export type ResumeUncheckedCreateInput = {
   applicationId?: string | null
   sourceResumeId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   derivedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutSourceResumeInput
@@ -378,6 +402,8 @@ export type ResumeUpdateInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceResume?: Prisma.ResumeUpdateOneWithoutDerivedResumesNestedInput
@@ -398,6 +424,8 @@ export type ResumeUncheckedUpdateInput = {
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceResumeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   derivedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutSourceResumeNestedInput
@@ -417,6 +445,8 @@ export type ResumeCreateManyInput = {
   applicationId?: string | null
   sourceResumeId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -432,6 +462,8 @@ export type ResumeUpdateManyMutationInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -448,6 +480,8 @@ export type ResumeUncheckedUpdateManyInput = {
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceResumeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -479,6 +513,8 @@ export type ResumeCountOrderByAggregateInput = {
   applicationId?: Prisma.SortOrder
   sourceResumeId?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  lastSummarizedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -494,6 +530,7 @@ export type ResumeMaxOrderByAggregateInput = {
   base?: Prisma.SortOrder
   applicationId?: Prisma.SortOrder
   sourceResumeId?: Prisma.SortOrder
+  lastSummarizedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -509,6 +546,7 @@ export type ResumeMinOrderByAggregateInput = {
   base?: Prisma.SortOrder
   applicationId?: Prisma.SortOrder
   sourceResumeId?: Prisma.SortOrder
+  lastSummarizedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -540,6 +578,10 @@ export type ResumeUncheckedCreateNestedManyWithoutSourceResumeInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type ResumeUpdateOneWithoutDerivedResumesNestedInput = {
@@ -613,6 +655,8 @@ export type ResumeCreateWithoutDerivedResumesInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceResume?: Prisma.ResumeCreateNestedOneWithoutDerivedResumesInput
@@ -632,6 +676,8 @@ export type ResumeUncheckedCreateWithoutDerivedResumesInput = {
   applicationId?: string | null
   sourceResumeId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   resumeXml?: Prisma.ResumeXmlUncheckedCreateNestedOneWithoutResumeInput
@@ -654,6 +700,8 @@ export type ResumeCreateWithoutSourceResumeInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   derivedResumes?: Prisma.ResumeCreateNestedManyWithoutSourceResumeInput
@@ -672,6 +720,8 @@ export type ResumeUncheckedCreateWithoutSourceResumeInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   derivedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutSourceResumeInput
@@ -711,6 +761,8 @@ export type ResumeUpdateWithoutDerivedResumesInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceResume?: Prisma.ResumeUpdateOneWithoutDerivedResumesNestedInput
@@ -730,6 +782,8 @@ export type ResumeUncheckedUpdateWithoutDerivedResumesInput = {
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceResumeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   resumeXml?: Prisma.ResumeXmlUncheckedUpdateOneWithoutResumeNestedInput
@@ -767,6 +821,8 @@ export type ResumeScalarWhereInput = {
   applicationId?: Prisma.StringNullableFilter<"Resume"> | string | null
   sourceResumeId?: Prisma.StringNullableFilter<"Resume"> | string | null
   data?: Prisma.JsonFilter<"Resume">
+  summary?: Prisma.JsonNullableFilter<"Resume">
+  lastSummarizedAt?: Prisma.DateTimeNullableFilter<"Resume"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Resume"> | Date | string
 }
@@ -782,6 +838,8 @@ export type ResumeCreateWithoutResumeXmlInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceResume?: Prisma.ResumeCreateNestedOneWithoutDerivedResumesInput
@@ -801,6 +859,8 @@ export type ResumeUncheckedCreateWithoutResumeXmlInput = {
   applicationId?: string | null
   sourceResumeId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   derivedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutSourceResumeInput
@@ -834,6 +894,8 @@ export type ResumeUpdateWithoutResumeXmlInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceResume?: Prisma.ResumeUpdateOneWithoutDerivedResumesNestedInput
@@ -853,6 +915,8 @@ export type ResumeUncheckedUpdateWithoutResumeXmlInput = {
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceResumeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   derivedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutSourceResumeNestedInput
@@ -870,6 +934,8 @@ export type ResumeCreateWithoutConceptEvidenceAssessmentsInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceResume?: Prisma.ResumeCreateNestedOneWithoutDerivedResumesInput
@@ -889,6 +955,8 @@ export type ResumeUncheckedCreateWithoutConceptEvidenceAssessmentsInput = {
   applicationId?: string | null
   sourceResumeId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   derivedResumes?: Prisma.ResumeUncheckedCreateNestedManyWithoutSourceResumeInput
@@ -922,6 +990,8 @@ export type ResumeUpdateWithoutConceptEvidenceAssessmentsInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceResume?: Prisma.ResumeUpdateOneWithoutDerivedResumesNestedInput
@@ -941,6 +1011,8 @@ export type ResumeUncheckedUpdateWithoutConceptEvidenceAssessmentsInput = {
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceResumeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   derivedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutSourceResumeNestedInput
@@ -958,6 +1030,8 @@ export type ResumeCreateManySourceResumeInput = {
   base?: boolean
   applicationId?: string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -973,6 +1047,8 @@ export type ResumeUpdateWithoutSourceResumeInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   derivedResumes?: Prisma.ResumeUpdateManyWithoutSourceResumeNestedInput
@@ -991,6 +1067,8 @@ export type ResumeUncheckedUpdateWithoutSourceResumeInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   derivedResumes?: Prisma.ResumeUncheckedUpdateManyWithoutSourceResumeNestedInput
@@ -1009,6 +1087,8 @@ export type ResumeUncheckedUpdateManyWithoutSourceResumeInput = {
   base?: Prisma.BoolFieldUpdateOperationsInput | boolean
   applicationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  summary?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastSummarizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1065,6 +1145,8 @@ export type ResumeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   applicationId?: boolean
   sourceResumeId?: boolean
   data?: boolean
+  summary?: boolean
+  lastSummarizedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sourceResume?: boolean | Prisma.Resume$sourceResumeArgs<ExtArgs>
@@ -1086,6 +1168,8 @@ export type ResumeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   applicationId?: boolean
   sourceResumeId?: boolean
   data?: boolean
+  summary?: boolean
+  lastSummarizedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sourceResume?: boolean | Prisma.Resume$sourceResumeArgs<ExtArgs>
@@ -1103,6 +1187,8 @@ export type ResumeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   applicationId?: boolean
   sourceResumeId?: boolean
   data?: boolean
+  summary?: boolean
+  lastSummarizedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   sourceResume?: boolean | Prisma.Resume$sourceResumeArgs<ExtArgs>
@@ -1120,11 +1206,13 @@ export type ResumeSelectScalar = {
   applicationId?: boolean
   sourceResumeId?: boolean
   data?: boolean
+  summary?: boolean
+  lastSummarizedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ResumeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "name" | "company" | "level" | "jobPostingUrl" | "readOnly" | "base" | "applicationId" | "sourceResumeId" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["resume"]>
+export type ResumeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "uid" | "name" | "company" | "level" | "jobPostingUrl" | "readOnly" | "base" | "applicationId" | "sourceResumeId" | "data" | "summary" | "lastSummarizedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["resume"]>
 export type ResumeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sourceResume?: boolean | Prisma.Resume$sourceResumeArgs<ExtArgs>
   derivedResumes?: boolean | Prisma.Resume$derivedResumesArgs<ExtArgs>
@@ -1159,6 +1247,8 @@ export type $ResumePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     applicationId: string | null
     sourceResumeId: string | null
     data: runtime.JsonValue
+    summary: runtime.JsonValue | null
+    lastSummarizedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["resume"]>
@@ -1599,6 +1689,8 @@ export interface ResumeFieldRefs {
   readonly applicationId: Prisma.FieldRef<"Resume", 'String'>
   readonly sourceResumeId: Prisma.FieldRef<"Resume", 'String'>
   readonly data: Prisma.FieldRef<"Resume", 'Json'>
+  readonly summary: Prisma.FieldRef<"Resume", 'Json'>
+  readonly lastSummarizedAt: Prisma.FieldRef<"Resume", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Resume", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Resume", 'DateTime'>
 }

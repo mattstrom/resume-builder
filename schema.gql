@@ -215,6 +215,24 @@ type ResumeContent {
   volunteering: [ResumeVolunteering!]
 }
 
+"""A high-level project represented in a resume"""
+type ResumeSummaryProject {
+  name: String!
+  description: String!
+}
+
+"""Search-oriented summary of the themes and content in a resume"""
+type ResumeSummary {
+  """Dominant role theme, such as frontend, backend, or generalist"""
+  dominantTheme: String!
+
+  """The emphasis and positioning of the professional summary"""
+  summaryTheme: String!
+  projects: [ResumeSummaryProject!]!
+  technologies: [String!]!
+  contentThemes: [String!]!
+}
+
 """Resume"""
 type Resume {
   """Unique identifier"""
@@ -252,6 +270,12 @@ type Resume {
 
   """Typed projection of the canonical resume XML"""
   data: ResumeContent! @deprecated(reason: "Read xml for lossless resume content.")
+
+  """Search-oriented summary generated from the canonical resume content"""
+  summary: ResumeSummary
+
+  """Date when the canonical resume content was last summarized"""
+  lastSummarizedAt: DateTime
 
   """Canonical XML resume content"""
   xml: String
@@ -748,6 +772,8 @@ input CompanyAddressInput {
 
 type Query {
   getProfile: Profile
+  listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
+  getResume(id: String!): Resume!
   facts(relation: String, vocabulary: String, conceptKey: String): [FactType!]!
   fact(id: ID!): FactType!
   factConcepts(factId: ID!): [FactConceptType!]!
@@ -759,8 +785,6 @@ type Query {
   bullets(filter: BulletFilterInput): [Bullet!]!
   bullet(id: ID!): Bullet!
   searchBullets(query: String!, filter: BulletFilterInput, limit: Int, minimumScore: Float): [BulletSearchResult!]!
-  listResumes(sort: ResumeSortInput, filter: ResumeFilterInput): [Resume!]!
-  getResume(id: String!): Resume!
   listJobs: [Job!]!
   listSkills: [Skill!]!
   listEducations: [Education!]!
@@ -781,15 +805,6 @@ type Query {
   profileKnowledgeGuidance: [String!]!
   profileKnowledgeInbox: [ProfileKnowledgeInboxItemType!]!
   profileKnowledgeLedger: ProfileKnowledgeLedgerType!
-}
-
-input BulletFilterInput {
-  sourceType: BulletSourceType
-  sourceId: ID
-  status: BulletStatus
-  search: String
-  conceptKey: String
-  includeArchived: Boolean = false
 }
 
 input ResumeSortInput {
@@ -818,9 +833,23 @@ input ResumeFilterInput {
   applicationId: String
 }
 
+input BulletFilterInput {
+  sourceType: BulletSourceType
+  sourceId: ID
+  status: BulletStatus
+  search: String
+  conceptKey: String
+  includeArchived: Boolean = false
+}
+
 type Mutation {
   updateProfile(input: ProfileUpdateInput!): Profile!
   generateNarrativeSummary: GenerateNarrativeSummaryResult!
+  createResume(resumeData: ResumeCreateInput!): Resume!
+  createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
+  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
+  deleteResume(id: String!): Boolean!
+  applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
   createFact(input: CreateFactInput!): FactType!
   updateFact(id: ID!, input: UpdateFactInput!): FactType!
   deleteFact(id: ID!): Boolean!
@@ -837,11 +866,6 @@ type Mutation {
   upsertBulletConcept(bulletId: ID!, meaning: BulletMeaningInput!): BulletConcept!
   deleteBulletConcept(bulletId: ID!, conceptId: ID!, relation: String!): Boolean!
   replaceGeneratedBulletConcepts(bulletId: ID!, expectedText: String!, meanings: [BulletMeaningInput!]!): [BulletConcept!]!
-  createResume(resumeData: ResumeCreateInput!): Resume!
-  createBlankResume(resumeData: BlankResumeCreateInput!): Resume!
-  updateResume(id: String!, resumeData: ResumeUpdateInput!): Resume!
-  deleteResume(id: String!): Boolean!
-  applyResumeXml(id: String!, xml: String!, baseStateVector: String): Resume!
   createJob(job: JobInput!): Job!
   updateJob(id: String!, job: JobInput!): Job!
   deleteJob(id: String!): Boolean!
@@ -880,104 +904,6 @@ input ProfileUpdateInput {
 
   """Structured job search preferences"""
   jobPreferences: JSON
-}
-
-input CreateFactInput {
-  what: String!
-  impact: String
-  scale: String
-  citation: String
-  citationNodeIndex: Int
-  meanings: [FactMeaningInput!]!
-}
-
-input FactMeaningInput {
-  relation: String!
-  concept: FactConceptReferenceInput!
-  source: String
-  confidence: Float
-  qualifier: ConceptQualifierInput
-}
-
-input FactConceptReferenceInput {
-  vocabulary: String!
-  key: String!
-  label: String!
-}
-
-input ConceptQualifierInput {
-  dimension: String!
-  operator: String!
-  value: Float
-  min: Float
-  max: Float
-  unit: String!
-}
-
-input UpdateFactInput {
-  what: String
-  impact: String
-  scale: String
-  citation: String
-  citationNodeIndex: Int
-  meanings: [FactMeaningInput!]
-}
-
-input CreateExpressionInput {
-  text: String!
-  length: String
-  tone: String
-}
-
-input LinkFactInput {
-  factId: String!
-  expressionId: String
-  section: String
-  position: Int
-}
-
-input CreateBulletInput {
-  text: String!
-  sourceType: BulletSourceType!
-  sourceId: ID!
-}
-
-input UpdateBulletInput {
-  text: String
-  contextScore: Float
-  contextNote: String
-  contextWhatWorksWell: [String!]
-  contextWhyItMatters: String
-  contextProposedEnhancements: [String!]
-  actionScore: Float
-  actionNote: String
-  actionWhatWorksWell: [String!]
-  actionWhyItMatters: String
-  actionProposedEnhancements: [String!]
-  outcomeScore: Float
-  outcomeNote: String
-  outcomeWhatWorksWell: [String!]
-  outcomeWhyItMatters: String
-  outcomeProposedEnhancements: [String!]
-  clarityScore: Float
-  clarityNote: String
-  clarityWhatWorksWell: [String!]
-  clarityWhyItMatters: String
-  clarityProposedEnhancements: [String!]
-}
-
-input BulletMeaningInput {
-  relation: String!
-  concept: BulletConceptReferenceInput!
-  source: String
-  confidence: Float
-  qualifier: ConceptQualifierInput
-}
-
-input BulletConceptReferenceInput {
-  vocabulary: String!
-  label: String!
-  key: String!
 }
 
 input ResumeCreateInput {
@@ -1125,6 +1051,104 @@ input ResumeUpdateInput {
 
   """Application this resume belongs to"""
   applicationId: String
+}
+
+input CreateFactInput {
+  what: String!
+  impact: String
+  scale: String
+  citation: String
+  citationNodeIndex: Int
+  meanings: [FactMeaningInput!]!
+}
+
+input FactMeaningInput {
+  relation: String!
+  concept: FactConceptReferenceInput!
+  source: String
+  confidence: Float
+  qualifier: ConceptQualifierInput
+}
+
+input FactConceptReferenceInput {
+  vocabulary: String!
+  key: String!
+  label: String!
+}
+
+input ConceptQualifierInput {
+  dimension: String!
+  operator: String!
+  value: Float
+  min: Float
+  max: Float
+  unit: String!
+}
+
+input UpdateFactInput {
+  what: String
+  impact: String
+  scale: String
+  citation: String
+  citationNodeIndex: Int
+  meanings: [FactMeaningInput!]
+}
+
+input CreateExpressionInput {
+  text: String!
+  length: String
+  tone: String
+}
+
+input LinkFactInput {
+  factId: String!
+  expressionId: String
+  section: String
+  position: Int
+}
+
+input CreateBulletInput {
+  text: String!
+  sourceType: BulletSourceType!
+  sourceId: ID!
+}
+
+input UpdateBulletInput {
+  text: String
+  contextScore: Float
+  contextNote: String
+  contextWhatWorksWell: [String!]
+  contextWhyItMatters: String
+  contextProposedEnhancements: [String!]
+  actionScore: Float
+  actionNote: String
+  actionWhatWorksWell: [String!]
+  actionWhyItMatters: String
+  actionProposedEnhancements: [String!]
+  outcomeScore: Float
+  outcomeNote: String
+  outcomeWhatWorksWell: [String!]
+  outcomeWhyItMatters: String
+  outcomeProposedEnhancements: [String!]
+  clarityScore: Float
+  clarityNote: String
+  clarityWhatWorksWell: [String!]
+  clarityWhyItMatters: String
+  clarityProposedEnhancements: [String!]
+}
+
+input BulletMeaningInput {
+  relation: String!
+  concept: BulletConceptReferenceInput!
+  source: String
+  confidence: Float
+  qualifier: ConceptQualifierInput
+}
+
+input BulletConceptReferenceInput {
+  vocabulary: String!
+  label: String!
+  key: String!
 }
 
 input JobInput {

@@ -6,6 +6,7 @@
 export const QUEUES = {
 	PING: 'ping',
 	PROFILE_NARRATIVE_SUMMARY: 'profile-narrative-summary',
+	RESUME_SUMMARIES: 'resume-summaries',
 	EMBEDDINGS: 'embeddings',
 } as const;
 

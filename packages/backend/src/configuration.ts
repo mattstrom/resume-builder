@@ -50,6 +50,10 @@ export interface Config {
 		httpUrl: string;
 		internalKey: string;
 	};
+	mastra: {
+		url: string;
+		internalKey: string;
+	};
 }
 
 const schema = convict<Config>({
@@ -199,6 +203,21 @@ const schema = convict<Config>({
 			format: String,
 			default: '',
 			env: 'CRDT_INTERNAL_KEY',
+			sensitive: true,
+		},
+	},
+	mastra: {
+		url: {
+			doc: 'Mastra service URL used for internal queued work',
+			format: String,
+			default: 'http://localhost:4111',
+			env: 'MASTRA_URL',
+		},
+		internalKey: {
+			doc: 'Shared secret for backend-to-Mastra internal API calls',
+			format: String,
+			default: '',
+			env: 'MASTRA_INTERNAL_KEY',
 			sensitive: true,
 		},
 	},

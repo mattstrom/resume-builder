@@ -529,10 +529,6 @@ export type ProfileKnowledgeProposalUncheckedUpdateManyWithoutFeedbackNestedInpu
   deleteMany?: Prisma.ProfileKnowledgeProposalScalarWhereInput | Prisma.ProfileKnowledgeProposalScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type ProfileKnowledgeProposalCreateWithoutAcceptedFactInput = {
   id?: string
   uid: string
