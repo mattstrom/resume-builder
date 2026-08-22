@@ -92,6 +92,12 @@ TypeScript is set to strict mode with no unused locals/parameters.
   resume. Resume inputs, inline editors, and floating controls must retain a
   light paper appearance with a white background and dark, readable text.
 
+## Test Conventions
+
+When writing tests:
+
+- Use the Arrange-Act-Assert (AAA) pattern
+
 ## Commit Conventions
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/).

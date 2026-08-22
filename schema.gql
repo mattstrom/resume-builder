@@ -753,6 +753,75 @@ type JobRequirementType {
   createdAt: DateTime!
 }
 
+type SelectedEvidenceType {
+  id: ID!
+  text: String!
+  sourceType: BulletSourceType!
+  sourceId: ID!
+
+  """How much this bullet added to coverage when it was chosen."""
+  marginalGain: Float!
+  coversConceptIds: [ID!]!
+}
+
+type RequirementGapType {
+  conceptId: ID!
+  label: String!
+  relation: RequirementRelationType!
+  weight: Float!
+
+  """Requirements that asked for this concept."""
+  requirementIds: [ID!]!
+}
+
+"""Job-side predicate binding a requirement to a concept."""
+enum RequirementRelationType {
+  REQUIRES
+  EXPECTS
+  PREFERS
+}
+
+type CrowdedOutGapType {
+  conceptId: ID!
+  label: String!
+  relation: RequirementRelationType!
+  weight: Float!
+
+  """Requirements that asked for this concept."""
+  requirementIds: [ID!]!
+
+  """Bullets that would have covered this but lost the budget."""
+  availableEvidenceIds: [ID!]!
+}
+
+type EvidenceGapsType {
+  """Nothing in the profile covers these at all."""
+  unevidenced: [RequirementGapType!]!
+
+  """Evidence exists for these but did not fit the budget."""
+  crowdedOut: [CrowdedOutGapType!]!
+}
+
+type EvidenceCoverageType {
+  achieved: Float!
+
+  """Coverage an unlimited budget could reach with this profile."""
+  possible: Float!
+  ratio: Float!
+}
+
+type EvidenceBudgetType {
+  requested: Int!
+  used: Int!
+}
+
+type EvidenceSelectionPayload {
+  selected: [SelectedEvidenceType!]!
+  gaps: EvidenceGapsType!
+  coverage: EvidenceCoverageType!
+  budget: EvidenceBudgetType!
+}
+
 type AdvancedSearchPayload {
   resumes: [ResumeSearchResult!]!
   bullets: [BulletSearchResult!]!
@@ -849,6 +918,7 @@ type Query {
   listCompanies: [Company!]!
   getCompany(id: String!): Company!
   conceptEvidenceAssessment(applicationId: ID!, resumeId: ID!): ConceptEvidenceAssessmentType
+  planResumeEvidence(applicationId: ID!, budget: Int = 18, status: BulletStatus): EvidenceSelectionPayload!
   jobRequirements(applicationId: ID!): [JobRequirementType!]!
   advancedSearch(query: String!, resultTypes: [AdvancedSearchResultType!]!, limit: Int = 50, minimumScore: Float = 0.45): AdvancedSearchPayload!
   requirementGradeFeedback(applicationId: ID!): [RequirementGradeFeedbackType!]!
