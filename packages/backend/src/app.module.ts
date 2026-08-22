@@ -6,6 +6,7 @@ import { AuthModule } from './modules/auth/index.js';
 import { ChatModule } from './modules/chat/chat.module.js';
 import { ConceptEvidenceAssessmentsModule } from './modules/concept-evidence-assessments/concept-evidence-assessments.module.js';
 import { EntitiesModule } from './modules/entities/entities.module.js';
+import { EvidenceSelectionModule } from './modules/evidence-selection/evidence-selection.module.js';
 import { FactsModule } from './modules/facts/facts.module.js';
 import { GraphQLModule } from './modules/graphql/graphql.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -31,6 +32,7 @@ import { SearchModule } from './modules/search/search.module.js';
 		ChatModule,
 		ConceptEvidenceAssessmentsModule,
 		EntitiesModule,
+		EvidenceSelectionModule,
 		FactsModule,
 		GraphQLModule,
 		HealthModule,

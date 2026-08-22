@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConceptsModule } from '../concepts/concepts.module.js';
 import { CrdtClientModule } from '../crdt-client/crdt-client.module.js';
 import { EntitiesModule } from '../entities/index.js';
+import { EvidenceSelectionModule } from '../evidence-selection/evidence-selection.module.js';
 import { FactsModule } from '../facts/facts.module.js';
 import { JobRequirementsModule } from '../job-requirements/job-requirements.module.js';
 import { LlmModule } from '../llm/llm.module.js';
@@ -12,6 +13,7 @@ import { SearchModule } from '../search/search.module.js';
 import { ApplicationsResolver } from './applications.resolver.js';
 import { BulletsResolver } from './bullets.resolver.js';
 import { ConceptsResolver } from './concepts.resolver.js';
+import { EvidenceSelectionResolver } from './evidence-selection.resolver.js';
 import { FactsResolver } from './facts.resolver.js';
 import { FlowRunsResolver } from './flow-runs.resolver.js';
 import { HealthResolver } from './health.resolver.js';
@@ -36,6 +38,7 @@ import { SearchResolver } from './search.resolver.js';
 			},
 		}),
 		EntitiesModule,
+		EvidenceSelectionModule,
 		CrdtClientModule,
 		ConceptsModule,
 		FactsModule,
@@ -49,6 +52,7 @@ import { SearchResolver } from './search.resolver.js';
 		ApplicationsResolver,
 		BulletsResolver,
 		ConceptsResolver,
+		EvidenceSelectionResolver,
 		FactsResolver,
 		FlowRunsResolver,
 		JobRequirementsResolver,

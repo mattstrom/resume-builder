@@ -12,6 +12,7 @@ export * from './models/company.js';
 export * from './models/concept-assertion.js';
 export * from './models/application.js';
 export * from './models/agent-search.js';
+export * from './models/evidence-selection.js';
 export * from './models/bullet.js';
 export * from './models/flow-run.js';
 export * from './models/professional-statement.js';

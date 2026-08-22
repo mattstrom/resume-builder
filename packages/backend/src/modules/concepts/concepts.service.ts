@@ -455,7 +455,7 @@ export class ConceptsService {
 	 * levels deep; the visited set bounds it regardless, so a cycle introduced by
 	 * a future non-ontology relation cannot hang the query.
 	 */
-	private async findBroaderClosure(
+	async findBroaderClosure(
 		conceptIds: readonly string[],
 	): Promise<Map<string, Set<string>>> {
 		const closure = new Map<string, Set<string>>(
