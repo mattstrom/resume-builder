@@ -19,14 +19,14 @@
         }
       ],
       "options": {
-        "command": "npm run start:direct",
+        "command": "pnpm run start:direct",
         "cwd": "packages/crdt"
       }
     },
     "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "npm run start:direct",
+        "command": "pnpm run start:direct",
         "cwd": "packages/crdt"
       },
       "dependsOn": [

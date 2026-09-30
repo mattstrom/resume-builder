@@ -13,8 +13,8 @@ This is a **Mastra** project written in TypeScript. Mastra is a framework for bu
 ## Commands
 
 ```bash
-npm run dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
-npm run build # Build a production-ready server
+pnpm run dev # Start Mastra Studio at localhost:4111 (long-running, use a separate terminal)
+pnpm run build # Build a production-ready server
 ```
 
 ## Project Structure
@@ -37,7 +37,7 @@ Top-level files define how your Mastra project is configured, built, and connect
 | --------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `src/mastra/index.ts` | Central entry point where you configure and initialize Mastra.                                                    |
 | `.env.example`        | Template for environment variables - copy and rename to `.env` to add your secret [model provider](/models) keys. |
-| `package.json`        | Defines project metadata, dependencies, and available npm scripts.                                                |
+| `package.json`        | Defines project metadata, dependencies, and available package scripts.                                                |
 | `tsconfig.json`       | Configures TypeScript options such as path aliases, compiler settings, and build output.                          |
 
 ## Boundaries
@@ -47,7 +47,7 @@ Top-level files define how your Mastra project is configured, built, and connect
 - Load the `mastra` skill before any Mastra-related work
 - Register new agents, tools, workflows, and scorers in `src/mastra/index.ts`
 - Use schemas for tool inputs and outputs
-- Run `npm run build` to verify changes compile
+- Run `pnpm run build` to verify changes compile
 
 ### Never do
 

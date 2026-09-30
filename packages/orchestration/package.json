@@ -32,12 +32,14 @@
     "@mastra/mongodb": "^1.17.0",
     "@mastra/observability": "^1.16.6",
     "@mastra/pg": "^1.20.0",
-    "@resume-builder/entities": "file:../entities",
+    "@mastra/server": "^1.58.0",
+    "@resume-builder/entities": "workspace:*",
+    "convict": "^6.2.4",
     "fast-xml-parser": "^5.8.0",
     "graphql": "^16.13.2",
     "jose": "^6.2.3",
     "outdent": "^0.8.0",
-    "reflect-metadata": "^0.1.13",
+    "reflect-metadata": "^0.2.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {

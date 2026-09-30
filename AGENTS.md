@@ -35,13 +35,19 @@ The project consists of multiple packages working together:
 
 ### Workspace Commands
 
+The workspace uses pnpm (see `pnpm-workspace.yaml`). Reference workspace
+packages with `workspace:*`, and declare every dependency a package imports.
+pnpm does not hoist undeclared packages.
+
+- `pnpm install` - Install dependencies
+- `pnpm --filter <package> add <dependency>` - Add a dependency to a package
 - `nx run <project>:<target>` - Run any project target through Nx
 - `nx run-many -t <target>` - Run a target across multiple projects
 - `nx affected -t <target>` - Run a target on affected projects
 
 ### Frontend (`@resume-builder/web`)
 
-- `npm run dev` or `nx serve @resume-builder/web` - Start dev server
+- `pnpm run dev` or `nx serve @resume-builder/web` - Start dev server
     - DO NOT start the frontend yourself. I will start it myself.
 
 - `nx build @resume-builder/web` - Build the application
@@ -50,8 +56,8 @@ The project consists of multiple packages working together:
 
 ### Backend (`@resume-builder/backend`)
 
-- `npm run start:dev` - Start backend in watch mode
-- `npm run start:prod` - Start backend in production mode
+- `pnpm run start:dev` - Start backend in watch mode
+- `pnpm run start:prod` - Start backend in production mode
 
 DO NOT start the backend yourself. I will start it myself.
 

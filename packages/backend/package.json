@@ -10,13 +10,13 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "build": "npm -w @resume-builder/entities run prisma:generate && nest build",
+    "build": "pnpm --filter @resume-builder/entities run prisma:generate && nest build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ./node_modules/jest/bin/jest.js --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "inspect": "npx --no-cache @modelcontextprotocol/inspector",
+    "inspect": "pnpm dlx @modelcontextprotocol/inspector",
     "script:backfill-embeddings": "op run --env-file=../../.env -- nest start --entryFile scripts/backfill-embeddings",
     "script:backfill-concept-links": "op run --env-file=../../.env -- nest start --entryFile scripts/backfill-concept-links"
   },
@@ -45,14 +45,15 @@
     "@nestjs/terminus": "^11.1.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "@resume-builder/entities": "file:../entities",
-    "@resume-builder/ontologies": "file:../ontologies",
+    "@resume-builder/entities": "workspace:*",
+    "@resume-builder/ontologies": "workspace:*",
     "ai": "^6.0.94",
     "app-root-path": "^3.1.0",
     "bullmq": "^5.74.0",
     "config": "^4.1.1",
     "controller": "^1.0.0",
     "convict": "^6.2.4",
+    "express": "^5.2.1",
     "graphql": "^16.12.0",
     "graphql-type-json": "^0.3.2",
     "ioredis": "^5.10.1",
@@ -95,11 +96,6 @@
     "ts-loader": "^9.5.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
-  },
-  "overrides": {
-    "@typegoose/typegoose": {
-      "mongoose": "$mongoose"
-    }
   },
   "jest": {
     "collectCoverageFrom": [

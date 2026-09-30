@@ -21,15 +21,20 @@
     "@nestjs/mongoose": "^11.0.4",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "@resume-builder/entities": "file:../entities",
+    "@resume-builder/entities": "workspace:*",
     "config": "^4.4.1",
     "convict": "^6.2.4",
     "fast-xml-parser": "^5.8.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
+    "logform": "^2.7.0",
     "mongoose": "^9.1.3",
     "pg": "^8.13.3",
     "winston": "^3.19.0",
     "yjs": "^13.6.29"
+  },
+  "devDependencies": {
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "~5.9.2"
   }
 }

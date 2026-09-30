@@ -89,7 +89,7 @@ The two technology files are generated from O\*NET, a free public dataset of
 occupations and the software used in them. Everything else is hand-written.
 
 ```sh
-npm run import:onet     # downloads (and caches) O*NET, rewrites generated files
+pnpm run import:onet    # downloads (and caches) O*NET, rewrites generated files
 ```
 
 Generated files are checked in; regenerate deliberately, review the diff, and
