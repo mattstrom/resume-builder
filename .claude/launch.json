@@ -4,12 +4,12 @@
     {
       "name": "Web (Vite)",
       "runtimeExecutable": "bash",
-      "runtimeArgs": ["-c", "cd packages/resume-builder && npx vite"],
+      "runtimeArgs": ["-c", "cd packages/resume-builder && pnpm exec vite"],
       "port": 5173
     },
     {
       "name": "Backend (NestJS)",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "start:dev"],
       "port": 3000
     },

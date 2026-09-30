@@ -8,9 +8,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "del-cli dist",
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "build": "tsc --build",
-    "prewatch": "npm run clean",
+    "prewatch": "pnpm run clean",
     "watch": "tsc --build --watch",
     "test": "nx vite:test",
     "import:onet": "node scripts/import-onet.mjs",
@@ -20,6 +20,7 @@
     "zod": "^4.3.4"
   },
   "devDependencies": {
-    "del-cli": "^6.0.0"
+    "del-cli": "^6.0.0",
+    "typescript": "~5.9.2"
   }
 }

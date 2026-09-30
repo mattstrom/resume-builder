@@ -5,7 +5,7 @@
       "executor": "nx:run-commands",
       "outputs": ["{projectRoot}/dist"],
       "options": {
-        "command": "npm run build",
+        "command": "pnpm run build",
         "cwd": "{projectRoot}"
       }
     },

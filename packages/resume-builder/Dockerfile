@@ -1,37 +1,39 @@
-# Stage 1: Install dependencies
-FROM node:24.8.0-alpine AS deps
+# Stage 1: Base image with pnpm
+FROM node:24.8.0-alpine AS base
+
+ARG PNPM_VERSION=12.6.0
+RUN npm install --global --no-audit --no-fund pnpm@${PNPM_VERSION}
 
 WORKDIR /app
+
+# Stage 2: Install dependencies
+FROM base AS deps
 
 # Copy root workspace files
-COPY package.json package-lock.json nx.json tsconfig.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json tsconfig.json ./
 
-# Copy all workspace package.json files (npm ci needs them all)
-COPY packages/backend/package.json packages/backend/
+# Copy the package.json files of web and its workspace dependencies
 COPY packages/entities/package.json packages/entities/
 COPY packages/resume-builder/package.json packages/resume-builder/
 
-# Install all dependencies (including dev for build)
-# Root install needed so nx and other root devDependencies are available
-RUN npm ci
+# Install web, entities, and the root project (for nx and the Vite plugins),
+# including dev dependencies for the build
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile --store-dir /pnpm/store \
+      --filter @mattstrom/resume-builder \
+      --filter '@resume-builder/web...'
 
-# Stage 2: Dev target (for docker-compose with volume mounts)
+# Stage 3: Dev target (for docker-compose with volume mounts)
 FROM deps AS dev
-
-WORKDIR /app
-
-# Copy config files needed for vite
-COPY packages/resume-builder/package.json packages/resume-builder/
-COPY packages/entities/package.json packages/entities/
 
 WORKDIR /app/packages/resume-builder
 
 EXPOSE 5173
 
 # Expects src/, dist/ as volume mounts from host
-CMD ["npx", "vite", "--host"]
+CMD ["pnpm", "exec", "vite", "--host"]
 
-# Stage 3: Build
+# Stage 4: Build
 FROM deps AS build
 
 WORKDIR /app
@@ -40,15 +42,22 @@ WORKDIR /app
 COPY packages/entities packages/entities
 COPY packages/resume-builder packages/resume-builder
 
+# prisma.config.ts requires DATABASE_URL, but generating clients never
+# connects to it. This stage is never pushed, so the placeholder stays local.
+ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
+
+# The entities build needs the generated zod schemas first
+RUN pnpm --filter @resume-builder/entities run prisma:generate
+
 # Set config environment for build-time injection
 ENV NODE_CONFIG_DIR=/app/packages/resume-builder/config
 ARG NODE_CONFIG_ENV=production
 ENV NODE_CONFIG_ENV=${NODE_CONFIG_ENV}
 
 # Build web (Nx handles building dependencies like entities automatically)
-RUN npx nx build @resume-builder/web
+RUN pnpm exec nx build @resume-builder/web
 
-# Stage 4: Serve with nginx
+# Stage 5: Serve with nginx
 FROM nginx:alpine
 
 COPY --from=build /app/packages/resume-builder/dist /usr/share/nginx/html

@@ -5,7 +5,7 @@
       "executor": "nx:run-commands",
       "continuous": true,
       "options": {
-        "command": "npm run dev",
+        "command": "pnpm run dev",
         "cwd": "{projectRoot}"
       }
     },

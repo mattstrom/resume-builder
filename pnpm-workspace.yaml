@@ -1,0 +1,30 @@
+packages:
+  - packages/backend
+  - packages/crdt
+  - packages/entities
+  - packages/ontologies
+  - packages/orchestration
+  - packages/resume-builder
+
+# Dependencies allowed to run install scripts. pnpm blocks all others.
+allowBuilds:
+  '@prisma/engines': true
+  '@swc/core': true
+  agent-browser: true
+  # Native addons Mastra adds to its own .mastra/output install.
+  bufferutil: true
+  esbuild: true
+  msgpackr-extract: true
+  nx: true
+  onnxruntime-node: true
+  prisma: true
+  puppeteer: true
+  unrs-resolver: true
+  utf-8-validate: true
+  # Postinstall scripts that only print banners, patch typings, or download
+  # WebDriver binaries nothing here uses.
+  '@apollo/protobufjs': false
+  '@nestjs/core': false
+  browser-tabs-lock: false
+  edgedriver: false
+  geckodriver: false

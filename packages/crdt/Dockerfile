@@ -1,20 +1,29 @@
-# Stage 1: Install dependencies
-FROM node:24.8.0-slim AS deps
+# Stage 1: Base image with pnpm
+FROM node:24.8.0-slim AS base
+
+ARG PNPM_VERSION=12.6.0
+RUN npm install --global --no-audit --no-fund pnpm@${PNPM_VERSION}
 
 WORKDIR /app
 
-# Copy root workspace files
-COPY package.json package-lock.json nx.json tsconfig.json ./
+# Stage 2: Install dependencies
+FROM base AS deps
 
-# Copy all workspace package.json files (npm ci needs them all)
+# Copy root workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json tsconfig.json ./
+
+# Copy the package.json files of crdt and its workspace dependencies
 COPY packages/crdt/package.json packages/crdt/
 COPY packages/entities/package.json packages/entities/
 
-# Install all dependencies (including dev for build)
-# Root install needed so nx and other root devDependencies are available
-RUN npm ci
+# Install crdt, entities, and the root project (for nx), including dev
+# dependencies for the build
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile --store-dir /pnpm/store \
+      --filter @mattstrom/resume-builder \
+      --filter '@resume-builder/crdt...'
 
-# Stage 2: Build
+# Stage 3: Build
 FROM deps AS build
 
 WORKDIR /app
@@ -23,31 +32,34 @@ WORKDIR /app
 COPY packages/entities packages/entities
 COPY packages/crdt packages/crdt
 
+# prisma.config.ts requires DATABASE_URL, but generating clients never
+# connects to it. This stage is never pushed, so the placeholder stays local.
+ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
+
+# The entities build needs the generated zod schemas first
+RUN pnpm --filter @resume-builder/entities run prisma:generate
+
 # Build crdt (Nx automatically builds entities dependency first)
-RUN npx nx build @resume-builder/crdt
+RUN pnpm exec nx build @resume-builder/crdt
 
-# Stage 3: Production dependencies
-FROM node:24.8.0-slim AS prod-deps
+# Stage 4: Production dependencies
+FROM base AS prod-deps
 
-WORKDIR /app
-
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/crdt/package.json packages/crdt/
 COPY packages/entities/package.json packages/entities/
 
-RUN npm ci --workspace=packages/crdt --workspace=packages/entities --omit=dev
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile --prod --store-dir /pnpm/store \
+      --filter '@resume-builder/crdt...'
 
-# npm may hoist all of crdt/entities' deps into the root node_modules with no
-# per-package nesting, depending on whether any versions conflict — ensure
-# these directories exist (possibly empty) so the COPY below never fails.
-RUN mkdir -p packages/crdt/node_modules packages/entities/node_modules
-
-# Stage 4: Production runtime
+# Stage 5: Production runtime
 FROM node:24.8.0-slim
 
 WORKDIR /app
 
-# Copy production node_modules
+# Copy production node_modules. The package-level node_modules hold symlinks
+# into the root node_modules/.pnpm store, so all of them are needed.
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=prod-deps /app/packages/crdt/node_modules ./packages/crdt/node_modules
 COPY --from=prod-deps /app/packages/entities/node_modules ./packages/entities/node_modules

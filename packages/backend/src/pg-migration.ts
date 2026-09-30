@@ -3,10 +3,7 @@
  * MongoDB → PostgreSQL one-way data migration.
  *
  * Usage (from repo root):
- *   cd packages/backend && tsx ../../node_modules/.bin/tsx src/pg-migration.ts [--dry-run]
- *
- * Or:
- *   cd packages/backend && npx tsx src/pg-migration.ts [--dry-run]
+ *   cd packages/backend && pnpm dlx tsx src/pg-migration.ts [--dry-run]
  *
  * Strategy:
  *   - Each MongoDB _id.toString() becomes the Postgres id, so all existing

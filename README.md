@@ -162,18 +162,18 @@ Model Context Protocol connect AI workflows to the application's domain data.
 ### Prerequisites
 
 - Node.js 24.8.0 (see [`.nvmrc`](.nvmrc))
-- npm
+- pnpm 12.6 (`npm install --global pnpm@12.6.0`)
 - Docker
 - Local authentication and AI provider configuration
 
 ### Install and run
 
 ```sh
-npm install
-npm start
+pnpm install
+pnpm start
 ```
 
-`npm start` brings up the local data services and runs the entities, backend,
+`pnpm start` brings up the local data services and runs the entities, backend,
 CRDT, and web projects through Nx. The repository also supports standard Nx
 commands for working with an individual project:
 
@@ -186,8 +186,8 @@ nx run-many -t <target>
 Useful workspace checks:
 
 ```sh
-npm run lint
-npm run format:check
+pnpm run lint
+pnpm run format:check
 ```
 
 </details>

@@ -12,9 +12,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "clean": "del-cli dist",
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "build": "tsc --build",
-    "prewatch": "npm run clean",
+    "prewatch": "pnpm run clean",
     "watch": "tsc --build --watch",
     "dev": "node dist/test.js",
     "test": "nx vite:test",
@@ -27,24 +27,28 @@
     "migrate:add-base": "node dist/data/migrate-add-base.js",
     "migrate:add-job-preferences": "node dist/data/migrate-add-job-preferences.js",
     "migrate:add-resume-application-id": "node dist/data/migrate-resume-application-id.js",
-    "generate-json-schema": "npm run build && node dist/utils/generate-json-schema.js",
+    "generate-json-schema": "pnpm run build && node dist/utils/generate-json-schema.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "op run --env-file=../../.env -- prisma migrate dev",
     "prisma:deploy": "op run --env-file=../../.env -- prisma migrate deploy",
     "prisma:push": "op run --env-file=../../.env -- prisma db push"
   },
   "dependencies": {
+    "@nestjs/common": "^11.1.17",
     "@nestjs/graphql": "^13.2.3",
     "@nestjs/mongoose": "^11.0.4",
     "@typegoose/typegoose": "^13.0.0",
     "fast-xml-parser": "^5.10.1",
     "graphql-type-json": "^0.3.2",
-    "reflect-metadata": "^0.1.13",
+    "mongoose": "~9.0.2",
+    "reflect-metadata": "^0.2.2",
     "zod": "^4.3.4"
   },
   "devDependencies": {
+    "del-cli": "^7.0.0",
     "dotenv": "^16.0.0",
     "prisma": "^7.8.0",
+    "typescript": "~5.9.2",
     "vite-plugin-emit-metadata": "^0.2.0",
     "zod-prisma-types": "^3.3.11"
   }

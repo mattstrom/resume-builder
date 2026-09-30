@@ -1,0 +1,23 @@
+# Host installs contain macOS binaries and pnpm symlinks into the host store;
+# images install their own dependencies.
+**/node_modules
+
+# Build output and caches are produced inside the image.
+**/dist
+**/.mastra
+**/storybook-static
+.nx
+
+# Local state and secrets. Nx and Vite load .env files from package roots,
+# so they must never reach the build context.
+.git
+**/.env*
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.duckdb
+**/*.duckdb.wal
+backup
+scratch
+.idea
+.DS_Store

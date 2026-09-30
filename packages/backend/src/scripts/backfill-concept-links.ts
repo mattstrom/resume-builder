@@ -25,7 +25,7 @@ import type { EmbeddingQueueService } from '../modules/queue/embeddings/embeddin
  * in `EmbeddingsModule` and open a Redis connection for a queue nothing here
  * pushes to, so the services are constructed directly against a queue stub.
  * Upserting an existing concept does bump its `embeddingRevision`, so follow a
- * run with `npm run script:backfill-embeddings` to re-embed what went stale.
+ * run with `pnpm run script:backfill-embeddings` to re-embed what went stale.
  */
 @Module({
 	imports: [ConfigModule.forRoot({ isGlobal: true, load: [() => config] }), PrismaModule],
