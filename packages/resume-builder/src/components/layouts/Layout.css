@@ -1,5 +1,6 @@
 .layout {
-	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+	/* Use the same embedded font in the preview and the Linux PDF renderer. */
+	font-family: 'Roboto', sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
 }

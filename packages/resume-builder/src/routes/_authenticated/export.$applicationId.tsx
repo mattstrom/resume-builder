@@ -9,6 +9,7 @@ import { RouteError } from '../../components/RouteError.tsx';
 import { RouteLoading } from '../../components/RouteLoading.tsx';
 import { LIST_RESUMES } from '../../graphql/queries.ts';
 import type { ListResumesData, ListResumesVariables } from '../../graphql/types.ts';
+import { capturePdfHtml } from '../../utils/pdfDocument';
 import { generatePDFFromHTML, waitForPaginationReady } from '../../utils/pdfExport';
 
 import '../../App.css';
@@ -71,25 +72,13 @@ function ExportComponent() {
 		requestAnimationFrame(async () => {
 			try {
 				await waitForPaginationReady(document);
+				const html = await capturePdfHtml(document);
+				await generatePDFFromHTML(html, resumeData);
+				setStatus('done');
 			} catch (err) {
-				setErrorMessage(err instanceof Error ? err.message : 'Resume pagination failed');
+				setErrorMessage(err instanceof Error ? err.message : 'Failed to export PDF');
 				setStatus('error');
-				return;
 			}
-
-			const clone = document.documentElement.cloneNode(true) as HTMLElement;
-			// Remove the overlay from the cloned document
-			const overlay = clone.querySelector('[data-export-overlay]');
-			overlay?.remove();
-
-			const html = `<!DOCTYPE html>${clone.outerHTML}`;
-
-			generatePDFFromHTML(html, resumeData)
-				.then(() => setStatus('done'))
-				.catch((err) => {
-					setErrorMessage(err instanceof Error ? err.message : 'Failed to export PDF');
-					setStatus('error');
-				});
 		});
 	}, [resumeData]);
 

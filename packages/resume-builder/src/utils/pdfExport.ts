@@ -1,5 +1,6 @@
 import { API_BASE_URL } from './api';
 import { authFetch } from './auth';
+import { capturePdfHtml } from './pdfDocument';
 
 interface ResumeData {
 	name?: string;
@@ -20,7 +21,7 @@ export async function generatePDF(
 ): Promise<void> {
 	const doc = sourceDocument ?? getPreviewDocument();
 	await waitForPaginationReady(doc);
-	const html = doc.documentElement.outerHTML;
+	const html = await capturePdfHtml(doc);
 
 	const response = await authFetch(`${API_BASE_URL}/pdf`, {
 		method: 'POST',

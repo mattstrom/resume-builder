@@ -1,6 +1,13 @@
 {
   "$schema": "../../node_modules/nx/schemas/nx-schema.json",
   "targets": {
+    "test-pdf-fonts": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["vite:build"],
+      "options": {
+        "command": "node scripts/check-pdf-fonts.mjs"
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
       "dependsOn": [
