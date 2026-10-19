@@ -6,7 +6,13 @@ import puppeteer from 'puppeteer';
 export class PdfController {
 	@Post()
 	async generatePdf(@Body('html') html: string, @Res() res: Response) {
-		const browser = await puppeteer.launch({ headless: true });
+		const browser = await puppeteer.launch({
+			headless: true,
+			args:
+				process.env.PUPPETEER_DISABLE_SANDBOX === 'true'
+					? ['--no-sandbox']
+					: [],
+		});
 
 		try {
 			const page = await browser.newPage();
