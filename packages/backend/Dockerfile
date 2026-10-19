@@ -63,6 +63,9 @@ RUN pnpm exec nx build @resume-builder/backend
 # Stage 5: Production dependencies
 FROM base AS prod-deps
 
+# The production runtime installs Debian Chromium instead of using this cache.
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/backend/package.json packages/backend/
 COPY packages/entities/package.json packages/entities/
@@ -72,8 +75,30 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --prod --store-dir /pnpm/store \
       --filter '@resume-builder/backend...'
 
-# Stage 6: Production runtime
-FROM node:24.8.0-slim
+# Stage 6: Browser runtime (also buildable on its own for PDF smoke checks)
+FROM node:24.8.0-slim AS browser-runtime
+
+# Installing Chromium also installs its shared libraries, on amd64 and arm64.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      chromium \
+      dumb-init \
+      fonts-liberation \
+      ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# This container runs without the extra kernel capabilities Chrome's sandbox
+# requires. Keep this opt-out container-specific; local launches stay sandboxed.
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PUPPETEER_SKIP_DOWNLOAD=true \
+    PUPPETEER_DISABLE_SANDBOX=true
+
+USER node
+
+ENTRYPOINT ["dumb-init", "--"]
+
+# Stage 7: Production runtime
+FROM browser-runtime
 
 WORKDIR /app
 

@@ -59,6 +59,23 @@ $ pnpm run test:cov
 
 ## Deployment
 
+### PDF export runtime
+
+The production Docker image installs Debian Chromium, its shared libraries,
+and Liberation fonts. `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium` selects
+that browser instead of relying on Puppeteer's download cache from an earlier
+Docker build stage. Both amd64 and arm64 images use their native Chromium
+package.
+
+The container runs as the non-root `node` user and uses `dumb-init` to reap
+browser processes. It sets `PUPPETEER_DISABLE_SANDBOX=true` because the
+deployment does not grant the kernel capabilities Chromium's sandbox needs.
+This disables Chromium's own sandbox; browser processes rely on container
+isolation. Local launches retain the sandbox unless explicitly opted out.
+See [Puppeteer's sandbox guidance](https://pptr.dev/troubleshooting#setting-up-chrome-linux-sandbox).
+
+Browser runtime changes require rebuilding and deploying the backend image.
+
 When you're ready to deploy your NestJS application to production, there are
 some key steps you can take to ensure it runs as efficiently as possible. Check
 out the [deployment documentation](https://docs.nestjs.com/deployment) for more
