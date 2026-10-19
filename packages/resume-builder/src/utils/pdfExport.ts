@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './api';
 import { authFetch } from './auth';
 
 interface ResumeData {
@@ -21,7 +22,7 @@ export async function generatePDF(
 	await waitForPaginationReady(doc);
 	const html = doc.documentElement.outerHTML;
 
-	const response = await authFetch('/api/pdf', {
+	const response = await authFetch(`${API_BASE_URL}/pdf`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ html }),
@@ -75,7 +76,7 @@ export async function waitForPaginationReady(doc: Document): Promise<void> {
  * Generates a PDF from a pre-captured HTML string and triggers download.
  */
 export async function generatePDFFromHTML(html: string, resumeData: ResumeData): Promise<void> {
-	const response = await authFetch('/api/pdf', {
+	const response = await authFetch(`${API_BASE_URL}/pdf`, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ html }),

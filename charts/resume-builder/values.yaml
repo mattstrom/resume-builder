@@ -122,6 +122,9 @@ ingress:
         - path: /graphql
           pathType: Prefix
           service: backend
+        - path: /pdf
+          pathType: Prefix
+          service: backend
         - path: /mcp
           pathType: Prefix
           service: backend
