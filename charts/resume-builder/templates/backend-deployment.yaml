@@ -28,6 +28,11 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            # TLS terminates at the proxy in front of this pod, so the request
+            # arrives as plain HTTP. OAuth protected-resource metadata has to
+            # advertise the public https origin, which the request cannot supply.
+            - name: PUBLIC_URL
+              value: {{ include "resume-builder.backendPublicUrl" . | quote }}
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:

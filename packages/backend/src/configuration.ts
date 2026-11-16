@@ -7,6 +7,7 @@ export interface ModelInfo {
 }
 
 export interface Config {
+	publicUrl: string;
 	llms: {
 		anthropic: {
 			apiKey: string;
@@ -57,6 +58,12 @@ export interface Config {
 }
 
 const schema = convict<Config>({
+	publicUrl: {
+		doc: 'Public origin this server is reached on, without a trailing slash (e.g. https://resume-builder.mattstrom.com). Set this whenever a TLS-terminating proxy sits in front of the server — behind the Cloudflare Tunnel the request itself arrives as plain HTTP, so URLs derived from it would advertise the wrong scheme. Left empty, URLs fall back to the incoming request, which is what local development wants.',
+		format: String,
+		default: '',
+		env: 'PUBLIC_URL',
+	},
 	auth0: {
 		domain: {
 			doc: 'Auth0 tenant domain (e.g., your-tenant.auth0.com)',
