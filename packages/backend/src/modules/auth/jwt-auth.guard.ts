@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 
+import { publicOrigin } from './public-url.js';
 import { IS_PUBLIC_KEY } from './public.decorator.js';
 
 @Injectable()
@@ -47,7 +48,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 		if (context.getType() === 'http') {
 			const request = context.switchToHttp().getRequest();
 			const response = context.switchToHttp().getResponse();
-			const resourceMetadataUrl = `${request.protocol}://${request.get('host')}/.well-known/oauth-protected-resource`;
+			const resourceMetadataUrl = `${publicOrigin(request)}/.well-known/oauth-protected-resource`;
 
 			response.setHeader(
 				'WWW-Authenticate',

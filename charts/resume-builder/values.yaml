@@ -11,6 +11,9 @@ fullnameOverride: ''
 # -- Backend (NestJS API)
 backend:
   replicaCount: 1
+  # Public origin clients reach the backend on, without a trailing slash.
+  # Defaults to https:// plus the ingress host that routes /mcp here.
+  publicUrl: ''
   image:
     repository: registry.mattstrom.com/resume-builder-backend
     tag: latest
@@ -57,8 +60,10 @@ orchestration:
     clientId: ''
   # Override which Postgres database Mastra uses (defaults to postgres.database)
   postgresDatabase: ''
-  # Override the MCP endpoint the orchestration server connects to (defaults to
-  # the ingress host that routes /mcp to the backend)
+  # Override the MCP endpoint the orchestration server connects to. Defaults to
+  # the backend Service, so the call stays inside the cluster instead of
+  # hairpinning out through Cloudflare and back (where an Access policy would
+  # reject it).
   mcpUrl: ''
   # Bounded so a schema-conversion or embedding-model memory spike gets OOMKilled
   # and rescheduled on its own, instead of exhausting node-wide memory (this pod

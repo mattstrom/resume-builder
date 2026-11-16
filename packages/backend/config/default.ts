@@ -1,6 +1,7 @@
 import { type Config } from '../src/configuration.js';
 
 const config: Config = {
+	publicUrl: '',
 	auth0: {
 		domain: 'login.mattstrom.com',
 		audience: 'https://resume-builder.mattstrom.com',

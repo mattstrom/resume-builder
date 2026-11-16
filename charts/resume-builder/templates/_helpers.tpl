@@ -78,27 +78,50 @@ app.kubernetes.io/component: backend
 {{- end }}
 
 {{/*
-Public MCP endpoint URL served by the backend.
-Uses `orchestration.mcpUrl` when set, otherwise derives it from the ingress
-host that routes the `/mcp` path to the backend.
+Public origin the backend is reached on.
+
+Uses `backend.publicUrl` when set, otherwise derives it from the ingress host
+that routes the `/mcp` path to the backend. Always https: that is the scheme
+the public origin serves and the scheme `auth0.audience` is registered under,
+regardless of the plain-HTTP hop between the proxy and the pod.
+*/}}
+{{- define "resume-builder.backendPublicUrl" -}}
+{{- if .Values.backend.publicUrl }}
+{{- .Values.backend.publicUrl | trimSuffix "/" }}
+{{- else }}
+{{- $publicHost := "" }}
+{{- range .Values.ingress.hosts }}
+{{- $host := .host }}
+{{- range .paths }}
+{{- if and (eq .service "backend") (eq .path "/mcp") }}
+{{- $publicHost = $host }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if not $publicHost }}
+{{- fail "Set backend.publicUrl, or add a /mcp path routed to the backend under ingress.hosts" }}
+{{- end }}
+{{- printf "https://%s" $publicHost }}
+{{- end }}
+{{- end }}
+
+{{/*
+MCP endpoint the orchestration server connects to.
+
+Defaults to the backend Service rather than the public hostname. Resolving the
+public name from inside the cluster would send this call out to Cloudflare's
+edge and back in through the tunnel for no reason, and a Cloudflare Access
+policy on that hostname would reject it outright — the orchestration server
+authenticates with an Auth0 bearer token, which Access does not accept.
+
+The audience the backend validates comes from `auth0.audience`, not from the
+URL that was dialed, so the token verifies the same either way.
 */}}
 {{- define "resume-builder.mcpUrl" -}}
 {{- if .Values.orchestration.mcpUrl }}
 {{- .Values.orchestration.mcpUrl }}
 {{- else }}
-{{- $mcpHost := "" }}
-{{- range .Values.ingress.hosts }}
-{{- $host := .host }}
-{{- range .paths }}
-{{- if and (eq .service "backend") (eq .path "/mcp") }}
-{{- $mcpHost = $host }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- if not $mcpHost }}
-{{- fail "Set orchestration.mcpUrl, or add a /mcp path routed to the backend under ingress.hosts" }}
-{{- end }}
-{{- printf "https://%s/mcp" $mcpHost }}
+{{- printf "http://%s:%d/mcp" (include "resume-builder.backend.fullname" .) (int .Values.backend.service.port) }}
 {{- end }}
 {{- end }}
 
