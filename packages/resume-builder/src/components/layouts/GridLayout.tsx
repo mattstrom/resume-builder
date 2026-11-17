@@ -5,7 +5,9 @@ import {
 	CandidateName,
 	ContactInformationSection,
 	EducationSection,
+	OrderedSections,
 	ProjectsSection,
+	SelectedExperienceSection,
 	SkillsSection,
 	SummarySection,
 	WorkExperience,
@@ -28,11 +30,20 @@ export const GridLayout: FC<GridLayoutProps> = () => {
 					<SummarySection />
 				</div>
 				<div className="bottom-left">
-					<EducationSection />
-					<SkillsSection />
+					<OrderedSections
+						sections={{
+							education: <EducationSection />,
+							skills: <SkillsSection />,
+						}}
+					/>
 				</div>
 				<div className="bottom-right">
-					<WorkExperience />
+					<OrderedSections
+						sections={{
+							'selected-experience': <SelectedExperienceSection />,
+							'work-experience': <WorkExperience />,
+						}}
+					/>
 				</div>
 			</Page>
 			<Page>

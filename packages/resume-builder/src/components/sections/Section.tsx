@@ -4,6 +4,8 @@ import { type FC, type HTMLAttributes, type PropsWithChildren } from 'react';
 import { HighlightRegion } from '@/components/HighlightRegion.tsx';
 import type { ResumeSectionId } from '@/components/sections/section-anchors.ts';
 
+import { SectionMoveControls } from './OrderedSections.tsx';
+
 interface SectionProps extends PropsWithChildren, HTMLAttributes<HTMLElement> {
 	heading: string;
 	className?: string;
@@ -30,7 +32,7 @@ export const Section: FC<SectionProps> = ({
 	const section = (
 		<section
 			id={anchorId}
-			className={clsx('section', 'major', className)}
+			className={clsx('section', 'major', 'group/section relative', className)}
 			data-pagination-section
 			data-pagination-unit={paginationUnit}
 			{...rest}
@@ -38,6 +40,8 @@ export const Section: FC<SectionProps> = ({
 			<header data-pagination-heading={anchorId ? `${anchorId}-heading` : undefined}>
 				<h2>{heading}</h2>
 			</header>
+			{/* Floated over the heading so the controls never shift content. */}
+			<SectionMoveControls />
 			<div>{children}</div>
 		</section>
 	);

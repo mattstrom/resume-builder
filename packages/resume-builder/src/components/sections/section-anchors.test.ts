@@ -7,6 +7,7 @@ describe('resume section anchors', () => {
 		expect(RESUME_SECTION_IDS).toEqual({
 			contactInformation: 'contact-information',
 			professionalSummary: 'professional-summary',
+			selectedExperience: 'selected-experience',
 			workHistory: 'work-history',
 			education: 'education',
 			skills: 'skills',

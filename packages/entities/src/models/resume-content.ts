@@ -60,6 +60,67 @@ export class ResumeVolunteering extends OmitType(Volunteering, ['responsibilitie
 	responsibilities: ResumeBullet[];
 }
 
+/**
+ * The movable sections of a resume, named after their elements in the
+ * canonical resume XML and listed in the default rendering order. The contact
+ * block and headline are not listed: they always lead the document.
+ */
+export const RESUME_SECTION_KEYS = [
+	'summary',
+	'selected-experience',
+	'work-experience',
+	'education',
+	'skills',
+	'projects',
+	'volunteer-experiences',
+] as const;
+
+export type ResumeSectionKey = (typeof RESUME_SECTION_KEYS)[number];
+
+export function isResumeSectionKey(value: unknown): value is ResumeSectionKey {
+	return (RESUME_SECTION_KEYS as readonly unknown[]).includes(value);
+}
+
+/**
+ * Return a complete section order: unknown and repeated keys are dropped, and
+ * any section the input omits is placed after the section it follows by
+ * default, so partial orders from older documents stay predictable.
+ */
+export function normalizeResumeSectionOrder(
+	order?: readonly unknown[] | null,
+): ResumeSectionKey[] {
+	const result: ResumeSectionKey[] = [];
+	for (const key of order ?? []) {
+		if (isResumeSectionKey(key) && !result.includes(key)) result.push(key);
+	}
+	for (const [index, key] of RESUME_SECTION_KEYS.entries()) {
+		if (result.includes(key)) continue;
+		const predecessor = RESUME_SECTION_KEYS.slice(0, index)
+			.reverse()
+			.find((candidate) => result.includes(candidate));
+		result.splice(predecessor ? result.indexOf(predecessor) + 1 : 0, 0, key);
+	}
+	return result;
+}
+
+@Schema({ versionKey: false })
+@ObjectType({ description: 'A titled group of highlights in the Selected Experience section' })
+export class ResumeSelectedExperience {
+	@Field(() => ID)
+	_id: string;
+
+	@Field({ nullable: true })
+	@Prop({ type: String, default: '' })
+	title: string;
+
+	@Field(() => [ResumeBullet])
+	@Prop({ type: [Object], default: [] })
+	items: ResumeBullet[];
+}
+
+export const ResumeSelectedExperienceSchema =
+	SchemaFactory.createForClass(ResumeSelectedExperience);
+
 @InputType()
 export class ResumeBulletInput {
 	@Field(() => ID, { nullable: true })
@@ -103,6 +164,18 @@ export class ResumeVolunteeringInput extends OmitType(
 	responsibilities: ResumeBulletInput[];
 }
 
+@InputType()
+export class ResumeSelectedExperienceInput {
+	@Field(() => ID, { nullable: true })
+	_id?: string;
+
+	@Field()
+	title: string;
+
+	@Field(() => [ResumeBulletInput])
+	items: ResumeBulletInput[];
+}
+
 @Schema({ versionKey: false })
 @ObjectType({
 	description: 'Content of the resume, as opposed to the Resume object which holds metadata.',
@@ -126,6 +199,18 @@ export class ResumeContent {
 	@Field({ nullable: true })
 	@Prop({ type: String, default: '' })
 	summary: string;
+
+	@Field(() => [ResumeSelectedExperience], { nullable: true })
+	@Prop({ type: [ResumeSelectedExperienceSchema], default: [] })
+	selectedExperience?: ResumeSelectedExperience[];
+
+	@Field(() => [String], {
+		nullable: true,
+		description:
+			'Order of the movable resume sections, derived from the resume XML document order',
+	})
+	@Prop({ type: [String], default: undefined })
+	sectionOrder?: ResumeSectionKey[];
 
 	@Field(() => [ResumeJob], { nullable: true })
 	@Prop({ type: [JobSchema], default: [] })
@@ -165,6 +250,12 @@ export class ResumeContentInput {
 
 	@Field()
 	summary: string;
+
+	@Field(() => [ResumeSelectedExperienceInput], { nullable: true })
+	selectedExperience?: ResumeSelectedExperienceInput[];
+
+	@Field(() => [String], { nullable: true })
+	sectionOrder?: ResumeSectionKey[];
 
 	@Field(() => [ResumeJobInput])
 	workExperience: ResumeJobInput[];
@@ -211,12 +302,20 @@ const resumeVolunteeringSchema = volunteeringSchema.omit({ responsibilities: tru
 	responsibilities: z.array(resumeBulletSchema),
 });
 
+export const resumeSelectedExperienceSchema = z.object({
+	_id: z.string().optional(),
+	title: z.string(),
+	items: z.array(resumeBulletSchema),
+});
+
 export const resumeContentSchema = z.object({
 	_id: z.any(),
 	name: z.string(),
 	title: z.string(),
 	contactInformation: contactInformationSubdocSchema,
 	summary: z.string(),
+	selectedExperience: z.array(resumeSelectedExperienceSchema).optional(),
+	sectionOrder: z.array(z.enum(RESUME_SECTION_KEYS)).optional(),
 	workExperience: z.array(resumeJobSchema),
 	education: z.array(educationSchema),
 	skills: z.array(skillSchema),

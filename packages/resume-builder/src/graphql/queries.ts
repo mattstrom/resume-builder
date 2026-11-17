@@ -90,6 +90,16 @@ export const resumeContentFragment = gql`
 		name
 		title
 		summary
+		selectedExperience {
+			_id
+			title
+			items {
+				_id
+				text
+				bulletId
+			}
+		}
+		sectionOrder
 		contactInformation {
 			...ContactInformationSubdoc
 		}

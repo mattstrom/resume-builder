@@ -192,6 +192,13 @@ type ResumeVolunteering {
   responsibilities: [ResumeBullet!]!
 }
 
+"""A titled group of highlights in the Selected Experience section"""
+type ResumeSelectedExperience {
+  _id: ID!
+  title: String
+  items: [ResumeBullet!]!
+}
+
 """
 Content of the resume, as opposed to the Resume object which holds metadata.
 """
@@ -201,6 +208,12 @@ type ResumeContent {
   title: String
   contactInformation: ContactInformationSubdoc
   summary: String
+  selectedExperience: [ResumeSelectedExperience!]
+
+  """
+  Order of the movable resume sections, derived from the resume XML document order
+  """
+  sectionOrder: [String!]
   workExperience: [ResumeJob!]
   education: [Education!]
   skills: [Skill!]
@@ -1071,6 +1084,8 @@ input ResumeContentInput {
   name: String!
   title: String!
   summary: String!
+  selectedExperience: [ResumeSelectedExperienceInput!]
+  sectionOrder: [String!]
   workExperience: [ResumeJobInput!]!
   contactInformation: ContactInformationInput!
   education: [ID!]!
@@ -1078,6 +1093,18 @@ input ResumeContentInput {
   skills: [SkillInput!]
   skillGroups: [SkillGroupInput!]
   volunteering: [ResumeVolunteeringInput!]
+}
+
+input ResumeSelectedExperienceInput {
+  _id: ID
+  title: String!
+  items: [ResumeBulletInput!]!
+}
+
+input ResumeBulletInput {
+  _id: ID
+  text: String!
+  bulletId: ID
 }
 
 input ResumeJobInput {
@@ -1090,12 +1117,6 @@ input ResumeJobInput {
   _id: ID
   sourceId: ID
   responsibilities: [ResumeBulletInput!]!
-}
-
-input ResumeBulletInput {
-  _id: ID
-  text: String!
-  bulletId: ID
 }
 
 input ContactInformationInput {

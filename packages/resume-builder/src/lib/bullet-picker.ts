@@ -7,7 +7,7 @@ export interface BulletPickerCandidate {
 
 export function getBulletPickerCandidates(
 	bullets: Bullet[],
-	options: { search: string; sourceType: BulletSourceType; sourceId?: string },
+	options: { search: string; sourceType?: BulletSourceType; sourceId?: string },
 ): Bullet[] {
 	const query = options.search.trim().toLocaleLowerCase();
 	return bullets
@@ -21,6 +21,7 @@ export function getBulletPickerCandidates(
 						.includes(query)),
 		)
 		.sort((left, right) => {
+			if (!options.sourceType) return 0;
 			const leftMatches =
 				left.sourceType === options.sourceType && left.sourceId === options.sourceId;
 			const rightMatches =

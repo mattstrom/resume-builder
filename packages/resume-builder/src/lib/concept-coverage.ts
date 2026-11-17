@@ -55,6 +55,7 @@ export function resumeBulletIds(data: Resume['data']): Set<string> {
 			...data.workExperience.flatMap(({ responsibilities }) => responsibilities),
 			...data.projects.flatMap(({ items }) => items),
 			...(data.volunteering ?? []).flatMap(({ responsibilities }) => responsibilities),
+			...(data.selectedExperience ?? []).flatMap(({ items }) => items),
 		].flatMap(({ bulletId }) => (bulletId ? [bulletId] : [])),
 	);
 }
@@ -409,6 +410,14 @@ export function buildConceptEvidenceEvaluationInput(
 			addBulletPath(
 				responsibility.bulletId,
 				`data.volunteering.${roleIndex}.responsibilities.${itemIndex}`,
+			);
+		}
+	}
+	for (const [entryIndex, entry] of (resume.selectedExperience ?? []).entries()) {
+		for (const [itemIndex, item] of entry.items.entries()) {
+			addBulletPath(
+				item.bulletId,
+				`data.selectedExperience.${entryIndex}.items.${itemIndex}`,
 			);
 		}
 	}

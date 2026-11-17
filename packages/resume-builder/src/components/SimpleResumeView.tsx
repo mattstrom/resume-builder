@@ -5,6 +5,7 @@ import {
 	type ResumeContent,
 	type ResumeJob,
 	type ResumeProject,
+	type ResumeSelectedExperience,
 	type ResumeVolunteering,
 	type Skill,
 	type SkillGroup,
@@ -29,6 +30,10 @@ import {
 	RESUME_SECTION_IDS,
 	type ResumeSectionId,
 } from '@/components/sections/section-anchors.ts';
+import {
+	OrderedSections,
+	useSectionMoves,
+} from '@/components/sections/OrderedSections.tsx';
 import { TextFieldEditor } from '@/components/TextFieldEditor.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { LIST_EDUCATIONS } from '@/graphql/queries.ts';
@@ -95,7 +100,10 @@ const SimpleSection: FC<SimpleSectionProps> = ({
 		<section id={id} className="simple-resume-section">
 			<header className="simple-resume-section-header">
 				<h2>{title}</h2>
-				{actions}
+				<div className="flex items-center gap-1">
+					<SimpleSectionMoveButtons />
+					{actions}
+				</div>
 			</header>
 			<div className="simple-resume-section-body">{children}</div>
 		</section>
@@ -109,6 +117,40 @@ const SimpleSection: FC<SimpleSectionProps> = ({
 		section
 	);
 };
+
+const SimpleSectionMoveButtons: FC = observer(() => {
+	const moves = useSectionMoves();
+	const { uiStateStore } = useStore();
+
+	if (!moves || !uiStateStore.isResumeEditable) {
+		return null;
+	}
+
+	return (
+		<>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				onClick={() => moves.moveUp?.()}
+				disabled={!moves.moveUp}
+				aria-label={`Move ${moves.label} up`}
+			>
+				Move up
+			</Button>
+			<Button
+				type="button"
+				variant="ghost"
+				size="sm"
+				onClick={() => moves.moveDown?.()}
+				disabled={!moves.moveDown}
+				aria-label={`Move ${moves.label} down`}
+			>
+				Move down
+			</Button>
+		</>
+	);
+});
 
 const EmptyState: FC<{ copy: string }> = ({ copy }) => {
 	return <p className="simple-resume-empty">{copy}</p>;
@@ -245,14 +287,25 @@ const SimpleResumeContent: FC = observer(() => {
 
 			<div className="simple-resume-grid">
 				<div className="simple-resume-main">
-					<SummarySection />
-					<WorkExperienceSection />
-					<ProjectsSection />
+					<OrderedSections
+						sections={{
+							summary: <SummarySection />,
+							'selected-experience': (
+								<SelectedExperienceSection />
+							),
+							'work-experience': <WorkExperienceSection />,
+							projects: <ProjectsSection />,
+						}}
+					/>
 				</div>
 				<div className="simple-resume-side">
-					<EducationSection />
-					<SkillsSection />
-					<VolunteeringSection />
+					<OrderedSections
+						sections={{
+							education: <EducationSection />,
+							skills: <SkillsSection />,
+							'volunteer-experiences': <VolunteeringSection />,
+						}}
+					/>
 				</div>
 			</div>
 			{!isEditable && (
@@ -288,6 +341,110 @@ const SummarySection: FC = () => {
 		</SimpleSection>
 	);
 };
+
+const SelectedExperienceSection: FC = observer(() => {
+	const { selectedExperience } = useResume();
+	const resumeId = useResumeId();
+	const { uiStateStore } = useStore();
+	const isEditable = uiStateStore.isResumeEditable;
+	const collection = useCollectionMutations('SELECTED_EXPERIENCE');
+	const items = selectedExperience ?? [];
+
+	if (items.length === 0 && !isEditable) {
+		return null;
+	}
+
+	return (
+		<CollectionEditor<ResumeSelectedExperience>
+			path="data.selectedExperience"
+			label="Selected Experience"
+			items={items}
+			isSaving={collection.isSaving}
+			isEditable={isEditable}
+			onAdd={collection.addItem}
+			onRemove={collection.removeItem}
+			onMove={collection.moveItem}
+		>
+			{({
+				items: collectionItems,
+				addItem,
+				removeItem,
+				moveItem,
+				isSaving,
+			}) => (
+				<SimpleSection
+					title="Selected Experience"
+					id={RESUME_SECTION_IDS.selectedExperience}
+					actions={
+						isEditable ? (
+							<Button
+								type="button"
+								variant="ghost"
+								size="sm"
+								onClick={() => void addItem()}
+								disabled={isSaving}
+							>
+								Add experience
+							</Button>
+						) : null
+					}
+				>
+					{collectionItems.length === 0 ? (
+						<EmptyState copy="No selected experience added yet." />
+					) : (
+						collectionItems.map((item, index) => (
+							<CollectionEditorItem
+								key={item._id}
+								index={index}
+								length={collectionItems.length}
+								label="experience"
+								path={`data.selectedExperience.${index}`}
+								isEditable={isEditable}
+								onMove={(fromIndex, toIndex) =>
+									void moveItem(fromIndex, toIndex)
+								}
+								actions={
+									isEditable ? (
+										<Button
+											type="button"
+											variant="ghost"
+											size="sm"
+											onClick={() =>
+												void removeItem(index)
+											}
+											disabled={isSaving}
+										>
+											Remove
+										</Button>
+									) : null
+								}
+							>
+								<article className="simple-resume-entry">
+									<EntryHeader
+										title={
+											<TextFieldEditor
+												path={`data.selectedExperience.${index}.title`}
+												value={item.title}
+												resumeId={resumeId}
+												placeholder="Add experience title"
+											/>
+										}
+									/>
+									<ResumeBulletList
+										path={`data.selectedExperience.${index}.items`}
+										items={item.items}
+										resumeId={resumeId}
+										className="simple-resume-list"
+									/>
+								</article>
+							</CollectionEditorItem>
+						))
+					)}
+				</SimpleSection>
+			)}
+		</CollectionEditor>
+	);
+});
 
 interface EntryHeaderProps {
 	title: ReactNode;

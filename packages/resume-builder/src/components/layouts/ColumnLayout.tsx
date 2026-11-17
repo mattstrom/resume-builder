@@ -7,7 +7,9 @@ import { CandidateName } from '../sections/CandidateName.tsx';
 import { ContactInformationSection } from '../sections/ContactInformationSection.tsx';
 import {
 	EducationSection,
+	OrderedSections,
 	ProjectsSection,
+	SelectedExperienceSection,
 	SkillsSection,
 	SummarySection,
 	WorkExperience,
@@ -35,12 +37,21 @@ export const ColumnLayout: FC<ColumnLayoutProps> = () => {
 							<ContactInformationSection />
 						</section>
 					</CornerCap>
-					<EducationSection />
-					<SkillsSection />
+					<OrderedSections
+						sections={{
+							education: <EducationSection />,
+							skills: <SkillsSection />,
+						}}
+					/>
 				</Column>
 				<Column className="right">
-					<SummarySection />
-					<WorkExperience />
+					<OrderedSections
+						sections={{
+							summary: <SummarySection />,
+							'selected-experience': <SelectedExperienceSection />,
+							'work-experience': <WorkExperience />,
+						}}
+					/>
 				</Column>
 			</Page>
 			<Page>
