@@ -51,7 +51,8 @@ interface ResumeBulletListProps {
 	path: string;
 	items: ResumeBullet[];
 	resumeId: string;
-	sourceType: BulletSourceType;
+	/** Source whose bank bullets are listed first; omit when any source fits. */
+	sourceType?: BulletSourceType;
 	sourceId?: string;
 	className?: string;
 }

@@ -211,3 +211,72 @@ describe('LocalResumeController.insertCollectionItem', () => {
 		]);
 	});
 });
+
+describe('LocalResumeController selected experience', () => {
+	it('adds a titled entry that survives the XML projection', () => {
+		// Arrange
+		const controller = new LocalResumeController({ resume: createResume() });
+
+		// Act
+		controller.addCollectionItem(ResumeCollections.SELECTED_EXPERIENCE);
+		const entry = controller.getSnapshot()?.data.selectedExperience?.[0];
+		controller.setField('data.selectedExperience.0.items', [
+			{ _id: 'selected-bullet-1', text: 'Shipped the platform', bulletId: 'bank-9' },
+		]);
+		controller.replaceXml(controller.getXml()!);
+
+		// Assert
+		expect(entry?.title).toBe('New Experience');
+		expect(controller.getSnapshot()?.data.selectedExperience).toEqual([
+			{
+				_id: entry?._id,
+				title: 'New Experience',
+				items: [
+					{ _id: 'selected-bullet-1', text: 'Shipped the platform', bulletId: 'bank-9' },
+				],
+			},
+		]);
+	});
+
+	it('moves a section by reordering it in the XML document', () => {
+		// Arrange
+		const controller = new LocalResumeController({ resume: createResume() });
+		const sectionOrder = [
+			'skills',
+			'summary',
+			'selected-experience',
+			'work-experience',
+			'education',
+			'projects',
+			'volunteer-experiences',
+		];
+
+		// Act
+		controller.setField('data.sectionOrder', sectionOrder);
+		const xml = controller.getXml()!;
+		controller.replaceXml(xml);
+
+		// Assert
+		expect(xml).toMatch(/<\/headline><skills /);
+		expect(controller.getSnapshot()?.data.sectionOrder).toEqual(sectionOrder);
+	});
+
+	it('detaches a bank bullet when its selected experience text is edited', () => {
+		// Arrange
+		const controller = new LocalResumeController({ resume: createResume() });
+		controller.addCollectionItem(ResumeCollections.SELECTED_EXPERIENCE);
+		controller.setField('data.selectedExperience.0.items', [
+			{ _id: 'selected-bullet-1', text: 'Shipped the platform', bulletId: 'bank-9' },
+		]);
+
+		// Act
+		controller.setField('data.selectedExperience.0.items', [
+			{ _id: 'selected-bullet-1', text: 'Shipped the new platform', bulletId: 'bank-9' },
+		]);
+
+		// Assert
+		expect(controller.getSnapshot()?.data.selectedExperience?.[0]?.items).toEqual([
+			{ _id: 'selected-bullet-1', text: 'Shipped the new platform' },
+		]);
+	});
+});

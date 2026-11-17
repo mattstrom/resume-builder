@@ -1,6 +1,7 @@
 export const RESUME_SECTION_IDS = {
 	contactInformation: 'contact-information',
 	professionalSummary: 'professional-summary',
+	selectedExperience: 'selected-experience',
 	workHistory: 'work-history',
 	education: 'education',
 	skills: 'skills',

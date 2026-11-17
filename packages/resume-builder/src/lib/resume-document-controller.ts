@@ -67,6 +67,11 @@ function detachChangedBulletReferences(current: Resume, next: Resume): Resume {
 			next: result.data.volunteering,
 			field: 'responsibilities',
 		},
+		{
+			current: current.data.selectedExperience,
+			next: result.data.selectedExperience,
+			field: 'items',
+		},
 	];
 
 	for (const section of sections) {
@@ -281,6 +286,12 @@ function createDefaultCollectionItem(collection: ResumeCollectionValue, resume: 
 				startDate: '',
 				endDate: '',
 				responsibilities: [],
+			};
+		case ResumeCollections.SELECTED_EXPERIENCE:
+			return {
+				_id: `x_${nanoid()}`,
+				title: 'New Experience',
+				items: [],
 			};
 		default:
 			throw new Error(`Unsupported collection "${collection}"`);

@@ -1,11 +1,28 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
-import type { ResumeBullet, ResumeContent } from './models/resume-content.js';
+import {
+	isResumeSectionKey,
+	normalizeResumeSectionOrder,
+	RESUME_SECTION_KEYS,
+	type ResumeBullet,
+	type ResumeContent,
+	type ResumeSectionKey,
+} from './models/resume-content.js';
 import type { Resume } from './models/resume.js';
 
 export const RESUME_XML_NAMESPACE = 'https://mattstrom.com/schemas/resume';
 export const RESUME_XML_SCHEMA_VERSION = 1;
 export const RESUME_XML_FRAGMENT = 'resume';
+
+export const SELECTED_EXPERIENCE_XML_ELEMENT = 'selected-experience';
+
+/**
+ * Root attribute marking a document whose section elements are in rendering
+ * order. Documents written before sections became movable lack it: their
+ * element order was a serializer artifact and must not drive rendering.
+ */
+export const RESUME_XML_SECTION_ORDER_ATTRIBUTE = 'section-order';
+export const RESUME_XML_SECTION_ORDER_DOCUMENT = 'document';
 
 export type ResumeXmlTarget = { xmlId: string } | { path: string };
 
@@ -77,6 +94,9 @@ function element(
 
 function normalizeId(value: unknown): string | null {
 	if (typeof value !== 'string' || value.length === 0) return null;
+	// Ids read back from the XML are already normalized. Prefixing them again
+	// would change every id on each round trip.
+	if (/^n_[A-Za-z0-9_.-]+$/.test(value)) return value;
 	const normalized = value.replace(/[^A-Za-z0-9_.-]/g, '_');
 	return `n_${normalized}`;
 }
@@ -96,6 +116,13 @@ export function createResumeXmlId(resumeId: string, path: string, sourceId?: unk
 
 function textElement(name: string, resumeId: string, path: string, value: unknown): string {
 	return element(name, createResumeXmlId(resumeId, path), escapeText(value));
+}
+
+/** Reuse an id that is already a valid XML name so round trips keep it stable. */
+function stableXmlId(resumeId: string, path: string, sourceId?: string): string {
+	return sourceId && /^[A-Za-z_][A-Za-z0-9_.-]*$/.test(sourceId)
+		? sourceId
+		: createResumeXmlId(resumeId, path, sourceId);
 }
 
 function resumeBulletElement(
@@ -278,10 +305,46 @@ export function resumeToXml(resume: Resume): string {
 		})
 		.join('');
 
+	const selectedExperience = (content.selectedExperience ?? [])
+		.map((entry, index) => {
+			const path = `${SELECTED_EXPERIENCE_XML_ELEMENT}.${index}`;
+			return element(
+				'experience',
+				stableXmlId(id, path, entry._id),
+				element(
+					'items',
+					createResumeXmlId(id, `${path}.items`),
+					(entry.items ?? [])
+						.map((item, itemIndex) =>
+							resumeBulletElement('item', id, `${path}.items.${itemIndex}`, item),
+						)
+						.join(''),
+				),
+				{ title: entry.title },
+			);
+		})
+		.join('');
+
+	const sections: Record<ResumeSectionKey, string> = {
+		summary: textElement('summary', id, 'summary', content.summary),
+		[SELECTED_EXPERIENCE_XML_ELEMENT]: section(
+			SELECTED_EXPERIENCE_XML_ELEMENT,
+			selectedExperience,
+		),
+		'work-experience': section('work-experience', jobs),
+		education: section('education', education),
+		skills: section('skills', skills + skillGroups),
+		projects: section('projects', projects),
+		'volunteer-experiences': section('volunteer-experiences', volunteering),
+	};
+
+	// Document order is the source of truth for section placement, so the
+	// sections are emitted in the order the resume renders them.
 	return [
 		`<resume xmlns="${RESUME_XML_NAMESPACE}"`,
 		` xmlns:xml="http://www.w3.org/XML/1998/namespace"`,
 		` schema-version="${RESUME_XML_SCHEMA_VERSION}"`,
+		` ${RESUME_XML_SECTION_ORDER_ATTRIBUTE}="${RESUME_XML_SECTION_ORDER_DOCUMENT}"`,
 		` xml:id="${createResumeXmlId(id, 'resume', id)}">`,
 		section(
 			'contact-info',
@@ -299,12 +362,7 @@ export function resumeToXml(resume: Resume): string {
 				),
 		),
 		textElement('headline', id, 'headline', content.title),
-		textElement('summary', id, 'summary', content.summary),
-		section('education', education),
-		section('work-experience', jobs),
-		section('skills', skills + skillGroups),
-		section('projects', projects),
-		section('volunteer-experiences', volunteering),
+		...normalizeResumeSectionOrder(content.sectionOrder).map((key) => sections[key]),
 		'</resume>',
 	].join('');
 }
@@ -353,6 +411,29 @@ function resumeBullet(value: unknown): ResumeBullet {
 	};
 }
 
+/**
+ * Read the section order from the resume root. A document marked as ordered
+ * is taken at its word. A legacy document keeps the default order, except
+ * that a Selected Experience element stays after the section it follows.
+ */
+function resumeSectionOrder(resume: XmlNode): ResumeSectionKey[] {
+	const present = Object.keys(resume).filter(isResumeSectionKey);
+	if (
+		attribute(resume, RESUME_XML_SECTION_ORDER_ATTRIBUTE) === RESUME_XML_SECTION_ORDER_DOCUMENT
+	) {
+		return normalizeResumeSectionOrder(present);
+	}
+
+	const order: ResumeSectionKey[] = RESUME_SECTION_KEYS.filter(
+		(key) => key !== SELECTED_EXPERIENCE_XML_ELEMENT,
+	);
+	const index = present.indexOf(SELECTED_EXPERIENCE_XML_ELEMENT);
+	if (index < 0) return normalizeResumeSectionOrder(order);
+	const predecessor = present[index - 1];
+	order.splice(predecessor ? order.indexOf(predecessor) + 1 : 0, 0, SELECTED_EXPERIENCE_XML_ELEMENT);
+	return order;
+}
+
 export function validateResumeXml(xml: string): ResumeXmlValidationResult {
 	const errors: string[] = [];
 	if (/<!DOCTYPE|<!ENTITY/i.test(xml)) {
@@ -397,12 +478,22 @@ export function resumeContentFromXml(xml: string, uid = ''): ResumeContent {
 	const skills = asNode(resume.skills);
 	const projects = asNode(resume.projects);
 	const volunteering = asNode(resume['volunteer-experiences']);
+	const selectedExperience = asNode(resume[SELECTED_EXPERIENCE_XML_ELEMENT]);
 
 	return {
 		_id: nodeId(resume),
 		name: text(contact.name),
 		title: text(resume.headline),
 		summary: text(resume.summary),
+		selectedExperience: asArray(selectedExperience.experience).map((value) => {
+			const node = asNode(value);
+			return {
+				_id: nodeId(node),
+				title: attribute(node, 'title'),
+				items: asArray(asNode(node.items).item).map(resumeBullet),
+			};
+		}),
+		sectionOrder: resumeSectionOrder(resume),
 		contactInformation: {
 			_id: nodeId(contact),
 			location: text(contact.location),

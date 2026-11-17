@@ -8,7 +8,7 @@ import {
 } from '@resume-builder/entities';
 import * as Y from 'yjs';
 
-import { migrateProfileDocument } from './document-migrations.js';
+import { migrateProfileDocument, migrateResumeDocument } from './document-migrations.js';
 import { PrismaService } from './prisma.service.js';
 import {
 	getExistingLegacyResumeMap,
@@ -153,6 +153,10 @@ export class StorageService implements Extension {
 
 		if (parsed.kind === 'profile' && migrateProfileDocument(document)) {
 			await this.storeProfileDocument(uid, documentName, parsed.uid, document);
+		}
+
+		if (parsed.kind === 'resume' && migrateResumeDocument(document)) {
+			await this.storeDocument(uid, documentName, document);
 		}
 
 		return document;

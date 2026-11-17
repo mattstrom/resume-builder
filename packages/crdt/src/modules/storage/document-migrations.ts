@@ -1,4 +1,14 @@
+import {
+	isResumeSectionKey,
+	RESUME_XML_FRAGMENT,
+	RESUME_XML_SECTION_ORDER_ATTRIBUTE,
+	RESUME_XML_SECTION_ORDER_DOCUMENT,
+	resumeContentFromXml,
+	validateResumeXml,
+} from '@resume-builder/entities';
 import * as Y from 'yjs';
+
+import { parseXmlElement, serializeXmlElement } from './resume-xml-document.js';
 
 type ProfileDocumentMigration = {
 	id: string;
@@ -193,6 +203,75 @@ export function migrateProfileDocument(document: Y.Doc): boolean {
 	const pending = PROFILE_DOCUMENT_MIGRATIONS.filter(
 		({ id }) => !migrations.get(id),
 	);
+
+	if (pending.length === 0) return false;
+
+	document.transact(() => {
+		for (const migration of pending) {
+			migration.migrate(document);
+			migrations.set(migration.id, true);
+		}
+	});
+
+	return true;
+}
+
+/**
+ * Resume sections used to be serialized in a fixed order that rendering
+ * ignored. Now that document order places each section, rewrite legacy
+ * documents into the order they have always rendered in and mark them, so the
+ * projection, the editor, and agent `moveNode` edits all agree.
+ */
+function orderResumeSections(document: Y.Doc) {
+	const root = document
+		.getXmlFragment(RESUME_XML_FRAGMENT)
+		.toArray()
+		.find((child): child is Y.XmlElement => isXmlElement(child) && child.nodeName === 'resume');
+	if (!root) return;
+	if (root.getAttribute(RESUME_XML_SECTION_ORDER_ATTRIBUTE) === RESUME_XML_SECTION_ORDER_DOCUMENT) {
+		return;
+	}
+
+	// A document that does not parse is left alone rather than made unloadable;
+	// readers keep treating it as a legacy document.
+	const xml = serializeXmlElement(root);
+	if (!validateResumeXml(xml).valid) return;
+
+	const order = resumeContentFromXml(xml).sectionOrder ?? [];
+	const sections = new Map<string, Y.XmlElement>();
+	const children = root.toArray();
+	for (let index = children.length - 1; index >= 0; index -= 1) {
+		const child = children[index];
+		if (!isXmlElement(child) || !isResumeSectionKey(child.nodeName)) continue;
+		// A Yjs node cannot be re-inserted once deleted, so move a copy.
+		sections.set(child.nodeName, parseXmlElement(serializeXmlElement(child)));
+		root.delete(index, 1);
+	}
+
+	root.insert(
+		root.length,
+		order.flatMap((key) => sections.get(key) ?? []),
+	);
+	root.setAttribute(RESUME_XML_SECTION_ORDER_ATTRIBUTE, RESUME_XML_SECTION_ORDER_DOCUMENT);
+}
+
+const RESUME_DOCUMENT_MIGRATIONS: readonly ProfileDocumentMigration[] = [
+	{
+		id: '2026-11-16-order-resume-sections',
+		migrate: orderResumeSections,
+	},
+];
+
+/**
+ * Applies pending migrations to a resume document. Like profile migrations,
+ * completed IDs are recorded in the document's `schemaMigrations` ledger.
+ */
+export function migrateResumeDocument(document: Y.Doc): boolean {
+	const sharedType = document.share.get(RESUME_XML_FRAGMENT);
+	if (!(sharedType instanceof Y.XmlFragment) || sharedType.length === 0) return false;
+
+	const migrations = document.getMap<boolean>('schemaMigrations');
+	const pending = RESUME_DOCUMENT_MIGRATIONS.filter(({ id }) => !migrations.get(id));
 
 	if (pending.length === 0) return false;
 

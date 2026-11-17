@@ -4,7 +4,9 @@ import { PaginatedDocument } from '../pagination/PaginatedDocument.tsx';
 import {
 	EducationSection,
 	Masthead,
+	OrderedSections,
 	ProjectsSection,
+	SelectedExperienceSection,
 	SkillsSection,
 	SummarySection,
 	VolunteeringSection,
@@ -19,12 +21,17 @@ export const BasicLayout: FC = () => {
 		<Layout name="basic">
 			<PaginatedDocument>
 				<Masthead />
-				<SummarySection />
-				<WorkExperience />
-				<EducationSection />
-				<SkillsSection />
-				<ProjectsSection />
-				<VolunteeringSection />
+				<OrderedSections
+					sections={{
+						summary: <SummarySection />,
+						'selected-experience': <SelectedExperienceSection />,
+						'work-experience': <WorkExperience />,
+						education: <EducationSection />,
+						skills: <SkillsSection />,
+						projects: <ProjectsSection />,
+						'volunteer-experiences': <VolunteeringSection />,
+					}}
+				/>
 			</PaginatedDocument>
 		</Layout>
 	);
