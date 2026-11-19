@@ -33,7 +33,9 @@ describe('GET_APPLICATION', () => {
 describe('SEARCH_RESUMES', () => {
 	it('requests lightweight ranked resume search metadata', () => {
 		const query = print(SEARCH_RESUMES);
-		expect(query).toContain('searchResumes(query: $query, limit: $limit)');
+		expect(query).toContain(
+			'searchResumes(query: $query, limit: $limit, semanticOnly: $semanticOnly)',
+		);
 		expect(query).toContain('dominantTheme');
 		expect(query).toContain('technologies');
 		expect(query).toContain('matches');
