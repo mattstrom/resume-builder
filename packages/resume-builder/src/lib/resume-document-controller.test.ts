@@ -1,4 +1,5 @@
 import type { Resume } from '@resume-builder/entities';
+import { observable } from 'mobx';
 import { describe, expect, it } from 'vitest';
 
 import { getProjectAnchorId } from '../components/sections/section-anchors.ts';
@@ -277,6 +278,26 @@ describe('LocalResumeController selected experience', () => {
 		// Assert
 		expect(controller.getSnapshot()?.data.selectedExperience?.[0]?.items).toEqual([
 			{ _id: 'selected-bullet-1', text: 'Shipped the new platform' },
+		]);
+	});
+});
+
+describe('LocalResumeController.setField with observable values', () => {
+	it('accepts a plain array containing MobX observable items', () => {
+		// Arrange
+		const controller = new LocalResumeController({ resume: createResume() });
+		const observableResume = observable(createResume());
+		const existing = observableResume.data.workExperience[0]!.responsibilities;
+		const next = [...existing, { _id: 'bullet-new', text: 'Three' }];
+
+		// Act
+		controller.setField('data.workExperience.0.responsibilities', next);
+
+		// Assert
+		expect(controller.getSnapshot()?.data.workExperience[0]?.responsibilities).toEqual([
+			{ _id: 'bullet-local-1', text: 'One', bulletId: 'bank-1' },
+			{ _id: 'bullet-local-2', text: 'Two' },
+			{ _id: 'bullet-new', text: 'Three' },
 		]);
 	});
 });

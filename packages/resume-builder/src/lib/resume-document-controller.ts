@@ -8,6 +8,7 @@ import {
 	resumeToXml,
 	validateResumeXml,
 } from '@resume-builder/entities';
+import { isObservable, toJS } from 'mobx';
 import { nanoid } from 'nanoid';
 import * as Y from 'yjs';
 
@@ -219,7 +220,31 @@ function parsePath(path: string) {
 	});
 }
 
-function cloneWithPathValue<T>(source: T, path: string, value: unknown): T {
+/**
+ * Deep-unwraps MobX observables, including ones nested inside plain arrays or
+ * objects. `toJS` alone returns non-observable containers untouched, so a
+ * plain array of observable items would still hold proxies.
+ */
+function toPlainData(value: unknown): unknown {
+	if (isObservable(value)) return toJS(value);
+	if (Array.isArray(value)) return value.map(toPlainData);
+	if (
+		typeof value === 'object' &&
+		value !== null &&
+		Object.getPrototypeOf(value) === Object.prototype
+	) {
+		return Object.fromEntries(
+			Object.entries(value).map(([key, entry]) => [key, toPlainData(entry)]),
+		);
+	}
+	return value;
+}
+
+function cloneWithPathValue<T>(source: T, path: string, rawValue: unknown): T {
+	// Callers often build values from observable store state (e.g. spreading
+	// existing bullets into a new array), leaving MobX proxies nested inside a
+	// plain array. structuredClone cannot clone proxies, so unwrap first.
+	const value = toPlainData(rawValue);
 	const clone = structuredClone(source) as Record<string, unknown>;
 	const segments = parsePath(path);
 	let current: Record<string, unknown> | unknown[] = clone;
