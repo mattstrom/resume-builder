@@ -4,9 +4,11 @@ import {
 	RESUME_XML_NAMESPACE,
 	type Resume,
 	type ResumeBullet,
+	reconcileResumeXmlFragment,
 	resumeContentFromXml,
 	resumeToXml,
 	validateResumeXml,
+	type XmlNodeSpec,
 } from '@resume-builder/entities';
 import { isObservable, toJS } from 'mobx';
 import { nanoid } from 'nanoid';
@@ -134,23 +136,20 @@ function serializeFragment(fragment: Y.XmlFragment): string {
 	return serializeElement(root);
 }
 
-function domElementToY(element: Element): Y.XmlElement {
-	const result = new Y.XmlElement(element.tagName);
+function domElementToSpec(element: Element): XmlNodeSpec {
+	const attributes: Record<string, string> = {};
 	for (const attribute of Array.from(element.attributes)) {
-		result.setAttribute(attribute.name, attribute.value);
+		attributes[attribute.name] = attribute.value;
 	}
-	const children: Array<Y.XmlElement | Y.XmlText> = [];
+	const children: XmlNodeSpec[] = [];
 	for (const child of Array.from(element.childNodes)) {
 		if (child.nodeType === Node.ELEMENT_NODE) {
-			children.push(domElementToY(child as Element));
+			children.push(domElementToSpec(child as Element));
 		} else if (child.nodeType === Node.TEXT_NODE && child.textContent) {
-			const text = new Y.XmlText();
-			text.insert(0, child.textContent);
-			children.push(text);
+			children.push({ type: 'text', text: child.textContent });
 		}
 	}
-	if (children.length > 0) result.insert(0, children);
-	return result;
+	return { type: 'element', name: element.tagName, attributes, children };
 }
 
 function replaceFragmentXml(fragment: Y.XmlFragment, xml: string) {
@@ -161,9 +160,11 @@ function replaceFragmentXml(fragment: Y.XmlFragment, xml: string) {
 	const dom = new DOMParser().parseFromString(xml, 'application/xml');
 	const error = dom.querySelector('parsererror');
 	if (error) throw new Error(error.textContent ?? 'Invalid resume XML');
-	const root = dom.documentElement;
-	if (fragment.length > 0) fragment.delete(0, fragment.length);
-	fragment.insert(0, [domElementToY(root)]);
+	// Every edit funnels through here, so it must change only what differs.
+	// Deleting and re-inserting the root lets a concurrent edit from another
+	// peer survive the merge as a second <resume> root, which the CRDT server
+	// then refuses to store.
+	reconcileResumeXmlFragment(fragment, domElementToSpec(dom.documentElement));
 }
 
 function preserveExtensionMarkup(currentXml: string, replacementXml: string) {

@@ -1,6 +1,7 @@
 import { Extension } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
 import {
+	normalizeResumeXmlRoots,
 	RESUME_XML_SCHEMA_VERSION,
 	Resume,
 	ResumeContent,
@@ -265,6 +266,11 @@ export class StorageService implements Extension {
 		document: Y.Doc,
 	) {
 		await this.assertResumeAccess(uid, resumeId);
+
+		// Concurrent whole-document replacements from older clients can merge
+		// into two <resume> roots. Collapse them before serializing; the edit
+		// is broadcast like any other, so connected peers converge on it.
+		normalizeResumeXmlRoots(document);
 
 		const update = Buffer.from(Y.encodeStateAsUpdate(document));
 		const xml = serializeResumeXml(document);

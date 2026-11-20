@@ -3,7 +3,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import type { Extension, onRequestPayload } from '@hocuspocus/server';
 import { Injectable } from '@nestjs/common';
-import type { ResumeXmlOp } from '@resume-builder/entities';
+import {
+	normalizeResumeXmlRoots,
+	type ResumeXmlOp,
+} from '@resume-builder/entities';
 import * as Y from 'yjs';
 
 import {
@@ -305,19 +308,39 @@ export class ApiService implements Extension {
 			.update(`${nonce}:${ts}`)
 			.digest('hex');
 
-		return crypto.timingSafeEqual(
-			Buffer.from(sig, 'hex'),
-			Buffer.from(expected, 'hex'),
+		const actual = Buffer.from(sig, 'hex');
+		const wanted = Buffer.from(expected, 'hex');
+
+		// timingSafeEqual throws on a length mismatch, which a malformed
+		// signature would otherwise turn into an uncaught exception.
+		return (
+			actual.length === wanted.length &&
+			crypto.timingSafeEqual(actual, wanted)
 		);
 	}
 
-	async onRequest({ request, response, instance }: onRequestPayload) {
-		const url = new URL(request.url ?? '/', 'http://localhost');
+	async onRequest(payload: onRequestPayload) {
+		const url = new URL(payload.request.url ?? '/', 'http://localhost');
 
 		if (!url.pathname.startsWith('/api/')) {
 			return;
 		}
 
+		await this.handleApiRequest(url, payload);
+
+		// Hocuspocus writes its default "Welcome to Hocuspocus!" 200 after every
+		// onRequest hook that resolves. Rejecting with an empty error is its
+		// documented signal that a hook has already answered the request; any
+		// other outcome makes it write headers a second time and crash with
+		// ERR_HTTP_HEADERS_SENT.
+		// eslint-disable-next-line @typescript-eslint/only-throw-error
+		throw null;
+	}
+
+	private async handleApiRequest(
+		url: URL,
+		{ request, response, instance }: onRequestPayload,
+	) {
 		if (!this.verifyRequest(request)) {
 			sendJson(response, 401, { error: 'Unauthorized' });
 
@@ -414,6 +437,7 @@ export class ApiService implements Extension {
 				let xml = '';
 				try {
 					await conn.transact((doc) => {
+						normalizeResumeXmlRoots(doc);
 						applyResumeXmlOps(doc, body.ops);
 						xml = serializeResumeXml(doc);
 						resume = getResumeContent(doc, body.uid);
