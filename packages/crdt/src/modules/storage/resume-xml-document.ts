@@ -2,8 +2,10 @@ import {
 	RESUME_XML_FRAGMENT,
 	type ResumeXmlOp,
 	type ResumeXmlTarget,
+	reconcileResumeXmlFragment,
 	resumeContentFromXml,
 	validateResumeXml,
+	type XmlNodeSpec,
 } from '@resume-builder/entities';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import * as Y from 'yjs';
@@ -107,10 +109,35 @@ export function replaceResumeXml(document: Y.Doc, xml: string): void {
 	const parsed = parser.parse(xml) as OrderedNode[];
 	const rootNode = parsed.find((node) => 'resume' in node);
 	if (!rootNode) throw new Error('Resume XML has no resume root');
-	const root = buildElement(rootNode);
 	const fragment = document.getXmlFragment(RESUME_XML_FRAGMENT);
-	if (fragment.length > 0) fragment.delete(0, fragment.length);
-	fragment.insert(0, [root]);
+	// Edit the existing root in place. Deleting and re-inserting it lets a
+	// concurrent replacement from another peer survive the merge as a second
+	// root, which every later save then rejects.
+	document.transact(() => {
+		reconcileResumeXmlFragment(fragment, orderedNodeToSpec(rootNode));
+	});
+}
+
+function orderedNodeToSpec(node: OrderedNode): XmlNodeSpec {
+	if ('#text' in node) return { type: 'text', text: String(node['#text'] ?? '') };
+	if ('#cdata' in node) return { type: 'text', text: String(node['#cdata'] ?? '') };
+
+	const name = Object.keys(node).find((key) => key !== ':@');
+	if (!name) throw new Error('XML element has no name');
+
+	const attributes: Record<string, string> = {};
+	for (const [attribute, value] of Object.entries(node[':@'] ?? {})) {
+		attributes[attribute] = String(value);
+	}
+	const children = node[name];
+	return {
+		type: 'element',
+		name,
+		attributes,
+		children: Array.isArray(children)
+			? children.map((child) => orderedNodeToSpec(child as OrderedNode))
+			: [],
+	};
 }
 
 export function getResumeContent(document: Y.Doc, uid: string) {
